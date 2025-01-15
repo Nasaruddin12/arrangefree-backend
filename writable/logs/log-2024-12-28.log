@@ -1,0 +1,1040 @@
+ERROR - 2024-12-28 05:10:28 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 05:10:28 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 05:10:45 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 05:10:45 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 05:26:06 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 05:26:06 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 05:26:40 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 05:26:40 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 05:35:00 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 05:35:00 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 09:37:37 --> Email: Unable to send email using SMTP. Your server might not be configured to send mail using this method.
+ERROR - 2024-12-28 09:37:37 --> 220 smtp.gmail.com ESMTP 98e67ed59e1d1-2f2ee26fdfdsm19115730a91.52 - gsmtp
+
+hello: 250-smtp.gmail.com at your service, [2a02:4780:12:d893::1]
+250-SIZE 35882577
+250-8BITMIME
+250-AUTH LOGIN PLAIN XOAUTH2 PLAIN-CLIENTTOKEN OAUTHBEARER XOAUTH
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-CHUNKING
+250 SMTPUTF8
+
+Failed to authenticate password. Error: 534-5.7.9 Please log in with your web browser and then try again. For more
+534-5.7.9 information, go to
+534 5.7.9  https://support.google.com/mail/?p=WebLoginRequired 98e67ed59e1d1-2f2ee26fdfdsm19115730a91.52 - gsmtp
+
+ERROR - 2024-12-28 10:02:51 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 10:02:51 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 11:43:56 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 11:43:56 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 11:44:01 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_card_pricing' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(156): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_cards_pricing_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 11:44:01 --> Table 'arra_arrangefree.subscription_card_pricing' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(156): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_cards_pricing_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 11:45:10 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 11:45:10 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 11:45:16 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_card_pricing' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(156): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_cards_pricing_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 11:45:16 --> Table 'arra_arrangefree.subscription_card_pricing' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(156): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_cards_pricing_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 11:46:05 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_card_pricing' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(156): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_cards_pricing_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 11:46:05 --> Table 'arra_arrangefree.subscription_card_pricing' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(156): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_cards_pricing_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 11:46:05 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 11:46:05 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 11:46:19 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_card_pricing' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(156): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_cards_pricing_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 11:46:19 --> Table 'arra_arrangefree.subscription_card_pricing' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(156): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_cards_pricing_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 11:47:43 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_card_pricing' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(156): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_cards_pricing_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 11:47:43 --> Table 'arra_arrangefree.subscription_card_pricing' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(156): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_cards_pricing_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 11:48:50 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 11:48:50 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 11:49:18 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 11:49:18 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 11:50:00 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 11:50:00 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 11:50:22 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 11:50:22 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 11:53:53 --> mysqli_sql_exception: Unknown column 'card_id' in 'WHERE' in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(156): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_cards_pricing_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 11:53:53 --> Unknown column 'card_id' in 'WHERE'
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(156): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_cards_pricing_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 11:55:50 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 11:55:50 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 12:09:29 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 12:09:29 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 12:10:43 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 12:10:43 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 12:10:43 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 12:10:43 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 12:11:09 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 12:11:09 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 12:15:58 --> Email: Unable to send email using SMTP. Your server might not be configured to send mail using this method.
+ERROR - 2024-12-28 12:15:58 --> 220 smtp.gmail.com ESMTP d9443c01a7336-219dc9cdde7sm149614815ad.149 - gsmtp
+
+hello: 250-smtp.gmail.com at your service, [2a02:4780:12:d893::1]
+250-SIZE 35882577
+250-8BITMIME
+250-AUTH LOGIN PLAIN XOAUTH2 PLAIN-CLIENTTOKEN OAUTHBEARER XOAUTH
+250-ENHANCEDSTATUSCODES
+250-PIPELINING
+250-CHUNKING
+250 SMTPUTF8
+
+Failed to authenticate password. Error: 534-5.7.9 Please log in with your web browser and then try again. For more
+534-5.7.9 information, go to
+534 5.7.9  https://support.google.com/mail/?p=WebLoginRequired d9443c01a7336-219dc9cdde7sm149614815ad.149 - gsmtp
+
+ERROR - 2024-12-28 12:42:20 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 12:42:20 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 12:43:32 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 12:43:32 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 13:02:12 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 13:02:12 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 13:02:22 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 13:02:22 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 13:02:48 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 13:02:48 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 13:02:51 --> mysqli_sql_exception: Table 'arra_arrangefree.subscribed_users' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/CustomerController.php(416): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\CustomerController->getCustomerById()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 13:02:51 --> Table 'arra_arrangefree.subscribed_users' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/CustomerController.php(416): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\CustomerController->getCustomerById()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 13:03:15 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 13:03:15 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 13:12:45 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 13:12:45 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 13:12:52 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 13:12:52 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 13:14:44 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 13:14:44 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 13:15:29 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 13:15:29 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 13:36:22 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 13:36:22 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 13:36:40 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 13:36:40 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 13:37:05 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 13:37:05 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 13:46:57 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 13:46:57 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 20:14:48 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 20:14:48 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 20:17:58 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 20:17:58 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-28 20:18:49 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-28 20:18:49 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()

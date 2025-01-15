@@ -1,0 +1,1054 @@
+ERROR - 2025-01-11 05:47:11 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 05:47:11 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 05:47:13 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 05:47:13 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 05:47:14 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 05:47:14 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 05:47:15 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 05:47:15 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 05:47:18 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 05:47:18 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 05:49:55 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 05:49:55 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 05:49:56 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 05:49:56 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 05:51:11 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 05:51:11 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 05:51:11 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 05:51:11 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 05:51:27 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 05:51:27 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 05:51:28 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 05:51:28 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 05:51:29 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 05:51:29 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 05:51:34 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 05:51:34 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 05:51:36 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 05:51:36 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 05:51:38 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 05:51:38 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 05:51:39 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 05:51:39 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 05:52:31 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 05:52:31 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 05:52:36 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 05:52:36 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 05:52:58 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 05:52:58 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 05:52:59 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 05:52:59 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 06:01:09 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 06:01:09 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 06:01:12 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 06:01:12 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 06:01:16 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 06:01:16 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 06:01:23 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 06:01:23 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 06:01:43 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 06:01:43 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 06:02:24 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 06:02:24 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 06:02:30 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 06:02:30 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 06:02:32 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 06:02:32 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 06:03:08 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 06:03:08 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 06:03:13 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 06:03:13 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 06:22:23 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 06:22:23 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 06:52:41 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 06:52:41 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 06:52:46 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 06:52:46 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 07:01:40 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 07:01:40 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 07:02:47 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 07:02:47 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 07:15:15 --> mysqli_sql_exception: Column 'blog_image' cannot be null in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(2308): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(319): CodeIgniter\Database\BaseBuilder->insert()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(788): CodeIgniter\Model->doInsert()
+#6 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(715): CodeIgniter\BaseModel->insert()
+#7 /home/arrangefree.com/public_html/backend/app/Controllers/BlogsController.php(34): CodeIgniter\Model->insert()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\BlogsController->createBlog()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#10 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#11 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#12 {main}
+CRITICAL - 2025-01-11 07:15:15 --> Column 'blog_image' cannot be null
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(2308): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(319): CodeIgniter\Database\BaseBuilder->insert()
+ 3 SYSTEMPATH/BaseModel.php(788): CodeIgniter\Model->doInsert()
+ 4 SYSTEMPATH/Model.php(715): CodeIgniter\BaseModel->insert()
+ 5 APPPATH/Controllers/BlogsController.php(34): CodeIgniter\Model->insert()
+ 6 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\BlogsController->createBlog()
+ 7 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2025-01-11 07:15:17 --> CodeIgniter\Images\Handlers\BaseHandler::withFile(): Argument #1 ($path) must be of type string, null given, called in /home/arrangefree.com/public_html/backend/app/Controllers/BlogsController.php on line 124
+in SYSTEMPATH/Images/Handlers/BaseHandler.php on line 141.
+ 1 APPPATH/Controllers/BlogsController.php(124): CodeIgniter\Images\Handlers\BaseHandler->withFile()
+ 2 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\BlogsController->createBlogImage()
+ 3 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2025-01-11 07:15:31 --> CodeIgniter\Images\Handlers\BaseHandler::withFile(): Argument #1 ($path) must be of type string, null given, called in /home/arrangefree.com/public_html/backend/app/Controllers/BlogsController.php on line 124
+in SYSTEMPATH/Images/Handlers/BaseHandler.php on line 141.
+ 1 APPPATH/Controllers/BlogsController.php(124): CodeIgniter\Images\Handlers\BaseHandler->withFile()
+ 2 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\BlogsController->createBlogImage()
+ 3 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 4 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 5 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 07:16:25 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 07:16:25 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 07:20:01 --> mysqli_sql_exception: Table 'arra_arrangefree.subscription_cards' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 07:20:01 --> Table 'arra_arrangefree.subscription_cards' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/SubscriptionCardsController.php(126): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\SubscriptionCardsController->get_all_cards_byId()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 07:20:02 --> mysqli_sql_exception: Table 'arra_arrangefree.subscribed_users' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(662): CodeIgniter\Model->doFirst()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/CustomerController.php(417): CodeIgniter\BaseModel->first()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\CustomerController->getCustomerById()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 07:20:02 --> Table 'arra_arrangefree.subscribed_users' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(264): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(662): CodeIgniter\Model->doFirst()
+ 4 APPPATH/Controllers/CustomerController.php(417): CodeIgniter\BaseModel->first()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\CustomerController->getCustomerById()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 07:20:04 --> mysqli_sql_exception: Table 'arra_arrangefree.subscribed_users' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(2308): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(319): CodeIgniter\Database\BaseBuilder->insert()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(788): CodeIgniter\Model->doInsert()
+#6 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(715): CodeIgniter\BaseModel->insert()
+#7 /home/arrangefree.com/public_html/backend/app/Controllers/AfSubcribedUserController.php(55): CodeIgniter\Model->insert()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\AfSubcribedUserController->createMembership()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#10 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#11 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#12 {main}
+CRITICAL - 2025-01-11 07:20:04 --> Table 'arra_arrangefree.subscribed_users' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(2308): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(319): CodeIgniter\Database\BaseBuilder->insert()
+ 3 SYSTEMPATH/BaseModel.php(788): CodeIgniter\Model->doInsert()
+ 4 SYSTEMPATH/Model.php(715): CodeIgniter\BaseModel->insert()
+ 5 APPPATH/Controllers/AfSubcribedUserController.php(55): CodeIgniter\Model->insert()
+ 6 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\AfSubcribedUserController->createMembership()
+ 7 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 07:20:05 --> mysqli_sql_exception: Table 'arra_arrangefree.subscribed_users' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(2308): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(319): CodeIgniter\Database\BaseBuilder->insert()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(788): CodeIgniter\Model->doInsert()
+#6 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(715): CodeIgniter\BaseModel->insert()
+#7 /home/arrangefree.com/public_html/backend/app/Controllers/AfSubcribedUserController.php(55): CodeIgniter\Model->insert()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\AfSubcribedUserController->createMembership()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#10 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#11 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#12 {main}
+CRITICAL - 2025-01-11 07:20:05 --> Table 'arra_arrangefree.subscribed_users' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(2308): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(319): CodeIgniter\Database\BaseBuilder->insert()
+ 3 SYSTEMPATH/BaseModel.php(788): CodeIgniter\Model->doInsert()
+ 4 SYSTEMPATH/Model.php(715): CodeIgniter\BaseModel->insert()
+ 5 APPPATH/Controllers/AfSubcribedUserController.php(55): CodeIgniter\Model->insert()
+ 6 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\AfSubcribedUserController->createMembership()
+ 7 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 08:34:49 --> mysqli_sql_exception: Column 'status' cannot be null in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(2308): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(319): CodeIgniter\Database\BaseBuilder->insert()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(788): CodeIgniter\Model->doInsert()
+#6 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(715): CodeIgniter\BaseModel->insert()
+#7 /home/arrangefree.com/public_html/backend/app/Controllers/BlogsController.php(34): CodeIgniter\Model->insert()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\BlogsController->createBlog()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#10 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#11 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#12 {main}
+CRITICAL - 2025-01-11 08:34:49 --> Column 'status' cannot be null
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(2308): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(319): CodeIgniter\Database\BaseBuilder->insert()
+ 3 SYSTEMPATH/BaseModel.php(788): CodeIgniter\Model->doInsert()
+ 4 SYSTEMPATH/Model.php(715): CodeIgniter\BaseModel->insert()
+ 5 APPPATH/Controllers/BlogsController.php(34): CodeIgniter\Model->insert()
+ 6 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\BlogsController->createBlog()
+ 7 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()
+ERROR - 2025-01-11 08:47:26 --> mysqli_sql_exception: Table 'arra_arrangefree.drf_staff' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(91): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2025-01-11 08:47:26 --> Table 'arra_arrangefree.drf_staff' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/QuotationController.php(56): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\QuotationController->getAllStaffs()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(91): CodeIgniter\CodeIgniter->run()

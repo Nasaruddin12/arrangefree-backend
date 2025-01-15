@@ -1,0 +1,1544 @@
+ERROR - 2024-12-27 11:34:36 --> Error connecting to the database: mysqli_sql_exception: Access denied for user 'root'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:185
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(185): mysqli->real_connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(196): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(563): CodeIgniter\Model->doFind()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/OffersController.php(63): CodeIgniter\BaseModel->find()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\OffersController->getOffersById()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+
+Next CodeIgniter\Database\Exceptions\DatabaseException: Access denied for user '****'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:229
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(196): CodeIgniter\Database\BaseBuilder->get()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(563): CodeIgniter\Model->doFind()
+#5 /home/arrangefree.com/public_html/backend/app/Controllers/OffersController.php(63): CodeIgniter\BaseModel->find()
+#6 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\OffersController->getOffersById()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#9 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#10 {main}
+CRITICAL - 2024-12-27 11:34:36 --> Unable to connect to the database.
+Main connection [MySQLi]: Access denied for user '****'@'localhost' (using password: NO)
+in SYSTEMPATH/Database/BaseConnection.php on line 427.
+ 1 SYSTEMPATH/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+ 2 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 3 SYSTEMPATH/Model.php(196): CodeIgniter\Database\BaseBuilder->get()
+ 4 SYSTEMPATH/BaseModel.php(563): CodeIgniter\Model->doFind()
+ 5 APPPATH/Controllers/OffersController.php(63): CodeIgniter\BaseModel->find()
+ 6 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\OffersController->getOffersById()
+ 7 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:34:36 --> Error connecting to the database: mysqli_sql_exception: Access denied for user 'root'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:185
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(185): mysqli->real_connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+
+Next CodeIgniter\Database\Exceptions\DatabaseException: Access denied for user '****'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:229
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#5 /home/arrangefree.com/public_html/backend/app/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+#6 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#9 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#10 {main}
+ERROR - 2024-12-27 11:34:36 --> Error connecting to the database: mysqli_sql_exception: Access denied for user 'root'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:185
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(185): mysqli->real_connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/BannerController.php(227): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\BannerController->getMainBanner()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+
+Next CodeIgniter\Database\Exceptions\DatabaseException: Access denied for user '****'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:229
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#5 /home/arrangefree.com/public_html/backend/app/Controllers/BannerController.php(227): CodeIgniter\BaseModel->findAll()
+#6 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\BannerController->getMainBanner()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#9 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#10 {main}
+CRITICAL - 2024-12-27 11:34:36 --> Unable to connect to the database.
+Main connection [MySQLi]: Access denied for user '****'@'localhost' (using password: NO)
+in SYSTEMPATH/Database/BaseConnection.php on line 427.
+ 1 SYSTEMPATH/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+ 2 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 3 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 4 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 5 APPPATH/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+ 6 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+ 7 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+CRITICAL - 2024-12-27 11:34:36 --> Unable to connect to the database.
+Main connection [MySQLi]: Access denied for user '****'@'localhost' (using password: NO)
+in SYSTEMPATH/Database/BaseConnection.php on line 427.
+ 1 SYSTEMPATH/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+ 2 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 3 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 4 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 5 APPPATH/Controllers/BannerController.php(227): CodeIgniter\BaseModel->findAll()
+ 6 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\BannerController->getMainBanner()
+ 7 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:34:36 --> Error connecting to the database: mysqli_sql_exception: Access denied for user 'root'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:185
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(185): mysqli->real_connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/FeaturesController.php(50): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\FeaturesController->getBestDeal()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+
+Next CodeIgniter\Database\Exceptions\DatabaseException: Access denied for user '****'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:229
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#5 /home/arrangefree.com/public_html/backend/app/Controllers/FeaturesController.php(50): CodeIgniter\BaseModel->findAll()
+#6 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\FeaturesController->getBestDeal()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#9 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#10 {main}
+CRITICAL - 2024-12-27 11:34:36 --> Unable to connect to the database.
+Main connection [MySQLi]: Access denied for user '****'@'localhost' (using password: NO)
+in SYSTEMPATH/Database/BaseConnection.php on line 427.
+ 1 SYSTEMPATH/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+ 2 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 3 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 4 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 5 APPPATH/Controllers/FeaturesController.php(50): CodeIgniter\BaseModel->findAll()
+ 6 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\FeaturesController->getBestDeal()
+ 7 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:34:36 --> Error connecting to the database: mysqli_sql_exception: Access denied for user 'root'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:185
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(185): mysqli->real_connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+
+Next CodeIgniter\Database\Exceptions\DatabaseException: Access denied for user '****'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:229
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#5 /home/arrangefree.com/public_html/backend/app/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+#6 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#9 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#10 {main}
+CRITICAL - 2024-12-27 11:34:36 --> Unable to connect to the database.
+Main connection [MySQLi]: Access denied for user '****'@'localhost' (using password: NO)
+in SYSTEMPATH/Database/BaseConnection.php on line 427.
+ 1 SYSTEMPATH/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+ 2 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 3 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 4 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 5 APPPATH/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+ 6 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+ 7 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:34:36 --> Error connecting to the database: mysqli_sql_exception: Access denied for user 'root'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:185
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(185): mysqli->real_connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+
+Next CodeIgniter\Database\Exceptions\DatabaseException: Access denied for user '****'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:229
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#5 /home/arrangefree.com/public_html/backend/app/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+#6 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#9 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#10 {main}
+CRITICAL - 2024-12-27 11:34:36 --> Unable to connect to the database.
+Main connection [MySQLi]: Access denied for user '****'@'localhost' (using password: NO)
+in SYSTEMPATH/Database/BaseConnection.php on line 427.
+ 1 SYSTEMPATH/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+ 2 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 3 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 4 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 5 APPPATH/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+ 6 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+ 7 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:35:03 --> Error connecting to the database: mysqli_sql_exception: Access denied for user 'root'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:185
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(185): mysqli->real_connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(196): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(563): CodeIgniter\Model->doFind()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/OffersController.php(63): CodeIgniter\BaseModel->find()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\OffersController->getOffersById()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+
+Next CodeIgniter\Database\Exceptions\DatabaseException: Access denied for user '****'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:229
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(196): CodeIgniter\Database\BaseBuilder->get()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(563): CodeIgniter\Model->doFind()
+#5 /home/arrangefree.com/public_html/backend/app/Controllers/OffersController.php(63): CodeIgniter\BaseModel->find()
+#6 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\OffersController->getOffersById()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#9 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#10 {main}
+CRITICAL - 2024-12-27 11:35:03 --> Unable to connect to the database.
+Main connection [MySQLi]: Access denied for user '****'@'localhost' (using password: NO)
+in SYSTEMPATH/Database/BaseConnection.php on line 427.
+ 1 SYSTEMPATH/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+ 2 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 3 SYSTEMPATH/Model.php(196): CodeIgniter\Database\BaseBuilder->get()
+ 4 SYSTEMPATH/BaseModel.php(563): CodeIgniter\Model->doFind()
+ 5 APPPATH/Controllers/OffersController.php(63): CodeIgniter\BaseModel->find()
+ 6 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\OffersController->getOffersById()
+ 7 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:35:03 --> Error connecting to the database: mysqli_sql_exception: Access denied for user 'root'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:185
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(185): mysqli->real_connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/FeaturesController.php(50): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\FeaturesController->getBestDeal()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+
+Next CodeIgniter\Database\Exceptions\DatabaseException: Access denied for user '****'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:229
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#5 /home/arrangefree.com/public_html/backend/app/Controllers/FeaturesController.php(50): CodeIgniter\BaseModel->findAll()
+#6 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\FeaturesController->getBestDeal()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#9 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#10 {main}
+CRITICAL - 2024-12-27 11:35:03 --> Unable to connect to the database.
+Main connection [MySQLi]: Access denied for user '****'@'localhost' (using password: NO)
+in SYSTEMPATH/Database/BaseConnection.php on line 427.
+ 1 SYSTEMPATH/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+ 2 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 3 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 4 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 5 APPPATH/Controllers/FeaturesController.php(50): CodeIgniter\BaseModel->findAll()
+ 6 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\FeaturesController->getBestDeal()
+ 7 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:35:03 --> Error connecting to the database: mysqli_sql_exception: Access denied for user 'root'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:185
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(185): mysqli->real_connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+
+Next CodeIgniter\Database\Exceptions\DatabaseException: Access denied for user '****'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:229
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#5 /home/arrangefree.com/public_html/backend/app/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+#6 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#9 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#10 {main}
+CRITICAL - 2024-12-27 11:35:03 --> Unable to connect to the database.
+Main connection [MySQLi]: Access denied for user '****'@'localhost' (using password: NO)
+in SYSTEMPATH/Database/BaseConnection.php on line 427.
+ 1 SYSTEMPATH/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+ 2 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 3 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 4 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 5 APPPATH/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+ 6 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+ 7 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:35:03 --> Error connecting to the database: mysqli_sql_exception: Access denied for user 'root'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:185
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(185): mysqli->real_connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/BannerController.php(227): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\BannerController->getMainBanner()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+
+Next CodeIgniter\Database\Exceptions\DatabaseException: Access denied for user '****'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:229
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#5 /home/arrangefree.com/public_html/backend/app/Controllers/BannerController.php(227): CodeIgniter\BaseModel->findAll()
+#6 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\BannerController->getMainBanner()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#9 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#10 {main}
+CRITICAL - 2024-12-27 11:35:03 --> Unable to connect to the database.
+Main connection [MySQLi]: Access denied for user '****'@'localhost' (using password: NO)
+in SYSTEMPATH/Database/BaseConnection.php on line 427.
+ 1 SYSTEMPATH/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+ 2 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 3 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 4 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 5 APPPATH/Controllers/BannerController.php(227): CodeIgniter\BaseModel->findAll()
+ 6 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\BannerController->getMainBanner()
+ 7 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:35:03 --> Error connecting to the database: mysqli_sql_exception: Access denied for user 'root'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:185
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(185): mysqli->real_connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+
+Next CodeIgniter\Database\Exceptions\DatabaseException: Access denied for user '****'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:229
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#5 /home/arrangefree.com/public_html/backend/app/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+#6 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#9 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#10 {main}
+CRITICAL - 2024-12-27 11:35:03 --> Unable to connect to the database.
+Main connection [MySQLi]: Access denied for user '****'@'localhost' (using password: NO)
+in SYSTEMPATH/Database/BaseConnection.php on line 427.
+ 1 SYSTEMPATH/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+ 2 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 3 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 4 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 5 APPPATH/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+ 6 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+ 7 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:35:03 --> Error connecting to the database: mysqli_sql_exception: Access denied for user 'root'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:185
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(185): mysqli->real_connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+
+Next CodeIgniter\Database\Exceptions\DatabaseException: Access denied for user '****'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:229
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#5 /home/arrangefree.com/public_html/backend/app/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+#6 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#9 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#10 {main}
+CRITICAL - 2024-12-27 11:35:03 --> Unable to connect to the database.
+Main connection [MySQLi]: Access denied for user '****'@'localhost' (using password: NO)
+in SYSTEMPATH/Database/BaseConnection.php on line 427.
+ 1 SYSTEMPATH/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+ 2 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 3 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 4 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 5 APPPATH/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+ 6 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+ 7 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:35:16 --> Error connecting to the database: mysqli_sql_exception: Access denied for user 'root'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:185
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(185): mysqli->real_connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/BannerController.php(227): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\BannerController->getMainBanner()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+
+Next CodeIgniter\Database\Exceptions\DatabaseException: Access denied for user '****'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:229
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#5 /home/arrangefree.com/public_html/backend/app/Controllers/BannerController.php(227): CodeIgniter\BaseModel->findAll()
+#6 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\BannerController->getMainBanner()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#9 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#10 {main}
+CRITICAL - 2024-12-27 11:35:16 --> Unable to connect to the database.
+Main connection [MySQLi]: Access denied for user '****'@'localhost' (using password: NO)
+in SYSTEMPATH/Database/BaseConnection.php on line 427.
+ 1 SYSTEMPATH/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+ 2 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 3 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 4 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 5 APPPATH/Controllers/BannerController.php(227): CodeIgniter\BaseModel->findAll()
+ 6 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\BannerController->getMainBanner()
+ 7 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:35:41 --> Error connecting to the database: mysqli_sql_exception: Access denied for user 'root'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:185
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(185): mysqli->real_connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/BannerController.php(227): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\BannerController->getMainBanner()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+
+Next CodeIgniter\Database\Exceptions\DatabaseException: Access denied for user '****'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:229
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#5 /home/arrangefree.com/public_html/backend/app/Controllers/BannerController.php(227): CodeIgniter\BaseModel->findAll()
+#6 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\BannerController->getMainBanner()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#9 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#10 {main}
+CRITICAL - 2024-12-27 11:35:41 --> Unable to connect to the database.
+Main connection [MySQLi]: Access denied for user '****'@'localhost' (using password: NO)
+in SYSTEMPATH/Database/BaseConnection.php on line 427.
+ 1 SYSTEMPATH/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+ 2 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 3 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 4 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 5 APPPATH/Controllers/BannerController.php(227): CodeIgniter\BaseModel->findAll()
+ 6 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\BannerController->getMainBanner()
+ 7 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:35:49 --> Error connecting to the database: mysqli_sql_exception: Access denied for user 'root'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:185
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(185): mysqli->real_connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+
+Next CodeIgniter\Database\Exceptions\DatabaseException: Access denied for user '****'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:229
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#5 /home/arrangefree.com/public_html/backend/app/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+#6 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#9 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#10 {main}
+CRITICAL - 2024-12-27 11:35:49 --> Unable to connect to the database.
+Main connection [MySQLi]: Access denied for user '****'@'localhost' (using password: NO)
+in SYSTEMPATH/Database/BaseConnection.php on line 427.
+ 1 SYSTEMPATH/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+ 2 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 3 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 4 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 5 APPPATH/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+ 6 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+ 7 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:35:49 --> Error connecting to the database: mysqli_sql_exception: Access denied for user 'root'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:185
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(185): mysqli->real_connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/FeaturesController.php(50): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\FeaturesController->getBestDeal()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+
+Next CodeIgniter\Database\Exceptions\DatabaseException: Access denied for user '****'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:229
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#5 /home/arrangefree.com/public_html/backend/app/Controllers/FeaturesController.php(50): CodeIgniter\BaseModel->findAll()
+#6 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\FeaturesController->getBestDeal()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#9 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#10 {main}
+CRITICAL - 2024-12-27 11:35:49 --> Unable to connect to the database.
+Main connection [MySQLi]: Access denied for user '****'@'localhost' (using password: NO)
+in SYSTEMPATH/Database/BaseConnection.php on line 427.
+ 1 SYSTEMPATH/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+ 2 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 3 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 4 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 5 APPPATH/Controllers/FeaturesController.php(50): CodeIgniter\BaseModel->findAll()
+ 6 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\FeaturesController->getBestDeal()
+ 7 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:35:49 --> Error connecting to the database: mysqli_sql_exception: Access denied for user 'root'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:185
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(185): mysqli->real_connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/BannerController.php(227): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\BannerController->getMainBanner()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+
+Next CodeIgniter\Database\Exceptions\DatabaseException: Access denied for user '****'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:229
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#5 /home/arrangefree.com/public_html/backend/app/Controllers/BannerController.php(227): CodeIgniter\BaseModel->findAll()
+#6 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\BannerController->getMainBanner()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#9 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#10 {main}
+CRITICAL - 2024-12-27 11:35:49 --> Unable to connect to the database.
+Main connection [MySQLi]: Access denied for user '****'@'localhost' (using password: NO)
+in SYSTEMPATH/Database/BaseConnection.php on line 427.
+ 1 SYSTEMPATH/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+ 2 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 3 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 4 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 5 APPPATH/Controllers/BannerController.php(227): CodeIgniter\BaseModel->findAll()
+ 6 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\BannerController->getMainBanner()
+ 7 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:35:49 --> Error connecting to the database: mysqli_sql_exception: Access denied for user 'root'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:185
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(185): mysqli->real_connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(196): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(563): CodeIgniter\Model->doFind()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/OffersController.php(63): CodeIgniter\BaseModel->find()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\OffersController->getOffersById()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+
+Next CodeIgniter\Database\Exceptions\DatabaseException: Access denied for user '****'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:229
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(196): CodeIgniter\Database\BaseBuilder->get()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(563): CodeIgniter\Model->doFind()
+#5 /home/arrangefree.com/public_html/backend/app/Controllers/OffersController.php(63): CodeIgniter\BaseModel->find()
+#6 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\OffersController->getOffersById()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#9 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#10 {main}
+CRITICAL - 2024-12-27 11:35:49 --> Unable to connect to the database.
+Main connection [MySQLi]: Access denied for user '****'@'localhost' (using password: NO)
+in SYSTEMPATH/Database/BaseConnection.php on line 427.
+ 1 SYSTEMPATH/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+ 2 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 3 SYSTEMPATH/Model.php(196): CodeIgniter\Database\BaseBuilder->get()
+ 4 SYSTEMPATH/BaseModel.php(563): CodeIgniter\Model->doFind()
+ 5 APPPATH/Controllers/OffersController.php(63): CodeIgniter\BaseModel->find()
+ 6 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\OffersController->getOffersById()
+ 7 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:35:49 --> Error connecting to the database: mysqli_sql_exception: Access denied for user 'root'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:185
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(185): mysqli->real_connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+
+Next CodeIgniter\Database\Exceptions\DatabaseException: Access denied for user '****'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:229
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#5 /home/arrangefree.com/public_html/backend/app/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+#6 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#9 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#10 {main}
+CRITICAL - 2024-12-27 11:35:49 --> Unable to connect to the database.
+Main connection [MySQLi]: Access denied for user '****'@'localhost' (using password: NO)
+in SYSTEMPATH/Database/BaseConnection.php on line 427.
+ 1 SYSTEMPATH/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+ 2 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 3 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 4 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 5 APPPATH/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+ 6 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+ 7 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:35:49 --> Error connecting to the database: mysqli_sql_exception: Access denied for user 'root'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:185
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(185): mysqli->real_connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+
+Next CodeIgniter\Database\Exceptions\DatabaseException: Access denied for user '****'@'localhost' (using password: NO) in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:229
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(391): CodeIgniter\Database\MySQLi\Connection->connect()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#5 /home/arrangefree.com/public_html/backend/app/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+#6 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#9 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#10 {main}
+CRITICAL - 2024-12-27 11:35:49 --> Unable to connect to the database.
+Main connection [MySQLi]: Access denied for user '****'@'localhost' (using password: NO)
+in SYSTEMPATH/Database/BaseConnection.php on line 427.
+ 1 SYSTEMPATH/Database/BaseConnection.php(574): CodeIgniter\Database\BaseConnection->initialize()
+ 2 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 3 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 4 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 5 APPPATH/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+ 6 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+ 7 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 8 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 9 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:38:29 --> mysqli_sql_exception: Table 'arra_arrangefree.af_home_zone_appliances' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 11:38:29 --> Table 'arra_arrangefree.af_home_zone_appliances' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:38:29 --> mysqli_sql_exception: Table 'arra_arrangefree.af_products' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/FeaturesController.php(50): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\FeaturesController->getBestDeal()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 11:38:29 --> Table 'arra_arrangefree.af_products' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/FeaturesController.php(50): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\FeaturesController->getBestDeal()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:38:29 --> mysqli_sql_exception: Table 'arra_arrangefree.af_banners' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/BannerController.php(227): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\BannerController->getMainBanner()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 11:38:29 --> Table 'arra_arrangefree.af_banners' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/BannerController.php(227): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\BannerController->getMainBanner()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:38:29 --> mysqli_sql_exception: Table 'arra_arrangefree.af_offers' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(196): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(563): CodeIgniter\Model->doFind()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/OffersController.php(63): CodeIgniter\BaseModel->find()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\OffersController->getOffersById()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 11:38:29 --> Table 'arra_arrangefree.af_offers' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(196): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(563): CodeIgniter\Model->doFind()
+ 4 APPPATH/Controllers/OffersController.php(63): CodeIgniter\BaseModel->find()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\OffersController->getOffersById()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:38:29 --> mysqli_sql_exception: Table 'arra_arrangefree.af_home_zone_appliances' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 11:38:29 --> Table 'arra_arrangefree.af_home_zone_appliances' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:38:29 --> mysqli_sql_exception: Table 'arra_arrangefree.af_home_zone_appliances' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 11:38:29 --> Table 'arra_arrangefree.af_home_zone_appliances' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:38:34 --> mysqli_sql_exception: Table 'arra_arrangefree.af_banners' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/BannerController.php(227): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\BannerController->getMainBanner()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 11:38:34 --> Table 'arra_arrangefree.af_banners' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/BannerController.php(227): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\BannerController->getMainBanner()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:38:34 --> mysqli_sql_exception: Table 'arra_arrangefree.af_offers' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(196): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(563): CodeIgniter\Model->doFind()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/OffersController.php(63): CodeIgniter\BaseModel->find()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\OffersController->getOffersById()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 11:38:34 --> Table 'arra_arrangefree.af_offers' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(196): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(563): CodeIgniter\Model->doFind()
+ 4 APPPATH/Controllers/OffersController.php(63): CodeIgniter\BaseModel->find()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\OffersController->getOffersById()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:38:34 --> mysqli_sql_exception: Table 'arra_arrangefree.af_home_zone_appliances' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 11:38:34 --> Table 'arra_arrangefree.af_home_zone_appliances' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:38:34 --> mysqli_sql_exception: Table 'arra_arrangefree.af_products' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/FeaturesController.php(50): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\FeaturesController->getBestDeal()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 11:38:34 --> Table 'arra_arrangefree.af_products' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/FeaturesController.php(50): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\FeaturesController->getBestDeal()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:38:34 --> mysqli_sql_exception: Table 'arra_arrangefree.af_home_zone_appliances' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 11:38:34 --> Table 'arra_arrangefree.af_home_zone_appliances' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:38:34 --> mysqli_sql_exception: Table 'arra_arrangefree.af_home_zone_appliances' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 11:38:34 --> Table 'arra_arrangefree.af_home_zone_appliances' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/HomeZoneAppliancesController.php(128): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\HomeZoneAppliancesController->getHomeZoneAppliances()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 11:38:40 --> mysqli_sql_exception: Table 'arra_arrangefree.af_banners' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/BannerController.php(227): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\BannerController->getMainBanner()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 11:38:40 --> Table 'arra_arrangefree.af_banners' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/BannerController.php(227): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\BannerController->getMainBanner()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 13:09:40 --> mysqli_sql_exception: Table 'arra_arrangefree.product_emi_plans' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 13:09:40 --> Table 'arra_arrangefree.product_emi_plans' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 13:09:56 --> mysqli_sql_exception: Table 'arra_arrangefree.product_emi_plans' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 13:09:56 --> Table 'arra_arrangefree.product_emi_plans' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 13:12:32 --> mysqli_sql_exception: Table 'arra_arrangefree.product_emi_plans' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 13:12:32 --> Table 'arra_arrangefree.product_emi_plans' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 13:13:01 --> mysqli_sql_exception: Table 'arra_arrangefree.product_emi_plans' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 13:13:01 --> Table 'arra_arrangefree.product_emi_plans' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 13:24:35 --> mysqli_sql_exception: Table 'arra_arrangefree.product_emi_plans' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 13:24:35 --> Table 'arra_arrangefree.product_emi_plans' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 13:24:54 --> mysqli_sql_exception: Table 'arra_arrangefree.product_emi_plans' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 13:24:54 --> Table 'arra_arrangefree.product_emi_plans' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 13:24:56 --> mysqli_sql_exception: Table 'arra_arrangefree.product_emi_plans' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 13:24:56 --> Table 'arra_arrangefree.product_emi_plans' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 13:25:11 --> mysqli_sql_exception: Table 'arra_arrangefree.product_emi_plans' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 13:25:11 --> Table 'arra_arrangefree.product_emi_plans' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 13:25:16 --> mysqli_sql_exception: Table 'arra_arrangefree.product_emi_plans' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 13:25:16 --> Table 'arra_arrangefree.product_emi_plans' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 13:25:21 --> mysqli_sql_exception: Table 'arra_arrangefree.product_emi_plans' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 13:25:21 --> Table 'arra_arrangefree.product_emi_plans' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 13:25:25 --> mysqli_sql_exception: Table 'arra_arrangefree.product_emi_plans' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 13:25:25 --> Table 'arra_arrangefree.product_emi_plans' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 13:26:03 --> mysqli_sql_exception: Table 'arra_arrangefree.product_emi_plans' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 13:26:03 --> Table 'arra_arrangefree.product_emi_plans' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 13:30:29 --> mysqli_sql_exception: Table 'arra_arrangefree.product_emi_plans' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 13:30:29 --> Table 'arra_arrangefree.product_emi_plans' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 13:32:48 --> mysqli_sql_exception: Table 'arra_arrangefree.product_emi_plans' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 13:32:48 --> Table 'arra_arrangefree.product_emi_plans' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 13:33:55 --> mysqli_sql_exception: Table 'arra_arrangefree.product_emi_plans' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 13:33:55 --> Table 'arra_arrangefree.product_emi_plans' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 13:35:06 --> mysqli_sql_exception: Table 'arra_arrangefree.product_emi_plans' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 13:35:06 --> Table 'arra_arrangefree.product_emi_plans' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 13:35:53 --> mysqli_sql_exception: Table 'arra_arrangefree.product_emi_plans' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 13:35:53 --> Table 'arra_arrangefree.product_emi_plans' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
+ERROR - 2024-12-27 13:36:27 --> mysqli_sql_exception: Table 'arra_arrangefree.product_emi_plans' doesn't exist in /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php:306
+Stack trace:
+#0 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/MySQLi/Connection.php(306): mysqli->query()
+#1 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(692): CodeIgniter\Database\MySQLi\Connection->execute()
+#2 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseConnection.php(606): CodeIgniter\Database\BaseConnection->simpleQuery()
+#3 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+#4 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+#5 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+#6 /home/arrangefree.com/public_html/backend/app/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+#7 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+#8 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+#9 /home/arrangefree.com/public_html/backend/vendor/codeigniter4/framework/system/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+#10 /home/arrangefree.com/public_html/backend/index.php(79): CodeIgniter\CodeIgniter->run()
+#11 {main}
+CRITICAL - 2024-12-27 13:36:27 --> Table 'arra_arrangefree.product_emi_plans' doesn't exist
+in SYSTEMPATH/Database/BaseConnection.php on line 646.
+ 1 SYSTEMPATH/Database/BaseBuilder.php(1615): CodeIgniter\Database\BaseConnection->query()
+ 2 SYSTEMPATH/Model.php(237): CodeIgniter\Database\BaseBuilder->get()
+ 3 SYSTEMPATH/BaseModel.php(624): CodeIgniter\Model->doFindAll()
+ 4 APPPATH/Controllers/ProductController.php(758): CodeIgniter\BaseModel->findAll()
+ 5 SYSTEMPATH/CodeIgniter.php(919): App\Controllers\ProductController->getProductById()
+ 6 SYSTEMPATH/CodeIgniter.php(494): CodeIgniter\CodeIgniter->runController()
+ 7 SYSTEMPATH/CodeIgniter.php(353): CodeIgniter\CodeIgniter->handleRequest()
+ 8 FCPATH/index.php(79): CodeIgniter\CodeIgniter->run()
