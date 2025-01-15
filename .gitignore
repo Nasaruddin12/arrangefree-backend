@@ -1,0 +1,15 @@
+public/invoice/
+vendor/
+writable/
+
+app/Config/App.php
+app/Config/Database.php
+upload
+public/uploads/
+.env
+.vscode
+public/email_images/
+ypublic/uploads.zip
+app/Config/Razorpay.php
+public/public_rest.zip
+public/uploads.zip
