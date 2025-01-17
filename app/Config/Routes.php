@@ -168,6 +168,21 @@ $routes->group('blog', static function ($routes) {
     $routes->delete('delete-blog-section/(:num)', 'BlogsController::deleteBlogSection/$1');
 });
 
+
+$routes->group('master', function ($routes) {
+    $routes->get('categories', 'MasterCategoryController::index');
+    $routes->get('categories/(:num)', 'MasterCategoryController::show/$1');
+    $routes->post('categories', 'MasterCategoryController::create');
+    $routes->put('categories/(:num)', 'MasterCategoryController::update/$1');
+    $routes->delete('categories/(:num)', 'MasterCategoryController::delete/$1');
+    $routes->get('categories/subcategories', 'MasterCategoryController::getAllCategoriesWithSubCategories');
+
+    $routes->get('categories/(:num)/subcategories', 'MasterCategoryController::getSubCategories/$1');
+    $routes->post('subcategories', 'MasterCategoryController::createSubCategory');
+    $routes->put('subcategories/(:num)', 'MasterCategoryController::updateSubCategory/$1');
+    $routes->delete('subcategories/(:num)', 'MasterCategoryController::deleteSubCategory/$1');
+});
+
 // PhonePe
 /* $routes->group('order', static function ($routes) {
 }); */
