@@ -25,11 +25,11 @@ class Quotation extends Migration
             'updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
         ]);
         $this->forge->addPrimaryKey('id');
-        $this->forge->createTable('af_quotation');
+        $this->forge->createTable('drf_quotation');
     }
 
     public function down()
     {
-        $this->forge->dropTable('af_quotation');
+        $this->forge->dropTable('drf_quotation');
     }
 }
