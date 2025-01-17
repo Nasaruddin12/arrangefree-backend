@@ -214,7 +214,7 @@ class BlogsController extends BaseController
             if (!empty($blogSections)) {
                 foreach ($blogSections as $section) {
                     // Delete any images associated with the blog section (if applicable)
-                    $sectionImagePath = $section['image']; // Assuming each section might have an image
+                    $sectionImagePath = $section['banner_image']; // Assuming each section might have an image
                     if ($sectionImagePath && file_exists($sectionImagePath)) {
                         unlink($sectionImagePath); // Delete the section image
                     }
@@ -257,18 +257,17 @@ class BlogsController extends BaseController
         return $this->respond($response, $statusCode);
     }
 
-
-    public function getAllBlogs()
+    public function getPublicBlogs()
     {
         try {
             $blogsModel = new BlogsModel();
-    
+
             // Retrieve blogs with status 1
             $blogsData = $blogsModel
                 ->select(['id', 'title', 'description', 'blog_image', 'status'])
                 ->where('status', 1)
                 ->findAll();
-    
+
             $statusCode = 200;
             $response = [
                 'data' => $blogsData,
@@ -279,11 +278,11 @@ class BlogsController extends BaseController
                 'error' => $e->getMessage()
             ];
         }
-    
+
         $response['status'] = $statusCode;
         return $this->respond($response, $statusCode);
     }
-    
+
 
     public function singleBlog($id = 0)
     {
@@ -339,16 +338,93 @@ class BlogsController extends BaseController
         $response['status'] = $statusCode;
         return $this->respond($response, $statusCode);
     }
+    public function deleteBlogSection($id)
+    {
+        try {
+            $BlogSectionModel = new BlogsSectionModel();
+
+            // Find the section by ID
+            $section = $BlogSectionModel->find($id);
+
+            // If section doesn't exist, throw an exception
+            if (!$section) {
+                throw new Exception('Blog section not found', 404);
+            }
+
+            // Retrieve and delete associated banner image if it exists
+            $image_path = $section['banner_image'];
+            if ($image_path && file_exists($image_path)) {
+                unlink($image_path); // Delete image
+            }
+
+            // Delete the blog section
+            $BlogSectionModel->delete($id);
+
+            // Set response
+            $statusCode = 200;
+            $response = [
+                'message' => 'Blog section and banner image deleted successfully.'
+            ];
+        } catch (Exception $e) {
+            // Handle errors
+            $statusCode = 500;
+            $response = [
+                'error' => $e->getMessage()
+            ];
+        }
+
+        // Add status code to the response and return it
+        $response['status'] = $statusCode;
+        return $this->respond($response, $statusCode);
+    }
+    public function getBlogSections($id = null)
+    {
+        try {
+            $BlogSectionModel = new BlogsSectionModel();
+
+            // Check if an ID is provided in the URL
+            if ($id) {
+                // Fetch a specific section by ID
+                $section = $BlogSectionModel->find($id);
+
+                if (!$section) {
+                    throw new Exception('Blog section not found.');
+                }
+
+                $statusCode = 200;
+                $response = [
+                    'message' => 'Blog section retrieved successfully.',
+                    'data' => $section,
+                ];
+            } else {
+                // Fetch all sections
+                $sections = $BlogSectionModel->findAll();
+
+                $statusCode = 200;
+                $response = [
+                    'message' => 'Blog sections retrieved successfully.',
+                    'data' => $sections,
+                ];
+            }
+        } catch (Exception $e) {
+            $statusCode = 500;
+            $response = [
+                'error' => $e->getMessage(),
+            ];
+        }
+
+        $response['status'] = $statusCode;
+        return $this->respond($response, $statusCode);
+    }
     public function updateBlogSection($id)
     {
         try {
             $BlogSectionModel = new BlogsSectionModel();
 
             $data = [
-                'blog_id' => $this->request->getVar('blog_id'),
                 'title' => $this->request->getVar('title'),
                 'description' => $this->request->getVar('description'),
-                'banner_image' => $this->request->getVar('banner_image'), // New image path if updated
+                'banner_image' => $this->request->getVar('banner_image'),
                 'section_link' => $this->request->getVar('section_link'),
             ];
 
@@ -369,60 +445,7 @@ class BlogsController extends BaseController
         $response['status'] = $statusCode;
         return $this->respond($response, $statusCode);
     }
-    public function deleteBlogSection($id)
-    {
-        try {
-            $BlogSectionModel = new BlogsSectionModel();
 
-            // Retrieve section to delete associated banner image
-            $section = $BlogSectionModel->find($id);
-            if (!$section) {
-                throw new Exception('Blog section not found', 404);
-            }
-
-            $image_path = $section['banner_image'];
-            if ($image_path && file_exists($image_path)) {
-                unlink($image_path); // Delete image
-            }
-
-            $BlogSectionModel->delete($id);
-
-            $statusCode = 200;
-            $response = [
-                'message' => 'Blog section and banner image deleted successfully.'
-            ];
-        } catch (Exception $e) {
-            $statusCode = 500;
-            $response = [
-                'error' => $e->getMessage()
-            ];
-        }
-
-        $response['status'] = $statusCode;
-        return $this->respond($response, $statusCode);
-    }
-    public function getBlogSections()
-    {
-        try {
-            $BlogSectionModel = new BlogsSectionModel();
-
-            $sections = $BlogSectionModel->findAll();
-
-            $statusCode = 200;
-            $response = [
-                'message' => 'Blog sections retrieved successfully.',
-                'data' => $sections
-            ];
-        } catch (Exception $e) {
-            $statusCode = 500;
-            $response = [
-                'error' => $e->getMessage()
-            ];
-        }
-
-        $response['status'] = $statusCode;
-        return $this->respond($response, $statusCode);
-    }
     public function updateBlogStatus($id)
     {
         try {
@@ -456,5 +479,61 @@ class BlogsController extends BaseController
 
         $response['status'] = $statusCode;
         return $this->respond($response, $statusCode);
+    }
+    public function getAllBlogs()
+    {
+        try {
+            $blogsModel = new BlogsModel();
+
+            // Retrieve all blogs
+            $blogsData = $blogsModel
+                ->select(['id', 'title', 'description', 'blog_image', 'status'])
+                ->findAll();
+
+            $statusCode = 200;
+            $response = [
+                'data' => $blogsData,
+            ];
+        } catch (Exception $e) {
+            $statusCode = $e->getCode() === 400 ? 400 : 500;
+            $response = [
+                'error' => $e->getMessage()
+            ];
+        }
+
+        $response['status'] = $statusCode;
+        return $this->respond($response, $statusCode);
+    }
+    public function update($id = null)
+    {
+        $blogModel = new BlogsModel();
+
+        // Get the input data
+        $data = [
+            'title'       => $this->request->getVar('title'),
+            'description' => $this->request->getVar('description'),
+            'status'      => $this->request->getVar('status'),
+            'blog_image'  => $this->request->getVar('blog_image'),
+        ];
+
+        // Validate the input
+        if (!$this->validate([
+            'title'       => 'required|string|max_length[255]',
+            'description' => 'required|string',
+            'status'      => 'required|in_list[0,1]',
+            'blog_image'  => 'permit_empty',
+        ])) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
+
+        // Attempt to update the blog
+        $updated = $blogModel->update($id, $data);
+
+        // Check if the update was successful
+        if ($updated) {
+            return $this->respond(['status' => 200, 'message' => 'Blog updated successfully']);
+        } else {
+            return $this->failNotFound('Blog not found');
+        }
     }
 }
