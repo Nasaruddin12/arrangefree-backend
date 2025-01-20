@@ -189,7 +189,7 @@ class QuotationController extends BaseController
             if ($quotation) {
                 // Fetch related items
                 $quotationItemModel = new QuotationItemModel();
-                $quotation['items'] = $quotationItemModel->where('quotation_id', $quotation['id'])->findAll();
+                $quotation['items'] = $quotationItemModel->getItemsByQuotation($quotation);
 
                 // Fetch related installments
                 $quotationInstallmentModel = new QuotationInstallmentModel();
