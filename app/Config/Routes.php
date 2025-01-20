@@ -56,19 +56,19 @@ $routes->group('customer', static function ($routes) {
 
 $routes->group('Staff', static function ($routes) {
     // $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
-    $routes->post('Create', 'QuotationController::Create');
-    $routes->get('getAllStaffs', 'QuotationController::getAllStaffs');
-    $routes->get('getAllStaffByID/(:num)', 'QuotationController::getAllStaffByID/$1');
-    $routes->put('UpdateStaff', 'QuotationController::UpdateStaff');
-    $routes->delete('Delete/(:num)', 'QuotationController::Delete/$1');
-    $routes->post('FileUpload', 'QuotationController::FileUpload');
+    $routes->post('Create', 'StaffController::Create');
+    $routes->get('getAllStaffs', 'StaffController::getAllStaffs');
+    $routes->get('getAllStaffByID/(:num)', 'StaffController::getAllStaffByID/$1');
+    $routes->put('UpdateStaff', 'StaffController::UpdateStaff');
+    $routes->delete('Delete/(:num)', 'StaffController::Delete/$1');
+    $routes->post('FileUpload', 'StaffController::FileUpload');
     // });
 });
 
 
-$routes->group('Quotation', static function ($routes) {
+$routes->group('quotation', static function ($routes) {
     // $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
-    $routes->post('Create', 'QuotationController::QuotationCreate');
+    $routes->post('create', 'QuotationController::store');
     $routes->get('GetAllQuotation', 'QuotationController::GetAllQuotation');
     $routes->put('Update', 'QuotationController::QuotationUpdate');
     $routes->get('GetQuotationById/(:num)', 'QuotationController::GetQuotationById/$1');

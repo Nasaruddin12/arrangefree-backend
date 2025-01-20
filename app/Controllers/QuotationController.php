@@ -3,322 +3,150 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
-use App\Models\QuotationModal;
-use App\Models\StaffsModel;
+use App\Models\QuotationModel;
+use App\Models\QuotationItemModel;
+use App\Models\QuotationInstallmentModel;
+use App\Models\QuotationTimelineModel;
+use App\Models\QuotationMarkListModel;
 use CodeIgniter\API\ResponseTrait;
 use Exception;
-
 class QuotationController extends BaseController
 {
-    use ResponseTrait;
-    public function Create()
+    public function store()
     {
-
-
-        $StaffsModel = new StaffsModel();
+        $db = \Config\Database::connect();
+        $db->transStart(); // Start a transaction
+    
         try {
-            $data = [
-                "username" => $this->request->getVar("username"),
-                "password" => password_hash($this->request->getVar("password"), PASSWORD_BCRYPT),
-                "name" => $this->request->getVar("name"),
-                "phone" => $this->request->getVar("phone"),
-                "email" => $this->request->getVar("email"),
-                "aadhaar_no" => $this->request->getVar("aadhaar_no"),
-                "pan_no" => $this->request->getVar("pan_no"),
-                "adhaar_file" => $this->request->getVar("adhaar_file"),
-                "pan_file" => $this->request->getVar("pan_file")
+            // Input JSON data
+            $jsonData = json_decode($this->request->getBody(), true);
+    
+            // Save Quotation
+            $quotationModel = new QuotationModel();
+            $quotationData = [
+                'customer_name' => $jsonData['customer_name'],
+                'phone'         => $jsonData['phone'],
+                'address'       => $jsonData['address'],
+                'total'         => $jsonData['total'],
+                'discount'      => $jsonData['discount'],
+                'discount_amount' => $jsonData['discountAmount'],
+                'discount_desc' => $jsonData['discountDesc'],
+                'sgst'          => $jsonData['sgst'],
+                'cgst'          => $jsonData['cgst'],
+                'grand_total'   => $jsonData['grandTotal'],
+                'created_by'    => $jsonData['created_by'],
+                'created_at'    => date('Y-m-d H:i:s'),
             ];
-            $rest = $StaffsModel->insert($data);
-            if ($rest) {
-                $response = [
-                    "Status" => 201,
-                    "Msg" => "Data Added Successfully",
-                ];
-            } else {
-                $response = [
-                    "Status" => 500,
-                    "Msg" => "Data Not Added Successfully",
-                    "Validation" => $StaffsModel->errors(),
-                ];
+            $quotationId = $quotationModel->insert($quotationData);
+            if (!$quotationId) {
+                throw new Exception('Failed to save quotation: ' . json_encode($quotationModel->errors()));
             }
-        } catch (Exception $e) {
-            $response = [
-                "Status" => 500,
-                "Error" => $e->getMessage(),
-                "Line" => $e->getLine()
-            ];
-        }
-        return $this->respond($response, 200);
-    }
-    function getAllStaffs()
-    {
-        $StaffsModel = new StaffsModel();
-        $data = $StaffsModel->findAll();
-        if ($data) {
-            $response = [
-                "Status" => 200,
-                "Data" => $data,
-            ];
-        } else {
-            $response = [
-                "Status" => 404,
-                "Msg" => "Not Data Found",
-            ];
-        }
-        return $this->respond($response, 200);
-    }
-    function getAllStaffByID($id)
-    {
-        $StaffsModel = new StaffsModel();
-        $data = $StaffsModel->where("id", $id)->first();
-        if ($data) {
-            $response = [
-                "Status" => 200,
-                "Data" => $data,
-            ];
-        } else {
-            $response = [
-                "Status" => 404,
-                "Msg" => "Not Data Found",
-            ];
-        }
-        return $this->respond($response, 200);
-    }
-    function UpdateStaff()
-    {
-        try {
-            $id = $this->request->getVar("id");
-            $StaffsModel = new StaffsModel();
-            $data = [
-                "username" => $this->request->getVar("username"),
-                "password" => password_hash($this->request->getVar("password"), PASSWORD_BCRYPT),
-                "name" => $this->request->getVar("name"),
-                "phone" => $this->request->getVar("phone"),
-                "email" => $this->request->getVar("email"),
-                "aadhaar_no" => $this->request->getVar("aadhaar_no"),
-                "pan_no" => $this->request->getVar("pan_no"),
-                "adhaar_file" => $this->request->getVar("adhaar_file"),
-                "pan_file" => $this->request->getVar("pan_file")
-            ];
-
-
-
-
-            $rules = $StaffsModel->getValidationRules();
-
-            $fieldsToSkipUnique = ["username", "password", "name", "phone", "email", "aadhaar_no", "pan_no", "adhaar_file", "pan_file", "status"];
-
-            foreach ($fieldsToSkipUnique as $field) {
-                if (isset($rules[$field])) {
-                    $backupRules[$field] = $rules[$field];
-                    unset($rules[$field]); // Remove the is_unique rule temporarily
+    
+            // Save Quotation Items
+            $quotationItemModel = new QuotationItemModel();
+            $items = json_decode($jsonData['items'], true);
+            foreach ($items as $item) {
+                $parentId = null;
+                if (!empty($item['title'])) {
+                    $parentId = $quotationItemModel->insert([
+                        'quotation_id' => $quotationId,
+                        'title'        => $item['title'],
+                        'description'  => null,
+                        'size'         => null,
+                        'quantity'     => null,
+                        'type'         => null,
+                        'rate'         => null,
+                        'amount'       => null,
+                        'parent_id'    => null,
+                    ]);
+                    if (!$parentId) {
+                        throw new Exception('Failed to save parent item: ' . json_encode($quotationItemModel->errors()));
+                    }
+                }
+    
+                foreach ($item['subfiled'] as $subItem) {
+                    $subItemId = $quotationItemModel->insert([
+                        'quotation_id' => $quotationId,
+                        'title'        => null,
+                        'description'  => $subItem['description'],
+                        'size'         => $subItem['size'],
+                        'quantity'     => $subItem['quantity'],
+                        'type'         => $subItem['type'],
+                        'rate'         => $subItem['rate'],
+                        'amount'       => $subItem['amount'],
+                        'parent_id'    => $parentId,
+                    ]);
+                    if (!$subItemId) {
+                        throw new Exception('Failed to save sub-item: ' . json_encode($quotationItemModel->errors()));
+                    }
                 }
             }
-
-            // Perform your validation with the modified rules
-            $validationResult = $StaffsModel->setValidationRules($rules)->validate($data);
-
-            if ($validationResult) {
-                // Validation passed, update the data
-
-                $rest = $StaffsModel->update($id, $data);
-
-                if ($rest) {
-                    $response = [
-                        "Status" => 200,
-                        "Msg" => "Data Updated Successfully",
-                    ];
-                } else {
-                    $response = [
-                        "Status" => 500,
-                        "Msg" => "Data Not Updated Successfully",
-                        "Validation" => $StaffsModel->errors(),
-                    ];
-                }
-            } else {
-                // Validation failed
-                $response = [
-                    "Status" => 403,
-                    "Validation" => $StaffsModel->errors()
-                ];
-            }
-
-            // Restore the removed is_unique rule if applicable
-            foreach ($fieldsToSkipUnique as $field) {
-                if (isset($backupRules[$field])) {
-                    $rules[$field] = $backupRules[$field]; // Restore the removed is_unique rule
+    
+            // Save Installments
+            $quotationInstallmentModel = new QuotationInstallmentModel();
+            $installments = json_decode($jsonData['installment'], true);
+            foreach ($installments as $installment) {
+                $installmentId = $quotationInstallmentModel->insert([
+                    'quotation_id' => $quotationId,
+                    'label'        => $installment['label'],
+                    'percentage'   => $installment['percentage'],
+                    'amount'       => $installment['amount'],
+                    'due_date'     => $installment['date'] ?: null,
+                ]);
+                if (!$installmentId) {
+                    throw new Exception('Failed to save installment: ' . json_encode($quotationInstallmentModel->errors()));
                 }
             }
-
-            $StaffsModel->setValidationRules($rules);
-        } catch (Exception $e) {
-            $response = [
-                "Status" => 500,
-                "Error" => $e->getMessage(),
-                "Line" => $e->getLine()
-            ];
-        }
-        return $this->respond($response, 200);
-    }
-    function Delete($id)
-    {
-        $StaffsModel = new StaffsModel();
-        $data = $StaffsModel->update($id, [
-            "status" => 2
-        ]);
-        if ($data) {
-            $response = [
-                "Status" => 200,
-                "Msg" => "Data Deleted Successfully",
-            ];
-        } else {
-            $response = [
-                "Status" => 500,
-                "Msg" => "Data Not Deleted Successfully",
-            ];
-        }
-        return $this->respond($response, 200);
-    }
-    function QuotationCreate()
-    {
-        $QuotationModal = new QuotationModal();
-        $data = [
-            "customer_name" => $this->request->getVar("customer_name"),
-            "phone" => $this->request->getVar("phone"),
-            "address" => $this->request->getVar("address"),
-            "items" => $this->request->getVar("items"),
-            "mark_list" => $this->request->getVar("mark_list"),
-            "total_amount" => $this->request->getVar("total_amount"),
-            "sgst" => $this->request->getVar("sgst"),
-            "cgst" => $this->request->getVar("cgst"),
-            "installment" => $this->request->getVar("installment"),
-            "time_line" => $this->request->getVar("time_line"),
-            "created_by" => $this->request->getVar("created_by")
-        ];
-        $rest = $QuotationModal->insert($data);
-        if ($rest) {
-            $response = [
-                "Status" => 201,
-                "Msg" => "Data Added Successfully"
-            ];
-        } else {
-            $response = [
-                "Status" => 500,
-                "Msg" => "Data Not Added Successfully"
-            ];
-        }
-        return $this->respond($response, 200);
-    }
-    function GetAllQuotation()
-    {
-        $QuotationModal = new QuotationModal();
-        $rest = $QuotationModal->select(["id", "customer_name", "phone", "address", "created_by"])->findAll();
-        if ($rest) {
-            $response = [
-                "Status" => 200,
-                "Data" => $rest
-            ];
-        } else {
-            $response = [
-                "Status" => 404,
-                "Msg" => "No Data Found"
-            ];
-        }
-        return $this->respond($response, 200);
-    }
-    function QuotationUpdate()
-    {
-        $QuotationModal = new QuotationModal();
-
-        $id = $this->request->getVar("id");
-        $data = [
-            "customer_name" => $this->request->getVar("customer_name"),
-            "phone" => $this->request->getVar("phone"),
-            "address" => $this->request->getVar("address"),
-            "items" => $this->request->getVar("items"),
-            "mark_list" => $this->request->getVar("mark_list"),
-            "total_amount" => $this->request->getVar("total_amount"),
-            "sgst" => $this->request->getVar("sgst"),
-            "cgst" => $this->request->getVar("cgst"),
-            "installment" => $this->request->getVar("installment"),
-            "time_line" => $this->request->getVar("time_line"),
-            "created_by" => $this->request->getVar("created_by")
-        ];
-        $rest = $QuotationModal->update($id, $data);
-        if ($rest) {
-            $response = [
-                "Status" => 200,
-                "Msg" => "Data Updated Successfully"
-            ];
-        } else {
-            $response = [
-                "Status" => 500,
-                "Msg" => "Data Not Updated Successfully"
-            ];
-        }
-        return $this->respond($response, 200);
-    }
-    function GetQuotationById($id)
-    {
-        $QuotationModal = new QuotationModal();
-        $rest = $QuotationModal->where("id", $id)->first();
-        if ($rest) {
-            $response = [
-                "Status" => 200,
-                "Data" => $rest
-            ];
-        } else {
-            $response = [
-                "Status" => 404,
-                "Msg" => "No Data Found"
-            ];
-        }
-        return $this->respond($response, 200);
-    }
-    function QuotationDelete($id)
-    {
-        $QuotationModal = new QuotationModal();
-        $rest = $QuotationModal->where("id", $id)->delete();
-        if ($rest) {
-            $response = [
-                "Status" => 200,
-                "Msg" => "Data Deleted Successfully"
-            ];
-        } else {
-            $response = [
-                "Status" => 500,
-                "Msg" => "Data Not Deleted Successfully"
-            ];
-        }
-        return $this->respond($response, 200);
-    }
-    function FileUpload()
-    {
-        try {
-            $file = $this->request->getFile('file');
-
-            $uploadDirectory = 'uploads/Staff/';
-
-            $fileName = $file->getRandomName();
-            if ($file->move($uploadDirectory, $fileName)) {
-                $response = [
-                    "Status" => 200,
-                    "Msg" => "File Uploaded Successfully",
-                    "path" => $uploadDirectory . $fileName
-                ];
-            } else {
-                $response = [
-                    "Status" => 400,
-                    "Msg" => "File Not Uploaded Successfully"
-                ];
+    
+            // Save Timeline
+            $quotationTimelineModel = new QuotationTimelineModel();
+            $timelines = json_decode($jsonData['time_line'], true);
+            foreach ($timelines as $timeline) {
+                $timelineId = $quotationTimelineModel->insert([
+                    'quotation_id' => $quotationId,
+                    'task'         => $timeline['task'],
+                    'days'         => $timeline['days'],
+                ]);
+                if (!$timelineId) {
+                    throw new Exception('Failed to save timeline: ' . json_encode($quotationTimelineModel->errors()));
+                }
             }
-        } catch (Exception $e) {
-            $response = [
-                "Status" => 500,
-                "Error" => $e->getMessage(),
-                "Line" => $e->getLine(),
-            ];
+    
+            // Save Mark List
+            $quotationMarkListModel = new QuotationMarkListModel();
+            $markList = json_decode($jsonData['mark_list'], true);
+            foreach ($markList as $masterId => $subcategoryIds) {
+                foreach ($subcategoryIds as $subcategoryId) {
+                    $markListId = $quotationMarkListModel->insert([
+                        'quotation_id'   => $quotationId,
+                        'master_id'      => $masterId,
+                        'subcategory_id' => $subcategoryId,
+                    ]);
+                    if (!$markListId) {
+                        throw new Exception('Failed to save mark list: ' . json_encode($quotationMarkListModel->errors()));
+                    }
+                }
+            }
+    
+            $db->transComplete(); // Complete the transaction
+    
+            if ($db->transStatus() === false) {
+                $error = $db->error();
+                return $this->response->setJSON([
+                    'status'  => 'error',
+                    'message' => 'Transaction failed',
+                    'error'   => $error,
+                ]);
+            }
+    
+            return $this->response->setJSON(['status' => 'success', 'message' => 'Quotation stored successfully']);
+        } catch (\Exception $e) {
+            $db->transRollback(); // Rollback the transaction on error
+            return $this->response->setJSON([
+                'status'  => 'error',
+                'message' => $e->getMessage(),
+            ]);
         }
-        return $this->respondCreated($response, 200);
     }
+    
 }
