@@ -93,7 +93,7 @@ class QuotationController extends BaseController
                     'label'        => $installment['label'],
                     'percentage'   => $installment['percentage'],
                     'amount'       => $installment['amount'],
-                    'due_date'     => $installment['date'] ?: null,
+                    'due_date'     => $installment['due_date'] ?: null,
                 ]);
                 if (!$installmentId) {
                     throw new Exception('Failed to save installment: ' . json_encode($quotationInstallmentModel->errors()));
@@ -201,7 +201,8 @@ class QuotationController extends BaseController
 
                 // Fetch and group related mark lists
                 $quotationMarkListModel = new QuotationMarkListModel();
-                $markList = $quotationMarkListModel->getMarkListByQuotation($id);
+                // $markList = $quotationMarkListModel->getMarkListByQuotation($id);
+                $markList = $quotationMarkListModel->getGroupedMarkListByQuotation($id);
 
                 // Group mark list by master_id
                 $groupedMarkList = [];
