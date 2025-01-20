@@ -38,9 +38,9 @@ class QuotationItemModel extends Model
         foreach ($items as $item) {
             if (is_null($item['parent_id'])) {
                 $groupedItems[$item['id']] = $item;
-                $groupedItems[$item['id']]['sub_items'] = [];
+                $groupedItems[$item['id']]['subfiled'] = [];
             } else {
-                $groupedItems[$item['parent_id']]['sub_items'][] = $item;
+                $groupedItems[$item['parent_id']]['subfiled'][] = $item;
             }
         }
 
