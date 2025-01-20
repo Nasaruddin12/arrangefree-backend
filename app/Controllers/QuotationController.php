@@ -10,17 +10,18 @@ use App\Models\QuotationTimelineModel;
 use App\Models\QuotationMarkListModel;
 use CodeIgniter\API\ResponseTrait;
 use Exception;
+
 class QuotationController extends BaseController
 {
     public function store()
     {
         $db = \Config\Database::connect();
         $db->transStart(); // Start a transaction
-    
+
         try {
             // Input JSON data
             $jsonData = json_decode($this->request->getBody(), true);
-    
+
             // Save Quotation
             $quotationModel = new QuotationModel();
             $quotationData = [
@@ -41,7 +42,7 @@ class QuotationController extends BaseController
             if (!$quotationId) {
                 throw new Exception('Failed to save quotation: ' . json_encode($quotationModel->errors()));
             }
-    
+
             // Save Quotation Items
             $quotationItemModel = new QuotationItemModel();
             $items = json_decode($jsonData['items'], true);
@@ -63,7 +64,7 @@ class QuotationController extends BaseController
                         throw new Exception('Failed to save parent item: ' . json_encode($quotationItemModel->errors()));
                     }
                 }
-    
+
                 foreach ($item['subfiled'] as $subItem) {
                     $subItemId = $quotationItemModel->insert([
                         'quotation_id' => $quotationId,
@@ -81,7 +82,7 @@ class QuotationController extends BaseController
                     }
                 }
             }
-    
+
             // Save Installments
             $quotationInstallmentModel = new QuotationInstallmentModel();
             $installments = json_decode($jsonData['installment'], true);
@@ -97,7 +98,7 @@ class QuotationController extends BaseController
                     throw new Exception('Failed to save installment: ' . json_encode($quotationInstallmentModel->errors()));
                 }
             }
-    
+
             // Save Timeline
             $quotationTimelineModel = new QuotationTimelineModel();
             $timelines = json_decode($jsonData['time_line'], true);
@@ -111,7 +112,7 @@ class QuotationController extends BaseController
                     throw new Exception('Failed to save timeline: ' . json_encode($quotationTimelineModel->errors()));
                 }
             }
-    
+
             // Save Mark List
             $quotationMarkListModel = new QuotationMarkListModel();
             $markList = json_decode($jsonData['mark_list'], true);
@@ -127,9 +128,9 @@ class QuotationController extends BaseController
                     }
                 }
             }
-    
+
             $db->transComplete(); // Complete the transaction
-    
+
             if ($db->transStatus() === false) {
                 $error = $db->error();
                 return $this->response->setJSON([
@@ -138,8 +139,8 @@ class QuotationController extends BaseController
                     'error'   => $error,
                 ]);
             }
-    
-            return $this->response->setJSON(['status' => 'success', 'message' => 'Quotation stored successfully']);
+
+            return $this->response->setJSON(['status' => 201, 'message' => 'Quotation stored successfully'], 201);
         } catch (\Exception $e) {
             $db->transRollback(); // Rollback the transaction on error
             return $this->response->setJSON([
@@ -148,5 +149,4 @@ class QuotationController extends BaseController
             ]);
         }
     }
-    
 }
