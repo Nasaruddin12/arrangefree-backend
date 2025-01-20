@@ -13,6 +13,7 @@ use Exception;
 
 class QuotationController extends BaseController
 {
+    use ResponseTrait;
     public function store()
     {
         $db = \Config\Database::connect();
@@ -147,6 +148,32 @@ class QuotationController extends BaseController
                 'status'  => 'error',
                 'message' => $e->getMessage(),
             ]);
+        }
+    }
+    public function getAll()
+    {
+        try {
+            // Load the Quotation Model
+            $quotationModel = new QuotationModel();
+
+            // Retrieve all quotations
+            $quotations = $quotationModel->findAll();
+
+            // Check if quotations are found
+            if ($quotations) {
+                return $this->respond([
+                    'status'  => 200,
+                    'message' => 'Quotations retrieved successfully',
+                    'data'    => $quotations
+                ], 200);
+            } else {
+                throw new \Exception('No quotations found', 404);
+            }
+        } catch (\Exception $e) {
+            return $this->respond([
+                'status'  => $e->getCode(),
+                'message' => $e->getMessage()
+            ], $e->getCode());
         }
     }
 }

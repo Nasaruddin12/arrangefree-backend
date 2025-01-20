@@ -149,24 +149,32 @@ class MasterCategoryController extends ResourceController
     public function getSubCategories($categoryId = null)
     {
         try {
+            // Check if category ID is provided
+            if ($categoryId === null) {
+                throw new \Exception('Category ID is required.', 400);
+            }
+    
+            // Retrieve subcategories for the given category ID
             $subCategories = $this->subCategoryModel->where('master_category_id', $categoryId)->findAll();
+    
+            // Check if subcategories are found
             if ($subCategories) {
-                $response = [
+                return $this->respond([
                     'status' => 200,
+                    'message' => 'Subcategories retrieved successfully',
                     'data' => $subCategories,
-                ];
+                ], 200);
             } else {
                 throw new \Exception('Subcategories not found for the given category.', 404);
             }
         } catch (\Exception $e) {
-            $response = [
+            return $this->respond([
                 'status' => $e->getCode(),
-                'error' => $e->getMessage(),
-            ];
+                'message' => $e->getMessage(),
+            ], $e->getCode());
         }
-        return $this->respond($response, $response['status']);
     }
-
+    
     public function createSubCategory()
     {
         try {
