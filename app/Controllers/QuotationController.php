@@ -187,6 +187,22 @@ class QuotationController extends BaseController
 
             // Check if quotation is found
             if ($quotation) {
+                // Fetch related items
+                $quotationItemModel = new QuotationItemModel();
+                $quotation['items'] = $quotationItemModel->where('quotation_id', $quotation['id'])->findAll();
+
+                // Fetch related installments
+                $quotationInstallmentModel = new QuotationInstallmentModel();
+                $quotation['installments'] = $quotationInstallmentModel->where('quotation_id', $quotation['id'])->findAll();
+
+                // Fetch related timelines
+                $quotationTimelineModel = new QuotationTimelineModel();
+                $quotation['timelines'] = $quotationTimelineModel->where('quotation_id', $quotation['id'])->findAll();
+
+                // Fetch related mark lists
+                $quotationMarkListModel = new QuotationMarkListModel();
+                $quotation['mark_list'] = $quotationMarkListModel->where('quotation_id', $quotation['id'])->findAll();
+
                 return $this->respond([
                     'status'  => 200,
                     'message' => 'Quotation retrieved successfully',
