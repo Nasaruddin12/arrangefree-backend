@@ -205,26 +205,27 @@ class QuotationController extends BaseController
                 $markList = $quotationMarkListModel->getGroupedMarkListByQuotation($id);
 
                 // Group mark list by master_id
-                $groupedMarkList = [];
-                foreach ($markList as $item) {
-                    $masterId = $item['master_id'];
-                    if (!isset($groupedMarkList[$masterId])) {
-                        $groupedMarkList[$masterId] = [
-                            'id' => $masterId,
-                            'title' => $item['master_category_title'],
-                            'subcategory' => []
-                        ];
-                    }
-                    $groupedMarkList[$masterId]['subcategory'][] = [
-                        'subcategory_title' => $item['master_subcategory_title'],
-                        'id' => $item['id'],
-                        'quotation_id' => $item['quotation_id'],
-                        'subcategory_id' => $item['subcategory_id']
-                    ];
-                }
+                // $groupedMarkList = [];
+                // foreach ($markList as $item) {
+                //     $masterId = $item['master_id'];
+                //     if (!isset($groupedMarkList[$masterId])) {
+                //         $groupedMarkList[$masterId] = [
+                //             'id' => $masterId,
+                //             'title' => $item['master_category_title'],
+                //             'subcategory' => []
+                //         ];
+                //     }
+                //     $groupedMarkList[$masterId]['subcategory'][] = [
+                //         'subcategory_title' => $item['master_subcategory_title'],
+                //         'id' => $item['id'],
+                //         'quotation_id' => $item['quotation_id'],
+                //         'subcategory_id' => $item['subcategory_id']
+                //     ];
+                // }
 
                 // Convert grouped mark list to an indexed array
-                $quotation['mark_list'] = array_values($groupedMarkList);
+                // $quotation['mark_list'] = array_values($groupedMarkList);
+                $quotation['mark_list'] = $markList;
 
                 return $this->respond([
                     'status'  => 200,

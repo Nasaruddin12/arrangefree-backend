@@ -24,20 +24,35 @@ class QuotationMarkListModel extends Model
      */
     public function getMarkListByQuotation($quotationId)
     {
-        return $this->db->table('quotation_mark_list')
-            ->select('quotation_mark_list.id, quotation_mark_list.quotation_id, quotation_mark_list.master_id, quotation_mark_list.subcategory_id, master_category.title AS master_category_title, master_subcategory.title AS master_subcategory_title')
+        // Query to fetch detailed information about the mark list
+        return $this->db->table($this->table)
+            ->select(
+                'quotation_mark_list.id, 
+                 quotation_mark_list.quotation_id, 
+                 quotation_mark_list.master_id, 
+                 quotation_mark_list.subcategory_id, 
+                 master_category.title AS master_category_title, 
+                 master_subcategory.title AS master_subcategory_title'
+            )
             ->join('master_category', 'master_category.id = quotation_mark_list.master_id', 'left')
             ->join('master_subcategory', 'master_subcategory.id = quotation_mark_list.subcategory_id', 'left')
             ->where('quotation_mark_list.quotation_id', $quotationId)
             ->get()
             ->getResultArray();
     }
+
+    /**
+     * Fetch the grouped mark list for a specific quotation.
+     *
+     * @param int $quotationId
+     * @return array
+     */
     public function getGroupedMarkListByQuotation($quotationId)
     {
-        // Fetch the raw data from the database
-        $result = $this->db->table('quotation_mark_list')
-            ->select('quotation_mark_list.master_id, quotation_mark_list.subcategory_id')
-            ->where('quotation_mark_list.quotation_id', $quotationId)
+        // Fetch raw data from the database
+        $result = $this->db->table($this->table)
+            ->select('master_id, subcategory_id')
+            ->where('quotation_id', $quotationId)
             ->get()
             ->getResultArray();
 
@@ -49,12 +64,12 @@ class QuotationMarkListModel extends Model
             $masterId = $row['master_id'];
             $subcategoryId = $row['subcategory_id'];
 
-            // If the master_id doesn't exist in the array, initialize it
-            if (!isset($groupedData[$masterId])) {
+            // Initialize the array for `master_id` if it doesn't exist
+            if (!array_key_exists($masterId, $groupedData)) {
                 $groupedData[$masterId] = [];
             }
 
-            // Add the subcategory_id to the master_id's array
+            // Add the `subcategory_id` to the respective `master_id`
             $groupedData[$masterId][] = $subcategoryId;
         }
 
