@@ -176,4 +176,30 @@ class QuotationController extends BaseController
             ], $e->getCode());
         }
     }
+    public function getById($id = null)
+    {
+        try {
+            // Load the Quotation Model
+            $quotationModel = new QuotationModel();
+
+            // Retrieve quotation by ID
+            $quotation = $quotationModel->find($id);
+
+            // Check if quotation is found
+            if ($quotation) {
+                return $this->respond([
+                    'status'  => 200,
+                    'message' => 'Quotation retrieved successfully',
+                    'data'    => $quotation
+                ], 200);
+            } else {
+                throw new \Exception('Quotation not found', 404);
+            }
+        } catch (\Exception $e) {
+            return $this->respond([
+                'status'  => $e->getCode(),
+                'message' => $e->getMessage()
+            ], $e->getCode());
+        }
+    }
 }

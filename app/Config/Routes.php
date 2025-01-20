@@ -71,8 +71,8 @@ $routes->group('quotation', static function ($routes) {
     $routes->post('create', 'QuotationController::store');
     $routes->get('getAll', 'QuotationController::getAll');
     $routes->put('Update', 'QuotationController::QuotationUpdate');
-    $routes->get('GetQuotationById/(:num)', 'QuotationController::GetQuotationById/$1');
-    $routes->delete('Delete/(:num)', 'QuotationController::QuotationDelete/$1');
+    $routes->get('getById/(:num)', 'QuotationController::getById/$1');
+    // $routes->delete('Delete/(:num)', 'QuotationController::QuotationDelete/$1');
     // });
 });
 
