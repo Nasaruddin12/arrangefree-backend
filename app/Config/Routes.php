@@ -70,7 +70,7 @@ $routes->group('quotation', static function ($routes) {
     // $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
     $routes->post('create', 'QuotationController::store');
     $routes->get('getAll', 'QuotationController::getAll');
-    $routes->put('Update', 'QuotationController::QuotationUpdate');
+    $routes->put('update/(:num)', 'QuotationController::update/$1');
     $routes->get('getById/(:num)', 'QuotationController::getById/$1');
     // $routes->delete('Delete/(:num)', 'QuotationController::QuotationDelete/$1');
     // });

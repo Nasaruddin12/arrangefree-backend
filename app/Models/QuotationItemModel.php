@@ -14,6 +14,7 @@ class QuotationItemModel extends Model
         'quotation_id',
         'title',
         'description',
+        'details',
         'size',
         'quantity',
         'type',

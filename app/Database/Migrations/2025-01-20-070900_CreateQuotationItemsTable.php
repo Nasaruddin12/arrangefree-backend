@@ -29,6 +29,10 @@ class CreateQuotationItemsTable extends Migration
                 'type' => 'TEXT',
                 'null' => true,
             ],
+            'details' => [
+                'type' => 'TEXT',
+                'null' => true,
+            ],
             'size' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 50,
