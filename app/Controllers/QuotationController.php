@@ -272,8 +272,6 @@ class QuotationController extends BaseController
 
             // Log the error message for debugging (optional)
             log_message('error', $e->getMessage());
-
-            // Return a standardized error response
             return $this->response->setJSON([
                 'status'  => 500,
                 'message' => 'Error updating quotation',
