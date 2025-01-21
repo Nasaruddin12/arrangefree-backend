@@ -240,42 +240,48 @@ class QuotationController extends BaseController
             // Sync items (both parent and subfiled)
             $this->syncItems($quotationId, $existingItems, $incomingItems, $quotationItemModel);
 
-            // // Sync Installments
-            // $quotationInstallmentModel = new QuotationInstallmentModel();
-            // $existingInstallments = $quotationInstallmentModel->where('quotation_id', $quotationId)->findAll(); // Fetch existing installments
-            // $incomingInstallments = $jsonData['installment'];
+            // Sync Installments
+            $quotationInstallmentModel = new QuotationInstallmentModel();
+            $existingInstallments = $quotationInstallmentModel->where('quotation_id', $quotationId)->findAll(); // Fetch existing installments
+            $incomingInstallments = $jsonData['installment'];
 
-            // $this->syncInstallments($quotationId, $existingInstallments, $incomingInstallments, $quotationInstallmentModel);
+            $this->syncInstallments($quotationId, $existingInstallments, $incomingInstallments, $quotationInstallmentModel);
 
-            // // Sync Timeline
-            // $quotationTimelineModel = new QuotationTimelineModel();
-            // $existingTimelines = $quotationTimelineModel->where('quotation_id', $quotationId)->findAll(); // Fetch existing timelines
-            // $incomingTimelines = $jsonData['time_line'];
+            // Sync Timeline
+            $quotationTimelineModel = new QuotationTimelineModel();
+            $existingTimelines = $quotationTimelineModel->where('quotation_id', $quotationId)->findAll(); // Fetch existing timelines
+            $incomingTimelines = $jsonData['time_line'];
 
-            // $this->syncTimelines($quotationId, $existingTimelines, $incomingTimelines, $quotationTimelineModel);
-
+            $this->syncTimelines($quotationId, $existingTimelines, $incomingTimelines, $quotationTimelineModel);
 
             // Commit the transaction
             $db->transComplete();
 
             if ($db->transStatus() === false) {
                 $error = $db->error();
-                return $this->response->setJSON([
-                    'status'  => 'error',
-                    'message' => 'Transaction failed',
-                    'error'   => $error,
-                ]);
+                throw new Exception("Transaction failed: " . $error['message']);
             }
 
-            return $this->response->setJSON(['status' => 200, 'message' => 'Quotation updated successfully']);
-        } catch (\Exception $e) {
-            $db->transRollback(); // Rollback the transaction on error
             return $this->response->setJSON([
-                'status'  => 'error',
-                'message' => $e->getMessage(),
+                'status'  => 200,
+                'message' => 'Quotation updated successfully',
+            ]);
+        } catch (\Exception $e) {
+            // Rollback the transaction on error
+            $db->transRollback();
+
+            // Log the error message for debugging (optional)
+            log_message('error', $e->getMessage());
+
+            // Return a standardized error response
+            return $this->response->setJSON([
+                'status'  => 500,
+                'message' => 'Error updating quotation',
+                'error'   => $e->getMessage(),
             ]);
         }
     }
+
     private function syncItems($quotationId, $existingItems, $incomingItems, $quotationItemModel)
     {
         // Map existing items by their ID for easy comparison
@@ -349,8 +355,7 @@ class QuotationController extends BaseController
 
                 // After processing the parent item, mark it as processed
                 unset($existingMap[$item['id']]);
-            }
-             else {
+            } else {
                 // Insert new parent item if no existing item with the same id
                 $parentId = $quotationItemModel->insert([
                     'quotation_id' => $quotationId,
