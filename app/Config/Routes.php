@@ -73,6 +73,7 @@ $routes->group('quotation', static function ($routes) {
     $routes->put('update/(:num)', 'QuotationController::update/$1');
     $routes->get('getById/(:num)', 'QuotationController::getById/$1');
     $routes->get('quotationById/(:num)', 'QuotationController::quotationById/$1');
+    $routes->get('customerMobileNumber/(:num)', 'QuotationController::quotationByCustomerMobileNumber/$1');
     // $routes->delete('Delete/(:num)', 'QuotationController::QuotationDelete/$1');
     // });
 });

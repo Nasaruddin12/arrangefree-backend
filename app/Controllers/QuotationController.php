@@ -205,27 +205,27 @@ class QuotationController extends BaseController
         try {
             // Load the Quotation Model
             $quotationModel = new QuotationModel();
-    
+
             // Retrieve quotation by ID
             $quotation = $quotationModel->find($id);
-    
+
             // Check if quotation is found
             if ($quotation) {
                 // Fetch related items
                 $quotationItemModel = new QuotationItemModel();
                 $quotation['items'] = $quotationItemModel->getItemsByQuotation($id);
-    
+
                 // Fetch related installments
                 $quotationInstallmentModel = new QuotationInstallmentModel();
                 $quotation['installments'] = $quotationInstallmentModel->where('quotation_id', $quotation['id'])->findAll();
-    
+
                 // Fetch related timelines
                 $quotationTimelineModel = new QuotationTimelineModel();
                 $quotation['timelines'] = $quotationTimelineModel->where('quotation_id', $quotation['id'])->findAll();
-    
+
                 // Fetch and format mark_list
                 $quotation['mark_list'] = $this->getMarkList($quotation['mark_list']);
-    
+
                 return $this->respond([
                     'status'  => 200,
                     'message' => 'Quotation retrieved successfully',
@@ -241,6 +241,38 @@ class QuotationController extends BaseController
             ], $e->getCode());
         }
     }
+    public function quotationByCustomerMobileNumber($mobileNumber = null)
+    {
+        try {
+            // Validate the mobile number
+            if (empty($mobileNumber)) {
+                throw new \Exception('Mobile number is required', 400);
+            }
+
+            // Load the Quotation Model
+            $quotationModel = new QuotationModel();
+
+            // Retrieve quotation by customer mobile number (assuming 'customer_mobile' is the field name)
+            $quotation = $quotationModel->where('phone', $mobileNumber)->findAll();
+
+            // Check if quotation is found
+            if ($quotation) {
+                return $this->respond([
+                    'status'  => 200,
+                    'message' => 'Quotation retrieved successfully',
+                    'data'    => $quotation
+                ], 200);
+            } else {
+                throw new \Exception('Quotation not found for the given mobile number', 404);
+            }
+        } catch (\Exception $e) {
+            return $this->respond([
+                'status'  => $e->getCode(),
+                'message' => $e->getMessage()
+            ], $e->getCode());
+        }
+    }
+
     public function update($quotationId)
     {
         $db = \Config\Database::connect();
