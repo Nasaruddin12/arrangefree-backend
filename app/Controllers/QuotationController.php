@@ -282,85 +282,46 @@ class QuotationController extends BaseController
 
     private function syncItems($quotationId, $existingItems, $incomingItems, $quotationItemModel)
     {
-        // Map existing items by their ID for easy comparison
+        // Map existing parent items by their ID for easy comparison
         $existingMap = [];
-        foreach ($existingItems as $item) {
-            $existingMap[$item['id']] = $item;
-        }
-    
-        // Map existing subfiled items by their parent_id for easy comparison
         $existingSubfiledMap = [];
+    
+        // Build existing items and subfiled maps
         foreach ($existingItems as $item) {
-            if ($item['parent_id'] !== null) {
+            // Parent item: parent_id is null
+            if ($item['parent_id'] === null) {
+                $existingMap[$item['id']] = $item;
+            }
+            // Subfiled item: parent_id is not null
+            else {
                 $existingSubfiledMap[$item['parent_id']][$item['id']] = $item;
             }
         }
     
+        // Loop through incoming items and process
         foreach ($incomingItems as $item) {
-            // Check if the 'id' exists in the incoming data
             $itemId = isset($item['id']) ? $item['id'] : null;
     
-            // If 'id' is present, update the existing item
-            if ($itemId && isset($existingMap[$itemId])) {
-                // Update existing item (parent item)
-                $quotationItemModel->update($item['id'], [
-                    'quotation_id' => $quotationId,
-                    'title'        => $item['title'],
-                    'description'  => $item['description'] ?: null,
-                    'details'      => $item['details'] ?: null,
-                    'size'         => $item['size'] ?: null,
-                    'quantity'     => $item['quantity'] ?: null,
-                    'type'         => $item['type'],
-                    'rate'         => $item['rate'] ?: null,
-                    'amount'       => $item['amount'] ?: null,
-                    'parent_id'    => $item['parent_id'] ?: null,
-                ]);
-    
-                // Sync subfiled items (if any) for updates, inserts, or deletes
-                if (!empty($item['subfiled'])) {
-                    foreach ($item['subfiled'] as $subItem) {
-                        $subfiledId = isset($subItem['id']) ? $subItem['id'] : null;
-    
-                        if ($subfiledId && isset($existingSubfiledMap[$item['id']][$subfiledId])) {
-                            // Update existing subfiled item
-                            $quotationItemModel->update($subItem['id'], [
-                                'quotation_id' => $quotationId,
-                                'description'  => $subItem['description'],
-                                'details'      => $subItem['details'],
-                                'size'         => $subItem['size'],
-                                'quantity'     => $subItem['quantity'],
-                                'type'         => $subItem['type'],
-                                'rate'         => $subItem['rate'],
-                                'amount'       => $subItem['amount'],
-                                'parent_id'    => $item['id'],
-                            ]);
-                        } else {
-                            // Insert new subfiled item if no existing subfiled item found
-                            $quotationItemModel->insert([
-                                'quotation_id' => $quotationId,
-                                'description'  => $subItem['description'],
-                                'details'      => $subItem['details'],
-                                'size'         => $subItem['size'],
-                                'quantity'     => $subItem['quantity'],
-                                'type'         => $subItem['type'],
-                                'rate'         => $subItem['rate'],
-                                'amount'       => $subItem['amount'],
-                                'parent_id'    => $item['id'],
-                            ]);
-                        }
-                    }
-    
-                    // After processing subfiled items, mark them as processed
-                    foreach ($item['subfiled'] as $subItem) {
-                        unset($existingSubfiledMap[$item['id']][$subItem['id']]);
-                    }
+            // Handle parent item update/insert
+            if ($itemId) {
+                // Update existing parent item
+                if (isset($existingMap[$itemId])) {
+                    $quotationItemModel->update($itemId, [
+                        'quotation_id' => $quotationId,
+                        'title'        => $item['title'],
+                        'description'  => $item['description'] ?: null,
+                        'details'      => $item['details'] ?: null,
+                        'size'         => $item['size'] ?: null,
+                        'quantity'     => $item['quantity'] ?: null,
+                        'type'         => $item['type'],
+                        'rate'         => $item['rate'] ?: null,
+                        'amount'       => $item['amount'] ?: null,
+                        'parent_id'    => $item['parent_id'] ?: null,
+                    ]);
                 }
-    
-                // After processing the parent item, mark it as processed
-                unset($existingMap[$item['id']]);
             } else {
-                // If no 'id' found, insert a new parent item
-                $parentId = $quotationItemModel->insert([
+                // Insert new parent item if no 'id' found
+                $itemId = $quotationItemModel->insert([
                     'quotation_id' => $quotationId,
                     'title'        => $item['title'],
                     'description'  => null,
@@ -372,10 +333,29 @@ class QuotationController extends BaseController
                     'amount'       => null,
                     'parent_id'    => null,
                 ]);
+            }
     
-                // Insert subfiled items for the new parent item
-                if (!empty($item['subfiled'])) {
-                    foreach ($item['subfiled'] as $subItem) {
+            // Handle subfiled items
+            if (!empty($item['subfiled'])) {
+                foreach ($item['subfiled'] as $subItem) {
+                    $subfiledId = isset($subItem['id']) ? $subItem['id'] : null;
+    
+                    if ($subfiledId) {
+                        // Update existing subfiled item
+                        if (isset($existingSubfiledMap[$itemId][$subfiledId])) {
+                            $quotationItemModel->update($subfiledId, [
+                                'quotation_id' => $quotationId,
+                                'description'  => $subItem['description'],
+                                'details'      => $subItem['details'],
+                                'size'         => $subItem['size'],
+                                'quantity'     => $subItem['quantity'],
+                                'type'         => $subItem['type'],
+                                'rate'         => $subItem['rate'],
+                                'amount'       => $subItem['amount'],
+                                'parent_id'    => $itemId,
+                            ]);
+                        }
+                    } else {
                         // Insert new subfiled item
                         $quotationItemModel->insert([
                             'quotation_id' => $quotationId,
@@ -386,26 +366,44 @@ class QuotationController extends BaseController
                             'type'         => $subItem['type'],
                             'rate'         => $subItem['rate'],
                             'amount'       => $subItem['amount'],
-                            'parent_id'    => $parentId,
+                            'parent_id'    => $itemId,
                         ]);
                     }
                 }
             }
         }
     
-        // Delete any existing items not found in the incoming data (parents)
+        // After syncing incoming data, clean up by deleting orphaned items
+        // Delete existing parent items not found in the incoming data
         foreach ($existingMap as $existingItem) {
-            $quotationItemModel->delete($existingItem['id']);
-        }
-    
-        // Delete any remaining subfiled items that were not processed
-        foreach ($existingSubfiledMap as $parentId => $subfiledItems) {
-            foreach ($subfiledItems as $existingSubfiledItem) {
-                $quotationItemModel->delete($existingSubfiledItem['id']);
+            if (!isset($incomingItems[$existingItem['id']])) {
+                $quotationItemModel->delete($existingItem['id']);
             }
         }
-    }
     
+        // Delete orphaned subfiled items
+        foreach ($existingSubfiledMap as $parentId => $subfiledItems) {
+            foreach ($subfiledItems as $existingSubfiledItem) {
+                $subItemFound = false;
+    
+                // Check if the subfiled item exists in incoming data for this parent
+                if (isset($incomingItems[$parentId])) {
+                    foreach ($incomingItems[$parentId]['subfiled'] as $incomingSubItem) {
+                        if ($incomingSubItem['id'] === $existingSubfiledItem['id']) {
+                            $subItemFound = true;
+                            break;
+                        }
+                    }
+                }
+    
+                // If no matching subfiled item is found, delete the orphaned subfiled item
+                if (!$subItemFound) {
+                    $quotationItemModel->delete($existingSubfiledItem['id']);
+                }
+            }
+        }
+    }    
+
     private function syncInstallments($quotationId, $existingInstallments, $incomingInstallments, $model)
     {
         // Map existing installments by their ID for easy comparison
