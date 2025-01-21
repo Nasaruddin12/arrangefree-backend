@@ -284,7 +284,7 @@ class QuotationController extends BaseController
         foreach ($existingItems as $item) {
             $existingMap[$item['id']] = $item;
         }
-
+        print_r($existingMap);
         // Map existing subfiled items by their parent_id for easy comparison
         $existingSubfiledMap = [];
         foreach ($existingItems as $item) {
@@ -292,9 +292,9 @@ class QuotationController extends BaseController
                 $existingSubfiledMap[$item['parent_id']][$item['id']] = $item;
             }
         }
-
+    
         foreach ($incomingItems as $item) {
-            // Check if the item exists
+            // Ensure 'id' exists before processing
             if (isset($item['id']) && isset($existingMap[$item['id']])) {
                 // Update the existing item (parent item)
                 $quotationItemModel->update($item['id'], [
@@ -309,11 +309,11 @@ class QuotationController extends BaseController
                     'amount'       => $item['amount'] ?: null,
                     'parent_id'    => $item['parent_id'] ?: null,
                 ]);
-
+    
                 // Handle subfiled items (if any) for updates, inserts, or deletes
                 if (!empty($item['subfiled'])) {
-                    // Iterate over subfiled items and update/insert/delete
                     foreach ($item['subfiled'] as $subItem) {
+                        // Ensure 'id' exists for subfiled items
                         if (isset($subItem['id']) && isset($existingSubfiledMap[$item['id']][$subItem['id']])) {
                             // Update existing subfiled item
                             $quotationItemModel->update($subItem['id'], [
@@ -344,13 +344,13 @@ class QuotationController extends BaseController
                             ]);
                         }
                     }
-
+    
                     // After processing subfiled items, mark them as processed
                     foreach ($item['subfiled'] as $subItem) {
                         unset($existingSubfiledMap[$item['id']][$subItem['id']]);
                     }
                 }
-
+    
                 // After processing the item, mark it as processed
                 unset($existingMap[$item['id']]);
             } else {
@@ -358,8 +358,8 @@ class QuotationController extends BaseController
                 $parentId = $quotationItemModel->insert([
                     'quotation_id' => $quotationId,
                     'title'        => $item['title'],
-                    'description'  =>  null,
-                    'details'      =>  null,
+                    'description'  => null,
+                    'details'      => null,
                     'size'         => null,
                     'quantity'     => null,
                     'type'         => null,
@@ -367,33 +367,35 @@ class QuotationController extends BaseController
                     'amount'       => null,
                     'parent_id'    => null,
                 ]);
-
+    
                 // Insert subfiled items
                 if (!empty($item['subfiled'])) {
                     foreach ($item['subfiled'] as $subItem) {
-                        // Insert new subfiled item
-                        $quotationItemModel->insert([
-                            'quotation_id' => $quotationId,
-                            'title'        => null, // If title is null, adjust as needed
-                            'description'  => $subItem['description'],
-                            'details'      => $subItem['details'],
-                            'size'         => $subItem['size'],
-                            'quantity'     => $subItem['quantity'],
-                            'type'         => $subItem['type'],
-                            'rate'         => $subItem['rate'],
-                            'amount'       => $subItem['amount'],
-                            'parent_id'    => $parentId,
-                        ]);
+                        // Ensure 'id' exists for subfiled items
+                        if (isset($subItem['id'])) {
+                            $quotationItemModel->insert([
+                                'quotation_id' => $quotationId,
+                                'title'        => null, // If title is null, adjust as needed
+                                'description'  => $subItem['description'],
+                                'details'      => $subItem['details'],
+                                'size'         => $subItem['size'],
+                                'quantity'     => $subItem['quantity'],
+                                'type'         => $subItem['type'],
+                                'rate'         => $subItem['rate'],
+                                'amount'       => $subItem['amount'],
+                                'parent_id'    => $parentId,
+                            ]);
+                        }
                     }
                 }
             }
         }
-
+    
         // Delete any existing items not found in the incoming data (parents)
         foreach ($existingMap as $existingItem) {
             $quotationItemModel->delete($existingItem['id']);
         }
-
+    
         // Delete any remaining subfiled items that were not processed
         foreach ($existingSubfiledMap as $parentId => $subfiledItems) {
             foreach ($subfiledItems as $existingSubfiledItem) {
@@ -401,6 +403,7 @@ class QuotationController extends BaseController
             }
         }
     }
+    
     private function syncInstallments($quotationId, $existingInstallments, $incomingInstallments, $model)
     {
         // Map existing installments by their ID for easy comparison
