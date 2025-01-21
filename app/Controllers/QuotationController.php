@@ -3,6 +3,8 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
+use App\Models\MasterCategoryModel;
+use App\Models\MasterSubCategoryModel;
 use App\Models\QuotationModel;
 use App\Models\QuotationItemModel;
 use App\Models\QuotationInstallmentModel;
@@ -198,6 +200,47 @@ class QuotationController extends BaseController
             ], $e->getCode());
         }
     }
+    public function quotationById($id = null)
+    {
+        try {
+            // Load the Quotation Model
+            $quotationModel = new QuotationModel();
+    
+            // Retrieve quotation by ID
+            $quotation = $quotationModel->find($id);
+    
+            // Check if quotation is found
+            if ($quotation) {
+                // Fetch related items
+                $quotationItemModel = new QuotationItemModel();
+                $quotation['items'] = $quotationItemModel->getItemsByQuotation($id);
+    
+                // Fetch related installments
+                $quotationInstallmentModel = new QuotationInstallmentModel();
+                $quotation['installments'] = $quotationInstallmentModel->where('quotation_id', $quotation['id'])->findAll();
+    
+                // Fetch related timelines
+                $quotationTimelineModel = new QuotationTimelineModel();
+                $quotation['timelines'] = $quotationTimelineModel->where('quotation_id', $quotation['id'])->findAll();
+    
+                // Fetch and format mark_list
+                $quotation['mark_list'] = $this->getMarkList($quotation['mark_list']);
+    
+                return $this->respond([
+                    'status'  => 200,
+                    'message' => 'Quotation retrieved successfully',
+                    'data'    => $quotation
+                ], 200);
+            } else {
+                throw new \Exception('Quotation not found', 404);
+            }
+        } catch (\Exception $e) {
+            return $this->respond([
+                'status'  => $e->getCode(),
+                'message' => $e->getMessage()
+            ], $e->getCode());
+        }
+    }
     public function update($quotationId)
     {
         $db = \Config\Database::connect();
@@ -282,45 +325,48 @@ class QuotationController extends BaseController
 
     private function syncItems($quotationId, $existingItems, $incomingItems, $quotationItemModel)
     {
-        // Map existing parent items by their ID for easy comparison
+        // Map existing parent items and subfiled items by their ID for easy comparison
         $existingMap = [];
         $existingSubfiledMap = [];
-    
+
         // Build existing items and subfiled maps
         foreach ($existingItems as $item) {
-            // Parent item: parent_id is null
             if ($item['parent_id'] === null) {
+                // Parent item
                 $existingMap[$item['id']] = $item;
-            }
-            // Subfiled item: parent_id is not null
-            else {
+            } else {
+                // Subfiled item
                 $existingSubfiledMap[$item['parent_id']][$item['id']] = $item;
             }
         }
-    
+
+        $processedParentIds = [];
+        $processedSubfiledIds = [];
+
         // Loop through incoming items and process
         foreach ($incomingItems as $item) {
-            $itemId = isset($item['id']) ? $item['id'] : null;
-    
-            // Handle parent item update/insert
+            $itemId = $item['id'] ?? null;
+
             if ($itemId) {
+                $processedParentIds[] = $itemId;
+
                 // Update existing parent item
                 if (isset($existingMap[$itemId])) {
                     $quotationItemModel->update($itemId, [
                         'quotation_id' => $quotationId,
                         'title'        => $item['title'],
-                        'description'  => $item['description'] ?: null,
-                        'details'      => $item['details'] ?: null,
-                        'size'         => $item['size'] ?: null,
-                        'quantity'     => $item['quantity'] ?: null,
+                        'description'  => $item['description'] ?? null,
+                        'details'      => $item['details'] ?? null,
+                        'size'         => $item['size'] ?? null,
+                        'quantity'     => $item['quantity'] ?? null,
                         'type'         => $item['type'],
-                        'rate'         => $item['rate'] ?: null,
-                        'amount'       => $item['amount'] ?: null,
-                        'parent_id'    => $item['parent_id'] ?: null,
+                        'rate'         => $item['rate'] ?? null,
+                        'amount'       => $item['amount'] ?? null,
+                        'parent_id'    => $item['parent_id'] ?? null,
                     ]);
                 }
             } else {
-                // Insert new parent item if no 'id' found
+                // Insert new parent item
                 $itemId = $quotationItemModel->insert([
                     'quotation_id' => $quotationId,
                     'title'        => $item['title'],
@@ -334,14 +380,15 @@ class QuotationController extends BaseController
                     'parent_id'    => null,
                 ]);
             }
-    
+
             // Handle subfiled items
             if (!empty($item['subfiled'])) {
                 foreach ($item['subfiled'] as $subItem) {
-                    $subfiledId = isset($subItem['id']) ? $subItem['id'] : null;
-    
+                    $subfiledId = $subItem['id'] ?? null;
+
                     if ($subfiledId) {
-                        // Update existing subfiled item
+                        $processedSubfiledIds[] = $subfiledId;
+
                         if (isset($existingSubfiledMap[$itemId][$subfiledId])) {
                             $quotationItemModel->update($subfiledId, [
                                 'quotation_id' => $quotationId,
@@ -356,8 +403,7 @@ class QuotationController extends BaseController
                             ]);
                         }
                     } else {
-                        // Insert new subfiled item
-                        $quotationItemModel->insert([
+                        $processedSubfiledIds[] = $quotationItemModel->insert([
                             'quotation_id' => $quotationId,
                             'description'  => $subItem['description'],
                             'details'      => $subItem['details'],
@@ -372,37 +418,23 @@ class QuotationController extends BaseController
                 }
             }
         }
-    
-        // After syncing incoming data, clean up by deleting orphaned items
-        // Delete existing parent items not found in the incoming data
-        foreach ($existingMap as $existingItem) {
-            if (!isset($incomingItems[$existingItem['id']])) {
-                $quotationItemModel->delete($existingItem['id']);
+
+        // Clean up orphaned parent items
+        foreach ($existingMap as $existingId => $existingItem) {
+            if (!in_array($existingId, $processedParentIds)) {
+                $quotationItemModel->delete($existingId);
             }
         }
-    
-        // Delete orphaned subfiled items
+
+        // Clean up orphaned subfiled items
         foreach ($existingSubfiledMap as $parentId => $subfiledItems) {
-            foreach ($subfiledItems as $existingSubfiledItem) {
-                $subItemFound = false;
-    
-                // Check if the subfiled item exists in incoming data for this parent
-                if (isset($incomingItems[$parentId])) {
-                    foreach ($incomingItems[$parentId]['subfiled'] as $incomingSubItem) {
-                        if ($incomingSubItem['id'] === $existingSubfiledItem['id']) {
-                            $subItemFound = true;
-                            break;
-                        }
-                    }
-                }
-    
-                // If no matching subfiled item is found, delete the orphaned subfiled item
-                if (!$subItemFound) {
-                    $quotationItemModel->delete($existingSubfiledItem['id']);
+            foreach ($subfiledItems as $subfiledId => $subfiledItem) {
+                if (!in_array($subfiledId, $processedSubfiledIds)) {
+                    $quotationItemModel->delete($subfiledId);
                 }
             }
         }
-    }    
+    }
 
     private function syncInstallments($quotationId, $existingInstallments, $incomingInstallments, $model)
     {
@@ -477,5 +509,42 @@ class QuotationController extends BaseController
         foreach ($existingMap as $existingTimeline) {
             $model->delete($existingTimeline['id']);
         }
+    }
+
+    private function getMarkList($details)
+    {
+        $markList = [];
+        $masterCategoryModel = new MasterCategoryModel();
+        $masterSubCategoryModel = new MasterSubCategoryModel();
+
+        // Decode the details string (e.g., {master_id:[master_subcategory_id]})
+        $decodedDetails = json_decode($details, true);
+
+        if ($decodedDetails && is_array($decodedDetails)) {
+            foreach ($decodedDetails as $masterId => $subCategoryIds) {
+                // Fetch the master category
+                $masterCategory = $masterCategoryModel->getCategoryById($masterId);
+
+                if ($masterCategory) {
+                    // Fetch related subcategories
+                    $subCategories = [];
+                    foreach ($subCategoryIds as $subCategoryId) {
+                        $subCategory = $masterSubCategoryModel->getSubCategoryById($subCategoryId);
+                        if ($subCategory) {
+                            $subCategories[] = $subCategory;
+                        }
+                    }
+
+                    // Add master category with subcategories to the mark_list
+                    $markList[] = [
+                        'id'       => $masterId,
+                        'title'    => $masterCategory['title'],
+                        'children' => $subCategories,
+                    ];
+                }
+            }
+        }
+
+        return $markList;
     }
 }
