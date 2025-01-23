@@ -23,6 +23,7 @@ class QuotationModel extends Model
         'cgst',
         'grand_total',
         'mark_list',
+        'status',
         'created_by',
     ];
 }

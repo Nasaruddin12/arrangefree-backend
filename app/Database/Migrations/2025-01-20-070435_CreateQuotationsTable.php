@@ -60,6 +60,10 @@ class CreateQuotationsTable extends Migration
                 'constraint' => '10,2',
                 'null'       => true,
             ],
+            'status' => [
+                'type'           => 'INT',
+                'constraint'     => 1,
+            ],
             'mark_list' => [
                 'type'       => 'JSON',
                 'null'       => true,

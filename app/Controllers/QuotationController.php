@@ -543,6 +543,37 @@ class QuotationController extends BaseController
         }
     }
 
+    public function convertToSale($id)
+    {
+        try {
+            $quotationModel = new QuotationModel();
+
+            $quotation = $quotationModel->find($id);
+
+            if (!$quotation) {
+                throw new Exception('Quotation not found', 404);
+            }
+
+            // Update the status
+            $quotationModel->update($id, ['status' => 1]);
+
+            // Prepare success response
+            $statusCode = 200;
+            $response = [
+                'message' => 'Quotation converted to sale successfully',
+            ];
+        } catch (Exception $e) {
+            // Handle errors
+            $statusCode = $e->getCode() === 404 ? 404 : 500;
+            $response = [
+                'error' => $e->getMessage(),
+            ];
+        }
+
+        $response['status'] = $statusCode;
+        return $this->respond($response, $statusCode);
+    }
+
     private function getMarkList($details)
     {
         $markList = [];
