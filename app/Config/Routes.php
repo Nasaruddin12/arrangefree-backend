@@ -78,6 +78,9 @@ $routes->group('quotation', static function ($routes) {
     // $routes->delete('Delete/(:num)', 'QuotationController::QuotationDelete/$1');
     // });
 });
+$routes->group('sites', static function ($routes) {
+    $routes->get('getAllSites', 'QuotationController::getAllSites');
+});
 
 //mailing
 $routes->get('/post_order_mail/(:num)', 'MailingController::post_order_mail/$1');

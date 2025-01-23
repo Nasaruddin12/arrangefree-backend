@@ -610,4 +610,30 @@ class QuotationController extends BaseController
 
         return $markList;
     }
+    public function getAllSites()
+    {
+        try {
+            // Load the Quotation Model
+            $quotationModel = new QuotationModel();
+
+            // Retrieve all quotations
+            $quotations = $quotationModel->where('status', 1)->findAll();
+
+            // Check if quotations are found
+            if ($quotations) {
+                return $this->respond([
+                    'status'  => 200,
+                    'message' => 'Quotations retrieved successfully',
+                    'data'    => $quotations
+                ], 200);
+            } else {
+                throw new \Exception('No quotations found', 404);
+            }
+        } catch (\Exception $e) {
+            return $this->respond([
+                'status'  => $e->getCode(),
+                'message' => $e->getMessage()
+            ], $e->getCode());
+        }
+    }
 }
