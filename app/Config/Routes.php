@@ -74,7 +74,7 @@ $routes->group('quotation', static function ($routes) {
     $routes->get('getById/(:num)', 'QuotationController::getById/$1');
     $routes->get('quotationById/(:num)', 'QuotationController::quotationById/$1');
     $routes->get('customerMobileNumber/(:num)', 'QuotationController::quotationByCustomerMobileNumber/$1');
-    $routes->put('convertToSale/(:num)', 'QuotationController::convertToSale/$1');
+    $routes->post('changeStatus/(:num)', 'QuotationController::changeStatus/$1');
     // $routes->delete('Delete/(:num)', 'QuotationController::QuotationDelete/$1');
     // });
 });

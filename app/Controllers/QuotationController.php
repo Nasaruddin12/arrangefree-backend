@@ -543,10 +543,11 @@ class QuotationController extends BaseController
         }
     }
 
-    public function convertToSale($id)
+    public function changeStatus($id)
     {
         try {
             $quotationModel = new QuotationModel();
+            $newStatus = $this->request->getVar('status');
 
             $quotation = $quotationModel->find($id);
 
@@ -555,7 +556,7 @@ class QuotationController extends BaseController
             }
 
             // Update the status
-            $quotationModel->update($id, ['status' => 1]);
+            $quotationModel->update($id, ['status' => $newStatus]);
 
             // Prepare success response
             $statusCode = 200;
@@ -617,7 +618,7 @@ class QuotationController extends BaseController
             $quotationModel = new QuotationModel();
 
             // Retrieve all quotations
-            $quotations = $quotationModel->where('status', 1)->findAll();
+            $quotations = $quotationModel->where('status', 'sale')->findAll();
 
             // Check if quotations are found
             if ($quotations) {
