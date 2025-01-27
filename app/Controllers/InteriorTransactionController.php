@@ -41,6 +41,25 @@ class InteriorTransactionController extends BaseController
             return $this->failServerError('An unexpected error occurred: ' . $e->getMessage());
         }
     }
+    public function getAll()
+    {
+        try {
+            $transactions = $this->transactionModel->findAll();
+
+            if (empty($transactions)) {
+                return $this->failNotFound('No transactions found for the given quotation ID');
+            }
+            return $this->respond([
+                'status'  => 200,
+                'message' => 'Transactions retrieved successfully',
+                'data'    => $transactions
+            ], 200);
+        } catch (DatabaseException $e) {
+            return $this->failServerError('Database error: ' . $e->getMessage());
+        } catch (Exception $e) {
+            return $this->failServerError('An unexpected error occurred: ' . $e->getMessage());
+        }
+    }
 
     /**
      * Create a new transaction
