@@ -48,17 +48,21 @@ class InteriorTransactionController extends BaseController
             $startDate = $this->request->getVar('start_date');
             $endDate = $this->request->getVar('end_date');
 
-            // Validate the dates if necessary
+            // If no dates are provided, default to the current month (start and end date)
             if (!$startDate || !$endDate) {
-                return $this->failValidationError('Both start_date and end_date are required');
+                // Get the first day of the current month
+                $startDate = date('Y-m-01');
+
+                // Get the last day of the current month
+                $endDate = date('Y-m-t');
+            } else {
+                // Convert date to correct format if needed (e.g., 'Y-m-d')
+                $startDate = date('Y-m-d', strtotime($startDate));
+                $endDate = date('Y-m-d', strtotime($endDate));
             }
 
-            // Convert date to correct format if needed (e.g., 'Y-m-d')
-            $startDate = date('Y-m-d', strtotime($startDate));
-            $endDate = date('Y-m-d', strtotime($endDate));
-
             // Query the database for transactions within the specified date range
-            // Assuming 'transactionModel' has a 'quotation_id' field to join with the 'quotationModel'
+            // Assuming 'interior_transactions' has a 'quotation_id' field to join with the 'quotations' table
             $transactions = $this->transactionModel
                 ->select('interior_transactions.*, quotations.customer_name') // Select fields from both tables
                 ->join('quotations', 'interior_transactions.quotation_id = quotations.id', 'left') // Join the quotations table
