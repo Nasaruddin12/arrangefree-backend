@@ -498,7 +498,7 @@ $routes->group('Complaints', static function ($routes) {
 $routes->group('transactions', static function ($routes) {
     $routes->get('(:num)', 'InteriorTransactionController::index/$1');
     $routes->post('/', 'InteriorTransactionController::create');
-    $routes->get('/', 'InteriorTransactionController::getAll');
+    $routes->post('/getAll', 'InteriorTransactionController::getAll');
     $routes->get('(:num)', 'InteriorTransactionController::show/$1');
     $routes->put('(:num)', 'InteriorTransactionController::update/$1');
     $routes->delete('(:num)', 'InteriorTransactionController::delete/$1');
