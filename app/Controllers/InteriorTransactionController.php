@@ -48,6 +48,10 @@ class InteriorTransactionController extends BaseController
             $startDate = $this->request->getVar('start_date');
             $endDate = $this->request->getVar('end_date');
 
+            // Get pagination parameters (page and perPage)
+            $page = $this->request->getVar('page') ?? 1; // Default to page 1 if not provided
+            $perPage = $this->request->getVar('perPage') ?? 10; // Default to 10 items per page if not provided
+
             // If no dates are provided, default to the current month (start and end date)
             if (!$startDate || !$endDate) {
                 // Get the first day of the current month
@@ -61,6 +65,9 @@ class InteriorTransactionController extends BaseController
                 $endDate = date('Y-m-d', strtotime($endDate));
             }
 
+            // Calculate the offset based on the current page and items per page
+            $offset = ($page - 1) * $perPage;
+
             // Query the database for transactions within the specified date range
             // Assuming 'interior_transactions' has a 'quotation_id' field to join with the 'quotations' table
             $transactions = $this->transactionModel
@@ -68,16 +75,29 @@ class InteriorTransactionController extends BaseController
                 ->join('quotations', 'interior_transactions.quotation_id = quotations.id', 'left') // Join the quotations table
                 ->where('interior_transactions.date >=', $startDate)
                 ->where('interior_transactions.date <=', $endDate)
+                ->limit($perPage, $offset) // Apply pagination limit and offset
                 ->findAll();
+
+            // Count the total number of transactions for pagination
+            $totalTransactions = $this->transactionModel
+                ->where('interior_transactions.date >=', $startDate)
+                ->where('interior_transactions.date <=', $endDate)
+                ->countAllResults();
 
             if (empty($transactions)) {
                 return $this->failNotFound('No transactions found for the given date range');
             }
 
             return $this->respond([
-                'status'  => 200,
-                'message' => 'Transactions retrieved successfully',
-                'data'    => $transactions
+                'status'    => 200,
+                'message'   => 'Transactions retrieved successfully',
+                'data'      => $transactions,
+                'pagination' => [
+                    'currentPage'  => $page,
+                    'perPage'      => $perPage,
+                    'totalPages'   => ceil($totalTransactions / $perPage),
+                    'totalRecords' => $totalTransactions
+                ]
             ], 200);
         } catch (DatabaseException $e) {
             return $this->failServerError('Database error: ' . $e->getMessage());
