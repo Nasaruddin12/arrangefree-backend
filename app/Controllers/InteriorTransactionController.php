@@ -44,11 +44,32 @@ class InteriorTransactionController extends BaseController
     public function getAll()
     {
         try {
-            $transactions = $this->transactionModel->findAll();
+            // Get start_date and end_date from the request (use input->getVar() to handle incoming parameters)
+            $startDate = $this->request->getVar('start_date');
+            $endDate = $this->request->getVar('end_date');
+
+            // Validate the dates if necessary
+            if (!$startDate || !$endDate) {
+                return $this->failValidationError('Both start_date and end_date are required');
+            }
+
+            // Convert date to correct format if needed (e.g., 'Y-m-d')
+            $startDate = date('Y-m-d', strtotime($startDate));
+            $endDate = date('Y-m-d', strtotime($endDate));
+
+            // Query the database for transactions within the specified date range
+            // Assuming 'transactionModel' has a 'quotation_id' field to join with the 'quotationModel'
+            $transactions = $this->transactionModel
+                ->select('interior_transactions.*, quotations.customer_name') // Select fields from both tables
+                ->join('quotations', 'interior_transactions.quotation_id = quotations.id', 'left') // Join the quotations table
+                ->where('interior_transactions.date >=', $startDate)
+                ->where('interior_transactions.date <=', $endDate)
+                ->findAll();
 
             if (empty($transactions)) {
-                return $this->failNotFound('No transactions found for the given quotation ID');
+                return $this->failNotFound('No transactions found for the given date range');
             }
+
             return $this->respond([
                 'status'  => 200,
                 'message' => 'Transactions retrieved successfully',
