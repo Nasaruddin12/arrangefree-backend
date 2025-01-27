@@ -15,6 +15,7 @@ $routes->group('dashboard', static function ($routes) {
     // $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
     $routes->get('get-statics', 'ProductDashboardController::getProductStatics');
     $routes->get('products-statics', 'ProductDashboardController::productsStats');
+    $routes->get('getQuotationsdata', 'DashboardController::getDashboardData');
 });
 // });
 
@@ -493,6 +494,15 @@ $routes->group('Complaints', static function ($routes) {
     $routes->delete('Delete/(:num)', 'ComplaintsController::Delete/$1');
     $routes->put('Update', 'ComplaintsController::Update');
 });
+
+$routes->group('transactions', static function ($routes) {
+    $routes->get('(:num)', 'InteriorTransactionController::index/$1');
+    $routes->post('/', 'InteriorTransactionController::create');
+    $routes->get('(:num)', 'InteriorTransactionController::show/$1');
+    $routes->put('(:num)', 'InteriorTransactionController::update/$1');
+    $routes->delete('(:num)', 'InteriorTransactionController::delete/$1');
+});
+
 
 
 $routes->group('Transaction', static function ($routes) {
