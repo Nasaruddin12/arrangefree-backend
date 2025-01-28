@@ -98,6 +98,22 @@ class InteriorTransactionController extends BaseController
                 ->where('interior_transactions.date <=', $endDate)
                 ->countAllResults();
 
+            $totalIncome = $this->transactionModel
+                ->where('interior_transactions.date >=', $startDate)
+                ->where('interior_transactions.date <=', $endDate)
+                ->where('interior_transactions.transaction_type', 'Income') // Assuming 'type' field exists for income/expense
+                ->selectSum('interior_transactions.amount') // Sum the 'amount' field
+                ->get()
+                ->getRow()->amount;
+
+            $totalExpense = $this->transactionModel
+                ->where('interior_transactions.date >=', $startDate)
+                ->where('interior_transactions.date <=', $endDate)
+                ->where('interior_transactions.transaction_type', 'Expense') // Assuming 'type' field exists for income/expense
+                ->selectSum('interior_transactions.amount') // Sum the 'amount' field
+                ->get()
+                ->getRow()->amount;
+
             if (empty($result)) {
                 return $this->failNotFound('No transactions found for the given date range');
             }
@@ -111,6 +127,10 @@ class InteriorTransactionController extends BaseController
                     'perPage'      => $perPage,
                     'totalPages'   => ceil($totalTransactions / $perPage),
                     'totalRecords' => $totalTransactions
+                ],
+                'totals' => [
+                    'income' => $totalIncome ?? 0, // Default to 0 if null
+                    'expense' => $totalExpense ?? 0 // Default to 0 if null
                 ]
             ], 200);
         } catch (DatabaseException $e) {
