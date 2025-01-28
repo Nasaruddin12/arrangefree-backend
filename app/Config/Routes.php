@@ -500,6 +500,7 @@ $routes->group('transactions', static function ($routes) {
     $routes->post('/', 'InteriorTransactionController::create');
     $routes->post('getAll', 'InteriorTransactionController::getAll');
     $routes->get('(:num)', 'InteriorTransactionController::show/$1');
+    $routes->get('office-expense', 'InteriorTransactionController::getOfficeExpense');
     $routes->put('(:num)', 'InteriorTransactionController::update/$1');
     // $routes->delete('(:num)', 'InteriorTransactionController::delete/$1');
 });
