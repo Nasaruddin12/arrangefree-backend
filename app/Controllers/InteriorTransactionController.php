@@ -78,20 +78,34 @@ class InteriorTransactionController extends BaseController
                 ->limit($perPage, $offset)
                 ->get();
 
+            $transactions = $this->transactionModel
+                ->select('interior_transactions.*, quotations.customer_name')
+                ->join('quotations', 'interior_transactions.quotation_id = quotations.id', 'left')
+                ->where('interior_transactions.date >=', $startDate)
+                ->where('interior_transactions.date <=', $endDate)
+                ->limit($perPage, $offset)
+                ->get();
+
+            // Check for data
+            if ($transactions->getNumRows() > 0) {
+                $result = $transactions->getResultArray();
+            } else {
+                $result = [];
+            }
             // Count the total number of transactions for pagination
             $totalTransactions = $this->transactionModel
                 ->where('interior_transactions.date >=', $startDate)
                 ->where('interior_transactions.date <=', $endDate)
                 ->countAllResults();
 
-            if (empty($transactions)) {
+            if (empty($result)) {
                 return $this->failNotFound('No transactions found for the given date range');
             }
 
             return $this->respond([
                 'status'    => 200,
                 'message'   => 'Transactions retrieved successfully',
-                'data'      => $transactions,
+                'data'      => $result,
                 'pagination' => [
                     'currentPage'  => $page,
                     'perPage'      => $perPage,
