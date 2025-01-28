@@ -33,7 +33,7 @@ class InteriorTransactionModel extends Model
     // Validation rules for input data
     protected $validationRules = [
         'quotation_id'    => 'permit_empty|integer',
-        'transaction_type' => 'required|in_list[Income,Expense]',
+        'transaction_type' => 'permit_empty|in_list[Income,Expense]',
         'category'         => 'permit_empty|string|max_length[255]',
         'amount'           => 'required|decimal',
         'payment_method'   => 'required|in_list[Cash,Online,Cheque,Other]',
