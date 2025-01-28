@@ -111,27 +111,65 @@ class InteriorTransactionController extends BaseController
      */
     public function create()
     {
-        $data = $this->request->getJSON(true);
+        $data = $this->request->getJSON(true); // Get the JSON input as an array
 
-        // Validate incoming data
-        if (!$this->transactionModel->validate($data)) {
-            return $this->failValidationErrors($this->transactionModel->errors());
+        // Check if the input is an array
+        if (!is_array($data)) {
+            return $this->failValidationErrors('Invalid data format. Expected an array of transactions.');
         }
 
-        try {
-            // Insert data into the database
-            if (!$this->transactionModel->insert($data)) {
-                return $this->fail($this->transactionModel->errors(), 400);
+        $errors = [];
+        $successCount = 0;
+
+        foreach ($data as $transaction) {
+            // Validate each transaction
+            if (!$this->transactionModel->validate($transaction)) {
+                $errors[] = [
+                    'transaction' => $transaction,
+                    'errors' => $this->transactionModel->errors(),
+                ];
+                continue;
             }
 
-            return $this->respondCreated(['message' => 'Transaction created successfully', 'status' => 201]);
-        } catch (DatabaseException $e) {
-            return $this->failServerError('Database error: ' . $e->getMessage());
-        } catch (Exception $e) {
-            return $this->failServerError('An unexpected error occurred: ' . $e->getMessage());
+            try {
+                // Insert the transaction into the database
+                if ($this->transactionModel->insert($transaction)) {
+                    $successCount++;
+                } else {
+                    $errors[] = [
+                        'transaction' => $transaction,
+                        'errors' => $this->transactionModel->errors(),
+                    ];
+                }
+            } catch (DatabaseException $e) {
+                $errors[] = [
+                    'transaction' => $transaction,
+                    'error' => 'Database error: ' . $e->getMessage(),
+                ];
+            } catch (Exception $e) {
+                $errors[] = [
+                    'transaction' => $transaction,
+                    'error' => 'Unexpected error: ' . $e->getMessage(),
+                ];
+            }
         }
-    }
 
+        // Build the response
+        if (!empty($errors)) {
+            return $this->respond([
+                'message' => 'Some transactions failed to create',
+                'status' => 207,
+                'success_count' => $successCount,
+                'errors' => $errors,
+            ], 207); // 207 Multi-Status for partial success
+        }
+
+        return $this->respondCreated([
+            'message' => 'All transactions created successfully',
+            'status' => 201,
+            'success_count' => $successCount,
+        ]);
+    }
     /**
      * Fetch a single transaction by ID
      */

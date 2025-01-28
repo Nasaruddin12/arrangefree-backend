@@ -501,7 +501,7 @@ $routes->group('transactions', static function ($routes) {
     $routes->post('getAll', 'InteriorTransactionController::getAll');
     $routes->get('(:num)', 'InteriorTransactionController::show/$1');
     $routes->put('(:num)', 'InteriorTransactionController::update/$1');
-    $routes->delete('(:num)', 'InteriorTransactionController::delete/$1');
+    // $routes->delete('(:num)', 'InteriorTransactionController::delete/$1');
 });
 
 
