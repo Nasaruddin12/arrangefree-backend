@@ -122,7 +122,7 @@ class MailingController extends Controller
             if ($email->send()) {
             } else {
                 $data = $email->printDebugger(['headers']);
-                print_r($data);
+                // print_r($data);
             }
         }
     }
