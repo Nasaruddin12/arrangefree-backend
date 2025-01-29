@@ -235,6 +235,7 @@ class QuotationController extends BaseController
 
                     if ($admin) {
                         $quotation['created_by_name'] = $admin['name'];
+                        $quotation['mobile_no'] = $admin['mobile_no'];
                     }
                 }
 
