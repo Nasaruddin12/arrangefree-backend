@@ -159,7 +159,7 @@ class InvoiceController extends BaseController
         // $email = $emailControler->order_confirmed($orderID, $email);
 
         $mailingController = new MailingController();
-       $email =  $mailingController->post_order_mail($orderID);
+    //    $email =  $mailingController->post_order_mail($orderID);
 
         // empty Cart
         $cartModel = new CartModel();
