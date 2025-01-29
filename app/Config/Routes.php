@@ -51,8 +51,8 @@ $routes->group('customer', static function ($routes) {
         $routes->get('getRecentViewBySlug/(:any)', 'RecentlyViewedController::getRecentViewBySlug/$1');
         $routes->get('deleteCustomer/(:num)', 'CustomerController::DeleteCustomer/$1');
         $routes->post('cancel-order', 'OrderController::cancelOrder');
-        });
-        $routes->get('getAllContactUs', 'CustomerController::getAllContactUs');
+    });
+    $routes->get('getAllContactUs', 'CustomerController::getAllContactUs');
 });
 
 $routes->group('Staff', static function ($routes) {
