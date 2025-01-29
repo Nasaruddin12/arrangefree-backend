@@ -166,6 +166,6 @@ class InvoiceController extends BaseController
         // $cartModel->where('customer_id', $customerID)->delete();
 
 
-        return base_url($invoicePath);
+        return base_url($path);
     }
 }
