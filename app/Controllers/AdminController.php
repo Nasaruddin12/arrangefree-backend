@@ -111,8 +111,7 @@ class AdminController extends BaseController
             $customerData = $AdminModel->where('mobile_no', $mobileNo)->first();
             if (!empty($customerData)) {
                 $otp = random_int(1000, 9999);
-                if ($mobileNo == '8999125105')
-                    $otp = 6254;
+              
                 // echo $otp;
                 $smsGateway = new SMSGateway();
                 $response = $smsGateway->sendOTP($mobileNo, $otp);
