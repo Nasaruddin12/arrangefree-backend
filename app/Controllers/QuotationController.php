@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
+use App\Models\AdminModel;
 use App\Models\MasterCategoryModel;
 use App\Models\MasterSubCategoryModel;
 use App\Models\QuotationModel;
@@ -225,6 +226,17 @@ class QuotationController extends BaseController
 
                 // Fetch and format mark_list
                 $quotation['mark_list'] = $this->getMarkList($quotation['mark_list']);
+
+                $quotation['created_by_name'] = null; // Default to null
+
+                if (!empty($quotation['created_by'])) {
+                    $adminModel = new AdminModel();
+                    $admin = $adminModel->find($quotation['created_by']);
+
+                    if ($admin) {
+                        $quotation['created_by_name'] = $admin['name'];
+                    }
+                }
 
                 return $this->respond([
                     'status'  => 200,
