@@ -165,7 +165,7 @@ class InvoiceController extends BaseController
         $cartModel = new CartModel();
         // $cartModel->where('customer_id', $customerID)->delete();
 
-        echo $path;
-        return base_url($path);
+
+        return $invoicePath;
     }
 }
