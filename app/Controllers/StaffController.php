@@ -70,12 +70,12 @@ class StaffController extends BaseController
         if ($data) {
             $response = [
                 "status" => 200,
-                "Data" => $data,
+                "data" => $data,
             ];
         } else {
             $response = [
                 "status" => 404,
-                "message" => "Not Data Found",
+                "message" => "Not data Found",
             ];
         }
         return $this->respond($response, 200);
@@ -87,7 +87,7 @@ class StaffController extends BaseController
         if ($data) {
             $response = [
                 "status" => 200,
-                "Data" => $data,
+                "data" => $data,
             ];
         } else {
             $response = [
