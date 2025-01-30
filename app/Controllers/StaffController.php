@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\QuotationModal;
-use App\Models\StaffsModel;
+use App\Models\StaffModel;
 use CodeIgniter\API\ResponseTrait;
 use Exception;
 
@@ -13,168 +13,181 @@ class StaffController extends BaseController
     use ResponseTrait;
     public function Create()
     {
-
-
-        $StaffsModel = new StaffsModel();
+        $staffModel = new StaffModel();
         try {
             $data = [
-                "username" => $this->request->getVar("username"),
-                "password" => password_hash($this->request->getVar("password"), PASSWORD_BCRYPT),
                 "name" => $this->request->getVar("name"),
-                "phone" => $this->request->getVar("phone"),
                 "email" => $this->request->getVar("email"),
-                "aadhaar_no" => $this->request->getVar("aadhaar_no"),
+                "mobile_no" => $this->request->getVar("mobile_no"),
+                "salary" => $this->request->getVar("salary"),
+                "aadhar_no" => $this->request->getVar("aadhar_no"),
                 "pan_no" => $this->request->getVar("pan_no"),
-                "adhaar_file" => $this->request->getVar("adhaar_file"),
-                "pan_file" => $this->request->getVar("pan_file")
+                "joining_date" => $this->request->getVar("joining_date"),
+                "relieving_date" => $this->request->getVar("relieving_date"),
+                "designation" => $this->request->getVar("designation"),
+                "pan_card" => $this->request->getVar("pan_card"),
+                "aadhar_card" => $this->request->getVar("aadhar_card"),
+                "photo" => $this->request->getVar("photo"),
+                "joining_letter" => $this->request->getVar("joining_letter"),
+                "status" => $this->request->getVar("status"),
             ];
-            $rest = $StaffsModel->insert($data);
+
+            if (!$this->validate($staffModel->validationRules, $staffModel->validationMessages)) {
+                return $this->respond([
+                    "status" => 400,
+                    "message" => "Validation Failed",
+                    "Errors" => $this->validator->getErrors(),
+                ], 400);
+            }
+
+            $rest = $staffModel->insert($data);
             if ($rest) {
                 $response = [
-                    "Status" => 201,
-                    "Msg" => "Data Added Successfully",
+                    "status" => 201,
+                    "message" => "Data Added Successfully",
                 ];
             } else {
                 $response = [
-                    "Status" => 500,
-                    "Msg" => "Data Not Added Successfully",
-                    "Validation" => $StaffsModel->errors(),
+                    "status" => 500,
+                    "message" => "Data Not Added Successfully",
+                    "Validation" => $staffModel->errors(),
                 ];
             }
         } catch (Exception $e) {
             $response = [
-                "Status" => 500,
+                "status" => 500,
                 "Error" => $e->getMessage(),
                 "Line" => $e->getLine()
             ];
         }
         return $this->respond($response, 200);
     }
+
     function getAllStaffs()
     {
-        $StaffsModel = new StaffsModel();
-        $data = $StaffsModel->findAll();
+        $staffModel = new StaffModel();
+        $data = $staffModel->findAll();
         if ($data) {
             $response = [
-                "Status" => 200,
+                "status" => 200,
                 "Data" => $data,
             ];
         } else {
             $response = [
-                "Status" => 404,
-                "Msg" => "Not Data Found",
+                "status" => 404,
+                "message" => "Not Data Found",
             ];
         }
         return $this->respond($response, 200);
     }
     function getAllStaffByID($id)
     {
-        $StaffsModel = new StaffsModel();
-        $data = $StaffsModel->where("id", $id)->first();
+        $staffModel = new StaffModel();
+        $data = $staffModel->where("id", $id)->first();
         if ($data) {
             $response = [
-                "Status" => 200,
+                "status" => 200,
                 "Data" => $data,
             ];
         } else {
             $response = [
-                "Status" => 404,
-                "Msg" => "Not Data Found",
+                "status" => 404,
+                "message" => "Not Data Found",
             ];
         }
         return $this->respond($response, 200);
     }
-    function UpdateStaff()
+    public function UpdateStaff($id = null)
     {
         try {
-            $id = $this->request->getVar("id");
-            $StaffsModel = new StaffsModel();
+            $staffModel = new StaffModel();
+
+            // Check if staff exists
+            $staff = $staffModel->find($id);
+            if (!$staff) {
+                return $this->respond([
+                    "status"  => 404,
+                    "message" => "Staff not found",
+                ], 404);
+            }
+
+            // Prepare the data from the request
             $data = [
-                "username" => $this->request->getVar("username"),
-                "password" => password_hash($this->request->getVar("password"), PASSWORD_BCRYPT),
-                "name" => $this->request->getVar("name"),
-                "phone" => $this->request->getVar("phone"),
-                "email" => $this->request->getVar("email"),
-                "aadhaar_no" => $this->request->getVar("aadhaar_no"),
-                "pan_no" => $this->request->getVar("pan_no"),
-                "adhaar_file" => $this->request->getVar("adhaar_file"),
-                "pan_file" => $this->request->getVar("pan_file")
+                "name"           => $this->request->getVar("name"),
+                "email"          => $this->request->getVar("email"),
+                "mobile_no"      => $this->request->getVar("mobile_no"),
+                "salary"         => $this->request->getVar("salary"),
+                "aadhar_no"      => $this->request->getVar("aadhar_no"),
+                "pan_no"         => $this->request->getVar("pan_no"),
+                "joining_date"   => $this->request->getVar("joining_date"),
+                "relieving_date" => $this->request->getVar("relieving_date"),
+                "designation"    => $this->request->getVar("designation"),
+                "pan_card"       => $this->request->getVar("pan_card"),
+                "aadhar_card"    => $this->request->getVar("aadhar_card"),
+                "photo"          => $this->request->getVar("photo"),
+                "joining_letter" => $this->request->getVar("joining_letter"),
+                "status"         => $this->request->getVar("status"),
             ];
 
+            // Get validation rules from model
+            $rules = $staffModel->getValidationRules();
 
+            // Fields that should skip `is_unique` for the same ID
+            $fieldsToSkipUnique = ["email", "aadhar_no", "pan_no"];
 
-
-            $rules = $StaffsModel->getValidationRules();
-
-            $fieldsToSkipUnique = ["username", "password", "name", "phone", "email", "aadhaar_no", "pan_no", "adhaar_file", "pan_file", "status"];
-
+            // Replace `{id}` in validation rules with the actual ID
             foreach ($fieldsToSkipUnique as $field) {
                 if (isset($rules[$field])) {
-                    $backupRules[$field] = $rules[$field];
-                    unset($rules[$field]); // Remove the is_unique rule temporarily
+                    // Replace `{id}` placeholder in the rule with the actual staff ID
+                    $rules[$field] = str_replace("{id}", $id, $rules[$field]);
                 }
             }
 
-            // Perform your validation with the modified rules
-            $validationResult = $StaffsModel->setValidationRules($rules)->validate($data);
-
-            if ($validationResult) {
-                // Validation passed, update the data
-
-                $rest = $StaffsModel->update($id, $data);
-
-                if ($rest) {
-                    $response = [
-                        "Status" => 200,
-                        "Msg" => "Data Updated Successfully",
-                    ];
-                } else {
-                    $response = [
-                        "Status" => 500,
-                        "Msg" => "Data Not Updated Successfully",
-                        "Validation" => $StaffsModel->errors(),
-                    ];
-                }
-            } else {
-                // Validation failed
-                $response = [
-                    "Status" => 403,
-                    "Validation" => $StaffsModel->errors()
-                ];
+            // Validate data with modified rules
+            if (!$this->validate($rules)) {
+                return $this->respond([
+                    "status"  => 400,
+                    "message" => "Validation Failed",
+                    "Errors"  => $this->validator->getErrors(),
+                ], 400);
             }
 
-            // Restore the removed is_unique rule if applicable
-            foreach ($fieldsToSkipUnique as $field) {
-                if (isset($backupRules[$field])) {
-                    $rules[$field] = $backupRules[$field]; // Restore the removed is_unique rule
-                }
+            // Update record
+            if ($staffModel->update($id, $data)) {
+                return $this->respond([
+                    "status"  => 200,
+                    "message" => "Data Updated Successfully",
+                ], 200);
             }
 
-            $StaffsModel->setValidationRules($rules);
+            return $this->respond([
+                "status"  => 500,
+                "message" => "Data Not Updated Successfully",
+                "Errors"  => $staffModel->errors(),
+            ], 500);
         } catch (Exception $e) {
-            $response = [
-                "Status" => 500,
-                "Error" => $e->getMessage(),
-                "Line" => $e->getLine()
-            ];
+            return $this->respond([
+                "status" => 500,
+                "Error"  => $e->getMessage(),
+                "Line"   => $e->getLine()
+            ], 500);
         }
-        return $this->respond($response, 200);
     }
     function Delete($id)
     {
-        $StaffsModel = new StaffsModel();
-        $data = $StaffsModel->update($id, [
+        $staffModel = new StaffModel();
+        $data = $staffModel->update($id, [
             "status" => 2
         ]);
         if ($data) {
             $response = [
-                "Status" => 200,
-                "Msg" => "Data Deleted Successfully",
+                "status" => 200,
+                "message" => "Data Deleted Successfully",
             ];
         } else {
             $response = [
-                "Status" => 500,
-                "Msg" => "Data Not Deleted Successfully",
+                "status" => 500,
+                "message" => "Data Not Deleted Successfully",
             ];
         }
         return $this->respond($response, 200);
@@ -190,23 +203,117 @@ class StaffController extends BaseController
             $fileName = $file->getRandomName();
             if ($file->move($uploadDirectory, $fileName)) {
                 $response = [
-                    "Status" => 200,
-                    "Msg" => "File Uploaded Successfully",
+                    "status" => 200,
+                    "message" => "File Uploaded Successfully",
                     "path" => $uploadDirectory . $fileName
                 ];
             } else {
                 $response = [
-                    "Status" => 400,
-                    "Msg" => "File Not Uploaded Successfully"
+                    "status" => 400,
+                    "message" => "File Not Uploaded Successfully"
                 ];
             }
         } catch (Exception $e) {
             $response = [
-                "Status" => 500,
+                "status" => 500,
                 "Error" => $e->getMessage(),
                 "Line" => $e->getLine(),
             ];
         }
         return $this->respondCreated($response, 200);
+    }
+
+    public function deletefile()
+    {
+        try {
+            $filePath = $this->request->getVar('file_path'); // Get file path from request
+
+            // Check if the file exists
+            if (file_exists($filePath)) {
+                // Delete the file
+                if (unlink($filePath)) {
+                    $response = [
+                        "status" => 200,
+                        "message" => "File Deleted Successfully",
+                        "path" => $filePath
+                    ];
+                } else {
+                    $response = [
+                        "status" => 400,
+                        "message" => "File Not Deleted Successfully"
+                    ];
+                }
+            } else {
+                $response = [
+                    "status" => 404,
+                    "message" => "File Not Found"
+                ];
+            }
+        } catch (Exception $e) {
+            $response = [
+                "status" => 500,
+                "Error" => $e->getMessage(),
+                "Line" => $e->getLine(),
+            ];
+        }
+
+        return $this->respondCreated($response, 200);
+    }
+    public function UpdateStaffstatus($id = null)
+    {
+        try {
+            $staffModel = new StaffModel();
+
+            // Check if staff exists
+            if (!$staffModel->find($id)) {
+                return $this->respond([
+                    "status"  => 404,
+                    "message" => "Staff not found",
+                ], 404);
+            }
+
+            // Prepare the data from the request for status and relieving date
+            $data = [
+                "status"         => $this->request->getVar("status"),
+                "relieving_date" => $this->request->getVar("relieving_date"),
+            ];
+
+            // Define validation rules (e.g., check if status is valid and relieving date is a valid date)
+            $validationRules = [
+                'status'         => 'required|in_list[active,inactive]',
+            ];
+            if ($data['relieving_date']) {
+                $validationRules['relieving_date'] = 'valid_date';
+            }
+
+            // Validate data
+            if (!$this->validate($validationRules)) {
+                return $this->respond([
+                    "status"  => 400,
+                    "message" => "Validation Failed",
+                    "Errors"  => $this->validator->getErrors(),
+                ], 400);
+            }
+
+            // Update record with new status and relieving date
+            if ($staffModel->update($id, $data)) {
+                return $this->respond([
+                    "status"  => 200,
+                    "message" => "status and Relieving Date Updated Successfully",
+                ], 200);
+            }
+
+            return $this->respond([
+                "status"  => 500,
+                "message" => "Data Not Updated Successfully",
+                "Errors"  => $staffModel->errors(),
+            ], 500);
+        } catch (Exception $e) {
+            return $this->respond([
+                "status" => 500,
+                "Error"  => $e->getMessage(),
+                "Line"   => $e->getLine()
+            ], 500);
+        }
     }
 }

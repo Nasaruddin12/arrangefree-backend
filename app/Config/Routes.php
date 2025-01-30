@@ -55,14 +55,16 @@ $routes->group('customer', static function ($routes) {
     $routes->get('getAllContactUs', 'CustomerController::getAllContactUs');
 });
 
-$routes->group('Staff', static function ($routes) {
+$routes->group('staff', static function ($routes) {
     // $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
-    $routes->post('Create', 'StaffController::Create');
+    $routes->post('create', 'StaffController::Create');
     $routes->get('getAllStaffs', 'StaffController::getAllStaffs');
-    $routes->get('getAllStaffByID/(:num)', 'StaffController::getAllStaffByID/$1');
-    $routes->put('UpdateStaff', 'StaffController::UpdateStaff');
+    $routes->get('getByID/(:num)', 'StaffController::getAllStaffByID/$1');
+    $routes->put('updateStaff/(:num)', 'StaffController::UpdateStaff/$1');
+    $routes->put('update-status/(:num)', 'StaffController::UpdateStaffstatus/$1');
     $routes->delete('Delete/(:num)', 'StaffController::Delete/$1');
     $routes->post('FileUpload', 'StaffController::FileUpload');
+    $routes->post('filedelete', 'StaffController::deletefile');
     // });
 });
 
