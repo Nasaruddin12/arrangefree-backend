@@ -312,8 +312,8 @@ class CustomerController extends BaseController
 
             $page = (int)$this->request->getVar('page');
             $latest = $this->request->getVar('latest');
-            $search = $this->request->getVar('search');         
-                   
+            $search = $this->request->getVar('search');
+
             $validation = &$customerModel;
 
             $data = $customerModel;
@@ -322,14 +322,14 @@ class CustomerController extends BaseController
             if ($latest == true) {
                 $data->orderBy('created_at', 'DESC');
             }
-            if (!($search == null|| $search == '')) {
+            if (!($search == null || $search == '')) {
                 // echo var_dump($order_id);
                 $data = $data->like('name', $search)->orLike('email', $search)->orLike('mobile_no', $search);
                 // $orderCountQuery = $orderCountQuery->like('razorpay_order_id', $search)->orLike('email', $search);
 
                 // $pageCountQuery = $data->like('razorpay_order_id', $search)->orLike('email', $search);
             }
-           
+
             $data = $data->paginate(10, 'all_customers', $page);
 
             if (!empty($customerModel->errors())) {
@@ -413,14 +413,14 @@ class CustomerController extends BaseController
 
         try {
             $customerData = $customerModel->where('id', $id)->findAll();
-            $subscribedUserData = $AfSubcribedUserModel->where('user_id',$id)->first();
+            $subscribedUserData = $AfSubcribedUserModel->where('user_id', $id)->first();
 
             // if ($subscribedUserData) {
             //     $data = $AfSubcribedUserModel->where('user_id',$id)->findAll();
             // } else {
             //     $data = "User Has Not Subscribed Yet"; 
             // }
-            
+
 
             $statusCode = 200;
             $response = [
@@ -516,6 +516,7 @@ class CustomerController extends BaseController
                 $statusCode = 200;
                 $response = [
                     'message' => 'Contact Us created successfully.',
+                    'status' => 200
                     // 'customer_id' => $contactUsModel->db->insertID(),
                     // 'customer_name' => $contactUsData['name'],
                 ];
@@ -538,21 +539,60 @@ class CustomerController extends BaseController
     {
         try {
             $contactUsModel = new ContactUsModel();
-            $contactUsList = $contactUsModel->findAll(); // Retrieve all contact us entries
 
-            $statusCode = 200;
-            $response = [
+            // Get request parameters
+            $startDate = $this->request->getVar('start_date');
+            $endDate = $this->request->getVar('end_date');
+            $page = $this->request->getVar('page') ?? 1; // Default to page 1 if not provided
+            $limit = $this->request->getVar('limit') ?? 10; // Default to 10 records per page
+            $search = $this->request->getVar('search'); // Search keyword
+
+            // Set default start and end date if not provided (current month)
+            if (!$startDate || !$endDate) {
+                $startDate = null;
+                $endDate = null;   
+            }
+
+            $query = $contactUsModel;
+
+            // Apply date filtering if start and end dates are provided
+            if ($startDate && $endDate) {
+                $query = $query->where('created_at >=', $startDate)
+                    ->where('created_at <=', $endDate);
+            }
+
+            // Apply search filter if the search keyword is provided
+            if (!empty($search)) {
+                $query = $query->groupStart()
+                    ->like('name', $search)
+                    ->orLike('contact_number', $search)
+                    ->groupEnd();
+            }
+
+            // Fetch data with pagination, ordered by creation date (descending)
+            $contactUsList = $query->orderBy('created_at', 'DESC')
+                ->paginate($limit, 'default', $page);
+
+            // Get total records count
+            $totalRecords = $query->countAllResults();
+
+            // Return the response
+            return $this->respond([
+                'status' => 200,
                 'message' => 'Success',
-                'data' => $contactUsList
-            ];
+                'data' => $contactUsList,
+                'pagination' => [
+                    'current_page' => (int) $page,
+                    'limit' => (int) $limit,
+                    'total_records' => $totalRecords,
+                    'total_pages' => ceil($totalRecords / $limit)
+                ]
+            ], 200);
         } catch (Exception $e) {
-            $statusCode = 500;
-            $response = [
+            return $this->respond([
                 'error' => $e->getMessage(),
-                'status' => $statusCode
-            ];
+                'status' => 500
+            ], 500);
         }
-
-        return $this->respond($response, $statusCode);
     }
 }

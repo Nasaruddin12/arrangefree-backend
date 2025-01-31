@@ -52,7 +52,7 @@ $routes->group('customer', static function ($routes) {
         $routes->get('deleteCustomer/(:num)', 'CustomerController::DeleteCustomer/$1');
         $routes->post('cancel-order', 'OrderController::cancelOrder');
     });
-    $routes->get('getAllContactUs', 'CustomerController::getAllContactUs');
+    $routes->post('getAllContactUs', 'CustomerController::getAllContactUs');
 });
 
 $routes->group('staff', static function ($routes) {

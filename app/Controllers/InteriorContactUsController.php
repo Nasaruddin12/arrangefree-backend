@@ -65,6 +65,7 @@ class InteriorContactUsController extends BaseController
                 $response = [
                     'message' => 'Contact Us created successfully.',
                     'id' => $insertId,
+                    'status' => 200,
                     // 'customer_id' => $InteriorContactUsModel->db->insertID(),
                     // 'customer_name' => $contactUsData['name'],
                 ];
