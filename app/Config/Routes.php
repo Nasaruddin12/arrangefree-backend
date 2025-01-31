@@ -72,7 +72,7 @@ $routes->group('staff', static function ($routes) {
 $routes->group('quotation', static function ($routes) {
     // $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
     $routes->post('create', 'QuotationController::store');
-    $routes->get('getAll', 'QuotationController::getAll');
+    $routes->post('getAll', 'QuotationController::getAll');
     $routes->put('update/(:num)', 'QuotationController::update/$1');
     $routes->get('getById/(:num)', 'QuotationController::getById/$1');
     $routes->get('quotationById/(:num)', 'QuotationController::quotationById/$1');
