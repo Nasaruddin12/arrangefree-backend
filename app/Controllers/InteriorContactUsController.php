@@ -112,6 +112,7 @@ class InteriorContactUsController extends BaseController
                 ->countAllResults();
 
             return $this->respond([
+                'status' => 200,
                 'message' => 'Success',
                 'data' => $contactUsList,
                 'pagination' => [
