@@ -143,8 +143,8 @@ class QuotationController extends BaseController
     public function getAll()
     {
         try {
-            $type = $this->request->getVar("type");
             $created_by = $this->request->getVar("admin_id");
+            $type = $this->request->getVar("type");
 
             if (!$created_by) {
                 throw new \Exception('Admin ID is required', 400);

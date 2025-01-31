@@ -45,6 +45,9 @@ class InteriorTransactionController extends BaseController
     {
         try {
             $type = $this->request->getVar("type");
+            if (!$type) {
+                throw new \Exception('Type is required', 400);
+            }
 
             $transactions = $this->transactionModel->where('quotation_id', null)
                 ->where('type', $type)
@@ -68,6 +71,9 @@ class InteriorTransactionController extends BaseController
     {
         try {
             $type = $this->request->getVar("type");
+            if (!$type) {
+                throw new \Exception('Type is required', 400);
+            }
             // Get start_date and end_date from the request (use input->getVar() to handle incoming parameters)
             $startDate = $this->request->getVar('start_date');
             $endDate = $this->request->getVar('end_date');
