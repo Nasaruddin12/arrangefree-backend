@@ -165,7 +165,6 @@ class QuotationController extends BaseController
             }
 
             $role_id = $admin['role_id'];
-
             // Check if the user is an Admin
             $roleModel = new RolePrivilegesModel();
             $role = $roleModel->where('id', $role_id)->first();
@@ -176,9 +175,18 @@ class QuotationController extends BaseController
 
             // If the role is 'Admin', fetch all quotations of the given type; otherwise, fetch only user-created quotations of the given type
             if (strtolower($role['title']) === 'admin') {
-                $quotations = $quotationModel->where('type', $type)->findAll();
+                $quotations = $quotationModel
+                    ->select('quotations.*, admin.name as created_by_name')
+                    ->join('admin', 'admin.id = quotations.created_by', 'left')
+                    ->where('quotations.type', $type)
+                    ->findAll();
             } else {
-                $quotations = $quotationModel->where('created_by', $created_by)->where('type', $type)->findAll();
+                $quotations = $quotationModel
+                    ->select('quotations.*, admin.name as created_by_name')
+                    ->join('admin', 'admin.id = quotations.created_by', 'left')
+                    ->where('quotations.created_by', $created_by)
+                    ->where('quotations.type', $type)
+                    ->findAll();
             }
 
             return $this->respond([
