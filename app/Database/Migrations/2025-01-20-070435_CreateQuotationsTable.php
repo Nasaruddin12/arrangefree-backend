@@ -60,13 +60,18 @@ class CreateQuotationsTable extends Migration
                 'constraint' => '10,2',
                 'null'       => true,
             ],
+            'mark_list' => [
+                'type'       => 'JSON',
+                'null'       => true,
+            ],
             'status' => [
                 'type'           => 'INT',
                 'constraint'     => 1,
             ],
-            'mark_list' => [
-                'type'       => 'JSON',
-                'null'       => true,
+            'type' => [
+                'type' => 'ENUM',
+                'constraint' => ['Interior','Product'],
+                'default' => 'Interior',
             ],
             'created_by' => [
                 'type'       => 'VARCHAR',

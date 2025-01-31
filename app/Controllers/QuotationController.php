@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\AdminModel;
+use App\Models\DrfRoleModel;
 use App\Models\MasterCategoryModel;
 use App\Models\MasterSubCategoryModel;
 use App\Models\QuotationModel;
@@ -42,6 +43,7 @@ class QuotationController extends BaseController
                 'cgst'            => $jsonData['cgst'] ?? 0,
                 'grand_total'     => $jsonData['grandTotal'] ?? 0,
                 'mark_list'       => $jsonData['mark_list'],
+                'type'            => $jsonData['type'],
                 'created_by'      => $jsonData['created_by'] ?? null,
                 'created_at'      => date('Y-m-d H:i:s'),
             ];
@@ -140,29 +142,57 @@ class QuotationController extends BaseController
     public function getAll()
     {
         try {
-            // Load the Quotation Model
+            $type = $this->request->getVar("type");
+            $created_by = $this->request->getVar("admin_id");
+
+            if (!$created_by) {
+                throw new \Exception('Admin ID is required', 400);
+            }
+
+            if (!$type) {
+                throw new \Exception('Type is required', 400);
+            }
+
+            $adminModel = new AdminModel();
             $quotationModel = new QuotationModel();
 
-            // Retrieve all quotations
-            $quotations = $quotationModel->findAll();
+            // Fetch the user role based on admin_id
+            $admin = $adminModel->where('id', $created_by)->first();
 
-            // Check if quotations are found
-            if ($quotations) {
-                return $this->respond([
-                    'status'  => 200,
-                    'message' => 'Quotations retrieved successfully',
-                    'data'    => $quotations
-                ], 200);
-            } else {
-                throw new \Exception('No quotations found', 404);
+            if (!$admin) {
+                throw new \Exception('Invalid Admin ID', 404);
             }
+
+            $role_id = $admin['role_id'];
+
+            // Check if the user is an Admin
+            $roleModel = new DrfRoleModel();
+            $role = $roleModel->where('id', $role_id)->first();
+
+            if (!$role) {
+                throw new \Exception('Role not found', 404);
+            }
+
+            // If the role is 'Admin', fetch all quotations of the given type; otherwise, fetch only user-created quotations of the given type
+            if (strtolower($role['role_name']) === 'admin') {
+                $quotations = $quotationModel->where('type', $type)->findAll();
+            } else {
+                $quotations = $quotationModel->where('created_by', $created_by)->where('type', $type)->findAll();
+            }
+
+            return $this->respond([
+                'status'  => 200,
+                'message' => 'Quotations retrieved successfully',
+                'data'    => $quotations
+            ], 200);
         } catch (\Exception $e) {
             return $this->respond([
-                'status'  => $e->getCode(),
+                'status'  => $e->getCode() ?: 500,
                 'message' => $e->getMessage()
-            ], $e->getCode());
+            ], $e->getCode() ?: 500);
         }
     }
+
     public function getById($id = null)
     {
         try {
