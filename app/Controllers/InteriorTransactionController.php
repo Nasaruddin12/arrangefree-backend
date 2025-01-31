@@ -97,15 +97,7 @@ class InteriorTransactionController extends BaseController
             $transactions = $this->transactionModel
                 ->select('interior_transactions.*, quotations.customer_name')
                 ->join('quotations', 'interior_transactions.quotation_id = quotations.id', 'left')
-                ->where('interior_transactions.date >=', $startDate)
-                ->where('interior_transactions.date <=', $endDate)
                 ->where('interior_transactions.type', $type)
-                ->limit($perPage, $offset)
-                ->get();
-
-            $transactions = $this->transactionModel
-                ->select('interior_transactions.*, quotations.customer_name')
-                ->join('quotations', 'interior_transactions.quotation_id = quotations.id', 'left')
                 ->where('interior_transactions.date >=', $startDate)
                 ->where('interior_transactions.date <=', $endDate)
                 ->limit($perPage, $offset)
@@ -127,6 +119,7 @@ class InteriorTransactionController extends BaseController
                 ->where('interior_transactions.date >=', $startDate)
                 ->where('interior_transactions.date <=', $endDate)
                 ->where('interior_transactions.transaction_type', 'Income') // Assuming 'type' field exists for income/expense
+                ->where('interior_transactions.type', $type)
                 ->selectSum('interior_transactions.amount') // Sum the 'amount' field
                 ->get()
                 ->getRow()->amount;
@@ -135,6 +128,7 @@ class InteriorTransactionController extends BaseController
                 ->where('interior_transactions.date >=', $startDate)
                 ->where('interior_transactions.date <=', $endDate)
                 ->where('interior_transactions.transaction_type', 'Expense') // Assuming 'type' field exists for income/expense
+                ->where('interior_transactions.type', $type)
                 ->selectSum('interior_transactions.amount') // Sum the 'amount' field
                 ->get()
                 ->getRow()->amount;
