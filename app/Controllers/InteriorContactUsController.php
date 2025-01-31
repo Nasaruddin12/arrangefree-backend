@@ -93,23 +93,36 @@ class InteriorContactUsController extends BaseController
             $endDate = $this->request->getVar('end_date');
             $page = $this->request->getVar('page') ?? 1; // Default page 1
             $limit = $this->request->getVar('limit') ?? 10; // Default limit 10
+            $search = $this->request->getVar('search'); // Search keyword
 
             // Set default start and end date if not provided (current month)
             if (!$startDate || !$endDate) {
-                $startDate = date('Y-m-01'); // First day of current month
-                $endDate = date('Y-m-t');   // Last day of current month
+                $startDate = null;
+                $endDate = null;
             }
 
-            // Apply date filtering and pagination
-            $contactUsList = $InteriorContactUsModel
-                ->where('created_at >=', $startDate)
-                ->where('created_at <=', $endDate)
+            $query = $InteriorContactUsModel;
+
+            // Apply date filtering if start and end dates are provided
+            if ($startDate && $endDate) {
+                $query = $query->where('created_at >=', $startDate)
+                    ->where('created_at <=', $endDate);
+            }
+
+            // Apply search filter (if provided)
+            if (!empty($search)) {
+                $query = $query->groupStart()
+                    ->like('name', $search)
+                    ->orLike('contact_number', $search)
+                    ->groupEnd();
+            }
+
+            // Fetch data with pagination
+            $contactUsList = $query->orderBy('created_at', 'DESC')
                 ->paginate($limit, 'default', $page);
 
-            $totalRecords = $InteriorContactUsModel
-                ->where('created_at >=', $startDate)
-                ->where('created_at <=', $endDate)
-                ->countAllResults();
+            // Get total records count
+            $totalRecords = $query->countAllResults();
 
             return $this->respond([
                 'status' => 200,
