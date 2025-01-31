@@ -666,11 +666,53 @@ class QuotationController extends BaseController
     public function getAllSites()
     {
         try {
-            // Load the Quotation Model
+            $type = $this->request->getVar("type");
+            $created_by = $this->request->getVar("admin_id");
+
+            if (!$created_by) {
+                throw new \Exception('Admin ID is required', 400);
+            }
+
+            if (!$type) {
+                throw new \Exception('Type is required', 400);
+            }
+
+            $adminModel = new AdminModel();
             $quotationModel = new QuotationModel();
 
-            // Retrieve all quotations
-            $quotations = $quotationModel->where('status', 'sale')->findAll();
+            // Fetch the user role based on admin_id
+            $admin = $adminModel->where('id', $created_by)->first();
+
+            if (!$admin) {
+                throw new \Exception('Invalid Admin ID', 404);
+            }
+
+            $role_id = $admin['role_id'];
+            // Check if the user is an Admin
+            $roleModel = new RolePrivilegesModel();
+            $role = $roleModel->where('id', $role_id)->first();
+
+            if (!$role) {
+                throw new \Exception('Role not found', 404);
+            }
+
+            // If the role is 'Admin', fetch all quotations of the given type; otherwise, fetch only user-created quotations of the given type
+            if (strtolower($role['title']) === 'admin') {
+                $quotations = $quotationModel
+                    ->select('quotations.*, af_admins.name as created_by_name')
+                    ->join('af_admins', 'af_admins.id = quotations.created_by', 'left')
+                    ->where('quotations.type', $type)
+                    ->where('status', 'sale')
+                    ->findAll();
+            } else {
+                $quotations = $quotationModel
+                    ->select('quotations.*, af_admins.name as created_by_name')
+                    ->join('af_admins', 'af_admins.id = quotations.created_by', 'left')
+                    ->where('quotations.created_by', $created_by)
+                    ->where('quotations.type', $type)
+                    ->where('status', 'sale')
+                    ->findAll();
+            }
 
             // Check if quotations are found
             if ($quotations) {

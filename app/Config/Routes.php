@@ -82,7 +82,7 @@ $routes->group('quotation', static function ($routes) {
     // });
 });
 $routes->group('sites', static function ($routes) {
-    $routes->get('getAllSites', 'QuotationController::getAllSites');
+    $routes->post('getAllSites', 'QuotationController::getAllSites');
 });
 
 //mailing
