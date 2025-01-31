@@ -91,7 +91,7 @@ $routes->get('/post_order_mail/(:num)', 'MailingController::post_order_mail/$1')
 //Interior Contacty Us
 $routes->group('interior', static function ($routes) {
     $routes->post('contactUs', 'InteriorContactUsController::contactUs');
-    $routes->get('getAllContactUs', 'InteriorContactUsController::getAllContactUs');
+    $routes->post('getAllContactUs', 'InteriorContactUsController::getAllContactUs');
 });
 
 
