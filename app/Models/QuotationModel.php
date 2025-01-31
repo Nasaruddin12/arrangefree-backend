@@ -10,7 +10,7 @@ class QuotationModel extends Model
     protected $primaryKey = 'id';
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
-    protected $updatedField  = 'updated_at'; 
+    protected $updatedField  = 'updated_at';
     protected $allowedFields = [
         'customer_name',
         'phone',
@@ -24,6 +24,7 @@ class QuotationModel extends Model
         'grand_total',
         'mark_list',
         'status',
+        'type',
         'created_by',
     ];
 }

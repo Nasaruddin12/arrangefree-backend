@@ -21,6 +21,7 @@ class InteriorTransactionModel extends Model
         'description',
         'date',
         'remarks',
+        'type',
         'created_at',
         'updated_at',
     ];
@@ -42,6 +43,7 @@ class InteriorTransactionModel extends Model
         'description'      => 'permit_empty|string',
         'date'             => 'required|valid_date',
         'remarks'          => 'permit_empty|string',
+        'type'             => 'required|in_list[Interior,Product]',
     ];
 
     protected $validationMessages = [
@@ -60,6 +62,10 @@ class InteriorTransactionModel extends Model
         'date' => [
             'required'    => 'The transaction date is required.',
             'valid_date'  => 'The transaction date must be a valid date.',
+        ],
+        'transaction_type' => [
+            'required' => 'Type is required.',
+            'in_list'  => 'Type must be either Interior or Product.',
         ],
     ];
 }

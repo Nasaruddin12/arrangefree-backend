@@ -707,7 +707,7 @@ class QuotationController extends BaseController
             } else {
                 $quotations = $quotationModel
                     ->select('quotations.*, af_admins.name as created_by_name')
-                    ->join('af_admins', 'af_admins.id = quotations.created_by', 'left')
+                    
                     ->where('quotations.created_by', $created_by)
                     ->where('quotations.type', $type)
                     ->where('quotations.status', 'sale')

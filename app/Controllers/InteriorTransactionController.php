@@ -44,7 +44,11 @@ class InteriorTransactionController extends BaseController
     public function getOfficeExpense()
     {
         try {
-            $transactions = $this->transactionModel->where('quotation_id', null)->findAll();
+            $type = $this->request->getVar("type");
+
+            $transactions = $this->transactionModel->where('quotation_id', null)
+                ->where('type', $type)
+                ->findAll();
 
             if (empty($transactions)) {
                 return $this->failNotFound('No transactions found for the given quotation ID');
@@ -63,6 +67,7 @@ class InteriorTransactionController extends BaseController
     public function getAll()
     {
         try {
+            $type = $this->request->getVar("type");
             // Get start_date and end_date from the request (use input->getVar() to handle incoming parameters)
             $startDate = $this->request->getVar('start_date');
             $endDate = $this->request->getVar('end_date');
@@ -94,6 +99,7 @@ class InteriorTransactionController extends BaseController
                 ->join('quotations', 'interior_transactions.quotation_id = quotations.id', 'left')
                 ->where('interior_transactions.date >=', $startDate)
                 ->where('interior_transactions.date <=', $endDate)
+                ->where('interior_transactions.type', $type)
                 ->limit($perPage, $offset)
                 ->get();
 

@@ -63,6 +63,11 @@ class CreateTransactionsTable extends Migration
                 'type' => 'TEXT',
                 'null' => true,
             ],
+            'type' => [
+                'type' => 'ENUM',
+                'constraint' => ['Interior', 'Product'],
+                'default' => 'Interior',
+            ],
             'created_at' => [
                 'type' => 'TIMESTAMP',
                 'null' => true,
