@@ -702,7 +702,7 @@ class QuotationController extends BaseController
                     ->select('quotations.*, af_admins.name as created_by_name')
                     ->join('af_admins', 'af_admins.id = quotations.created_by', 'left')
                     ->where('quotations.type', $type)
-                    ->where('status', 'sale')
+                    ->where('quotations.status', 'sale')
                     ->findAll();
             } else {
                 $quotations = $quotationModel
@@ -710,7 +710,7 @@ class QuotationController extends BaseController
                     ->join('af_admins', 'af_admins.id = quotations.created_by', 'left')
                     ->where('quotations.created_by', $created_by)
                     ->where('quotations.type', $type)
-                    ->where('status', 'sale')
+                    ->where('quotations.status', 'sale')
                     ->findAll();
             }
 
