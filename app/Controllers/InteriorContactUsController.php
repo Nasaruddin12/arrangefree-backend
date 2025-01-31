@@ -87,21 +87,45 @@ class InteriorContactUsController extends BaseController
     {
         try {
             $InteriorContactUsModel = new InteriorContactUsModel();
-            $contactUsList = $InteriorContactUsModel->findAll(); // Retrieve all contact us entries
 
-            $statusCode = 200;
-            $response = [
+            // Get request parameters
+            $startDate = $this->request->getVar('start_date');
+            $endDate = $this->request->getVar('end_date');
+            $page = $this->request->getVar('page') ?? 1; // Default page 1
+            $limit = $this->request->getVar('limit') ?? 10; // Default limit 10
+
+            // Set default start and end date if not provided (current month)
+            if (!$startDate || !$endDate) {
+                $startDate = date('Y-m-01'); // First day of current month
+                $endDate = date('Y-m-t');   // Last day of current month
+            }
+
+            // Apply date filtering and pagination
+            $contactUsList = $InteriorContactUsModel
+                ->where('created_at >=', $startDate)
+                ->where('created_at <=', $endDate)
+                ->paginate($limit, 'default', $page);
+
+            $totalRecords = $InteriorContactUsModel
+                ->where('created_at >=', $startDate)
+                ->where('created_at <=', $endDate)
+                ->countAllResults();
+
+            return $this->respond([
                 'message' => 'Success',
-                'data' => $contactUsList
-            ];
+                'data' => $contactUsList,
+                'pagination' => [
+                    'current_page' => (int) $page,
+                    'limit' => (int) $limit,
+                    'total_records' => $totalRecords,
+                    'total_pages' => ceil($totalRecords / $limit)
+                ]
+            ], 200);
         } catch (Exception $e) {
-            $statusCode = 500;
-            $response = [
+            return $this->respond([
                 'error' => $e->getMessage(),
-                'status' => $statusCode
-            ];
+                'status' => 500
+            ], 500);
         }
-
-        return $this->respond($response, $statusCode);
     }
 }
