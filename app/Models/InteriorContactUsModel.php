@@ -18,6 +18,7 @@ class InteriorContactUsModel extends Model
         'contact_number',
         'email_id',
         'message',
+        'remark',
         'status'
     ];
 

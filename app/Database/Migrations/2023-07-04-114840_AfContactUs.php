@@ -35,6 +35,10 @@ class AfContactUs extends Migration
                     'type' => 'VARCHAR',
                     'constraint' => 256,
                 ],
+                'remark' => [
+                    'type'       => 'JSON',
+                    'null'       => true,
+                ],
                 'status' => [
                     'type' => 'TINYINT',
                     'null' => false,

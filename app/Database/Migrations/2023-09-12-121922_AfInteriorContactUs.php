@@ -30,6 +30,10 @@ class AfInteriorContactUs extends Migration
                 'type' => 'VARCHAR',
                 'constraint' => 256,
             ],
+            'remark' => [
+                'type'       => 'JSON',
+                'null'       => true,
+            ],
             'status' => [
                 'type' => 'TINYINT',
                 'null' => false,
@@ -45,6 +49,5 @@ class AfInteriorContactUs extends Migration
     public function down()
     {
         $this->forge->dropTable('af_interior_contact_us');
-
     }
 }

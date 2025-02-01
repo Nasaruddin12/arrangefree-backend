@@ -53,6 +53,7 @@ $routes->group('customer', static function ($routes) {
         $routes->post('cancel-order', 'OrderController::cancelOrder');
     });
     $routes->post('getAllContactUs', 'CustomerController::getAllContactUs');
+    $routes->put('updateRemark/(:num)', 'CustomerController::updateRemark/$1');
 });
 
 $routes->group('staff', static function ($routes) {
@@ -92,6 +93,7 @@ $routes->get('/post_order_mail/(:num)', 'MailingController::post_order_mail/$1')
 $routes->group('interior', static function ($routes) {
     $routes->post('contactUs', 'InteriorContactUsController::contactUs');
     $routes->post('getAllContactUs', 'InteriorContactUsController::getAllContactUs');
+    $routes->put('updateRemark/(:num)', 'InteriorContactUsController::updateRemark/$1');
 });
 
 

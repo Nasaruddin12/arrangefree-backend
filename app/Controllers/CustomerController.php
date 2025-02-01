@@ -550,7 +550,7 @@ class CustomerController extends BaseController
             // Set default start and end date if not provided (current month)
             if (!$startDate || !$endDate) {
                 $startDate = null;
-                $endDate = null;   
+                $endDate = null;
             }
 
             $query = $contactUsModel;
@@ -593,6 +593,44 @@ class CustomerController extends BaseController
                 'error' => $e->getMessage(),
                 'status' => 500
             ], 500);
+        }
+    }
+    public function updateRemark($id)
+    {
+        try {
+            $contactUsModel = new ContactUsModel();
+
+            // Validate ID
+            if (!$id) {
+                throw new Exception('Invalid contact ID.', 400);
+            }
+
+            // Get the remark from the request
+            $remark = $this->request->getVar('remark');
+
+            // Validate remark input
+            if (!$remark) {
+                throw new Exception('Remark field is required.', 400);
+            }
+
+            // Check if the record exists
+            $contactRecord = $contactUsModel->find($id);
+            if (!$contactRecord) {
+                throw new Exception('Contact record not found.', 404);
+            }
+
+            // Update the remark
+            $contactUsModel->update($id, ['remark' => $remark]);
+
+            return $this->respond([
+                'message' => 'Remark updated successfully.',
+                'status' => 200
+            ], 200);
+        } catch (Exception $e) {
+            return $this->respond([
+                'error' => $e->getMessage(),
+                'status' => $e->getCode() === 400 ? 400 : 500
+            ], $e->getCode() === 400 ? 400 : 500);
         }
     }
 }
