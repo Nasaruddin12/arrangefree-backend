@@ -148,6 +148,8 @@ class QuotationController extends BaseController
             $start_date = $this->request->getVar("start_date");
             $end_date = $this->request->getVar("end_date");
             $search = $this->request->getVar("search");
+            $page = (int) $this->request->getVar("page") ?: 1;
+            $per_page = (int) $this->request->getVar("per_page") ?: 10;
 
             if (!$created_by) {
                 throw new \Exception('Admin ID is required', 400);
@@ -202,21 +204,35 @@ class QuotationController extends BaseController
                     ->groupEnd();
             }
 
-            // Order by latest quotations
-            $quotations = $quotationQuery->orderBy('quotations.created_at', 'DESC')->findAll();
+            // Get total records count before applying pagination
+            $totalRecords = $quotationQuery->countAllResults(false);
+
+            // Apply pagination
+            $offset = ($page - 1) * $per_page;
+            $quotations = $quotationQuery
+                ->orderBy('quotations.created_at', 'DESC')
+                ->limit($per_page, $offset)
+                ->findAll();
 
             return $this->respond([
-                'status'  => 200,
+                'status' => 200,
                 'message' => 'Quotations retrieved successfully',
-                'data'    => $quotations
+                'data' => $quotations,
+                'pagination' => [
+                    'current_page' => (int) $page,
+                    'total_records' => $totalRecords,
+                    'total_pages' => ceil($totalRecords / $per_page),
+                    'per_page' => $per_page
+                ],
             ], 200);
         } catch (\Exception $e) {
             return $this->respond([
-                'status'  => $e->getCode() ?: 500,
+                'status' => $e->getCode() ?: 500,
                 'message' => $e->getMessage()
             ], $e->getCode() ?: 500);
         }
     }
+
 
 
     public function getById($id = null)
