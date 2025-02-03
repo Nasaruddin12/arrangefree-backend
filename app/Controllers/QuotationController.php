@@ -145,6 +145,9 @@ class QuotationController extends BaseController
         try {
             $created_by = $this->request->getVar("admin_id");
             $type = $this->request->getVar("type");
+            $start_date = $this->request->getVar("start_date");
+            $end_date = $this->request->getVar("end_date");
+            $search = $this->request->getVar("search");
 
             if (!$created_by) {
                 throw new \Exception('Admin ID is required', 400);
@@ -165,7 +168,6 @@ class QuotationController extends BaseController
             }
 
             $role_id = $admin['role_id'];
-            // Check if the user is an Admin
             $roleModel = new RolePrivilegesModel();
             $role = $roleModel->where('id', $role_id)->first();
 
@@ -173,21 +175,35 @@ class QuotationController extends BaseController
                 throw new \Exception('Role not found', 404);
             }
 
-            // If the role is 'Admin', fetch all quotations of the given type; otherwise, fetch only user-created quotations of the given type
-            if (strtolower($role['title']) === 'admin') {
-                $quotations = $quotationModel
-                    ->select('quotations.*, af_admins.name as created_by_name')
-                    ->join('af_admins', 'af_admins.id = quotations.created_by', 'left')
-                    ->where('quotations.type', $type)
-                    ->findAll();
-            } else {
-                $quotations = $quotationModel
-                    ->select('quotations.*, af_admins.name as created_by_name')
-                    ->join('af_admins', 'af_admins.id = quotations.created_by', 'left')
-                    ->where('quotations.created_by', $created_by)
-                    ->where('quotations.type', $type)
-                    ->findAll();
+            // Build query
+            $quotationQuery = $quotationModel
+                ->select('quotations.*, af_admins.name as created_by_name')
+                ->join('af_admins', 'af_admins.id = quotations.created_by', 'left')
+                ->where('quotations.type', $type);
+
+            // Admin can see all, others see only their records
+            if (strtolower($role['title']) !== 'admin') {
+                $quotationQuery->where('quotations.created_by', $created_by);
             }
+
+            // Apply date filters if provided
+            if (!empty($start_date)) {
+                $quotationQuery->where('quotations.created_at >=', $start_date . ' 00:00:00');
+            }
+            if (!empty($end_date)) {
+                $quotationQuery->where('quotations.created_at <=', $end_date . ' 23:59:59');
+            }
+
+            // Apply search filter (customer_name or phone)
+            if (!empty($search)) {
+                $quotationQuery->groupStart()
+                    ->like('quotations.customer_name', $search)
+                    ->orLike('quotations.phone', $search)
+                    ->groupEnd();
+            }
+
+            // Order by latest quotations
+            $quotations = $quotationQuery->orderBy('quotations.created_at', 'DESC')->findAll();
 
             return $this->respond([
                 'status'  => 200,
@@ -201,6 +217,7 @@ class QuotationController extends BaseController
             ], $e->getCode() ?: 500);
         }
     }
+
 
     public function getById($id = null)
     {
@@ -707,7 +724,7 @@ class QuotationController extends BaseController
             } else {
                 $quotations = $quotationModel
                     ->select('quotations.*, af_admins.name as created_by_name')
-                    
+
                     ->where('quotations.created_by', $created_by)
                     ->where('quotations.type', $type)
                     ->where('quotations.status', 'sale')

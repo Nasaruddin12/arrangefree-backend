@@ -20,7 +20,7 @@ class AfInteriorContactUs extends Migration
             ],
             'email_id' => [
                 'type' => 'VARCHAR',
-                'constraint' => 101,
+                'constraint' => 101,      
             ],
             'contact_number' => [
                 'type' => 'VARCHAR',
