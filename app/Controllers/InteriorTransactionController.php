@@ -75,31 +75,27 @@ class InteriorTransactionController extends BaseController
                 throw new \Exception('Type is required', 400);
             }
 
-            // Get start_date and end_date from the request
+            // Get filters and pagination parameters
             $startDate = $this->request->getVar('start_date');
             $endDate = $this->request->getVar('end_date');
-
-            // Get pagination parameters
             $page = $this->request->getVar('page') ?? 1;
             $perPage = $this->request->getVar('perPage') ?? 10;
             $offset = ($page - 1) * $perPage;
-
-            // Get search keyword for description and remark
             $search = $this->request->getVar('search');
 
-            // Query builder
+            // Base query
             $query = $this->transactionModel
                 ->select('interior_transactions.*, quotations.customer_name')
                 ->join('quotations', 'interior_transactions.quotation_id = quotations.id', 'left')
                 ->where('interior_transactions.type', $type);
 
-            // Apply date filters if provided
+            // Apply date filters
             if ($startDate && $endDate) {
                 $query->where('interior_transactions.date >=', date('Y-m-d', strtotime($startDate)))
                     ->where('interior_transactions.date <=', date('Y-m-d', strtotime($endDate)));
             }
 
-            // Apply search filter in description and remark
+            // Apply search filter
             if ($search) {
                 $query->groupStart()
                     ->like('interior_transactions.description', $search)
@@ -107,28 +103,47 @@ class InteriorTransactionController extends BaseController
                     ->groupEnd();
             }
 
+            // Sort by created_at (Descending)
+            $query->orderBy('interior_transactions.created_at', 'DESC');
+
             // Fetch paginated results
             $transactions = $query->limit($perPage, $offset)->get();
-
             $result = $transactions->getNumRows() > 0 ? $transactions->getResultArray() : [];
 
-            // Count total records (including search and date filters)
-            $totalTransactions = clone $query;
-            $totalTransactions = $totalTransactions->countAllResults();
+            // Count total records (excluding pagination)
+            $totalRecordsQuery = $this->transactionModel->where('interior_transactions.type', $type);
+
+            if ($startDate && $endDate) {
+                $totalRecordsQuery->where('interior_transactions.date >=', date('Y-m-d', strtotime($startDate)))
+                    ->where('interior_transactions.date <=', date('Y-m-d', strtotime($endDate)));
+            }
+
+            if ($search) {
+                $totalRecordsQuery->groupStart()
+                    ->like('interior_transactions.description', $search)
+                    ->orLike('interior_transactions.remark', $search)
+                    ->groupEnd();
+            }
+
+            $totalRecords = $totalRecordsQuery->countAllResults();
 
             // Calculate total income
-            $totalIncomeQuery = clone $query;
-            $totalIncome = $totalIncomeQuery
-                ->where('interior_transactions.transaction_type', 'Income')
+            $totalIncome = $this->transactionModel
                 ->selectSum('interior_transactions.amount')
-                ->get()->getRow()->amount ?? 0;
+                ->where('interior_transactions.type', $type)
+                ->where('interior_transactions.transaction_type', 'Income')
+                ->get()
+                ->getRow()
+                ->amount ?? 0;
 
             // Calculate total expense
-            $totalExpenseQuery = clone $query;
-            $totalExpense = $totalExpenseQuery
-                ->where('interior_transactions.transaction_type', 'Expense')
+            $totalExpense = $this->transactionModel
                 ->selectSum('interior_transactions.amount')
-                ->get()->getRow()->amount ?? 0;
+                ->where('interior_transactions.type', $type)
+                ->where('interior_transactions.transaction_type', 'Expense')
+                ->get()
+                ->getRow()
+                ->amount ?? 0;
 
             if (empty($result)) {
                 return $this->failNotFound('No transactions found.');
@@ -141,8 +156,8 @@ class InteriorTransactionController extends BaseController
                 'pagination' => [
                     'currentPage'  => $page,
                     'perPage'      => $perPage,
-                    'totalPages'   => ceil($totalTransactions / $perPage),
-                    'totalRecords' => $totalTransactions
+                    'totalPages'   => ceil($totalRecords / $perPage),
+                    'totalRecords' => $totalRecords
                 ],
                 'totals' => [
                     'income' => $totalIncome,
