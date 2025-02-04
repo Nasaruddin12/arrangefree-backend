@@ -500,7 +500,7 @@ $routes->group('Complaints', static function ($routes) {
 });
 
 $routes->group('transactions', static function ($routes) {
-    $routes->get('(:num)', 'InteriorTransactionController::index/$1');
+    $routes->post('/', 'InteriorTransactionController::index');
     $routes->post('/', 'InteriorTransactionController::create');
     $routes->post('getAll', 'InteriorTransactionController::getAll');
     $routes->get('(:num)', 'InteriorTransactionController::show/$1');

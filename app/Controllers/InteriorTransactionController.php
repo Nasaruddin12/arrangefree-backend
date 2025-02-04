@@ -22,18 +22,45 @@ class InteriorTransactionController extends BaseController
     /**
      * Fetch transactions by quotation_id
      */
-    public function index($quotation_id)
+    public function index()
     {
         try {
-            $transactions = $this->transactionModel->where('quotation_id', $quotation_id)->findAll();
+            // Get the pagination and search parameters from the query string
+            $quotation_id = $this->request->getVar('id');  // Default to page 1 if not provided
+            $page = $this->request->getVar('page') ?? 1;  // Default to page 1 if not provided
+            $perPage = $this->request->getVar('per_page') ?? 10;  // Default to 10 items per page if not provided
+            $search = $this->request->getVar('search') ?? '';  // Default to an empty search term if not provided
 
+            // Build the query to fetch transactions based on quotation_id and search term
+            $builder = $this->transactionModel->where('quotation_id', $quotation_id);
+
+            if ($search) {
+                // Apply search filter (assuming searching by transaction description or other fields)
+                $builder->like('description', $search); // Adjust the field name as needed
+            }
+
+            // Get the total number of transactions matching the criteria
+            $totalTransactions = $builder->countAllResults(false);  // Don't count rows with pagination
+
+            // Apply pagination
+            $transactions = $builder->limit($perPage, ($page - 1) * $perPage)->findAll();
+
+            // Check if transactions are found
             if (empty($transactions)) {
                 return $this->failNotFound('No transactions found for the given quotation ID');
             }
+
+            // Return response with pagination metadata and transactions
             return $this->respond([
-                'status'  => 200,
-                'message' => 'Transactions retrieved successfully',
-                'data'    => $transactions
+                'status'     => 200,
+                'message'    => 'Transactions retrieved successfully',
+                'data'       => $transactions,
+                'pagination' => [
+                    'current_page' => $page,
+                    'per_page'     => $perPage,
+                    'total_items'  => $totalTransactions,
+                    'total_pages'  => ceil($totalTransactions / $perPage),
+                ],
             ], 200);
         } catch (DatabaseException $e) {
             return $this->failServerError('Database error: ' . $e->getMessage());
@@ -41,6 +68,7 @@ class InteriorTransactionController extends BaseController
             return $this->failServerError('An unexpected error occurred: ' . $e->getMessage());
         }
     }
+
     public function getOfficeExpense()
     {
         try {
