@@ -75,20 +75,23 @@ class InteriorTransactionController extends BaseController
                 throw new \Exception('Type is required', 400);
             }
 
-            // Get parameters
+            // Get start_date and end_date from the request
             $startDate = $this->request->getVar('start_date');
             $endDate = $this->request->getVar('end_date');
+
+            // Get pagination parameters
             $page = $this->request->getVar('page') ?? 1;
             $perPage = $this->request->getVar('perPage') ?? 10;
-            $search = $this->request->getVar('search');
             $offset = ($page - 1) * $perPage;
 
-            // Base query
+            // Get search keyword for description and remark
+            $search = $this->request->getVar('search');
+
+            // Query builder
             $query = $this->transactionModel
                 ->select('interior_transactions.*, quotations.customer_name')
                 ->join('quotations', 'interior_transactions.quotation_id = quotations.id', 'left')
-                ->where('interior_transactions.type', $type)
-                ->orderBy('interior_transactions.date', 'DESC'); // Sorting by latest first
+                ->where('interior_transactions.type', $type);
 
             // Apply date filters if provided
             if ($startDate && $endDate) {
@@ -104,43 +107,28 @@ class InteriorTransactionController extends BaseController
                     ->groupEnd();
             }
 
-            // Get total records count separately (without limit & offset)
-            $totalRecords = $this->transactionModel
-                ->where('interior_transactions.type', $type);
-
-            if ($startDate && $endDate) {
-                $totalRecords->where('interior_transactions.date >=', date('Y-m-d', strtotime($startDate)))
-                    ->where('interior_transactions.date <=', date('Y-m-d', strtotime($endDate)));
-            }
-
-            if ($search) {
-                $totalRecords->groupStart()
-                    ->like('interior_transactions.description', $search)
-                    ->orLike('interior_transactions.remark', $search)
-                    ->groupEnd();
-            }
-
-            $totalRecords = $totalRecords->countAllResults(); // Correct total count
-
-            // Apply pagination and get data
+            // Fetch paginated results
             $transactions = $query->limit($perPage, $offset)->get();
+
             $result = $transactions->getNumRows() > 0 ? $transactions->getResultArray() : [];
 
+            // Count total records (including search and date filters)
+            $totalTransactions = clone $query;
+            $totalTransactions = $totalTransactions->countAllResults();
+
             // Calculate total income
-            $totalIncome = $this->transactionModel
-                ->where('interior_transactions.type', $type)
+            $totalIncomeQuery = clone $query;
+            $totalIncome = $totalIncomeQuery
                 ->where('interior_transactions.transaction_type', 'Income')
                 ->selectSum('interior_transactions.amount')
-                ->get()
-                ->getRow()->amount ?? 0;
+                ->get()->getRow()->amount ?? 0;
 
             // Calculate total expense
-            $totalExpense = $this->transactionModel
-                ->where('interior_transactions.type', $type)
+            $totalExpenseQuery = clone $query;
+            $totalExpense = $totalExpenseQuery
                 ->where('interior_transactions.transaction_type', 'Expense')
                 ->selectSum('interior_transactions.amount')
-                ->get()
-                ->getRow()->amount ?? 0;
+                ->get()->getRow()->amount ?? 0;
 
             if (empty($result)) {
                 return $this->failNotFound('No transactions found.');
@@ -153,8 +141,8 @@ class InteriorTransactionController extends BaseController
                 'pagination' => [
                     'currentPage'  => $page,
                     'perPage'      => $perPage,
-                    'totalPages'   => max(1, ceil($totalRecords / $perPage)), // Ensure at least 1 page
-                    'totalRecords' => $totalRecords
+                    'totalPages'   => ceil($totalTransactions / $perPage),
+                    'totalRecords' => $totalTransactions
                 ],
                 'totals' => [
                     'income' => $totalIncome,
@@ -167,7 +155,6 @@ class InteriorTransactionController extends BaseController
             return $this->failServerError('An unexpected error occurred: ' . $e->getMessage());
         }
     }
-
 
     /**
      * Create a new transaction
