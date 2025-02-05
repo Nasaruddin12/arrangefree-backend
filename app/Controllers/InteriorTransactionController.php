@@ -25,42 +25,100 @@ class InteriorTransactionController extends BaseController
     public function index()
     {
         try {
-            // Get the pagination and search parameters from the query string
-            $quotation_id = $this->request->getVar('id');  // Default to page 1 if not provided
-            $page = $this->request->getVar('page') ?? 1;  // Default to page 1 if not provided
-            $perPage = $this->request->getVar('per_page') ?? 10;  // Default to 10 items per page if not provided
-            $search = $this->request->getVar('search') ?? '';  // Default to an empty search term if not provided
+            $quotation_id = $this->request->getVar('id');
+            if (!$quotation_id) {
+                return $this->failValidationError('Quotation ID is required.');
+            }
 
-            // Build the query to fetch transactions based on quotation_id and search term
-            $builder = $this->transactionModel->where('quotation_id', $quotation_id);
+            // Get filters and pagination parameters
+            $startDate = $this->request->getVar('start_date');
+            $endDate = $this->request->getVar('end_date');
+            $page = (int) ($this->request->getVar('page') ?? 1);
+            $perPage = (int) ($this->request->getVar('perPage') ?? 10);
+            $offset = ($page - 1) * $perPage;
+            $search = $this->request->getVar('search');
+
+            // Base query
+            $query = $this->transactionModel
+                ->select('interior_transactions.*, quotations.customer_name')
+                ->join('quotations', 'interior_transactions.quotation_id = quotations.id', 'left')
+                ->where('interior_transactions.quotation_id', $quotation_id);
+
+            // Apply date filters
+            if ($startDate && $endDate) {
+                $query->where('interior_transactions.date >=', date('Y-m-d', strtotime($startDate)))
+                    ->where('interior_transactions.date <=', date('Y-m-d', strtotime($endDate)));
+            }
+
+            // Apply search filter
+            if ($search) {
+                $query->groupStart()
+                    ->like('interior_transactions.description', $search)
+                    ->orLike('interior_transactions.remark', $search)
+                    ->groupEnd();
+            }
+
+            // Sort by created_at (Descending)
+            $query->orderBy('interior_transactions.created_at', 'DESC');
+
+            // Fetch paginated results
+            $transactions = $query->limit($perPage, $offset)->get();
+            $result = $transactions->getNumRows() > 0 ? $transactions->getResultArray() : [];
+
+            // Count total records (excluding pagination)
+            $totalRecords = $this->transactionModel
+                ->where('quotation_id', $quotation_id);
+
+            if ($startDate && $endDate) {
+                $totalRecords->where('date >=', date('Y-m-d', strtotime($startDate)))
+                    ->where('date <=', date('Y-m-d', strtotime($endDate)));
+            }
 
             if ($search) {
-                // Apply search filter (assuming searching by transaction description or other fields)
-                $builder->like('description', $search); // Adjust the field name as needed
+                $totalRecords->groupStart()
+                    ->like('description', $search)
+                    ->orLike('remark', $search)
+                    ->groupEnd();
             }
 
-            // Get the total number of transactions matching the criteria
-            $totalTransactions = $builder->countAllResults(false);  // Don't count rows with pagination
+            $totalRecords = $totalRecords->countAllResults();
 
-            // Apply pagination
-            $transactions = $builder->limit($perPage, ($page - 1) * $perPage)->findAll();
+            // Calculate total income
+            $totalIncome = $this->transactionModel
+                ->selectSum('amount')
+                ->where('quotation_id', $quotation_id)
+                ->where('transaction_type', 'Income')
+                ->get()
+                ->getRow()
+                ->amount ?? 0;
 
-            // Check if transactions are found
-            if (empty($transactions)) {
-                return $this->failNotFound('No transactions found for the given quotation ID');
+            // Calculate total expense
+            $totalExpense = $this->transactionModel
+                ->selectSum('amount')
+                ->where('quotation_id', $quotation_id)
+                ->where('transaction_type', 'Expense')
+                ->get()
+                ->getRow()
+                ->amount ?? 0;
+
+            if (empty($result)) {
+                return $this->failNotFound('No transactions found.');
             }
 
-            // Return response with pagination metadata and transactions
             return $this->respond([
-                'status'     => 200,
-                'message'    => 'Transactions retrieved successfully',
-                'data'       => $transactions,
+                'status'    => 200,
+                'message'   => 'Transactions retrieved successfully',
+                'data'      => $result,
                 'pagination' => [
-                    'current_page' => $page,
-                    'per_page'     => $perPage,
-                    'total_items'  => $totalTransactions,
-                    'total_pages'  => ceil($totalTransactions / $perPage),
+                    'currentPage'  => $page,
+                    'perPage'      => $perPage,
+                    'totalPages'   => ceil($totalRecords / $perPage),
+                    'totalRecords' => $totalRecords
                 ],
+                'totals' => [
+                    'income' => $totalIncome,
+                    'expense' => $totalExpense
+                ]
             ], 200);
         } catch (DatabaseException $e) {
             return $this->failServerError('Database error: ' . $e->getMessage());
@@ -68,6 +126,7 @@ class InteriorTransactionController extends BaseController
             return $this->failServerError('An unexpected error occurred: ' . $e->getMessage());
         }
     }
+
 
     public function getOfficeExpense()
     {
