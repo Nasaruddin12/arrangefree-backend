@@ -531,12 +531,22 @@ $routes->group('SubscriptionCards', static function ($routes) {
 });
 
 
-$routes->group('image-collections',static function ($routes) {
+$routes->group('image-collections', static function ($routes) {
     $routes->post('store', 'ImageCollectionController::store'); // Store a new collection
     $routes->get('all', 'ImageCollectionController::getAll'); // Get all collections
     $routes->get('(:num)', 'ImageCollectionController::getImages/$1'); // Get a specific collection by ID
     $routes->post('update/(:num)', 'ImageCollectionController::update/$1'); // Update a collection by ID
 });
+
+
+$routes->group('freepik-api', static function ($routes) {
+    $routes->post('store', 'FreepikApiHistoryController::store');
+    $routes->get('all', 'FreepikApiHistoryController::getAll');
+    $routes->get('user/(:num)', 'FreepikApiHistoryController::getByUser/$1');
+});
+
+
+
 
 
 
