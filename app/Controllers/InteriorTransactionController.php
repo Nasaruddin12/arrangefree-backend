@@ -269,7 +269,6 @@ class InteriorTransactionController extends BaseController
         if (!is_array($data)) {
             return $this->failValidationErrors('Invalid data format. Expected an array of transactions.');
         }
-        print_r($data);
 
         $errors = [];
         $successCount = 0;
@@ -283,8 +282,6 @@ class InteriorTransactionController extends BaseController
                 ];
                 continue;
             }
-
-            print_r($errors);
 
             try {
                 // Insert the transaction into the database
