@@ -501,7 +501,7 @@ $routes->group('Complaints', static function ($routes) {
 
 $routes->group('transactions', static function ($routes) {
     $routes->post('/', 'InteriorTransactionController::index');
-    $routes->post('/create', 'InteriorTransactionController::create');
+    $routes->post('create', 'InteriorTransactionController::create');
     $routes->post('getAll', 'InteriorTransactionController::getAll');
     $routes->get('(:num)', 'InteriorTransactionController::show/$1');
     $routes->post('office-expense', 'InteriorTransactionController::getOfficeExpense');
