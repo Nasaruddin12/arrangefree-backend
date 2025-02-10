@@ -66,9 +66,9 @@ class FreepikApiHistoryController extends ResourceController
             $offset = max(0, ($page - 1) * $perPage);
     
             // Base query
-            $query = $model->select('freepik_api_history.*, af_customers.name AS name')
+            $query = $model->select('freepik_api_history.*, af_customers.name AS customer_name') // Use alias to avoid conflicts
                 ->join('af_customers', 'af_customers.id = freepik_api_history.user_id', 'left')
-                ->orderBy('freepik_api_history.created_at', 'DESC');
+                ->orderBy('freepik_api_history.created_at', 'DESC'); // Ensure latest records are at the top
     
             // Apply search filter
             if (!empty($search)) {
@@ -86,7 +86,7 @@ class FreepikApiHistoryController extends ResourceController
     
             // Clone query for total records count
             $totalRecordsQuery = clone $query;
-            $totalRecords = $totalRecordsQuery->countAllResults(); // Now it correctly fetches the total count
+            $totalRecords = $totalRecordsQuery->countAllResults(false); // Get total records before pagination
     
             // Apply pagination (after counting total records)
             $data = $query->limit($perPage, $offset)->get()->getResultArray();
@@ -110,7 +110,7 @@ class FreepikApiHistoryController extends ResourceController
         } catch (\Exception $e) {
             return $this->failServerError('An unexpected error occurred: ' . $e->getMessage());
         }
-    }
+    }    
     
 
     public function getByUser($user_id)
