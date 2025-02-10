@@ -130,6 +130,7 @@ class FreepikApiHistoryController extends ResourceController
         } else {
             return $this->respond([
                 'status' => 403,
+                'count' => $requestCount,
                 'allowed' => false,
                 'message' => 'You have exceeded the limit. Reach out to Arrange Free.'
             ], 403);
