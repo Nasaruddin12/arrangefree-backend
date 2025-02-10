@@ -541,9 +541,9 @@ $routes->group('image-collections', static function ($routes) {
 
 $routes->group('freepik-api', static function ($routes) {
     $routes->post('store', 'FreepikApiHistoryController::store');
-    $routes->get('all', 'FreepikApiHistoryController::getAll');
+    $routes->post('all', 'FreepikApiHistoryController::getAll');
     $routes->get('user/(:num)', 'FreepikApiHistoryController::getByUser/$1');
-    
+
 });
 
 

@@ -56,14 +56,50 @@ class FreepikApiHistoryController extends ResourceController
     {
         $model = new FreepikApiHistoryModel();
 
-        // Join customer table to fetch customer_name along with history
-        $data = $model->select('freepik_api_history.*, af_customers.name')
+        // Get query parameters
+        $page = $this->request->getVar('page') ?? 1;
+        $limit = $this->request->getVar('limit') ?? 10;
+        $search = $this->request->getVar('search');
+        $startDate = $this->request->getVar('start_date');
+        $endDate = $this->request->getVar('end_date');
+
+        // Initialize query
+        $query = $model->select('freepik_api_history.*, af_customers.name')
             ->join('af_customers', 'af_customers.id = freepik_api_history.user_id')
-            ->findAll();
+            ->orderBy('freepik_api_history.created_at', 'DESC');
 
-        return $this->respond(['status' => 200, 'data' => $data], 200);
+        // Apply search filter
+        if (!empty($search)) {
+            $query->groupStart()
+                ->like('freepik_api_history.prompt', $search)
+                ->orLike('af_customers.name', $search)
+                ->groupEnd();
+        }
+
+        // Apply date range filter
+        if (!empty($startDate) && !empty($endDate)) {
+            $query->where('freepik_api_history.created_at >=', $startDate)
+                ->where('freepik_api_history.created_at <=', $endDate);
+        }
+
+        // Get total records count for pagination
+        $totalRecords = $query->countAllResults(false);
+
+        // Apply pagination
+        $query->limit($limit, ($page - 1) * $limit);
+        $data = $query->findAll();
+
+        return $this->respond([
+            'status' => 200,
+            'data' => $data,
+            'pagination' => [
+                'total' => $totalRecords,
+                'page' => (int) $page,
+                'limit' => (int) $limit,
+                'total_pages' => ceil($totalRecords / $limit)
+            ]
+        ], 200);
     }
-
 
     public function getByUser($user_id)
     {
