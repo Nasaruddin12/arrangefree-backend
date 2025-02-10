@@ -63,7 +63,7 @@ class FreepikApiHistoryController extends ResourceController
             $search = $this->request->getVar('search');
             $startDate = $this->request->getVar('start_date');
             $endDate = $this->request->getVar('end_date');
-            $offset = ($page - 1) * $perPage;
+            $offset = max(0, ($page - 1) * $perPage);
     
             // Base query
             $query = $model->select('freepik_api_history.*, af_customers.name AS name')
