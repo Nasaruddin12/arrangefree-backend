@@ -126,11 +126,10 @@ class FreepikApiHistoryController extends ResourceController
         $requestCount = $model->where('user_id', $user_id)->countAllResults();
 
         if ($requestCount <= 250) {
-            return $this->respond(['status' => 200, 'allowed' => true], 200);
+            return $this->respond(['status' => 200, 'allowed' => true, 'count' => $requestCount,], 200);
         } else {
             return $this->respond([
                 'status' => 403,
-                'count' => $requestCount,
                 'allowed' => false,
                 'message' => 'You have exceeded the limit. Reach out to Arrange Free.'
             ], 403);
