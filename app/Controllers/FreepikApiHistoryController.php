@@ -116,7 +116,9 @@ class FreepikApiHistoryController extends ResourceController
     public function getByUser($user_id)
     {
         $model = new FreepikApiHistoryModel();
-        $data = $model->where('user_id', $user_id)->findAll();
+        $data = $model->where('user_id', $user_id)
+            ->orderBy('created_at', 'DESC')
+            ->findAll();
 
         return $this->respond(['status' => 200, 'data' => $data], 200);
     }
