@@ -54,52 +54,64 @@ class FreepikApiHistoryController extends ResourceController
 
     public function getAll()
     {
-        $model = new FreepikApiHistoryModel();
+        try {
+            $model = new FreepikApiHistoryModel();
 
-        // Get query parameters
-        $page = $this->request->getVar('page') ?? 1;
-        $limit = $this->request->getVar('limit') ?? 10;
-        $search = $this->request->getVar('search');
-        $startDate = $this->request->getVar('start_date');
-        $endDate = $this->request->getVar('end_date');
+            // Get query parameters
+            $page = (int) ($this->request->getVar('page') ?? 1);
+            $perPage = (int) ($this->request->getVar('perPage') ?? 10);
+            $search = $this->request->getVar('search');
+            $startDate = $this->request->getVar('start_date');
+            $endDate = $this->request->getVar('end_date');
+            $offset = ($page - 1) * $perPage;
 
-        // Initialize query
-        $query = $model->select('freepik_api_history.*, af_customers.name')
-            ->join('af_customers', 'af_customers.id = freepik_api_history.user_id')
-            ->orderBy('freepik_api_history.created_at', 'DESC');
+            // Base query
+            $query = $model->select('freepik_api_history.*, af_customers.name AS customer_name')
+                ->join('af_customers', 'af_customers.id = freepik_api_history.user_id', 'left')
+                ->orderBy('freepik_api_history.created_at', 'DESC');
 
-        // Apply search filter
-        if (!empty($search)) {
-            $query->groupStart()
-                ->like('freepik_api_history.prompt', $search)
-                ->orLike('af_customers.name', $search)
-                ->groupEnd();
+            // Apply search filter
+            if (!empty($search)) {
+                $query->groupStart()
+                    ->like('freepik_api_history.prompt', $search)
+                    ->orLike('af_customers.name', $search)
+                    ->groupEnd();
+            }
+
+            // Apply date range filter
+            if (!empty($startDate) && !empty($endDate)) {
+                $query->where('freepik_api_history.created_at >=', date('Y-m-d', strtotime($startDate)))
+                    ->where('freepik_api_history.created_at <=', date('Y-m-d', strtotime($endDate)));
+            }
+
+            // Get total records before applying pagination
+            $totalRecords = $query->countAllResults(false);
+
+            // Apply pagination
+            $query->limit($perPage, $offset);
+            $data = $query->findAll();
+
+            // Check if data exists
+            if (empty($data)) {
+                return $this->failNotFound('No records found.');
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Data retrieved successfully',
+                'data' => $data,
+                'pagination' => [
+                    'currentPage' => $page,
+                    'perPage' => $perPage,
+                    'totalPages' => ceil($totalRecords / $perPage),
+                    'totalRecords' => $totalRecords
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return $this->failServerError('An unexpected error occurred: ' . $e->getMessage());
         }
-
-        // Apply date range filter
-        if (!empty($startDate) && !empty($endDate)) {
-            $query->where('freepik_api_history.created_at >=', $startDate)
-                ->where('freepik_api_history.created_at <=', $endDate);
-        }
-
-        // Get total records count for pagination
-        $totalRecords = $query->countAllResults(false);
-
-        // Apply pagination
-        $query->limit($limit, ($page - 1) * $limit);
-        $data = $query->findAll();
-
-        return $this->respond([
-            'status' => 200,
-            'data' => $data,
-            'pagination' => [
-                'total' => $totalRecords,
-                'page' => (int) $page,
-                'limit' => (int) $limit,
-                'total_pages' => ceil($totalRecords / $limit)
-            ]
-        ], 200);
     }
+
 
     public function getByUser($user_id)
     {
