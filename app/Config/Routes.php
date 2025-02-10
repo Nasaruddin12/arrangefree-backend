@@ -543,6 +543,7 @@ $routes->group('freepik-api', static function ($routes) {
     $routes->post('store', 'FreepikApiHistoryController::store');
     $routes->post('all', 'FreepikApiHistoryController::getAll');
     $routes->get('user/(:num)', 'FreepikApiHistoryController::getByUser/$1');
+    $routes->get('check-user-limit/(:num)', 'FreepikApiHistoryController::checkUserLimit/$1');
 
 });
 

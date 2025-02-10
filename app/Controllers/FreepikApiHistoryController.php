@@ -56,7 +56,7 @@ class FreepikApiHistoryController extends ResourceController
     {
         try {
             $model = new FreepikApiHistoryModel();
-    
+
             // Get query parameters
             $page = (int) ($this->request->getVar('page') ?? 1);
             $perPage = (int) ($this->request->getVar('perPage') ?? 10);
@@ -64,12 +64,12 @@ class FreepikApiHistoryController extends ResourceController
             $startDate = $this->request->getVar('start_date');
             $endDate = $this->request->getVar('end_date');
             $offset = max(0, ($page - 1) * $perPage);
-    
+
             // Base query
             $query = $model->select('freepik_api_history.*, af_customers.name AS customer_name') // Use alias to avoid conflicts
                 ->join('af_customers', 'af_customers.id = freepik_api_history.user_id', 'left')
                 ->orderBy('freepik_api_history.created_at', 'DESC'); // Ensure latest records are at the top
-    
+
             // Apply search filter
             if (!empty($search)) {
                 $query->groupStart()
@@ -77,25 +77,25 @@ class FreepikApiHistoryController extends ResourceController
                     ->orLike('af_customers.name', $search)
                     ->groupEnd();
             }
-    
+
             // Apply date range filter
             if (!empty($startDate) && !empty($endDate)) {
                 $query->where('freepik_api_history.created_at >=', date('Y-m-d', strtotime($startDate)))
                     ->where('freepik_api_history.created_at <=', date('Y-m-d', strtotime($endDate)));
             }
-    
+
             // Clone query for total records count
             $totalRecordsQuery = clone $query;
             $totalRecords = $totalRecordsQuery->countAllResults(false); // Get total records before pagination
-    
+
             // Apply pagination (after counting total records)
             $data = $query->limit($perPage, $offset)->get()->getResultArray();
-    
+
             // Check if data exists
             if (empty($data)) {
                 return $this->failNotFound('No records found.');
             }
-    
+
             return $this->respond([
                 'status' => 200,
                 'message' => 'Data retrieved successfully',
@@ -110,8 +110,8 @@ class FreepikApiHistoryController extends ResourceController
         } catch (\Exception $e) {
             return $this->failServerError('An unexpected error occurred: ' . $e->getMessage());
         }
-    }    
-    
+    }
+
 
     public function getByUser($user_id)
     {
@@ -119,5 +119,20 @@ class FreepikApiHistoryController extends ResourceController
         $data = $model->where('user_id', $user_id)->findAll();
 
         return $this->respond(['status' => 200, 'data' => $data], 200);
+    }
+    public function checkUserLimit($user_id)
+    {
+        $model = new FreepikApiHistoryModel();
+        $requestCount = $model->where('user_id', $user_id)->countAllResults();
+
+        if ($requestCount <= 250) {
+            return $this->respond(['status' => 200, 'allowed' => true], 200);
+        } else {
+            return $this->respond([
+                'status' => 403,
+                'allowed' => false,
+                'message' => 'You have exceeded the limit. Reach out to Arrange Free.'
+            ], 403);
+        }
     }
 }
