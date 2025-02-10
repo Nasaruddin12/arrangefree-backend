@@ -55,10 +55,15 @@ class FreepikApiHistoryController extends ResourceController
     public function getAll()
     {
         $model = new FreepikApiHistoryModel();
-        $data = $model->findAll();
+
+        // Join customer table to fetch customer_name along with history
+        $data = $model->select('freepik_api_history.*, af_customers.name')
+            ->join('af_customers', 'af_customers.id = freepik_api_history.user_id')
+            ->findAll();
 
         return $this->respond(['status' => 200, 'data' => $data], 200);
     }
+
 
     public function getByUser($user_id)
     {
