@@ -65,35 +65,33 @@ class FreepikApiHistoryController extends ResourceController
             $endDate = $this->request->getVar('end_date');
             $offset = max(0, ($page - 1) * $perPage);
 
-            // Base query
-            $query = $model->select('freepik_api_history.*, af_customers.name AS customer_name') // Use alias to avoid conflicts
-                ->join('af_customers', 'af_customers.id = freepik_api_history.user_id', 'left')
-                ->orderBy('freepik_api_history.created_at', 'DESC'); // Ensure latest records are at the top
+            // Base query: Get unique customers who have used the Freepik API, sorted by most recent usage
+            $query = $model->select('af_customers.id, af_customers.name, MAX(freepik_api_history.created_at) AS created_at, COUNT(freepik_api_history.id) AS usage_count')
+                ->join('af_customers', 'af_customers.id = freepik_api_history.user_id', 'inner') // Inner join ensures only customers who used the API
+                ->groupBy('af_customers.id') // Get unique customers
+                ->orderBy('created_at', 'DESC'); // Order by most recent usage
 
-            // Apply search filter
+            // Apply search filter (search by customer name)
             if (!empty($search)) {
-                $query->groupStart()
-                    ->like('freepik_api_history.prompt', $search)
-                    ->orLike('af_customers.name', $search)
-                    ->groupEnd();
+                $query->like('af_customers.name', $search);
             }
 
-            // Apply date range filter
+            // Apply date range filter based on Freepik API usage date
             if (!empty($startDate) && !empty($endDate)) {
                 $query->where('freepik_api_history.created_at >=', date('Y-m-d', strtotime($startDate)))
                     ->where('freepik_api_history.created_at <=', date('Y-m-d', strtotime($endDate)));
             }
 
-            // Clone query for total records count
+            // Clone query for total unique customers count
             $totalRecordsQuery = clone $query;
-            $totalRecords = $totalRecordsQuery->countAllResults(false); // Get total records before pagination
+            $totalRecords = count($totalRecordsQuery->findAll()); // Get total distinct customers
 
             // Apply pagination (after counting total records)
             $data = $query->limit($perPage, $offset)->get()->getResultArray();
 
             // Check if data exists
             if (empty($data)) {
-                return $this->failNotFound('No records found.');
+                return $this->failNotFound('No customers found who used the Freepik API.');
             }
 
             return $this->respond([
@@ -111,6 +109,7 @@ class FreepikApiHistoryController extends ResourceController
             return $this->failServerError('An unexpected error occurred: ' . $e->getMessage());
         }
     }
+
 
 
     public function getByUser($user_id)
