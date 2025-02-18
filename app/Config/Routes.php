@@ -553,7 +553,14 @@ $routes->group('services', function ($routes) {
     $routes->post('upload-image', 'ServiceController::uploadImage');
     $routes->post('create', 'ServiceController::create'); // Create service
     $routes->put('update/(:num)', 'ServiceController::update/$1'); // Update service
-    $routes->delete('delete/(:num)', 'ServiceController::delete/$1'); // Delete service
+    // $routes->delete('delete/(:num)', 'ServiceController::delete/$1'); // Delete service
+});
+$routes->group('rooms', function ($routes) {
+    $routes->get('/', 'RoomController::index'); // Get all services
+    $routes->get('(:num)', 'RoomController::show/$1'); // Get service by ID
+    $routes->post('create', 'RoomController::create'); // Create service
+    $routes->put('update/(:num)', 'RoomController::update/$1'); // Update service
+    // $routes->delete('delete/(:num)', 'RoomController::delete/$1'); // Delete service
 });
 
 $routes->group('worktypes', function ($routes) {
@@ -562,7 +569,7 @@ $routes->group('worktypes', function ($routes) {
     $routes->post('upload-image', 'WorkTypeController::uploadImage'); // Upload image separately
     $routes->post('create', 'WorkTypeController::create'); // Create work type
     $routes->put('update/(:num)', 'WorkTypeController::update/$1'); // Update work type
-    $routes->delete('delete/(:num)', 'WorkTypeController::delete/$1'); // Delete work type
+    // $routes->delete('delete/(:num)', 'WorkTypeController::delete/$1'); // Delete work type
     $routes->post('delete-image', 'WorkTypeController::deleteImage');
 });
 

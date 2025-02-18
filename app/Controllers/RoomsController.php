@@ -21,16 +21,25 @@ class RoomController extends BaseController
     public function create()
     {
         try {
-            $data = [
-                'name' => $this->request->getVar('name'),
-            ];
-
-            // Handle image upload separately
-            $imagePath = $this->uploadImage();
-            if ($imagePath) {
-                $data['image'] = $imagePath;
+            // Retrieve input values
+            $name = $this->request->getVar('name');
+            $image = $this->request->getVar('image');
+    
+            // Check if name and image are provided
+            if (empty($name) || empty($image)) {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'Both name and image are required.'
+                ], 400);
             }
-
+    
+            // Prepare data for saving
+            $data = [
+                'name' => $name,
+                'image' => $image,
+            ];
+    
+            // Save the data
             if ($this->roomModel->save($data)) {
                 return $this->respond([
                     'status' => 201,
@@ -38,12 +47,17 @@ class RoomController extends BaseController
                     'data' => $data
                 ], 201);
             }
-
+    
             return $this->respond(['status' => 400, 'message' => 'Failed to create Room'], 400);
         } catch (Exception $e) {
-            return $this->respond(['status' => 500, 'message' => 'An error occurred while creating Room', 'error' => $e->getMessage()], 500);
+            return $this->respond([
+                'status' => 500,
+                'message' => 'An error occurred while creating Room',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
+    
 
     // ✅ Read all Rooms
     public function index()
@@ -87,24 +101,30 @@ class RoomController extends BaseController
     public function update($id)
     {
         try {
+            // Retrieve the room by ID
             $room = $this->roomModel->find($id);
             if (!$room) {
                 return $this->failNotFound('Room not found.');
             }
-
-            $data = [
-                'name' => $this->request->getVar('name'),
-            ];
-
-            // Handle image upload separately
-            $imagePath = $this->uploadImage();
-            if ($imagePath) {
-                $data['image'] = $imagePath;
-            } else {
-                // Keep existing image if no new image is uploaded
-                $data['image'] = $room['image'];
+    
+            // Retrieve the input data
+            $name = $this->request->getVar('name');
+            $image = $this->request->getVar('image');
+    
+            // Validate that both name and image are provided
+            if (empty($name) || empty($image)) {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'Both name and image are required.'
+                ], 400);
             }
-
+            // Prepare data for updating
+            $data = [
+                'name' => $name,
+                'image' => $image,
+            ];
+    
+            // Update the room data
             if ($this->roomModel->update($id, $data)) {
                 return $this->respond([
                     'status' => 200,
@@ -112,13 +132,17 @@ class RoomController extends BaseController
                     'data' => $data
                 ], 200);
             }
-
+    
             return $this->respond(['status' => 400, 'message' => 'Failed to update Room'], 400);
         } catch (Exception $e) {
-            return $this->respond(['status' => 500, 'message' => 'Failed to update Room', 'error' => $e->getMessage()], 500);
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Failed to update Room',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
-
+    
     // ✅ Delete Room
     public function delete($id)
     {
