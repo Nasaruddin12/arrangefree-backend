@@ -2,11 +2,14 @@
 
 namespace App\Controllers;
 
+use APP\Controllers\BaseController;
 use App\Models\RoomModel;
-use App\Controllers\BaseController;
+use CodeIgniter\API\ResponseTrait;
+use Exception;
 
 class RoomController extends BaseController
 {
+    use ResponseTrait;
     protected $roomModel;
 
     public function __construct()
@@ -14,99 +17,167 @@ class RoomController extends BaseController
         $this->roomModel = new RoomModel();
     }
 
-    // Create Room
+    // ✅ Create Room
     public function create()
     {
-        // Get the data from the request
-        $data = [
-            'name' => $this->request->getVar('name'),
-        ];
+        try {
+            $data = [
+                'name' => $this->request->getVar('name'),
+            ];
 
-        // Handle image upload separately
-        $imagePath = $this->uploadImage();
-        if ($imagePath) {
-            $data['image'] = $imagePath;
+            // Handle image upload separately
+            $imagePath = $this->uploadImage();
+            if ($imagePath) {
+                $data['image'] = $imagePath;
+            }
+
+            if ($this->roomModel->save($data)) {
+                return $this->respond([
+                    'status' => 201,
+                    'message' => 'Room Created Successfully',
+                    'data' => $data
+                ], 201);
+            }
+
+            return $this->respond(['status' => 400, 'message' => 'Failed to create Room'], 400);
+        } catch (Exception $e) {
+            return $this->respond(['status' => 500, 'message' => 'An error occurred while creating Room', 'error' => $e->getMessage()], 500);
         }
-
-        // Save the data into the database
-        $this->roomModel->save($data);
-
-        return $this->response->setJSON(['message' => 'Room Created Successfully']);
     }
 
-    // Read all Rooms
+    // ✅ Read all Rooms
     public function index()
     {
-        $rooms = $this->roomModel->findAll();
-        return $this->response->setJSON($rooms);
+        try {
+            $rooms = $this->roomModel->findAll();
+            if (empty($rooms)) {
+                return $this->failNotFound('No rooms found.');
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Rooms retrieved successfully',
+                'data' => $rooms
+            ], 200);
+        } catch (Exception $e) {
+            return $this->respond(['status' => 500, 'message' => 'Failed to retrieve Rooms', 'error' => $e->getMessage()], 500);
+        }
     }
 
-    // Get a specific Room by ID
+    // ✅ Get a specific Room by ID
     public function show($id)
     {
-        $room = $this->roomModel->find($id);
-        if ($room) {
-            return $this->response->setJSON($room);
-        } else {
-            return $this->response->setJSON(['message' => 'Room not found'], 404);
+        try {
+            $room = $this->roomModel->find($id);
+            if (!$room) {
+                return $this->failNotFound('Room not found.');
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Room retrieved successfully',
+                'data' => $room
+            ], 200);
+        } catch (Exception $e) {
+            return $this->respond(['status' => 500, 'message' => 'Failed to retrieve Room', 'error' => $e->getMessage()], 500);
         }
     }
 
-    // Update Room
+    // ✅ Update Room
     public function update($id)
     {
-        // Get the data from the request
-        $data = [
-            'name' => $this->request->getVar('name'),
-        ];
-
-        // Handle image upload separately
-        $imagePath = $this->uploadImage();
-        if ($imagePath) {
-            $data['image'] = $imagePath;
-        } else {
-            // Keep existing image if no new image is uploaded
+        try {
             $room = $this->roomModel->find($id);
-            $data['image'] = $room['image'];
+            if (!$room) {
+                return $this->failNotFound('Room not found.');
+            }
+
+            $data = [
+                'name' => $this->request->getVar('name'),
+            ];
+
+            // Handle image upload separately
+            $imagePath = $this->uploadImage();
+            if ($imagePath) {
+                $data['image'] = $imagePath;
+            } else {
+                // Keep existing image if no new image is uploaded
+                $data['image'] = $room['image'];
+            }
+
+            if ($this->roomModel->update($id, $data)) {
+                return $this->respond([
+                    'status' => 200,
+                    'message' => 'Room Updated Successfully',
+                    'data' => $data
+                ], 200);
+            }
+
+            return $this->respond(['status' => 400, 'message' => 'Failed to update Room'], 400);
+        } catch (Exception $e) {
+            return $this->respond(['status' => 500, 'message' => 'Failed to update Room', 'error' => $e->getMessage()], 500);
         }
-
-        // Update the database record
-        $this->roomModel->update($id, $data);
-
-        return $this->response->setJSON(['message' => 'Room Updated Successfully']);
     }
 
-    // Delete Room
+    // ✅ Delete Room
     public function delete($id)
     {
-        $room = $this->roomModel->find($id);
+        try {
+            $room = $this->roomModel->find($id);
+            if (!$room) {
+                return $this->failNotFound('Room not found.');
+            }
 
-        if ($room['image']) {
-            // Delete the image file from server
-            unlink(WRITEPATH . 'uploads/' . $room['image']);
+            // Delete the image if it exists
+            if ($room['image']) {
+                $this->deleteImage($room['image']);
+            }
+
+            if ($this->roomModel->delete($id)) {
+                return $this->respond([
+                    'status' => 200,
+                    'message' => 'Room Deleted Successfully'
+                ], 200);
+            }
+
+            return $this->respond(['status' => 400, 'message' => 'Failed to delete Room'], 400);
+        } catch (Exception $e) {
+            return $this->respond(['status' => 500, 'message' => 'Failed to delete Room', 'error' => $e->getMessage()], 500);
         }
-
-        // Delete the record from the database
-        $this->roomModel->delete($id);
-
-        return $this->response->setJSON(['message' => 'Room Deleted Successfully']);
     }
 
-    // Separate method for handling image upload
+    // ✅ Separate method for handling image upload
     private function uploadImage()
     {
-        $file = $this->request->getFile('image');
-        $imagePath = '';
+        try {
+            $file = $this->request->getFile('image');
+            $imagePath = '';
 
-        // Check if the file is valid and if it's an image
-        if ($file && $file->isValid()) {
-            // Generate a random name for the image
-            $imagePath = $file->getRandomName();
+            // Check if the file is valid and if it's an image
+            if ($file && $file->isValid()) {
+                // Generate a random name for the image
+                $imagePath = $file->getRandomName();
 
-            // Move the file to the writable/uploads directory
-            $file->move(WRITEPATH . 'uploads/', $imagePath);
+                // Move the file to the writable/uploads directory
+                $file->move(WRITEPATH . 'uploads/', $imagePath);
+            }
+
+            return $imagePath;
+        } catch (Exception $e) {
+            return null; // Return null if any error occurs
         }
+    }
 
-        return $imagePath;
+    // ✅ Delete image file by path
+    private function deleteImage($imagePath)
+    {
+        try {
+            $fullPath = WRITEPATH . 'uploads/' . $imagePath;
+            if (file_exists($fullPath)) {
+                unlink($fullPath);
+            }
+        } catch (Exception $e) {
+            // Handle any errors that occur during image deletion
+        }
     }
 }

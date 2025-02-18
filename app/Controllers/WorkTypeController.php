@@ -4,9 +4,12 @@ namespace App\Controllers;
 
 use App\Models\WorkTypeModel;
 use App\Controllers\BaseController;
+use CodeIgniter\API\ResponseTrait;
+use Exception;
 
 class WorkTypeController extends BaseController
 {
+    use ResponseTrait;
     protected $workTypeModel;
 
     public function __construct()
@@ -14,122 +17,176 @@ class WorkTypeController extends BaseController
         $this->workTypeModel = new WorkTypeModel();
     }
 
-    // Create Work Type
+    // ✅ Create Work Type
     public function create()
     {
-        $data = [
-            'name' => $this->request->getVar('name'),
-            'service_id' => $this->request->getVar('service_id'),
-            'rate' => $this->request->getVar('rate'),
-            'rate_type' => $this->request->getVar('rate_type'),
-            'description' => $this->request->getVar('description'),
-            'materials' => $this->request->getVar('materials'),
-            'features' => $this->request->getVar('features'),
-            'care_instructions' => $this->request->getVar('care_instructions'),
-            'warranty_details' => $this->request->getVar('warranty_details'),
-            'quality_promise' => $this->request->getVar('quality_promise'),
-            'status' => $this->request->getVar('status'),
-            'image' => $this->request->getVar('image'), // Image path passed from uploadImage()
-        ];
+        try {
+            $data = [
+                'name' => $this->request->getVar('name'),
+                'service_id' => $this->request->getVar('service_id'),
+                'rate' => $this->request->getVar('rate'),
+                'rate_type' => $this->request->getVar('rate_type'),
+                'description' => $this->request->getVar('description'),
+                'materials' => $this->request->getVar('materials'),
+                'features' => $this->request->getVar('features'),
+                'care_instructions' => $this->request->getVar('care_instructions'),
+                'warranty_details' => $this->request->getVar('warranty_details'),
+                'quality_promise' => $this->request->getVar('quality_promise'),
+                'status' => $this->request->getVar('status'),
+                'image' => $this->request->getVar('image'), // Image path passed from uploadImage()
+            ];
 
-        $this->workTypeModel->save($data);
+            if ($this->workTypeModel->save($data)) {
+                return $this->respond([
+                    'status' => 201,
+                    'message' => 'Work Type Created Successfully',
+                    'data' => $data
+                ], 201);
+            }
 
-        return $this->response->setJSON(['message' => 'Work Type Created Successfully']);
+            return $this->respond(['status' => 400, 'message' => 'Failed to create Work Type'], 400);
+        } catch (Exception $e) {
+            return $this->respond(['status' => 500, 'message' => 'An error occurred while creating Work Type', 'error' => $e->getMessage()], 500);
+        }
     }
 
-    // Upload Image (Returns only path)
+    // ✅ Upload Image (Returns only path)
     public function uploadImage()
     {
-        $file = $this->request->getFile('image');
+        try {
+            $file = $this->request->getFile('image');
+            if (!$file || !$file->isValid()) {
+                return $this->respond(['status' => 400, 'message' => 'Invalid image file'], 400);
+            }
 
-        if (!$file || !$file->isValid()) {
-            return $this->response->setJSON(['error' => 'Invalid image file'])->setStatusCode(400);
+            // Generate a random name and move the image
+            $imagePath = $file->getRandomName();
+            $file->move(WRITEPATH . 'uploads/', $imagePath);
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Image uploaded successfully',
+                'image_path' => $imagePath
+            ], 200);
+        } catch (Exception $e) {
+            return $this->respond(['status' => 500, 'message' => 'Failed to upload image', 'error' => $e->getMessage()], 500);
         }
-
-        // Generate a random name and move the image
-        $imagePath = $file->getRandomName();
-        $file->move(WRITEPATH . 'uploads/', $imagePath);
-
-        return $this->response->setJSON(['image_path' => $imagePath]);
     }
 
-    // Delete Image by Path
+    // ✅ Delete Image by Path
     public function deleteImage()
     {
-        $imagePath = $this->request->getVar('image_path');
+        try {
+            $imagePath = $this->request->getVar('image_path');
+            if (!$imagePath) {
+                return $this->respond(['status' => 400, 'message' => 'Image path is required'], 400);
+            }
 
-        if (!$imagePath) {
-            return $this->response->setJSON(['error' => 'Image path is required'])->setStatusCode(400);
-        }
-
-        $fullPath = WRITEPATH . 'uploads/' . $imagePath;
-
-        if (file_exists($fullPath)) {
-            unlink($fullPath);
-            return $this->response->setJSON(['message' => 'Image deleted successfully']);
-        } else {
-            return $this->response->setJSON(['error' => 'Image not found'])->setStatusCode(404);
+            $fullPath = WRITEPATH . 'uploads/' . $imagePath;
+            if (file_exists($fullPath)) {
+                unlink($fullPath);
+                return $this->respond(['status' => 200, 'message' => 'Image deleted successfully'], 200);
+            } else {
+                return $this->respond(['status' => 404, 'message' => 'Image not found'], 404);
+            }
+        } catch (Exception $e) {
+            return $this->respond(['status' => 500, 'message' => 'Failed to delete image', 'error' => $e->getMessage()], 500);
         }
     }
 
-    // Read all Work Types
+    // ✅ Read all Work Types
     public function index()
     {
-        $workTypes = $this->workTypeModel->findAll();
-        return $this->response->setJSON($workTypes);
+        try {
+            $workTypes = $this->workTypeModel->findAll();
+            if (empty($workTypes)) {
+                return $this->failNotFound('No Work Types found.');
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Data retrieved successfully',
+                'data' => $workTypes
+            ], 200);
+        } catch (Exception $e) {
+            return $this->respond(['status' => 500, 'message' => 'Failed to retrieve Work Types', 'error' => $e->getMessage()], 500);
+        }
     }
 
-    // Update Work Type
+    // ✅ Update Work Type
     public function update($id)
     {
-        $workType = $this->workTypeModel->find($id);
-        if (!$workType) {
-            return $this->response->setJSON(['error' => 'Work Type not found'])->setStatusCode(404);
+        try {
+            $workType = $this->workTypeModel->find($id);
+            if (!$workType) {
+                return $this->failNotFound('Work Type not found.');
+            }
+
+            $data = [
+                'name' => $this->request->getVar('name'),
+                'service_id' => $this->request->getVar('service_id'),
+                'rate' => $this->request->getVar('rate'),
+                'rate_type' => $this->request->getVar('rate_type'),
+                'description' => $this->request->getVar('description'),
+                'materials' => $this->request->getVar('materials'),
+                'features' => $this->request->getVar('features'),
+                'care_instructions' => $this->request->getVar('care_instructions'),
+                'warranty_details' => $this->request->getVar('warranty_details'),
+                'quality_promise' => $this->request->getVar('quality_promise'),
+                'status' => $this->request->getVar('status'),
+                'image' => $this->request->getVar('image') ?? $workType['image'], // Keep old image if not provided
+            ];
+
+            if ($this->workTypeModel->update($id, $data)) {
+                return $this->respond([
+                    'status' => 200,
+                    'message' => 'Work Type Updated Successfully',
+                    'data' => $data
+                ], 200);
+            }
+
+            return $this->respond(['status' => 400, 'message' => 'Failed to update Work Type'], 400);
+        } catch (Exception $e) {
+            return $this->respond(['status' => 500, 'message' => 'Failed to update Work Type', 'error' => $e->getMessage()], 500);
         }
-
-        $data = [
-            'name' => $this->request->getVar('name'),
-            'service_id' => $this->request->getVar('service_id'),
-            'rate' => $this->request->getVar('rate'),
-            'rate_type' => $this->request->getVar('rate_type'),
-            'description' => $this->request->getVar('description'),
-            'materials' => $this->request->getVar('materials'),
-            'features' => $this->request->getVar('features'),
-            'care_instructions' => $this->request->getVar('care_instructions'),
-            'warranty_details' => $this->request->getVar('warranty_details'),
-            'quality_promise' => $this->request->getVar('quality_promise'),
-            'status' => $this->request->getVar('status'),
-            'image' => $this->request->getVar('image') ?? $workType['image'], // Keep old image if not provided
-        ];
-
-        $this->workTypeModel->update($id, $data);
-
-        return $this->response->setJSON(['message' => 'Work Type Updated Successfully']);
     }
 
-    // Delete Work Type
+    // ✅ Delete Work Type
     public function delete($id)
     {
-        $workType = $this->workTypeModel->find($id);
-        if (!$workType) {
-            return $this->response->setJSON(['error' => 'Work Type not found'])->setStatusCode(404);
+        try {
+            $workType = $this->workTypeModel->find($id);
+            if (!$workType) {
+                return $this->failNotFound('Work Type not found.');
+            }
+
+            if (!empty($workType['image'])) {
+                $this->deleteImageByPath($workType['image']);
+            }
+
+            if ($this->workTypeModel->delete($id)) {
+                return $this->respond([
+                    'status' => 200,
+                    'message' => 'Work Type Deleted Successfully'
+                ], 200);
+            }
+
+            return $this->respond(['status' => 400, 'message' => 'Failed to delete Work Type'], 400);
+        } catch (Exception $e) {
+            return $this->respond(['status' => 500, 'message' => 'Failed to delete Work Type', 'error' => $e->getMessage()], 500);
         }
-
-        if (!empty($workType['image'])) {
-            $this->deleteImageByPath($workType['image']);
-        }
-
-        $this->workTypeModel->delete($id);
-
-        return $this->response->setJSON(['message' => 'Work Type Deleted Successfully']);
     }
 
-    // Private function to delete image by path
+    // ✅ Private function to delete image by path
     private function deleteImageByPath($imagePath)
     {
-        $fullPath = WRITEPATH . 'uploads/' . $imagePath;
-        if (file_exists($fullPath)) {
-            unlink($fullPath);
+        try {
+            $fullPath = WRITEPATH . 'uploads/' . $imagePath;
+            if (file_exists($fullPath)) {
+                unlink($fullPath);
+            }
+        } catch (Exception $e) {
+            // Handle any issues that may arise while deleting the image file
         }
     }
 }
