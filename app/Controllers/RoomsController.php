@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use APP\Controllers\BaseController;
+use App\Controllers\BaseController;
 use App\Models\RoomModel;
 use CodeIgniter\API\ResponseTrait;
 use Exception;
