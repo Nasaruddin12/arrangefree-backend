@@ -155,11 +155,11 @@ class ServiceController extends ResourceController
             $imageFile = $this->request->getFile('image');
             if ($imageFile->isValid() && !$imageFile->hasMoved()) {
                 $newName = $imageFile->getRandomName();
-                $imageFile->move('uploads/', $newName);
+                $imageFile->move('public/uploads/services', $newName);
                 return $this->respond([
                     'status' => 200,
                     'message' => 'Image uploaded successfully',
-                    'image_url' => '/uploads/services/' . $newName
+                    'image_url' => 'public/uploads/services' . $newName
                 ], 200);
             }
 
