@@ -7,7 +7,7 @@ use App\Models\RoomModel;
 use CodeIgniter\API\ResponseTrait;
 use Exception;
 
-class RoomController extends BaseController
+class RoomsController extends BaseController
 {
     use ResponseTrait;
     protected $roomModel;

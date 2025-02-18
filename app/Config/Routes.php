@@ -556,11 +556,11 @@ $routes->group('services', function ($routes) {
     // $routes->delete('delete/(:num)', 'ServiceController::delete/$1'); // Delete service
 });
 $routes->group('rooms', function ($routes) {
-    $routes->get('/', 'RoomController::index'); // Get all services
-    $routes->get('(:num)', 'RoomController::show/$1'); // Get service by ID
-    $routes->post('create', 'RoomController::create'); // Create service
-    $routes->put('update/(:num)', 'RoomController::update/$1'); // Update service
-    // $routes->delete('delete/(:num)', 'RoomController::delete/$1'); // Delete service
+    $routes->get('/', 'RoomsController::index'); // Get all services
+    $routes->get('(:num)', 'RoomsController::show/$1'); // Get service by ID
+    $routes->post('create', 'RoomsController::create'); // Create service
+    $routes->put('update/(:num)', 'RoomsController::update/$1'); // Update service
+    // $routes->delete('delete/(:num)', 'RoomsController::delete/$1'); // Delete service
 });
 
 $routes->group('worktypes', function ($routes) {
