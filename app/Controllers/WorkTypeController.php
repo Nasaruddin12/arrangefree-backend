@@ -82,9 +82,8 @@ class WorkTypeController extends BaseController
                 return $this->respond(['status' => 400, 'message' => 'Image path is required'], 400);
             }
 
-            $fullPath = WRITEPATH . $imagePath;
-            if (file_exists($fullPath)) {
-                unlink($fullPath);
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
                 return $this->respond(['status' => 200, 'message' => 'Image deleted successfully'], 200);
             } else {
                 return $this->respond(['status' => 404, 'message' => 'Image not found'], 404);
