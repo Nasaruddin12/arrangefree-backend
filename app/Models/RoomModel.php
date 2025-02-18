@@ -18,7 +18,7 @@ class RoomModel extends Model
     // Set up validation rules
     protected $validationRules = [
         'name' => 'required|string|max_length[255]',
-        'image' => 'permit_empty|valid_image', // Optional image field
+        'image' => 'required', // Optional image field
     ];
 
     // Set validation messages
@@ -29,7 +29,7 @@ class RoomModel extends Model
             'max_length' => 'Room name can be up to 255 characters.',
         ],
         'image' => [
-            'valid_image' => 'Please upload a valid image.',
+            'required' => 'Please upload a image.',
         ],
     ];
 
