@@ -61,7 +61,7 @@ class WorkTypeController extends BaseController
 
             // Generate a random name and move the image
             $imagePath = $file->getRandomName();
-            $file->move(WRITEPATH . 'uploads/', $imagePath);
+            $file->move(WRITEPATH . 'uploads/services', $imagePath);
 
             return $this->respond([
                 'status' => 200,
@@ -82,7 +82,7 @@ class WorkTypeController extends BaseController
                 return $this->respond(['status' => 400, 'message' => 'Image path is required'], 400);
             }
 
-            $fullPath = WRITEPATH . 'uploads/' . $imagePath;
+            $fullPath = WRITEPATH . $imagePath;
             if (file_exists($fullPath)) {
                 unlink($fullPath);
                 return $this->respond(['status' => 200, 'message' => 'Image deleted successfully'], 200);

@@ -159,7 +159,7 @@ class ServiceController extends ResourceController
                 return $this->respond([
                     'status' => 200,
                     'message' => 'Image uploaded successfully',
-                    'image_url' => '/uploads/' . $newName
+                    'image_url' => '/uploads/services/' . $newName
                 ], 200);
             }
 
