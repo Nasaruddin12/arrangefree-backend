@@ -547,6 +547,25 @@ $routes->group('freepik-api', static function ($routes) {
 
 });
 
+$routes->group('services', function ($routes) {
+    $routes->get('/', 'ServiceController::index'); // Get all services
+    $routes->get('(:num)', 'ServiceController::show/$1'); // Get service by ID
+    $routes->post('upload-image', 'ServiceController::uploadImage');
+    $routes->post('create', 'ServiceController::create'); // Create service
+    $routes->post('update/(:num)', 'ServiceController::update/$1'); // Update service
+    $routes->delete('delete/(:num)', 'ServiceController::delete/$1'); // Delete service
+});
+
+$routes->group('worktypes', function ($routes) {
+    $routes->get('/', 'WorkTypeController::index'); // Get all work types
+    $routes->get('(:num)', 'WorkTypeController::show/$1'); // Get work type by ID
+    $routes->post('upload-image', 'WorkTypeController::uploadImage'); // Upload image separately
+    $routes->post('create', 'WorkTypeController::create'); // Create work type
+    $routes->post('update/(:num)', 'WorkTypeController::update/$1'); // Update work type
+    $routes->delete('delete/(:num)', 'WorkTypeController::delete/$1'); // Delete work type
+});
+
+
 
 
 
