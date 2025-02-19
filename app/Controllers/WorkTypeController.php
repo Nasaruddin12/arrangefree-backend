@@ -217,4 +217,30 @@ class WorkTypeController extends BaseController
             'new_status' => (int)$status
         ], 200);
     }
+    public function show($id = null)
+    {
+        try {
+            if (!$id) {
+                return $this->failValidationErrors('ID is required');
+            }
+
+            $workType = $this->workTypeModel->find($id);
+
+            if (!$workType) {
+                return $this->failNotFound('Work Type not found.');
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Data retrieved successfully',
+                'data' => $workType
+            ], 200);
+        } catch (Exception $e) {
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Failed to retrieve Work Type',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }
