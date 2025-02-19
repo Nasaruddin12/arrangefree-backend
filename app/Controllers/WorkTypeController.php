@@ -197,4 +197,24 @@ class WorkTypeController extends BaseController
             // Handle any issues that may arise while deleting the image file
         }
     }
+    public function changeStatus($id)
+    {
+        $status = $this->request->getVar('status'); // Get status from request
+
+        if (!in_array($status, ['0', '1'])) {
+            return $this->failValidationErrors('Invalid status value. Use 1 (active) or 0 (inactive).');
+        }
+
+        if (!$this->workTypeModel->find($id)) {
+            return $this->failNotFound('Work Type not found.');
+        }
+
+        $this->workTypeModel->update($id, ['status' => $status]);
+
+        return $this->respond([
+            'status' => 200,
+            'message' => 'Status updated successfully',
+            'new_status' => (int)$status
+        ], 200);
+    }
 }

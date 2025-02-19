@@ -571,6 +571,8 @@ $routes->group('worktypes', function ($routes) {
     $routes->put('update/(:num)', 'WorkTypeController::update/$1'); // Update work type
     // $routes->delete('delete/(:num)', 'WorkTypeController::delete/$1'); // Delete work type
     $routes->post('delete-image', 'WorkTypeController::deleteImage');
+    $routes->put('change-status/(:num)', 'WorkTypeController::changeStatus/$1');
+
 });
 
 
