@@ -36,6 +36,7 @@ class WorkTypeController extends BaseController
                 'image' => $this->request->getVar('image'), // Image path passed from uploadImage()
             ];
 
+
             if ($this->workTypeModel->save($data)) {
                 return $this->respond([
                     'status' => 201,
@@ -97,7 +98,11 @@ class WorkTypeController extends BaseController
     public function index()
     {
         try {
-            $workTypes = $this->workTypeModel->findAll();
+            $workTypes = $this->workTypeModel
+                ->select('work_types.*, service.name as service_name') // Selecting required columns
+                ->join('services', 'service.id = work_type.service_id', 'left') // Joining service table
+                ->findAll();
+
             if (empty($workTypes)) {
                 return $this->failNotFound('No Work Types found.');
             }
@@ -108,7 +113,11 @@ class WorkTypeController extends BaseController
                 'data' => $workTypes
             ], 200);
         } catch (Exception $e) {
-            return $this->respond(['status' => 500, 'message' => 'Failed to retrieve Work Types', 'error' => $e->getMessage()], 500);
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Failed to retrieve Work Types',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
