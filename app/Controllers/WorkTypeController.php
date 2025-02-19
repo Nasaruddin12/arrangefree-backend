@@ -99,8 +99,8 @@ class WorkTypeController extends BaseController
     {
         try {
             $workTypes = $this->workTypeModel
-                ->select('work_types.*, service.name as service_name') // Selecting required columns
-                ->join('services', 'service.id = work_type.service_id', 'left') // Joining service table
+                ->select('work_types.*, services.name as service_name') // Selecting required columns
+                ->join('services', 'services.id = work_types.service_id', 'left') // Joining service table
                 ->findAll();
 
             if (empty($workTypes)) {
