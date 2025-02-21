@@ -103,6 +103,7 @@ class ServiceController extends ResourceController
             // Format response to return room names as an array
             foreach ($services as &$service) {
                 $service['room_names'] = $service['room_names'] ? explode(',', $service['room_names']) : [];
+                $service['room_ids'] = $service['room_ids'] ? array_map('intval', explode(',', $service['room_ids'])) : [];
             }
 
             return $this->respond([
