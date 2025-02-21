@@ -28,4 +28,13 @@ class WorkTypeModel extends Model
     protected $useTimestamps = true;
     protected $createdField = 'created_at';
     protected $updatedField = 'updated_at';
+
+    public function findByServiceAndRoom($serviceId, $roomId)
+    {
+        return $this->select('work_types.*')
+            ->join('work_type_rooms', 'work_type_rooms.work_type_id = work_types.id', 'inner')
+            ->where('work_types.service_id', $serviceId)
+            ->where('work_type_rooms.room_id', $roomId)
+            ->findAll();
+    }
 }

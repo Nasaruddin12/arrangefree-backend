@@ -554,6 +554,7 @@ $routes->group('services', function ($routes) {
     $routes->post('create', 'ServiceController::create'); // Create service
     $routes->put('update/(:num)', 'ServiceController::update/$1'); // Update service
     // $routes->delete('delete/(:num)', 'ServiceController::delete/$1'); // Delete service
+    $routes->get('(:num)/rooms', 'ServiceController::getRoomsByService/$1');
 });
 $routes->group('rooms', function ($routes) {
     $routes->get('/', 'RoomsController::index'); // Get all services
@@ -572,6 +573,8 @@ $routes->group('worktypes', function ($routes) {
     // $routes->delete('delete/(:num)', 'WorkTypeController::delete/$1'); // Delete work type
     $routes->post('delete-image', 'WorkTypeController::deleteImage');
     $routes->put('change-status/(:num)', 'WorkTypeController::changeStatus/$1');
+    $routes->get('service/(:num)/room/(:num)', 'WorkTypeController::findByServiceAndRoom/$1/$2');
+
 
 });
 

@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\WorkTypeModel;
 use App\Controllers\BaseController;
+use App\Models\WorkTypeRoomModel;
 use CodeIgniter\API\ResponseTrait;
 use Exception;
 
@@ -11,16 +12,23 @@ class WorkTypeController extends BaseController
 {
     use ResponseTrait;
     protected $workTypeModel;
+    protected $workTypeRoomModel;
+
 
     public function __construct()
     {
         $this->workTypeModel = new WorkTypeModel();
+        $this->workTypeRoomModel  = new WorkTypeRoomModel();
     }
 
     // ✅ Create Work Type
     public function create()
     {
         try {
+            $db = \Config\Database::connect();
+            $db->transStart(); // Start Transaction
+
+            // Step 1: Insert Work Type
             $data = [
                 'name' => $this->request->getVar('name'),
                 'service_id' => $this->request->getVar('service_id'),
@@ -33,23 +41,53 @@ class WorkTypeController extends BaseController
                 'warranty_details' => $this->request->getVar('warranty_details'),
                 'quality_promise' => $this->request->getVar('quality_promise'),
                 'status' => $this->request->getVar('status'),
-                'image' => $this->request->getVar('image'), // Image path passed from uploadImage()
+                'image' => $this->request->getVar('image'), // Image path
             ];
 
-
-            if ($this->workTypeModel->save($data)) {
-                return $this->respond([
-                    'status' => 201,
-                    'message' => 'Work Type Created Successfully',
-                    'data' => $data
-                ], 201);
+            if (!$this->workTypeModel->save($data)) {
+                return $this->respond(['status' => 400, 'message' => 'Failed to create Work Type'], 400);
             }
 
-            return $this->respond(['status' => 400, 'message' => 'Failed to create Work Type'], 400);
+            $workTypeId = $this->workTypeModel->getInsertID(); // Get the last inserted ID
+
+            // Step 2: Insert Work Type Rooms
+            $roomIds = $this->request->getVar('room_ids'); // Expecting an array of room IDs
+
+            if (!empty($roomIds) && is_array($roomIds)) {
+
+                $roomData = [];
+
+                foreach ($roomIds as $roomId) {
+                    $roomData[] = [
+                        'work_type_id' => $workTypeId,
+                        'room_id' => $roomId
+                    ];
+                }
+
+                if (!empty($roomData)) {
+                    $this->workTypeRoomModel->insertBatch($roomData);
+                }
+            }
+
+            $db->transComplete(); // Commit Transaction
+
+            return $this->respond([
+                'status' => 201,
+                'message' => 'Work Type Created Successfully',
+                'data' => [
+                    'work_type' => $data,
+                    'room_ids' => $roomIds ?? []
+                ]
+            ], 201);
         } catch (Exception $e) {
-            return $this->respond(['status' => 500, 'message' => 'An error occurred while creating Work Type', 'error' => $e->getMessage()], 500);
+            return $this->respond([
+                'status' => 500,
+                'message' => 'An error occurred while creating Work Type',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
+
 
     // ✅ Upload Image (Returns only path)
     public function uploadImage()
@@ -99,12 +137,19 @@ class WorkTypeController extends BaseController
     {
         try {
             $workTypes = $this->workTypeModel
-                ->select('work_types.*, services.name as service_name') // Selecting required columns
+                ->select('work_types.*, services.name as service_name, GROUP_CONCAT(work_type_rooms.room_id) as room_ids') // Fetch room IDs
                 ->join('services', 'services.id = work_types.service_id', 'left') // Joining service table
+                ->join('work_type_rooms', 'work_type_rooms.work_type_id = work_types.id', 'left') // Joining work_type_rooms
+                ->groupBy('work_types.id') // Grouping to prevent duplicate work types
                 ->findAll();
 
             if (empty($workTypes)) {
                 return $this->failNotFound('No Work Types found.');
+            }
+
+            // Convert room_ids string to an array
+            foreach ($workTypes as &$workType) {
+                $workType['room_ids'] = $workType['room_ids'] ? explode(',', $workType['room_ids']) : [];
             }
 
             return $this->respond([
@@ -121,10 +166,12 @@ class WorkTypeController extends BaseController
         }
     }
 
+
     // ✅ Update Work Type
     public function update($id)
     {
         try {
+            $db = \Config\Database::connect();
             $workType = $this->workTypeModel->find($id);
             if (!$workType) {
                 return $this->failNotFound('Work Type not found.');
@@ -145,53 +192,98 @@ class WorkTypeController extends BaseController
                 'image' => $this->request->getVar('image') ?? $workType['image'], // Keep old image if not provided
             ];
 
-            if ($this->workTypeModel->update($id, $data)) {
-                return $this->respond([
-                    'status' => 200,
-                    'message' => 'Work Type Updated Successfully',
-                    'data' => $data
-                ], 200);
+            // Start transaction
+            $db->transStart();
+
+            // Update the work_type record
+            $this->workTypeModel->update($id, $data);
+
+            // Update work_type_rooms if room_ids are provided
+            $roomIds = $this->request->getVar('room_ids'); // Expected as an array [1, 2, 3]
+            if (!empty($roomIds) && is_array($roomIds)) {
+                if (!$this->workTypeRoomModel->updateWorkTypeRooms($id, $roomIds)) {
+                    // Rollback if updating work_type_rooms fails
+                    $db->transRollback();
+                    return $this->respond(['status' => 400, 'message' => 'Failed to update Work Type Rooms'], 400);
+                }
             }
 
-            return $this->respond(['status' => 400, 'message' => 'Failed to update Work Type'], 400);
+            // Commit transaction
+            $db->transComplete();
+
+            if (!$db->transStatus()) {
+                return $this->respond(['status' => 400, 'message' => 'Failed to update Work Type'], 400);
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Work Type Updated Successfully',
+                'data' => $data
+            ], 200);
         } catch (Exception $e) {
-            return $this->respond(['status' => 500, 'message' => 'Failed to update Work Type', 'error' => $e->getMessage()], 500);
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Failed to update Work Type',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
+
+
 
     // ✅ Delete Work Type
     public function delete($id)
     {
         try {
+            $db = \Config\Database::connect();
             $workType = $this->workTypeModel->find($id);
+
             if (!$workType) {
                 return $this->failNotFound('Work Type not found.');
             }
 
+            // Start transaction
+            $db->transStart();
+
+            // Step 1: Delete related work_type_rooms
+            $this->workTypeRoomModel->where('work_type_id', $id)->delete();
+
+            // Step 2: Delete the work_type image if exists
             if (!empty($workType['image'])) {
                 $this->deleteImageByPath($workType['image']);
             }
 
-            if ($this->workTypeModel->delete($id)) {
-                return $this->respond([
-                    'status' => 200,
-                    'message' => 'Work Type Deleted Successfully'
-                ], 200);
+            // Step 3: Delete the work_type itself
+            $this->workTypeModel->delete($id);
+
+            // Commit transaction
+            $db->transComplete();
+
+            if (!$db->transStatus()) {
+                return $this->respond(['status' => 400, 'message' => 'Failed to delete Work Type'], 400);
             }
 
-            return $this->respond(['status' => 400, 'message' => 'Failed to delete Work Type'], 400);
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Work Type Deleted Successfully'
+            ], 200);
         } catch (Exception $e) {
-            return $this->respond(['status' => 500, 'message' => 'Failed to delete Work Type', 'error' => $e->getMessage()], 500);
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Failed to delete Work Type',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
+
 
     // ✅ Private function to delete image by path
     private function deleteImageByPath($imagePath)
     {
         try {
-            $fullPath = WRITEPATH . 'uploads/' . $imagePath;
-            if (file_exists($fullPath)) {
-                unlink($fullPath);
+
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
             }
         } catch (Exception $e) {
             // Handle any issues that may arise while deleting the image file
@@ -224,11 +316,25 @@ class WorkTypeController extends BaseController
                 return $this->failValidationErrors('ID is required');
             }
 
-            $workType = $this->workTypeModel->find($id);
+            // Fetch work type details
+            $workType = $this->workTypeModel
+                ->select('work_types.*, services.name as service_name')
+                ->join('services', 'services.id = work_types.service_id', 'left')
+                ->where('work_types.id', $id)
+                ->first();
 
             if (!$workType) {
                 return $this->failNotFound('Work Type not found.');
             }
+
+            // Fetch associated room_ids
+            $roomIds = $this->workTypeRoomModel
+                ->where('work_type_id', $id)
+                ->select('room_id')
+                ->findAll();
+
+            // Convert to array of room_ids
+            $workType['room_ids'] = array_column($roomIds, 'room_id');
 
             return $this->respond([
                 'status' => 200,
@@ -239,6 +345,33 @@ class WorkTypeController extends BaseController
             return $this->respond([
                 'status' => 500,
                 'message' => 'Failed to retrieve Work Type',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function findByServiceAndRoom($serviceId = null, $roomId = null)
+    {
+        try {
+            if (!$serviceId || !$roomId) {
+                return $this->failValidationErrors('Service ID and Room ID are required.');
+            }
+
+            $workTypes = $this->workTypeModel->findByServiceAndRoom($serviceId, $roomId);
+
+            if (empty($workTypes)) {
+                return $this->failNotFound('No Work Types found for the given Service and Room.');
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Data retrieved successfully',
+                'data' => $workTypes
+            ], 200);
+        } catch (Exception $e) {
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Failed to retrieve Work Types',
                 'error' => $e->getMessage()
             ], 500);
         }
