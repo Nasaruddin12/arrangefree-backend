@@ -24,9 +24,10 @@ class RoomsController extends BaseController
             // Retrieve input values
             $name = $this->request->getVar('name');
             $image = $this->request->getVar('image');
+            $type = $this->request->getVar('type');
     
             // Check if name and image are provided
-            if (empty($name) || empty($image)) {
+            if (empty($name) || empty($image))  {
                 return $this->respond([
                     'status' => 400,
                     'message' => 'Both name and image are required.'
@@ -37,6 +38,7 @@ class RoomsController extends BaseController
             $data = [
                 'name' => $name,
                 'image' => $image,
+                'type' => $type,
             ];
     
             // Save the data
@@ -110,6 +112,7 @@ class RoomsController extends BaseController
             // Retrieve the input data
             $name = $this->request->getVar('name');
             $image = $this->request->getVar('image');
+            $type = $this->request->getVar('type');
     
             // Validate that both name and image are provided
             if (empty($name) || empty($image)) {
@@ -122,6 +125,7 @@ class RoomsController extends BaseController
             $data = [
                 'name' => $name,
                 'image' => $image,
+                'type' => $type,
             ];
     
             // Update the room data

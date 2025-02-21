@@ -13,12 +13,13 @@ class RoomModel extends Model
     protected $useSoftDeletes = false; // No soft deletes for rooms
 
     // Allow the following fields to be used in CRUD operations
-    protected $allowedFields = ['name', 'image', 'created_at', 'updated_at'];
+    protected $allowedFields = ['name', 'image', 'type', 'created_at', 'updated_at'];
 
     // Set up validation rules
     protected $validationRules = [
         'name' => 'required|string|max_length[255]',
         'image' => 'required', // Optional image field
+        'type' => 'required'
     ];
 
     // Set validation messages
