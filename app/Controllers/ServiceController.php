@@ -90,7 +90,7 @@ class ServiceController extends ResourceController
     {
         try {
             $services = $this->serviceModel
-                ->select('services.*, GROUP_CONCAT(rooms.name) as room_names') // Fetch room names
+                ->select('services.*, GROUP_CONCAT(DISTINCT rooms.name) as room_names, GROUP_CONCAT(DISTINCT service_rooms.room_id) as room_ids')
                 ->join('service_rooms', 'service_rooms.service_id = services.id', 'left')
                 ->join('rooms', 'rooms.id = service_rooms.room_id', 'left')
                 ->groupBy('services.id') // Group by service ID to avoid duplicate rows
