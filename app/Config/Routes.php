@@ -45,8 +45,8 @@ $routes->group('customer', static function ($routes) {
     $routes->post('register', 'CustomerController::createCustomer');
     $routes->get('getCustomer', 'CustomerController::getCustomer');
     $routes->post('contact-us/query', 'CustomerController::contactUs');
+    $routes->put('updateCustomer/(:num)', 'CustomerController::updateCustomer/$1');
     $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
-        $routes->put('updateCustomer/(:num)', 'CustomerController::updateCustomer/$1');
         $routes->get('getCustomerById/(:num)', 'CustomerController::getCustomerById/$1');
         $routes->get('getRecentView', 'RecentlyViewedController::getRecentView');
         $routes->get('getRecentViewBySlug/(:any)', 'RecentlyViewedController::getRecentViewBySlug/$1');

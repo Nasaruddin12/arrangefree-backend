@@ -425,7 +425,6 @@ class CustomerController extends BaseController
                 'name' => 'name',
                 'email' => 'email',
                 'mobile_no' => 'mobile_no',
-
             ];
 
             $customerData = array();
