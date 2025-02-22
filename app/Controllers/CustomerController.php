@@ -62,6 +62,61 @@ class CustomerController extends BaseController
         return $this->respond($response, $statusCode);
     }
 
+    public function sendSeebOTP()
+    {
+        try {
+            $mobileNo = $this->request->getVar('mobile_no');
+
+            $customerModel = new CustomerModel();
+            $customerData = $customerModel->where('mobile_no', $mobileNo)->first();
+
+            if (!$customerData) {
+                // If user not found, create a new one
+                $newCustomer = [
+                    'mobile_no' => $mobileNo,
+                    'otp' => null, // OTP will be set after generation
+                    'created_at' => date('Y-m-d H:i:s'),
+                ];
+                $customerModel->insert($newCustomer);
+
+                // Fetch newly created user data
+                $customerData = $customerModel->where('mobile_no', $mobileNo)->first();
+            }
+
+            // Generate OTP
+            $otp = random_int(1000, 9999);
+
+            // Send OTP via SMS Gateway
+            $smsGateway = new SMSGateway();
+            $response = $smsGateway->sendOTP($mobileNo, $otp);
+
+            if ($response->statusCode != 200) {
+                throw new Exception('Unable to send OTP.', 500);
+            }
+
+            // Set OTP expiry
+            $expTime = new DateTime('now');
+            $expTime->add(new DateInterval('PT300S')); // 5 minutes
+            $otpToken = hash('sha256', $otp) . "." . $expTime->getTimestamp();
+
+            // Update OTP in DB
+            $customerModel->update($customerData['id'], ['otp' => $otpToken]);
+
+            // Success response
+            return $this->respond([
+                'message' => 'OTP sent successfully',
+                'status' => 200
+            ], 200);
+        } catch (Exception $e) {
+            $statusCode = in_array($e->getCode(), [400, 404]) ? $e->getCode() : 500;
+            return $this->respond([
+                'error' => $e->getMessage(),
+                'status' => $statusCode
+            ], $statusCode);
+        }
+    }
+
+
     // public function sendOTP()
     // {
     //     try {

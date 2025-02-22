@@ -40,6 +40,7 @@ $routes->get('generate-invoice', 'InvoiceController::makeInvoice');
 //Arrange free customers//
 $routes->group('customer', static function ($routes) {
     $routes->post('send-otp', 'CustomerController::sendOTP');
+    $routes->post('new-send-otp', 'CustomerController::sendSeebOTP');
     $routes->post('login', 'CustomerController::login');
     $routes->post('register', 'CustomerController::createCustomer');
     $routes->get('getCustomer', 'CustomerController::getCustomer');
