@@ -72,20 +72,22 @@ class CustomerController extends BaseController
 
             if (!$customerData) {
                 // If user not found, create a new one
-                $newCustomer = [
+                $customerModel->insert([
                     'mobile_no' => $mobileNo,
-                    'otp' => null, // OTP will be set after generation
-                    'created_at' => date('Y-m-d H:i:s'),
-                ];
-                $customerModel->insert($newCustomer);
+                ]);
 
-                // Fetch newly created user data
+                // Fetch newly created user data again
                 $customerData = $customerModel->where('mobile_no', $mobileNo)->first();
+
+                // Ensure customer data is not null
+                if (!$customerData) {
+                    throw new Exception('Failed to create user.', 500);
+                }
             }
 
             // Generate OTP
             $otp = random_int(1000, 9999);
-
+    
             // Send OTP via SMS Gateway
             $smsGateway = new SMSGateway();
             $response = $smsGateway->sendOTP($mobileNo, $otp);
@@ -102,19 +104,18 @@ class CustomerController extends BaseController
             // Update OTP in DB
             $customerModel->update($customerData['id'], ['otp' => $otpToken]);
 
-            // Success response
             return $this->respond([
                 'message' => 'OTP sent successfully',
                 'status' => 200
             ], 200);
         } catch (Exception $e) {
-            $statusCode = in_array($e->getCode(), [400, 404]) ? $e->getCode() : 500;
             return $this->respond([
                 'error' => $e->getMessage(),
-                'status' => $statusCode
-            ], $statusCode);
+                'status' => $e->getCode() ?: 500
+            ], $e->getCode() ?: 500);
         }
     }
+
 
 
     // public function sendOTP()

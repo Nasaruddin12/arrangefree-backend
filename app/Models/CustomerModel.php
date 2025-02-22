@@ -25,7 +25,7 @@ class CustomerModel extends Model
     // Validation
     protected $validationRules = [
         'id' => 'if_exist|numeric', 
-        'name'=> "required",
+        // 'name'=> "required",
         'email'=> "if_exist|valid_email|is_unique[af_customers.email,af_customers.id,{id}]",
         // // 'password'=> "required|min_length[8]|max_length[21]|alpha_numeric",
         'mobile_no'=> "required|exact_length[10]|is_unique[af_customers.mobile_no,af_customers.id,{id}]|numeric",
