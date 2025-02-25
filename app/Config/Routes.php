@@ -545,7 +545,6 @@ $routes->group('freepik-api', static function ($routes) {
     $routes->post('all', 'FreepikApiHistoryController::getAll');
     $routes->get('user/(:num)', 'FreepikApiHistoryController::getByUser/$1');
     $routes->get('check-user-limit/(:num)', 'FreepikApiHistoryController::checkUserLimit/$1');
-
 });
 
 $routes->group('services', function ($routes) {
@@ -575,8 +574,10 @@ $routes->group('worktypes', function ($routes) {
     $routes->post('delete-image', 'WorkTypeController::deleteImage');
     $routes->put('change-status/(:num)', 'WorkTypeController::changeStatus/$1');
     $routes->get('service/(:num)/room/(:num)', 'WorkTypeController::findByServiceAndRoom/$1/$2');
-
-
+});
+$routes->group('selected-design', function ($routes) {
+    $routes->post('save', 'SelectedDesignController::saveSelectedDesign');
+    $routes->get('(:num)', 'SelectedDesignController::getSelectedDesign/$1'); // Get all work types
 });
 
 
