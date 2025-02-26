@@ -295,7 +295,7 @@ class ServiceTypeController extends ResourceController
             return $this->respond(['status' => 500, 'message' => 'Image upload failed', 'error' => $e->getMessage()], 500);
         }
     }
-    public function getRoomsByService($serviceTypeId = null)
+    public function getRoomsByServiceType($serviceTypeId = null)
     {
         try {
             if (!$serviceTypeId) {

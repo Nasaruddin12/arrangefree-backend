@@ -547,14 +547,14 @@ $routes->group('freepik-api', static function ($routes) {
     $routes->get('check-user-limit/(:num)', 'FreepikApiHistoryController::checkUserLimit/$1');
 });
 
-$routes->group('services', function ($routes) {
-    $routes->get('/', 'ServiceController::index'); // Get all services
-    $routes->get('(:num)', 'ServiceController::show/$1'); // Get service by ID
-    $routes->post('upload-image', 'ServiceController::uploadImage');
-    $routes->post('create', 'ServiceController::create'); // Create service
-    $routes->put('update/(:num)', 'ServiceController::update/$1'); // Update service
-    // $routes->delete('delete/(:num)', 'ServiceController::delete/$1'); // Delete service
-    $routes->get('(:num)/rooms', 'ServiceController::getRoomsByService/$1');
+$routes->group('services-type', function ($routes) {
+    $routes->get('/', 'ServiceTypeController::index'); // Get all services
+    $routes->get('(:num)', 'ServiceTypeController::show/$1'); // Get service by ID
+    $routes->post('upload-image', 'ServiceTypeController::uploadImage');
+    $routes->post('create', 'ServiceTypeController::create'); // Create service
+    $routes->put('update/(:num)', 'ServiceTypeController::update/$1'); // Update service
+    // $routes->delete('delete/(:num)', 'ServiceTypeController::delete/$1'); // Delete service
+    $routes->get('(:num)/rooms', 'ServiceTypeController::getRoomsByServiceType/$1');
 });
 $routes->group('rooms', function ($routes) {
     $routes->get('/', 'RoomsController::index'); // Get all services
@@ -564,16 +564,16 @@ $routes->group('rooms', function ($routes) {
     // $routes->delete('delete/(:num)', 'RoomsController::delete/$1'); // Delete service
 });
 
-$routes->group('worktypes', function ($routes) {
-    $routes->get('/', 'WorkTypeController::index'); // Get all work types
-    $routes->get('(:num)', 'WorkTypeController::show/$1'); // Get work type by ID
-    $routes->post('upload-image', 'WorkTypeController::uploadImage'); // Upload image separately
-    $routes->post('create', 'WorkTypeController::create'); // Create work type
-    $routes->put('update/(:num)', 'WorkTypeController::update/$1'); // Update work type
-    // $routes->delete('delete/(:num)', 'WorkTypeController::delete/$1'); // Delete work type
-    $routes->post('delete-image', 'WorkTypeController::deleteImage');
-    $routes->put('change-status/(:num)', 'WorkTypeController::changeStatus/$1');
-    $routes->get('service/(:num)/room/(:num)', 'WorkTypeController::findByServiceAndRoom/$1/$2');
+$routes->group('services', function ($routes) {
+    $routes->get('/', 'ServiceController::index'); // Get all work types
+    $routes->get('(:num)', 'ServiceController::show/$1'); // Get work type by ID
+    $routes->post('upload-image', 'ServiceController::uploadImage'); // Upload image separately
+    $routes->post('create', 'ServiceController::create'); // Create work type
+    $routes->put('update/(:num)', 'ServiceController::update/$1'); // Update work type
+    // $routes->delete('delete/(:num)', 'ServiceController::delete/$1'); // Delete work type
+    $routes->post('delete-image', 'ServiceController::deleteImage');
+    $routes->put('change-status/(:num)', 'ServiceController::changeStatus/$1');
+    $routes->get('service-type/(:num)/room/(:num)', 'ServiceController::findByServiceTypeAndRoom/$1/$2');
 });
 $routes->group('selected-design', function ($routes) {
     $routes->post('save', 'SelectedDesignController::saveSelectedDesign');
