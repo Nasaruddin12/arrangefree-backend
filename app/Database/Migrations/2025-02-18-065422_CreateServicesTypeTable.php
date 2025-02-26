@@ -4,7 +4,7 @@ namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class CreateServicesTable extends Migration
+class CreateServicesTypeTable extends Migration
 {
     public function up()
     {
@@ -36,11 +36,11 @@ class CreateServicesTable extends Migration
         ]);
 
         $this->forge->addKey('id', true);
-        $this->forge->createTable('services');
+        $this->forge->createTable('service_types');
     }
 
     public function down()
     {
-        $this->forge->dropTable('services');
+        $this->forge->dropTable('service_types');
     }
 }

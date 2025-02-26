@@ -4,7 +4,7 @@ namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class CreateWorkTypeRooms extends Migration
+class CreateServiceRoomsTable extends Migration
 {
     public function up()
     {
@@ -15,7 +15,7 @@ class CreateWorkTypeRooms extends Migration
                 'unsigned'       => true,
                 'auto_increment' => true,
             ],
-            'work_type_id' => [
+            'service_id' => [
                 'type'       => 'INT',
                 'constraint' => 11,
                 'unsigned'   => true,
@@ -30,14 +30,14 @@ class CreateWorkTypeRooms extends Migration
         ]);
 
         $this->forge->addKey('id', true);
-        $this->forge->addForeignKey('work_type_id', 'work_types', 'id', 'CASCADE', 'CASCADE');
+        $this->forge->addForeignKey('service_id', 'services', 'id', 'CASCADE', 'CASCADE');
         $this->forge->addForeignKey('room_id', 'rooms', 'id', 'CASCADE', 'CASCADE');
 
-        $this->forge->createTable('work_type_rooms');
+        $this->forge->createTable('service_rooms');
     }
 
     public function down()
     {
-        $this->forge->dropTable('work_type_rooms');
+        $this->forge->dropTable('service_rooms');
     }
 }

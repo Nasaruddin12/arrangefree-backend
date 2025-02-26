@@ -2,326 +2,377 @@
 
 namespace App\Controllers;
 
+
+use App\Controllers\BaseController;
 use App\Models\ServiceModel;
 use App\Models\ServiceRoomModel;
-use CodeIgniter\RESTful\ResourceController;
+use CodeIgniter\API\ResponseTrait;
 use Exception;
 
-class ServiceController extends ResourceController
+class ServiceController extends BaseController
 {
+    use ResponseTrait;
     protected $serviceModel;
     protected $serviceRoomModel;
+
 
     public function __construct()
     {
         $this->serviceModel = new ServiceModel();
-        $this->serviceRoomModel = new ServiceRoomModel();
+        $this->serviceRoomModel  = new ServiceRoomModel();
     }
 
-    // ✅ Create Service
+    // ✅ Create Services
     public function create()
     {
         try {
-            $db = \Config\Database::connect(); // Get database instance
+            $db = \Config\Database::connect();
+            $db->transStart(); // Start Transaction
 
-            $name = $this->request->getVar('name');
-            $image = $this->request->getVar('image'); // Image path
-            $roomIds = $this->request->getVar('room_ids'); // Expected as an array [1, 2, 3]
-
-            if (empty($name) || empty($image)) {
-                return $this->respond(['status' => 400, 'message' => 'Name and Image are required'], 400);
-            }
-
+            // Step 1: Insert Services
             $data = [
-                'name' => $name,
-                'image' => $image,
+                'name' => $this->request->getVar('name'),
+                'service_type_id' => $this->request->getVar('service_type_id'),
+                'rate' => $this->request->getVar('rate'),
+                'rate_type' => $this->request->getVar('rate_type'),
+                'description' => $this->request->getVar('description'),
+                'materials' => $this->request->getVar('materials'),
+                'features' => $this->request->getVar('features'),
+                'care_instructions' => $this->request->getVar('care_instructions'),
+                'warranty_details' => $this->request->getVar('warranty_details'),
+                'quality_promise' => $this->request->getVar('quality_promise'),
+                'status' => $this->request->getVar('status'),
+                'image' => $this->request->getVar('image'), // Image path
             ];
 
-            // Start Transaction
-            $db->transStart();
-
-            // Insert into services table
-            $serviceId = $this->serviceModel->insert($data, true); // `true` returns the inserted ID
-
-            if (!$serviceId) {
-                return $this->respond(['status' => 400, 'message' => 'Failed to add service'], 400);
+            if (!$this->serviceModel->save($data)) {
+                return $this->respond(['status' => 400, 'message' => 'Failed to create Services'], 400);
             }
 
-            // Insert into service_rooms table
-            if (!empty($roomIds) && is_array($roomIds)) {
-                $serviceRoomModel = new ServiceRoomModel();
+            $serviceId = $this->serviceModel->getInsertID(); // Get the last inserted ID
 
-                $dataRooms = [];
+            // Step 2: Insert Services Rooms
+            $roomIds = $this->request->getVar('room_ids'); // Expecting an array of room IDs
+
+            if (!empty($roomIds) && is_array($roomIds)) {
+
+                $roomData = [];
+
                 foreach ($roomIds as $roomId) {
-                    $dataRooms[] = [
+                    $roomData[] = [
                         'service_id' => $serviceId,
                         'room_id' => $roomId
                     ];
                 }
 
-                $serviceRoomModel->insertBatch($dataRooms);
+                if (!empty($roomData)) {
+                    $this->serviceRoomModel->insertBatch($roomData);
+                }
             }
 
-            // Commit Transaction
-            $db->transComplete();
-
-            if ($db->transStatus() === false) {
-                return $this->respond(['status' => 400, 'message' => 'Failed to add service'], 400);
-            }
+            $db->transComplete(); // Commit Transaction
 
             return $this->respond([
                 'status' => 201,
-                'message' => 'Service added successfully',
+                'message' => 'Services Created Successfully',
                 'data' => [
-                    'id' => $serviceId,
-                    'name' => $name,
-                    'image' => $image,
-                    'room_ids' => $roomIds
+                    'service' => $data,
+                    'room_ids' => $roomIds ?? []
                 ]
             ], 201);
         } catch (Exception $e) {
-            return $this->respond(['status' => 500, 'message' => 'An error occurred while adding service', 'error' => $e->getMessage()], 500);
+            return $this->respond([
+                'status' => 500,
+                'message' => 'An error occurred while creating Services',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
+
+    // ✅ Upload Image (Returns only path)
+    public function uploadImage()
+    {
+        try {
+            $file = $this->request->getFile('image');
+            if (!$file || !$file->isValid()) {
+                return $this->respond(['status' => 400, 'message' => 'Invalid image file'], 400);
+            }
+
+            // Generate a random name and move the image
+            $imagePath = $file->getRandomName();
+            $file->move(WRITEPATH . 'uploads/services', $imagePath);
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Image uploaded successfully',
+                'image_path' => $imagePath
+            ], 200);
+        } catch (Exception $e) {
+            return $this->respond(['status' => 500, 'message' => 'Failed to upload image', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    // ✅ Delete Image by Path
+    public function deleteImage()
+    {
+        try {
+            $imagePath = $this->request->getVar('image_path');
+            if (!$imagePath) {
+                return $this->respond(['status' => 400, 'message' => 'Image path is required'], 400);
+            }
+
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+                return $this->respond(['status' => 200, 'message' => 'Image deleted successfully'], 200);
+            } else {
+                return $this->respond(['status' => 404, 'message' => 'Image not found'], 404);
+            }
+        } catch (Exception $e) {
+            return $this->respond(['status' => 500, 'message' => 'Failed to delete image', 'error' => $e->getMessage()], 500);
+        }
+    }
 
     // ✅ Read all Services
     public function index()
     {
         try {
             $services = $this->serviceModel
-                ->select('services.*, GROUP_CONCAT(DISTINCT rooms.name) as room_names, GROUP_CONCAT(DISTINCT service_rooms.room_id) as room_ids')
-                ->join('service_rooms', 'service_rooms.service_id = services.id', 'left')
-                ->join('rooms', 'rooms.id = service_rooms.room_id', 'left')
-                ->groupBy('services.id') // Group by service ID to avoid duplicate rows
+                ->select('services.*, service_types.name as service_name, GROUP_CONCAT(service_rooms.room_id) as room_ids') // Fetch room IDs
+                ->join('service_types', 'service_types.id = services.service_type_id', 'left') // Joining service table
+                ->join('service_rooms', 'service_rooms.service_id = services.id', 'left') // Joining service_rooms
+                ->groupBy('services.id') // Grouping to prevent duplicate services
                 ->findAll();
 
             if (empty($services)) {
-                return $this->failNotFound('No services found.');
+                return $this->failNotFound('No Services found.');
             }
 
-            // Format response to return room names as an array
+            // Convert room_ids string to an array
             foreach ($services as &$service) {
-                $service['room_names'] = $service['room_names'] ? explode(',', $service['room_names']) : [];
-                $service['room_ids'] = $service['room_ids'] ? array_map('intval', explode(',', $service['room_ids'])) : [];
+                $service['room_ids'] = $service['room_ids'] ? explode(',', $service['room_ids']) : [];
             }
 
             return $this->respond([
-                "status" => 200,
-                "message" => "Data retrieved successfully",
-                "data" => $services
+                'status' => 200,
+                'message' => 'Data retrieved successfully',
+                'data' => $services
             ], 200);
         } catch (Exception $e) {
             return $this->respond([
                 'status' => 500,
-                'message' => 'Failed to retrieve services',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    // ✅ Read a single service by ID
-    public function show($id = null)
-    {
-        try {
-            $db = \Config\Database::connect();
-            if (!$id) {
-                return $this->failValidationErrors('ID is required');
-            }
-
-            // Fetch service details
-            $service = $this->serviceModel->find($id);
-            if (!$service) {
-                return $this->failNotFound('Service not found.');
-            }
-
-            // Fetch room_ids associated with this service
-            $roomIds = $db->table('service_rooms')
-                ->select('room_id')
-                ->where('service_id', $id)
-                ->get()
-                ->getResultArray();
-
-            // Extract room IDs into a simple array
-            $service['room_ids'] = array_column($roomIds, 'room_id');
-
-            return $this->respond([
-                "status" => 200,
-                "message" => "Data retrieved successfully",
-                "data" => $service
-            ], 200);
-        } catch (Exception $e) {
-            return $this->respond([
-                'status' => 500,
-                'message' => 'Failed to retrieve service',
+                'message' => 'Failed to retrieve Services',
                 'error' => $e->getMessage()
             ], 500);
         }
     }
 
 
-    // ✅ Update Service
-    public function update($id = null)
+    // ✅ Update Services
+    public function update($id)
     {
         try {
             $db = \Config\Database::connect();
-
-            // Check if the service exists
             $service = $this->serviceModel->find($id);
             if (!$service) {
-                return $this->failNotFound('Service not found.');
-            }
-
-            $name = $this->request->getVar('name');
-            $image = $this->request->getVar('image'); // Image path
-            $roomIds = $this->request->getVar('room_ids'); // Expected as an array
-
-            if (empty($name) && empty($image) && empty($roomIds)) {
-                return $this->respond(['status' => 400, 'message' => 'At least one field (Name, Image, or Room IDs) is required to update'], 400);
+                return $this->failNotFound('Services not found.');
             }
 
             $data = [
-                'name' => $name ?: $service['name'],
-                'image' => $image ?: $service['image'],
+                'name' => $this->request->getVar('name'),
+                'service_type_id' => $this->request->getVar('service_type_id'),
+                'rate' => $this->request->getVar('rate'),
+                'rate_type' => $this->request->getVar('rate_type'),
+                'description' => $this->request->getVar('description'),
+                'materials' => $this->request->getVar('materials'),
+                'features' => $this->request->getVar('features'),
+                'care_instructions' => $this->request->getVar('care_instructions'),
+                'warranty_details' => $this->request->getVar('warranty_details'),
+                'quality_promise' => $this->request->getVar('quality_promise'),
+                'status' => $this->request->getVar('status'),
+                'image' => $this->request->getVar('image') ?? $service['image'], // Keep old image if not provided
             ];
 
             // Start transaction
             $db->transStart();
 
-            // Update the service data
+            // Update the work_type record
             $this->serviceModel->update($id, $data);
 
-            // Update room associations if room_ids is provided
-            if (is_array($roomIds)) {
-                $this->serviceRoomModel->updateServiceRooms($id, $roomIds);
+            // Update service_rooms if room_ids are provided
+            $roomIds = $this->request->getVar('room_ids'); // Expected as an array [1, 2, 3]
+            if (!empty($roomIds) && is_array($roomIds)) {
+                if (!$this->serviceRoomModel->updateServiceRooms($id, $roomIds)) {
+                    // Rollback if updating service_rooms fails
+                    $db->transRollback();
+                    return $this->respond(['status' => 400, 'message' => 'Failed to update Services Rooms'], 400);
+                }
             }
 
-            // Complete transaction
+            // Commit transaction
             $db->transComplete();
 
-            if ($db->transStatus() === false) {
-                return $this->respond(['status' => 400, 'message' => 'Failed to update service'], 400);
+            if (!$db->transStatus()) {
+                return $this->respond(['status' => 400, 'message' => 'Failed to update Services'], 400);
             }
 
             return $this->respond([
                 'status' => 200,
-                'message' => 'Service updated successfully',
+                'message' => 'Services Updated Successfully',
                 'data' => $data
             ], 200);
         } catch (Exception $e) {
             return $this->respond([
                 'status' => 500,
-                'message' => 'Failed to update service',
+                'message' => 'Failed to update Services',
                 'error' => $e->getMessage()
             ], 500);
         }
     }
 
 
-    // ✅ Delete Service
-    public function delete($id = null)
+
+    // ✅ Delete Services
+    public function delete($id)
     {
         try {
             $db = \Config\Database::connect();
-
-            // Check if the service exists
             $service = $this->serviceModel->find($id);
+
             if (!$service) {
-                return $this->failNotFound('Service not found.');
+                return $this->failNotFound('Services not found.');
             }
 
             // Start transaction
             $db->transStart();
 
-            // Delete associated room mappings
+            // Step 1: Delete related service_rooms
             $this->serviceRoomModel->where('service_id', $id)->delete();
 
-            // Unlink (Delete) the Image File if it exists
-            if (!empty($service['image']) && file_exists(FCPATH . $service['image'])) {
-                unlink(FCPATH . $service['image']);
+            // Step 2: Delete the work_type image if exists
+            if (!empty($service['image'])) {
+                $this->deleteImageByPath($service['image']);
             }
 
-            // Delete the service
+            // Step 3: Delete the work_type itself
             $this->serviceModel->delete($id);
 
-            // Complete transaction
+            // Commit transaction
             $db->transComplete();
 
-            if ($db->transStatus() === false) {
-                return $this->respond(['status' => 400, 'message' => 'Failed to delete service'], 400);
+            if (!$db->transStatus()) {
+                return $this->respond(['status' => 400, 'message' => 'Failed to delete Services'], 400);
             }
 
             return $this->respond([
                 'status' => 200,
-                'message' => 'Service deleted successfully'
+                'message' => 'Services Deleted Successfully'
             ], 200);
         } catch (Exception $e) {
             return $this->respond([
                 'status' => 500,
-                'message' => 'Failed to delete service',
+                'message' => 'Failed to delete Services',
                 'error' => $e->getMessage()
             ], 500);
         }
     }
 
 
-
-    // ✅ Upload Image (Separate method for image handling)
-    public function uploadImage()
+    // ✅ Private function to delete image by path
+    private function deleteImageByPath($imagePath)
     {
         try {
-            $validation = \Config\Services::validation();
-            $validation->setRules([
-                'image' => 'uploaded[image]|is_image[image]|max_size[image,2048]|mime_in[image,image/png,image/jpeg,image/jpg]',
-            ]);
 
-            if (!$validation->withRequest($this->request)->run()) {
-                return $this->respond(['status' => 400, 'message' => 'Invalid image file', 'errors' => $validation->getErrors()], 400);
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
             }
-
-            $imageFile = $this->request->getFile('image');
-            if ($imageFile->isValid() && !$imageFile->hasMoved()) {
-                $newName = $imageFile->getRandomName();
-                $imageFile->move('public/uploads/services/', $newName);
-                return $this->respond([
-                    'status' => 200,
-                    'message' => 'Image uploaded successfully',
-                    'image_url' => 'public/uploads/services/' . $newName
-                ], 200);
-            }
-
-            return $this->respond(['status' => 400, 'message' => 'Image upload failed'], 400);
         } catch (Exception $e) {
-            return $this->respond(['status' => 500, 'message' => 'Image upload failed', 'error' => $e->getMessage()], 500);
+            // Handle any issues that may arise while deleting the image file
         }
     }
-    public function getRoomsByService($serviceId = null)
+    public function changeStatus($id)
+    {
+        $status = $this->request->getVar('status'); // Get status from request
+
+        if (!in_array($status, ['0', '1'])) {
+            return $this->failValidationErrors('Invalid status value. Use 1 (active) or 0 (inactive).');
+        }
+
+        if (!$this->serviceModel->find($id)) {
+            return $this->failNotFound('Services not found.');
+        }
+
+        $this->serviceModel->update($id, ['status' => $status]);
+
+        return $this->respond([
+            'status' => 200,
+            'message' => 'Status updated successfully',
+            'new_status' => (int)$status
+        ], 200);
+    }
+    public function show($id = null)
     {
         try {
-            if (!$serviceId) {
-                return $this->failValidationErrors('Service ID is required');
+            if (!$id) {
+                return $this->failValidationErrors('ID is required');
             }
 
-            // Fetch all rooms related to the given service ID
-            $rooms = $this->serviceRoomModel
-                ->select('rooms.*')  // Select all columns from rooms
-                ->join('rooms', 'rooms.id = service_rooms.room_id')
-                ->where('service_rooms.service_id', $serviceId)
+            // Fetch services details
+            $service = $this->serviceModel
+                ->select('services.*, service_types.name as service_name')
+                ->join('service_types', 'service_types.id = services.service_type_id', 'left')
+                ->where('services.id', $id)
+                ->first();
+
+            if (!$service) {
+                return $this->failNotFound('Services not found.');
+            }
+
+            // Fetch associated room_ids
+            $roomIds = $this->serviceRoomModel
+                ->where('service_id', $id)
+                ->select('room_id')
                 ->findAll();
 
-            if (empty($rooms)) {
-                return $this->failNotFound('No rooms found for this service.');
-            }
+            // Convert to array of room_ids
+            $service['room_ids'] = array_column($roomIds, 'room_id');
 
             return $this->respond([
-                "status" => 200,
-                "message" => "Rooms retrieved successfully",
-                "data" => $rooms
+                'status' => 200,
+                'message' => 'Data retrieved successfully',
+                'data' => $service
             ], 200);
         } catch (Exception $e) {
             return $this->respond([
                 'status' => 500,
-                'message' => 'Failed to retrieve rooms',
+                'message' => 'Failed to retrieve Services',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function findByServiceTypeAndRoom($serviceTypeId = null, $roomId = null)
+    {
+        try {
+            if (!$serviceTypeId || !$roomId) {
+                return $this->failValidationErrors('Service ID and Room ID are required.');
+            }
+
+            $services = $this->serviceModel->findByServiceTypeAndRoom($serviceTypeId, $roomId);
+
+            if (empty($services)) {
+                return $this->failNotFound('No Services found for the given Service and Room.');
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Data retrieved successfully',
+                'data' => $services
+            ], 200);
+        } catch (Exception $e) {
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Failed to retrieve Services',
                 'error' => $e->getMessage()
             ], 500);
         }
