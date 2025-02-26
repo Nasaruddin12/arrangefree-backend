@@ -18,7 +18,7 @@ class SMSGateway
 
     public function sendOTP($destination, $otp)
     {
-        $text = "$otp is your OTP for verification with Arrange Free \n\n-Team Haps";
+        $text = "$otp is your OTP for verification with Seeb \n\n-Team Haps";
         $text = rawurlencode($text);
         $data = array(
             'ver' => $this->gatewayVariables['version'],
