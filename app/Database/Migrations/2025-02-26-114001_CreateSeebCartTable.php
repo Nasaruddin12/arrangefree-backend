@@ -39,30 +39,15 @@ class CreateSeebCartTable extends Migration
                 'unsigned'   => true,
                 'null'       => false,
             ],
-            'width' => [
-                'type'       => 'DECIMAL',
-                'constraint' => '10,2',
-                'null'       => true,
-            ],
-            'height' => [
-                'type'       => 'DECIMAL',
-                'constraint' => '10,2',
-                'null'       => true,
-            ],
-            'square_feet' => [
-                'type'       => 'DECIMAL',
-                'constraint' => '10,2',
-                'null'       => true,
-            ],
-            'points' => [
-                'type'       => 'DECIMAL',
-                'constraint' => '10,2',
-                'null'       => true,
-            ],
-            'unit' => [
+            'rate_type' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 50,
-                'null'       => true,
+                'null'       => false,
+            ],
+            'value' => [
+                'type'       => 'DECIMAL',
+                'constraint' => '10,2',
+                'null'       => false,
             ],
             'rate' => [
                 'type'       => 'DECIMAL',
@@ -73,12 +58,6 @@ class CreateSeebCartTable extends Migration
                 'type'       => 'DECIMAL',
                 'constraint' => '10,2',
                 'null'       => false,
-            ],
-            'quantity' => [
-                'type'       => 'INT',
-                'constraint' => 11,
-                'null'       => true,
-                'default'    => 1,
             ],
             'description' => [
                 'type'       => 'TEXT',

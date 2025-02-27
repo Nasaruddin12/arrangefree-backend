@@ -81,8 +81,13 @@ class SeebCartController extends ResourceController
             if (empty($data['user_id']) || empty($data['service_id'])) {
                 return $this->fail('User ID and Service ID are required', 400);
             }
-    
-            // Insert new record (allowing multiple entries for same user_id & service_id)
+
+            // Check if rate_type and value fields exist
+            if (!isset($data['rate_type']) || !isset($data['value'])) {
+                return $this->fail('Rate Type and Value are required', 400);
+            }
+
+            // Insert new record (allowing multiple entries for the same user_id & service_id)
             $this->model->insert($data);
     
             return $this->respondCreated([
@@ -94,7 +99,33 @@ class SeebCartController extends ResourceController
             return $this->failServerError($e->getMessage());
         }
     }
-    
+
+    // ✅ Update a cart item
+    public function update($id = null)
+    {
+        try {
+            if (!$id) {
+                return $this->fail('Cart item ID is required', 400);
+            }
+
+            $data = $this->request->getJSON(true);
+
+            $cartItem = $this->model->find($id);
+            if (!$cartItem) {
+                return $this->failNotFound('Cart item not found');
+            }
+
+            $this->model->update($id, $data);
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Cart item updated successfully',
+                'data' => $data
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError($e->getMessage());
+        }
+    }
 
     // ✅ Delete a cart item
     public function delete($id = null)

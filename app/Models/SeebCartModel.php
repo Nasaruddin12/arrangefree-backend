@@ -10,9 +10,8 @@ class SeebCartModel extends Model
     protected $primaryKey       = 'id';
     protected $allowedFields    = [
         'user_id', 'service_id', 'service_type_id', 'room_id', 
-        'width', 'height', 'square_feet', 'points', 'unit', 'rate', 
-        'amount', 'quantity', 'description', 'reference_image',
-        'created_at', 'updated_at'
+        'rate_type', 'value', 'rate', 'amount', 
+        'description', 'reference_image', 'created_at', 'updated_at'
     ];
     protected $useTimestamps    = true;
     protected $createdField     = 'created_at';
