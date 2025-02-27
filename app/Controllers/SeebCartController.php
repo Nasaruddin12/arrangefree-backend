@@ -11,10 +11,10 @@ class SeebCartController extends ResourceController
     protected $format    = 'json';
 
     // ✅ Get all cart items (or filter by user_id)
-    public function index()
+    public function index($userId = null)
     {
         try {
-            $userId = $this->request->getGet('user_id');
+            // $userId = $this->request->getGet('user_id');
 
             $cartItems = $this->model
                 ->select('seeb_cart.*, services.image as service_image')
@@ -77,7 +77,7 @@ class SeebCartController extends ResourceController
     {
         try {
             $data = $this->request->getJSON(true);
-    
+
             if (empty($data['user_id']) || empty($data['service_id'])) {
                 return $this->fail('User ID and Service ID are required', 400);
             }
@@ -89,7 +89,7 @@ class SeebCartController extends ResourceController
 
             // Insert new record (allowing multiple entries for the same user_id & service_id)
             $this->model->insert($data);
-    
+
             return $this->respondCreated([
                 'status' => 201,
                 'message' => 'Cart item added successfully',
@@ -142,7 +142,8 @@ class SeebCartController extends ResourceController
         } catch (\Exception $e) {
             return $this->failServerError($e->getMessage());
         }
-    }public function uploadImages()
+    }
+    public function uploadImages()
     {
         try {
             $images  = $this->request->getFiles(); // Multiple images
