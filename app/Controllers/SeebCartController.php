@@ -147,7 +147,7 @@ class SeebCartController extends ResourceController
     {
         try {
             $images  = $this->request->getFiles(); // Multiple images
-            $uploadDirectory = 'public/uploads/reference-image'; // Define your upload path
+            $uploadDirectory = 'public/uploads/reference-image/'; // Define your upload path
             $imagePaths = [];
 
             if (!isset($images['images'])) {
@@ -158,7 +158,7 @@ class SeebCartController extends ResourceController
                 if ($file->isValid() && !$file->hasMoved()) {
                     $fileName = $file->getRandomName();
                     if ($file->move($uploadDirectory, $fileName)) {
-                        $imagePaths[] = base_url($uploadDirectory . $fileName);
+                        $imagePaths[] = $uploadDirectory . $fileName;
                     }
                 }
             }
