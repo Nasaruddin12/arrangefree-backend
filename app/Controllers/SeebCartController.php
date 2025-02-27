@@ -17,7 +17,7 @@ class SeebCartController extends ResourceController
             // $userId = $this->request->getGet('user_id');
 
             $cartItems = $this->model
-                ->select('seeb_cart.*, services.image as service_image')
+                ->select('seeb_cart.*, services.image as service_image, services.name as service_name')
                 ->join('services', 'services.id = seeb_cart.service_id', 'left')
                 ->orderBy('seeb_cart.created_at', 'DESC'); // Order by latest added first
 
