@@ -146,33 +146,5 @@ class FreepikApiHistoryController extends ResourceController
             ], 403);
         }
     }
-    public function uploadImages()
-    {
-        try {
-            $images  = $this->request->getFiles(); // Multiple images
-            $uploadDirectory = 'public/uploads/reference-image'; // Define your upload path
-            $imagePaths = [];
-
-            if (!isset($images['images'])) {
-                return $this->respond(['status' => 400, 'message' => 'No images uploaded'], 400);
-            }
-
-            foreach ($images['images'] as $file) {
-                if ($file->isValid() && !$file->hasMoved()) {
-                    $fileName = $file->getRandomName();
-                    if ($file->move($uploadDirectory, $fileName)) {
-                        $imagePaths[] = base_url($uploadDirectory . $fileName);
-                    }
-                }
-            }
-
-            return $this->respond([
-                'status'  => 201,
-                'message' => 'Images uploaded successfully',
-                'data'    => ['images' => $imagePaths]
-            ], 201);
-        } catch (\Exception $e) {
-            return $this->respond(['status' => 500, 'message' => 'Failed to upload images', 'error' => $e->getMessage()], 500);
-        }
-    }
+    
 }
