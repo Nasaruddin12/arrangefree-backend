@@ -11,11 +11,9 @@ class AddressController extends ResourceController
     protected $format    = 'json';
 
     // ✅ Get all addresses (or filter by user_id)
-    public function index()
+    public function index($userId = null)
     {
         try {
-            $userId = $this->request->getGet('user_id');
-
             $addresses = $this->model->orderBy('is_default', 'DESC');
 
             if (!empty($userId)) {

@@ -592,7 +592,7 @@ $routes->group('seeb-cart', function ($routes) {
 
 $routes->group('customer-address', function ($routes) {
     // $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
-    $routes->get('/', 'AddressController::index');              // Get all addresses (filtered by user_id)
+    $routes->get('(:num)', 'AddressController::index/$1');              // Get all addresses (filtered by user_id)
     $routes->get('default/(:num)', 'AddressController::getDefault/$1'); // Get default address by user_id
     $routes->get('(:num)', 'AddressController::show/$1');       // Get single address by ID
     $routes->post('/', 'AddressController::create');            // Add new address
