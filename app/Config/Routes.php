@@ -582,11 +582,22 @@ $routes->group('selected-design', function ($routes) {
 
 $routes->group('seeb-cart', function ($routes) {
     // $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
-        $routes->get('getCart/(:num)', 'SeebCartController::index/$1');       // Get all cart items (or filter by user_id)
-        $routes->get('(:num)', 'SeebCartController::show/$1'); // Get single cart item by ID
-        $routes->post('save', 'SeebCartController::save');    // Create/Update cart item
-        $routes->delete('(:num)', 'SeebCartController::delete/$1'); // Delete cart item
-        $routes->post('uploadImages', 'SeebCartController::uploadImages'); 
+    $routes->get('getCart/(:num)', 'SeebCartController::index/$1');       // Get all cart items (or filter by user_id)
+    $routes->get('(:num)', 'SeebCartController::show/$1'); // Get single cart item by ID
+    $routes->post('save', 'SeebCartController::save');    // Create/Update cart item
+    $routes->delete('(:num)', 'SeebCartController::delete/$1'); // Delete cart item
+    $routes->post('uploadImages', 'SeebCartController::uploadImages');
+    // });
+});
+
+$routes->group('customer-address', function ($routes) {
+    // $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
+    $routes->get('/', 'AddressController::index');              // Get all addresses (filtered by user_id)
+    $routes->get('default/(:num)', 'AddressController::getDefault/$1'); // Get default address by user_id
+    $routes->get('(:num)', 'AddressController::show/$1');       // Get single address by ID
+    $routes->post('/', 'AddressController::create');            // Add new address
+    $routes->put('(:num)', 'AddressController::update/$1');     // Update address by ID
+    $routes->delete('(:num)', 'AddressController::delete/$1');  // Delete address by ID
     // });
 });
 
