@@ -292,7 +292,7 @@ class CouponController extends BaseController
 
             $coupons = $this->couponModel
                 ->where('coupon_expiry >=', $currentDate) // ✅ Check if expiry is in the future
-                ->where('is_active', 1) // ✅ (Optional) Ensure the coupon is active
+                // ->where('is_active', 1) // ✅ (Optional) Ensure the coupon is active
                 ->findAll();
 
             if (empty($coupons)) {
