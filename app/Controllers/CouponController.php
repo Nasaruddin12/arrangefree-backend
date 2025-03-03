@@ -288,21 +288,34 @@ class CouponController extends BaseController
     public function getActiveCoupons()
     {
         try {
-            $currentDate = date('Y-m-d');
+            $couponModel = new CouponModel();
+            $currentDate = new DateTime(); // Get today's date
 
-            $coupons = $this->couponModel
-                ->where('coupon_expiry >=', $currentDate) // ✅ Check if expiry is in the future
-                // ->where('is_active', 1) // ✅ (Optional) Ensure the coupon is active
-                ->findAll();
+            $coupons = $couponModel->findAll();
+            $activeCoupons = [];
 
-            if (empty($coupons)) {
+            foreach ($coupons as $coupon) {
+                // Extract coupon expiry date
+                $exp_date_parts = explode(',', $coupon['coupon_expiry']);
+                if (isset($exp_date_parts[1])) {
+                    $exp_date_str = substr($exp_date_parts[1], 2, strlen($exp_date_parts[1]) - 6);
+                    $exp_date = new DateTime($exp_date_str);
+
+                    // Check if coupon is active
+                    if ($exp_date >= $currentDate) {
+                        $activeCoupons[] = $coupon;
+                    }
+                }
+            }
+
+            if (empty($activeCoupons)) {
                 return $this->failNotFound('No active coupons found');
             }
 
             return $this->respond([
                 'status'  => 200,
                 'message' => 'Active coupons retrieved successfully',
-                'data'    => $coupons
+                'data'    => $activeCoupons
             ], 200);
         } catch (\Exception $e) {
             return $this->failServerError('Failed to retrieve active coupons.');
