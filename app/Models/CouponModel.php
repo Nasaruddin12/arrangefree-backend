@@ -22,6 +22,7 @@ class CouponModel extends Model
         'coupon_type',
         'coupon_type_name',
         'coupon_name',
+        'description',
         'coupon_expiry',
         'cart_minimum_amount',
         'coupon_use_limit',

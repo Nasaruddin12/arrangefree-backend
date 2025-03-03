@@ -15,6 +15,12 @@ use Firebase\JWT\Key;
 class CouponController extends BaseController
 {
     use ResponseTrait;
+    protected $couponModel;
+
+    public function __construct()
+    {
+        $this->couponModel = new CouponModel(); // ✅ Load the model manually
+    }
 
     public function create()
     {
@@ -36,14 +42,11 @@ class CouponController extends BaseController
                 'coupon_use_limit' => $this->request->getVar('coupon_use_limit'),
                 'coupon_per_user_limit' => $this->request->getVar('coupon_per_user_limit'),
                 'coupon_code' => $this->request->getVar('coupon_code'),
-                'terms_and_conditions' => json_encode($this->request->getVar('terms_and_conditions'))
+                'terms_and_conditions' => json_encode($this->request->getVar('terms_and_conditions')),
+                'description' => $this->request->getVar('description')
             ];
-            // print_r($couponData['coupon_expiry']);
-            // die;
-
 
             $couponModel->insert($couponData);
-            // echo $couponModel->db->getLastQuery();
 
             if (!empty($validation->getErrors())) {
                 throw new \Exception('Validation', 400);
@@ -71,6 +74,7 @@ class CouponController extends BaseController
         return $this->respond($response, $response['status']);
     }
 
+
     public function getById($id)
     {
         try {
@@ -94,7 +98,6 @@ class CouponController extends BaseController
 
         return $this->respond($response, $response['status']);
     }
-
 
     public function update($id)
     {
@@ -121,7 +124,8 @@ class CouponController extends BaseController
                 'coupon_use_limit' => $this->request->getVar('coupon_use_limit'),
                 'coupon_per_user_limit' => $this->request->getVar('coupon_per_user_limit'),
                 'coupon_code' => $this->request->getVar('coupon_code'),
-                'terms_and_conditions' => json_encode($this->request->getVar('terms_and_conditions'))
+                'terms_and_conditions' => json_encode($this->request->getVar('terms_and_conditions')),
+                'description' => $this->request->getVar('description')
             ];
             $couponModel->update($id, $couponData);
 
@@ -280,5 +284,28 @@ class CouponController extends BaseController
         }
 
         return $this->respond($response, $response['status']);
+    }
+    public function getActiveCoupons()
+    {
+        try {
+            $currentDate = date('Y-m-d');
+
+            $coupons = $this->couponModel
+                ->where('coupon_expiry >=', $currentDate) // ✅ Check if expiry is in the future
+                ->where('is_active', 1) // ✅ (Optional) Ensure the coupon is active
+                ->findAll();
+
+            if (empty($coupons)) {
+                return $this->failNotFound('No active coupons found');
+            }
+
+            return $this->respond([
+                'status'  => 200,
+                'message' => 'Active coupons retrieved successfully',
+                'data'    => $coupons
+            ], 200);
+        } catch (\Exception $e) {
+            return $this->failServerError('Failed to retrieve active coupons.');
+        }
     }
 }

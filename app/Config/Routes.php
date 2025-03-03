@@ -313,6 +313,8 @@ $routes->group('coupon', static function ($routes) {
     $routes->delete('coupondelete/(:num)', 'CouponController::delete/$1');
     $routes->get('getAllCoupon', 'CouponController::getAllCoupon');
     $routes->post('apply-coupon', 'CouponController::applyCoupon');
+    $routes->get('active', 'CouponController::getActiveCoupons');
+
 });
 
 //WishList
