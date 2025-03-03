@@ -169,4 +169,36 @@ class AddressController extends ResourceController
             return $this->failServerError('An error occurred while fetching the default address.');
         }
     }
+    public function changeDefault($id = null)
+{
+    try {
+        if (!$id) {
+            return $this->fail('Address ID is required', 400);
+        }
+
+        // Find the address
+        $address = $this->model->find($id);
+        if (!$address) {
+            return $this->failNotFound('Address not found');
+        }
+
+        $userId = $address['user_id'];
+
+        // Reset all addresses for the user to is_default = 0
+        $this->model->where('user_id', $userId)->set(['is_default' => 0])->update();
+
+        // Set the selected address as default
+        $this->model->update($id, ['is_default' => 1]);
+
+        return $this->respond([
+            'status'  => 200,
+            'message' => 'Default address updated successfully',
+            'data'    => ['address_id' => $id, 'user_id' => $userId, 'is_default' => 1]
+        ], 200);
+
+    } catch (\Exception $e) {
+        return $this->failServerError('Failed to update default address.');
+    }
+}
+
 }
