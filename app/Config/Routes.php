@@ -315,7 +315,7 @@ $routes->group('coupon', static function ($routes) {
     $routes->post('apply-coupon', 'CouponController::applyCoupon');
     $routes->get('active', 'CouponController::getActiveCoupons');
     // $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
-    $routes->get('use-coupon', 'CouponController::applyCouponSeeb');
+    $routes->post('use-coupon', 'CouponController::applyCouponSeeb');
     // });
 });
 
