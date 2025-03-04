@@ -29,7 +29,7 @@ class CouponModel extends Model
         'coupon_per_user_limit',
         'coupon_code',
         'terms_and_conditions',
-                
+        'is_active'  
     ];
 
     // Dates

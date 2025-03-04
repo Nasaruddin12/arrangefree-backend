@@ -314,7 +314,9 @@ $routes->group('coupon', static function ($routes) {
     $routes->get('getAllCoupon', 'CouponController::getAllCoupon');
     $routes->post('apply-coupon', 'CouponController::applyCoupon');
     $routes->get('active', 'CouponController::getActiveCoupons');
-
+    // $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
+    $routes->get('use-coupon', 'CouponController::applyCouponSeeb');
+    // });
 });
 
 //WishList
@@ -602,6 +604,16 @@ $routes->group('customer-address', function ($routes) {
     $routes->delete('(:num)', 'AddressController::delete/$1');  // Delete address by ID
     $routes->put('change-default/(:num)', 'AddressController::changeDefault/$1');
 
+    // });
+});
+
+$routes->group('razorpay-order', function ($routes) {
+    // $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
+    $routes->post('create', 'RazorpayOrdersController::createOrder');
+    $routes->get('(:num)', 'RazorpayOrdersController::getOrder/$1');
+    $routes->get('user/(:num)', 'RazorpayOrdersController::getUserOrders/$1');
+    $routes->post('update-status', 'RazorpayOrdersController::updateOrderStatus');
+    $routes->delete('delete/(:num)', 'RazorpayOrdersController::deleteOrder/$1');
     // });
 });
 
