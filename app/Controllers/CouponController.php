@@ -332,7 +332,10 @@ class CouponController extends BaseController
             $data = $this->request->getJSON(true) ?? $this->request->getVar();
 
             if (empty($data['user_id']) || empty($data['coupon_code']) || empty($data['cart_total'])) {
-                return $this->failValidationErrors('User ID, Coupon Code, and Cart Total are required.');
+                return $this->respond([
+                    'status'  => 400,
+                    'message' => 'User ID, Coupon Code, and Cart Total are required.'
+                ], 400);
             }
 
             $coupon = $this->couponModel->where('coupon_code', $data['coupon_code'])
@@ -340,25 +343,37 @@ class CouponController extends BaseController
                 ->first();
 
             if (!$coupon) {
-                return $this->failNotFound('Invalid or expired coupon code.');
+                return $this->respond([
+                    'status'  => 404,
+                    'message' => 'Invalid or expired coupon code.'
+                ], 404);
             }
 
             // Check if coupon has expired
             $currentDate = date('Y-m-d');
             if ($coupon['coupon_expiry'] < $currentDate) {
-                return $this->failValidationErrors('This coupon has expired.');
+                return $this->respond([
+                    'status'  => 400,
+                    'message' => 'This coupon has expired.'
+                ], 400);
             }
 
-            // Check if cart minimum amount is met
+            // Check if cart meets the minimum amount
             if ($data['cart_total'] < $coupon['cart_minimum_amount']) {
-                return $this->failValidationErrors('Cart total must be at least ₹' . $coupon['cart_minimum_amount'] . ' to apply this coupon.');
+                return $this->respond([
+                    'status'  => 400,
+                    'message' => 'Cart total must be at least ₹' . $coupon['cart_minimum_amount'] . ' to apply this coupon.'
+                ], 400);
             }
 
-            // Check coupon usage limit
+            // Check overall coupon usage limit
             if ($coupon['coupon_use_limit'] > 0) {
                 $usedCount = $bookingsModel->where('applied_coupon', $coupon['coupon_code'])->countAllResults();
                 if ($usedCount >= $coupon['coupon_use_limit']) {
-                    return $this->failValidationErrors('This coupon has reached its maximum usage limit.');
+                    return $this->respond([
+                        'status'  => 400,
+                        'message' => 'This coupon has reached its maximum usage limit.'
+                    ], 400);
                 }
             }
 
@@ -370,7 +385,10 @@ class CouponController extends BaseController
                     ->countAllResults();
 
                 if ($userUsedCount >= $coupon['coupon_per_user_limit']) {
-                    return $this->failValidationErrors('You have already used this coupon.');
+                    return $this->respond([
+                        'status'  => 400,
+                        'message' => 'You have already used this coupon.'
+                    ], 400);
                 }
             }
 
@@ -382,9 +400,8 @@ class CouponController extends BaseController
                 $discountAmount = $coupon['coupon_type_name'];
             }
 
-            // Ensure discount doesn't exceed max allowed discount
-            // $maxDiscount = $coupon['coupon_used_count'] ?? 2000;
-            // $discountAmount = min($discountAmount, $maxDiscount, $data['cart_total']);
+            // Ensure discount does not exceed cart total
+            $discountAmount = min($discountAmount, $data['cart_total']);
             $finalAmount = $data['cart_total'] - $discountAmount;
 
             return $this->respond([
@@ -396,7 +413,10 @@ class CouponController extends BaseController
             ], 200);
         } catch (\Exception $e) {
             log_message('error', 'Coupon Application Error: ' . $e->getMessage());
-            return $this->failServerError('Failed to apply coupon. Please try again.');
+            return $this->respond([
+                'status'  => 500,
+                'message' => 'Failed to apply coupon. Please try again.'
+            ], 500);
         }
     }
 }
