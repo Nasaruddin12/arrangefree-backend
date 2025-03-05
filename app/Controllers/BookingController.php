@@ -155,7 +155,14 @@ class BookingController extends ResourceController
             // Commit Transaction
             $this->db->transComplete();
             if ($this->db->transStatus() === false) {
-                throw new \Exception('Transaction failed. Please try again.');
+                $dbError = $this->db->error(); // Get database error details
+                log_message('error', 'Transaction failed: ' . json_encode($dbError));
+
+                return $this->respond([
+                    'status'  => 500,
+                    'message' => 'Transaction failed. Please try again.',
+                    'error'   => $dbError
+                ], 500);
             }
 
             return $this->respond([
