@@ -156,14 +156,25 @@ class BookingController extends ResourceController
             $this->db->transComplete();
             if ($this->db->transStatus() === false) {
                 $dbError = $this->db->error(); // Get database error details
+            
+                // If there's no specific DB error, log additional debug info
+                if (empty($dbError['code'])) {
+                    log_message('error', 'Unknown transaction failure. Debugging required.');
+                    return $this->respond([
+                        'status'  => 500,
+                        'message' => 'Transaction failed. Debugging required. Check logs.'
+                    ], 500);
+                }
+            
                 log_message('error', 'Transaction failed: ' . json_encode($dbError));
-
+            
                 return $this->respond([
                     'status'  => 500,
                     'message' => 'Transaction failed. Please try again.',
                     'error'   => $dbError
                 ], 500);
             }
+            
 
             return $this->respond([
                 'status'         => 200,
