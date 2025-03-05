@@ -620,7 +620,8 @@ $routes->group('razorpay-order', function ($routes) {
 $routes->group('booking', function ($routes) {
     // $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
     $routes->post('store', 'BookingController::createBooking');
-
+    $routes->get('', 'BookingController::getAllBookings'); // Get all bookings
+    $routes->get('user/(:num)', 'BookingController::getBookingsByUser/$1'); 
     // });
 });
 

@@ -156,7 +156,7 @@ class BookingController extends ResourceController
             $this->db->transComplete();
             if ($this->db->transStatus() === false) {
                 $dbError = $this->db->error(); // Get database error details
-            
+
                 // If there's no specific DB error, log additional debug info
                 if (empty($dbError['code'])) {
                     log_message('error', 'Unknown transaction failure. Debugging required.');
@@ -165,16 +165,16 @@ class BookingController extends ResourceController
                         'message' => 'Transaction failed. Debugging required. Check logs.'
                     ], 500);
                 }
-            
+
                 log_message('error', 'Transaction failed: ' . json_encode($dbError));
-            
+
                 return $this->respond([
                     'status'  => 500,
                     'message' => 'Transaction failed. Please try again.',
                     'error'   => $dbError
                 ], 500);
             }
-            
+
 
             return $this->respond([
                 'status'         => 200,
@@ -190,6 +190,108 @@ class BookingController extends ResourceController
             return $this->respond([
                 'status'  => 500,
                 'message' => 'Something went wrong. ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    public function getAllBookings()
+    {
+        try {
+            $bookings = $this->bookingsModel
+                ->select('bookings.*, af_customers.name as user_name')
+                ->join('users', 'af_customers.id = bookings.user_id', 'left')
+                ->orderBy('bookings.created_at', 'DESC')
+                ->findAll();
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Bookings retrieved successfully.',
+                'data' => $bookings
+            ], 200);
+        } catch (\Exception $e) {
+            log_message('error', 'Error fetching bookings: ' . $e->getMessage());
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Something went wrong while fetching bookings.'
+            ], 500);
+        }
+    }
+
+    public function getBookingsByUser($user_id)
+    {
+        try {
+            $bookings = $this->bookingsModel
+                ->select('bookings.*, af_customers.name as user_name')
+                ->join('users', 'af_customers.id = bookings.user_id', 'left')
+                ->where('bookings.user_id', $user_id)
+                ->orderBy('bookings.created_at', 'DESC')
+                ->findAll();
+
+            if (empty($bookings)) {
+                return $this->respond([
+                    'status' => 404,
+                    'message' => 'No bookings found for this user.'
+                ], 404);
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'User bookings retrieved successfully.',
+                'data' => $bookings
+            ], 200);
+        } catch (\Exception $e) {
+            log_message('error', 'Error fetching user bookings: ' . $e->getMessage());
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Something went wrong while fetching user bookings.'
+            ], 500);
+        }
+    }
+
+    public function getBookingById($booking_id)
+    {
+        try {
+            // Fetch booking details with user and address
+            $booking = $this->bookingsModel
+                ->select('bookings.*, users.name as user_name, users.email as user_email, 
+                      customer_addresses.phone as customer_phone, customer_addresses.address as customer_address')
+                ->join('users', 'users.id = bookings.user_id', 'left')
+                ->join('customer_addresses', 'customer_addresses.id = bookings.address_id', 'left')
+                ->where('bookings.id', $booking_id)
+                ->first();
+
+            if (!$booking) {
+                return $this->respond([
+                    'status' => 404,
+                    'message' => 'Booking not found.'
+                ], 404);
+            }
+
+            // Fetch booking services
+            $services = $this->bookingServicesModel
+                ->select('booking_services.*, services.name as service_name, services.description as service_description')
+                ->join('services', 'services.id = booking_services.service_id', 'left')
+                ->where('booking_services.booking_id', $booking_id)
+                ->findAll();
+
+            // Fetch payment details
+            $payments = $this->bookingPaymentsModel
+                ->where('booking_id', $booking_id)
+                ->findAll();
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Booking retrieved successfully.',
+                'data' => [
+                    'booking' => $booking,
+                    'services' => $services,
+                    'payments' => $payments
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            log_message('error', 'Error fetching booking by ID: ' . $e->getMessage());
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Something went wrong while fetching the booking.'
             ], 500);
         }
     }
