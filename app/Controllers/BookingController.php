@@ -253,7 +253,7 @@ class BookingController extends ResourceController
             // Fetch booking details with user and address
             $booking = $this->bookingsModel
                 ->select('bookings.*, af_customers.name as user_name, af_customers.email as user_email, 
-                      customer_addresses.phone as customer_phone, customer_addresses.address as customer_address')
+                      customer_addresses.address as customer_address')
                 ->join('af_customers', 'af_customers.id = bookings.user_id', 'left')
                 ->join('customer_addresses', 'customer_addresses.id = bookings.address_id', 'left')
                 ->where('bookings.id', $booking_id)
