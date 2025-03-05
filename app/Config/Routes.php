@@ -617,6 +617,13 @@ $routes->group('razorpay-order', function ($routes) {
     // });
 });
 
+$routes->group('booking', function ($routes) {
+    // $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
+    $routes->post('store', 'BookingController::createBooking');
+
+    // });
+});
+
 
 
 

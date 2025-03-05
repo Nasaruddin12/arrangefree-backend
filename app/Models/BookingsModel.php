@@ -11,9 +11,14 @@ class BookingsModel extends Model
 
     protected $allowedFields = [
         'user_id',
+        'address_id',
         'total_amount',
         'discount',
         'final_amount',
+        'paid_amount',
+        'amount_due',
+        'payment_type',
+        'payment_status',
         'status',
         'applied_coupon',
         'created_at',
