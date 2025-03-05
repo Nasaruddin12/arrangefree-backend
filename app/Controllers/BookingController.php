@@ -198,7 +198,7 @@ class BookingController extends ResourceController
         try {
             $bookings = $this->bookingsModel
                 ->select('bookings.*, af_customers.name as user_name')
-                ->join('users', 'af_customers.id = bookings.user_id', 'left')
+                ->join('af_customers', 'af_customers.id = bookings.user_id', 'left')
                 ->orderBy('bookings.created_at', 'DESC')
                 ->findAll();
 
@@ -221,7 +221,7 @@ class BookingController extends ResourceController
         try {
             $bookings = $this->bookingsModel
                 ->select('bookings.*, af_customers.name as user_name')
-                ->join('users', 'af_customers.id = bookings.user_id', 'left')
+                ->join('af_customers', 'af_customers.id = bookings.user_id', 'left')
                 ->where('bookings.user_id', $user_id)
                 ->orderBy('bookings.created_at', 'DESC')
                 ->findAll();
@@ -252,9 +252,9 @@ class BookingController extends ResourceController
         try {
             // Fetch booking details with user and address
             $booking = $this->bookingsModel
-                ->select('bookings.*, users.name as user_name, users.email as user_email, 
+                ->select('bookings.*, af_customers.name as user_name, af_customers.email as user_email, 
                       customer_addresses.phone as customer_phone, customer_addresses.address as customer_address')
-                ->join('users', 'users.id = bookings.user_id', 'left')
+                ->join('af_customers', 'af_customers.id = bookings.user_id', 'left')
                 ->join('customer_addresses', 'customer_addresses.id = bookings.address_id', 'left')
                 ->where('bookings.id', $booking_id)
                 ->first();
