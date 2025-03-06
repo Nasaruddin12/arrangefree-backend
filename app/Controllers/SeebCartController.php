@@ -52,6 +52,7 @@ class SeebCartController extends ResourceController
                 seeb_cart.user_id, 
                 af_customers.name as user_name, 
                 af_customers.email as user_email, 
+                af_customers.mobile_no as user_phone, 
                 COUNT(seeb_cart.id) as total_items, 
                 SUM(seeb_cart.amount) as total_amount, 
                 MAX(seeb_cart.created_at) as latest_cart_date
