@@ -12,6 +12,7 @@ class BookingsModel extends Model
     protected $allowedFields = [
         'user_id',
         'address_id',
+        'slot_date',
         'total_amount',
         'discount',
         'final_amount',
@@ -34,6 +35,7 @@ class BookingsModel extends Model
      */
     protected $validationRules = [
         'user_id'        => 'required|integer',
+        'slot_date'      => 'required|valid_date[Y-m-d]',  // Ensures slot_date is a valid date
         'total_amount'   => 'required|decimal',
         'discount'       => 'required|decimal',
         'final_amount'   => 'required|decimal',
@@ -46,6 +48,7 @@ class BookingsModel extends Model
      */
     protected $validationMessages = [
         'user_id'        => ['required' => 'User ID is required.', 'integer' => 'User ID must be a number.'],
+        'slot_date'      => ['required' => 'Slot Date is required.', 'valid_date' => 'Slot Date must be in YYYY-MM-DD format.'],
         'total_amount'   => ['required' => 'Total Amount is required.', 'decimal' => 'Total Amount must be a decimal value.'],
         'discount'       => ['required' => 'Discount is required.', 'decimal' => 'Discount must be a decimal value.'],
         'final_amount'   => ['required' => 'Final Amount is required.', 'decimal' => 'Final Amount must be a decimal value.'],

@@ -26,6 +26,10 @@ class CreateBookingsTable extends Migration
                 'unsigned'   => true,
                 'null'       => true,
             ],
+            'slot_date' => [
+                'type'       => 'DATE',
+                'null'       => false, // Ensure a date is always provided
+            ],
             'total_amount' => [
                 'type'       => 'DECIMAL',
                 'constraint' => '10,2',

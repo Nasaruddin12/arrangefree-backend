@@ -32,15 +32,15 @@ class BookingController extends ResourceController
     {
         try {
             $data = $this->request->getJSON(true) ?? $this->request->getVar();
-
+    
             // Normalize Payment Type
             $paymentType = strtolower(str_replace(' ', '_', $data['payment_type'] ?? 'pay_later'));
-
+    
             // Determine Payment Status & Amounts
             $paidAmount = ($paymentType === 'pay_later') ? 0.00 : ($data['paid_amount'] ?? 0.00);
             $amountDue = max(0, $data['final_amount'] - $paidAmount);
             $paymentStatus = ($paymentType === 'pay_later') ? null : ($data['payment_status'] ?? 'pending');
-
+    
             // Validate Payment Status Enum
             $validPaymentStatuses = ['pending', 'completed', 'failed', 'refunded'];
             if ($paymentStatus && !in_array($paymentStatus, $validPaymentStatuses)) {
@@ -50,14 +50,14 @@ class BookingController extends ResourceController
                     'errors'  => ['payment_status' => 'Allowed values: pending, completed, failed, refunded.']
                 ]);
             }
-
+    
             // Determine Booking Status
             if ($paymentType === 'pay_later') {
                 $bookingStatus = 'pending';
             } else {
                 $bookingStatus = ($paymentStatus === 'completed' && $amountDue == 0) ? 'confirmed' : 'pending';
             }
-
+    
             // Booking Data
             $bookingData = [
                 'user_id'        => $data['user_id'],
@@ -69,10 +69,12 @@ class BookingController extends ResourceController
                 'payment_type'   => $paymentType,
                 'status'         => $bookingStatus,
                 'applied_coupon' => $data['applied_coupon'] ?? null,
+                'address_id'     => $data['address_id'] ?? null,  // Added address_id
+                'slot_date'      => $data['slot_date'] ?? null,   // Added slot_date
                 'created_at'     => date('Y-m-d H:i:s'),
                 'updated_at'     => date('Y-m-d H:i:s'),
             ];
-
+    
             // Validate Booking Data
             if (!$this->bookingsModel->validate($bookingData)) {
                 return $this->failValidationErrors([
@@ -81,16 +83,16 @@ class BookingController extends ResourceController
                     'errors'  => $this->bookingsModel->errors()
                 ]);
             }
-
+    
             // Start Transaction
             $this->db->transStart();
-
+    
             // Insert Booking
             $bookingId = $this->bookingsModel->insert($bookingData);
             if (!$bookingId) {
                 throw new \Exception('Failed to store booking.');
             }
-
+    
             // Insert Booking Services (if any)
             if (!empty($data['services'])) {
                 foreach ($data['services'] as $service) {
@@ -108,7 +110,7 @@ class BookingController extends ResourceController
                     ]);
                 }
             }
-
+    
             // If payment type is online, handle payment
             if ($paymentType === 'online') {
                 if (in_array($paymentStatus, ['completed', 'failed'])) {
@@ -121,7 +123,7 @@ class BookingController extends ResourceController
                         'payment_status' => $paymentStatus,
                         'payment_date'   => date('Y-m-d H:i:s'),
                     ];
-
+    
                     // Check for Duplicate Transactions
                     if (!empty($data['transaction_id']) && $this->bookingPaymentsModel->where('transaction_id', $data['transaction_id'])->first()) {
                         return $this->failValidationErrors([
@@ -129,7 +131,7 @@ class BookingController extends ResourceController
                             'message' => 'Duplicate transaction detected.'
                         ]);
                     }
-
+    
                     // Validate Payment Data
                     if (!$this->bookingPaymentsModel->validate($paymentData)) {
                         return $this->failValidationErrors([
@@ -138,25 +140,25 @@ class BookingController extends ResourceController
                             'errors'  => $this->bookingPaymentsModel->errors()
                         ]);
                     }
-
+    
                     // Insert Payment Data
                     $this->bookingPaymentsModel->insert($paymentData);
-
+    
                     // If payment is completed, update booking status
                     if ($paymentStatus === 'completed') {
                         $this->bookingsModel->update($bookingId, ['status' => 'confirmed']);
                     }
                 }
             }
-
+    
             // Remove Booked Items from Cart
             $this->seebCartModel->where('user_id', $data['user_id'])->delete();
-
+    
             // Commit Transaction
             $this->db->transComplete();
             if ($this->db->transStatus() === false) {
                 $dbError = $this->db->error(); // Get database error details
-
+    
                 // If there's no specific DB error, log additional debug info
                 if (empty($dbError['code'])) {
                     log_message('error', 'Unknown transaction failure. Debugging required.');
@@ -165,17 +167,16 @@ class BookingController extends ResourceController
                         'message' => 'Transaction failed. Debugging required. Check logs.'
                     ], 500);
                 }
-
+    
                 log_message('error', 'Transaction failed: ' . json_encode($dbError));
-
+    
                 return $this->respond([
                     'status'  => 500,
                     'message' => 'Transaction failed. Please try again.',
                     'error'   => $dbError
                 ], 500);
             }
-
-
+    
             return $this->respond([
                 'status'         => 200,
                 'message'        => 'Booking successfully completed!',
@@ -193,6 +194,7 @@ class BookingController extends ResourceController
             ], 500);
         }
     }
+    
     public function getAllBookings()
     {
         try {
