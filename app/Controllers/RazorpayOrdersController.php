@@ -54,7 +54,7 @@ class RazorpayOrdersController extends ResourceController
             $orderRecord = [
                 'user_id'   => $userId,
                 'order_id'  => $razorpayOrder->id,
-                'amount'    => $razorpayOrder->amount / 100, // Convert back to original amount
+                'amount'    => $razorpayOrder->amount, // Convert back to original amount
                 'currency'  => $currency,
                 'status'    => $razorpayOrder->status,
                 'receipt'   => $razorpayOrder->receipt,
