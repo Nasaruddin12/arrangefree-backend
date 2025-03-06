@@ -43,6 +43,41 @@ class SeebCartController extends ResourceController
             return $this->failServerError($e->getMessage());
         }
     }
+    
+    public function getCartGroupedByUser()
+    {
+        try {
+            $cartItems = $this->model
+                ->select("
+                seeb_cart.user_id, 
+                users.name as user_name, 
+                users.email as user_email, 
+                COUNT(seeb_cart.id) as total_items, 
+                SUM(seeb_cart.amount) as total_amount, 
+                MAX(seeb_cart.created_at) as latest_cart_date
+            ")
+                ->join('users', 'users.id = seeb_cart.user_id', 'left') // Join to get user details
+                ->groupBy("seeb_cart.user_id") // Group by user ID
+                ->orderBy("latest_cart_date", "DESC") // Order by latest cart first
+                ->findAll();
+
+            if (empty($cartItems)) {
+                return $this->respond([
+                    'status' => 404,
+                    'message' => 'No cart items found'
+                ], 404);
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Cart items grouped by user retrieved successfully',
+                'data' => $cartItems
+            ], 200);
+        } catch (\Exception $e) {
+            return $this->failServerError($e->getMessage());
+        }
+    }
+
 
     // ✅ Get a single cart item by ID
     public function show($id = null)
