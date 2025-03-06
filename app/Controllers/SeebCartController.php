@@ -43,20 +43,20 @@ class SeebCartController extends ResourceController
             return $this->failServerError($e->getMessage());
         }
     }
-    
+
     public function getCartGroupedByUser()
     {
         try {
             $cartItems = $this->model
                 ->select("
                 seeb_cart.user_id, 
-                users.name as user_name, 
-                users.email as user_email, 
+                af_customers.name as user_name, 
+                af_customers.email as user_email, 
                 COUNT(seeb_cart.id) as total_items, 
                 SUM(seeb_cart.amount) as total_amount, 
                 MAX(seeb_cart.created_at) as latest_cart_date
             ")
-                ->join('users', 'users.id = seeb_cart.user_id', 'left') // Join to get user details
+                ->join('af_customers', 'af_customers.id = seeb_cart.user_id', 'left') // Join to get user details
                 ->groupBy("seeb_cart.user_id") // Group by user ID
                 ->orderBy("latest_cart_date", "DESC") // Order by latest cart first
                 ->findAll();
