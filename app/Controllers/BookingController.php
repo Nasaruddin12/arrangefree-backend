@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\BookingsModel;
 use App\Models\BookingServicesModel;
 use App\Models\BookingPaymentsModel;
+use App\Models\RazorpayOrdersModel;
 use App\Models\SeebCartModel;
 use CodeIgniter\RESTful\ResourceController;
 
@@ -48,18 +49,15 @@ class BookingController extends ResourceController
                     'status'  => 400,
                     'message' => 'Invalid payment status.',
                     'errors'  => ['payment_status' => 'Allowed values: pending, completed, failed, refunded.']
-                ]);
+                ], 400);
             }
 
             // Determine Booking Status
-            if ($paymentType === 'pay_later') {
-                $bookingStatus = 'pending';
-            } else {
-                $bookingStatus = ($paymentStatus === 'completed' && $amountDue == 0) ? 'confirmed' : 'pending';
-            }
+            $bookingStatus = ($paymentType === 'pay_later') ? 'pending' : (($paymentStatus === 'completed' && $amountDue == 0) ? 'confirmed' : 'pending');
 
             // Booking Data
             $bookingData = [
+                'booking_id'     => 'SEEB' . date('YmdHis'), // Generates a random 6-digit number
                 'user_id'        => $data['user_id'],
                 'total_amount'   => $data['total_amount'],
                 'discount'       => $data['discount'] ?? 0.00,
@@ -69,34 +67,30 @@ class BookingController extends ResourceController
                 'payment_type'   => $paymentType,
                 'status'         => $bookingStatus,
                 'applied_coupon' => $data['applied_coupon'] ?? null,
-                'address_id'     => $data['address_id'] ?? null,  // Added address_id
-                'slot_date'      => $data['slot_date'] ?? null,   // Added slot_date
+                'address_id'     => $data['address_id'] ?? null,
+                'slot_date'      => $data['slot_date'] ?? null,
                 'created_at'     => date('Y-m-d H:i:s'),
                 'updated_at'     => date('Y-m-d H:i:s'),
             ];
 
-            // Validate Booking Data
-            if (!$this->bookingsModel->validate($bookingData)) {
-                return $this->failValidationErrors([
-                    'status'  => 400,
-                    'message' => 'Validation failed.',
-                    'errors'  => $this->bookingsModel->errors()
-                ]);
-            }
 
             // Start Transaction
             $this->db->transStart();
 
-            // Insert Booking
-            $bookingId = $this->bookingsModel->insert($bookingData);
-            if (!$bookingId) {
-                throw new \Exception('Failed to store booking.');
+            // Validate & Insert Booking
+            if (!$this->bookingsModel->insert($bookingData)) {
+                return $this->failValidationErrors([
+                    'status'  => 400,
+                    'message' => 'Validation failed.',
+                    'errors'  => $this->bookingsModel->errors(),
+                ]);
             }
+            $bookingId = $this->bookingsModel->insertID();
 
             // Insert Booking Services (if any)
             if (!empty($data['services'])) {
                 foreach ($data['services'] as $service) {
-                    $this->bookingServicesModel->insert([
+                    $serviceData = [
                         'booking_id'      => $bookingId,
                         'service_id'      => $service['service_id'],
                         'service_type_id' => $service['service_type_id'],
@@ -107,93 +101,82 @@ class BookingController extends ResourceController
                         'amount'          => $service['amount'],
                         'description'     => $service['description'] ?? null,
                         'reference_image' => $service['reference_image'] ?? null,
-                    ]);
-                }
-            }
-
-            // If payment type is online, handle payment
-            if ($paymentType === 'online') {
-                if (in_array($paymentStatus, ['completed', 'failed'])) {
-                    $paymentData = [
-                        'booking_id'     => $bookingId,
-                        'user_id'        => $data['user_id'],
-                        'amount'         => $paidAmount,
-                        'payment_type'   => $paymentType,
-                        'transaction_id' => $data['transaction_id'] ?? null,
-                        'payment_status' => $paymentStatus,
-                        'payment_date'   => date('Y-m-d H:i:s'),
                     ];
 
-                    // Check for Duplicate Transactions
-                    if (!empty($data['transaction_id']) && $this->bookingPaymentsModel->where('transaction_id', $data['transaction_id'])->first()) {
+                    if (!$this->bookingServicesModel->insert($serviceData)) {
                         return $this->failValidationErrors([
                             'status'  => 400,
-                            'message' => 'Duplicate transaction detected.'
+                            'message' => 'Validation failed for booking services.',
+                            'errors'  => $this->bookingServicesModel->errors(),
                         ]);
-                    }
-
-                    // Validate Payment Data
-                    if (!$this->bookingPaymentsModel->validate($paymentData)) {
-                        return $this->failValidationErrors([
-                            'status'  => 400,
-                            'message' => 'Payment validation failed.',
-                            'errors'  => $this->bookingPaymentsModel->errors()
-                        ]);
-                    }
-
-                    // Insert Payment Data
-                    $this->bookingPaymentsModel->insert($paymentData);
-
-                    // If payment is completed, update booking status
-                    if ($paymentStatus === 'completed') {
-                        $this->bookingsModel->update($bookingId, ['status' => 'confirmed']);
                     }
                 }
             }
 
-            // Remove Booked Items from Cart
-            $this->seebCartModel->where('user_id', $data['user_id'])->delete();
+            // Handle Razorpay Order if Payment Type is Online
+            $razorpayOrder = null;
+            if ($paymentType === 'online') {
+                try {
+                    $config = new \Config\Razorpay();
+                    $razorpay = new \Razorpay\Api\Api($config->keyId, $config->keySecret);
+                    $currency = $config->displayCurrency;
+                    $receipt = 'order_' . time();
+
+                    // Create order on Razorpay
+                    $orderData = [
+                        'amount'          => $amountDue * 100, // Convert to paisa
+                        'currency'        => $currency,
+                        'receipt'         => $receipt,
+                        'payment_capture' => 1,
+                    ];
+                    $razorpayOrder = $razorpay->order->create($orderData);
+
+                    // Store order details in database
+                    $razorpayModel = new RazorpayOrdersModel();
+                    $orderRecord = [
+                        'user_id'   => $data['user_id'],
+                        'order_id'  => $razorpayOrder->id,
+                        'amount'    => $razorpayOrder->amount / 100, // Convert back to original amount
+                        'currency'  => $currency,
+                        'status'    => $razorpayOrder->status,
+                        'receipt'   => $razorpayOrder->receipt,
+                        'offer_id'  => $razorpayOrder->offer_id ?? null,
+                        'created_at' => date('Y-m-d H:i:s'),
+                    ];
+                    $razorpayModel->insert($orderRecord);
+                } catch (\Exception $e) {
+                    log_message('error', 'Razorpay Error: ' . $e->getMessage());
+                    return $this->failServerError('Payment gateway error: ' . $e->getMessage());
+                }
+            }
+
+            // Remove Booked Items from Cart **ONLY** if payment type is 'pay_later'
+            if ($paymentType === 'pay_later') {
+                $this->seebCartModel->where('user_id', $data['user_id'])->delete();
+            }
 
             // Commit Transaction
             $this->db->transComplete();
             if ($this->db->transStatus() === false) {
-                $dbError = $this->db->error(); // Get database error details
-
-                // If there's no specific DB error, log additional debug info
-                if (empty($dbError['code'])) {
-                    log_message('error', 'Unknown transaction failure. Debugging required.');
-                    return $this->respond([
-                        'status'  => 500,
-                        'message' => 'Transaction failed. Debugging required. Check logs.'
-                    ], 500);
-                }
-
+                $dbError = $this->db->error();
                 log_message('error', 'Transaction failed: ' . json_encode($dbError));
-
-                return $this->respond([
-                    'status'  => 500,
-                    'message' => 'Transaction failed. Please try again.',
-                    'error'   => $dbError
-                ], 500);
+                return $this->failServerError('Transaction failed. Please try again.');
             }
 
-            return $this->respond([
-                'status'         => 200,
-                'message'        => 'Booking successfully completed!',
+            return $this->respondCreated([
+                'status'         => 201,
+                'message'        => 'Booking successfully created!',
                 'booking_id'     => $bookingId,
-                'paid_amount'    => $paidAmount,
-                'amount_due'     => $amountDue,
-                'payment_status' => $paymentStatus
-            ], 200);
+                'amount'         => $razorpayOrder->amount,
+                'razorpay_order' => $razorpayOrder ? $razorpayOrder->id : null
+            ]);
         } catch (\Exception $e) {
             $this->db->transRollback();
             log_message('error', 'Booking Error: ' . $e->getMessage());
-            return $this->respond([
-                'status'  => 500,
-                'message' => 'Something went wrong. ' . $e->getMessage()
-            ], 500);
+            return $this->failServerError('Something went wrong. ' . $e->getMessage());
         }
     }
+
 
     public function getAllBookings()
     {
@@ -307,6 +290,127 @@ class BookingController extends ResourceController
                 'status' => 500,
                 'message' => 'Something went wrong while fetching the booking.'
             ], 500);
+        }
+    }
+
+    public function verifyPayment()
+    {
+        try {
+            $data = $this->request->getJSON(true);
+
+            // Validate Required Fields
+            if (empty($data['razorpay_payment_id']) || empty($data['razorpay_order_id']) || empty($data['razorpay_signature'])) {
+                return $this->failValidationErrors([
+                    'status'  => 400,
+                    'message' => 'Missing required payment details.',
+                ]);
+            }
+
+            // Get Razorpay Config
+            $config = new \Config\Razorpay();
+            $razorpay = new \Razorpay\Api\Api($config->keyId, $config->keySecret);
+
+            // Verify Signature
+            try {
+                $attributes = [
+                    'razorpay_order_id'   => $data['razorpay_order_id'],
+                    'razorpay_payment_id' => $data['razorpay_payment_id'],
+                    'razorpay_signature'  => $data['razorpay_signature']
+                ];
+                $razorpay->utility->verifyPaymentSignature($attributes);
+            } catch (\Exception $e) {
+                // Log and return failure if signature verification fails
+                log_message('error', 'Payment Signature Verification Failed: ' . $e->getMessage());
+
+                // Store Payment Record as Failed
+                $paymentData = [
+                    'transaction_id'  => $data['razorpay_payment_id'],
+                    'payment_status'  => 'failed',
+                    'razorpay_status' => 'signature_failed',
+                    'from_json'       => json_encode(['error' => $e->getMessage()]),
+                    'created_at'      => date('Y-m-d H:i:s'),
+                ];
+                $this->bookingPaymentsModel->insert($paymentData);
+
+                return $this->failValidationErrors([
+                    'status'    => 400,
+                    'message'   => 'Payment verification failed: ' . $e->getMessage(),
+                    'razorpay_status' => 'signature_failed'
+                ]);
+            }
+
+            // Fetch Payment Details
+            $payment = $razorpay->payment->fetch($data['razorpay_payment_id']);
+            $razorpayStatus = $payment->status;
+            $paymentStatus  = 'pending'; // Default status
+
+            // Attempt to Capture Payment if it's authorized
+            if ($razorpayStatus === 'authorized') {
+                try {
+                    $payment = $razorpay->payment->capture([
+                        'amount'   => $payment->amount,
+                        'currency' => $payment->currency,
+                    ]);
+                    $razorpayStatus = $payment->status;
+                    $paymentStatus  = ($razorpayStatus === 'captured') ? 'completed' : 'pending';
+                } catch (\Exception $e) {
+                    log_message('error', 'Payment Capture Failed: ' . $e->getMessage());
+                    $razorpayStatus = 'capture_failed';
+                    $paymentStatus  = 'failed';
+                }
+            }
+
+            // Fetch Order Details
+            $order = $razorpay->order->fetch($data['razorpay_order_id']);
+            if (!$order) {
+                return $this->failNotFound('Razorpay order not found.');
+            }
+
+            // Fetch Booking using order_id
+            $booking = $this->bookingsModel->where('id', $data['booking_id'])->first();
+            if (!$booking) {
+                return $this->failNotFound('Booking not found.');
+            }
+
+            // Update Booking Payment Details
+            $paidAmount = $booking['paid_amount'] + ($order->amount / 100);
+            $amountDue = max($booking['final_amount'] - $paidAmount, 0);
+            $bookingStatus = ($paymentStatus === 'completed' && $amountDue == 0) ? 'confirmed' : 'pending';
+
+            // Update Booking Record
+            $updateData = [
+                'payment_status' => $paymentStatus,
+                'status'         => $bookingStatus,
+                'paid_amount'    => $paidAmount,
+                'amount_due'     => $amountDue,
+                'updated_at'     => date('Y-m-d H:i:s'),
+            ];
+            $this->bookingsModel->update($booking['id'], $updateData);
+
+            // Store Payment Record (Regardless of Success or Failure)
+            $paymentData = [
+                'booking_id'      => $booking['id'],
+                'transaction_id'  => $data['razorpay_payment_id'],
+                'payment_method'  => $order->method ?? 'razorpay',
+                'amount'          => $order->amount / 100,
+                'currency'        => $order->currency,
+                'payment_status'  => $paymentStatus,
+                'razorpay_status' => $razorpayStatus,
+                'from_json'       => json_encode($order),
+                'created_at'      => date('Y-m-d H:i:s'),
+            ];
+            $this->bookingPaymentsModel->insert($paymentData);
+
+            return $this->respond([
+                'status'    => 200,
+                'message'   => 'Payment verified and processed successfully.',
+                'booking'   => $updateData,
+                'payment'   => $paymentData,
+                'razorpay_status' => $razorpayStatus, // ✅ Return Razorpay status
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Payment Verification Error: ' . $e->getMessage());
+            return $this->failServerError('Something went wrong. ' . $e->getMessage());
         }
     }
 }

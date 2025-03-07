@@ -48,6 +48,15 @@ class CreateBookingPaymentsTable extends Migration
                 'default'    => 'pending',
                 'null'       => false,
             ],
+            'razorpay_status' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 50,
+                'null'       => true, // Stores the exact Razorpay payment status
+            ],
+            'from_json' => [
+                'type'       => 'TEXT',
+                'null'       => true, // Store full Razorpay response in JSON format
+            ],
             'payment_date' => [
                 'type' => 'DATETIME',
                 'null' => true,

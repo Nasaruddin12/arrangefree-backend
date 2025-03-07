@@ -10,6 +10,7 @@ class BookingsModel extends Model
     protected $primaryKey = 'id';
 
     protected $allowedFields = [
+        'booking_id',
         'user_id',
         'address_id',
         'slot_date',

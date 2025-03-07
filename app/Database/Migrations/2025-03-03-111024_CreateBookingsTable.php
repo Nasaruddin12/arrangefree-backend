@@ -15,6 +15,11 @@ class CreateBookingsTable extends Migration
                 'unsigned'       => true,
                 'auto_increment' => true,
             ],
+            'booking_id' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 50,
+                'unique'     => true,
+            ],
             'user_id' => [
                 'type'       => 'INT',
                 'constraint' => 11,
@@ -28,7 +33,7 @@ class CreateBookingsTable extends Migration
             ],
             'slot_date' => [
                 'type'       => 'DATE',
-                'null'       => false, // Ensure a date is always provided
+                'null'       => false,
             ],
             'total_amount' => [
                 'type'       => 'DECIMAL',
