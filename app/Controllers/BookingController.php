@@ -35,7 +35,8 @@ class BookingController extends ResourceController
             $data = $this->request->getJSON(true) ?? $this->request->getVar();
 
             // Normalize Payment Type
-            $paymentType = strtolower(str_replace(' ', '_', $data['payment_type'] ?? 'pay_later'));
+            // $paymentType = strtolower(str_replace(' ', '_', $data['payment_type'] ?? 'pay_later'));
+            $paymentType = $data['payment_type'];
 
             // Determine Payment Status & Amounts
             $paidAmount = ($paymentType === 'pay_later') ? 0.00 : ($data['paid_amount'] ?? 0.00);
@@ -167,7 +168,8 @@ class BookingController extends ResourceController
                 'status'         => 201,
                 'message'        => 'Booking successfully created!',
                 'data' => [
-                    'booking_id'     => $bookingId,
+                    'id'     => $bookingId,
+                    'booking_id'     => $bookingData['booking_id'],
                     'amount'         => $razorpayOrder->amount,
                     'razorpay_order' => $razorpayOrder ? $razorpayOrder->id : null
                 ]
@@ -412,9 +414,12 @@ class BookingController extends ResourceController
                 'status'    => 200,
                 'message'   => 'Payment verified and processed successfully.',
                 'data'      => [
+                    'id'    => $booking['id'],
+                    'booking_id'      => $booking['booking_id'],
                     'booking'   => $updateData,
                     'amount'    => $order->amount / 100,
                     'payment'   => $paymentData,
+                    'payment_status'  => $paymentStatus,
                     'razorpay_status' => $razorpayStatus, // ✅ Return Razorpay status
                 ]
             ]);
