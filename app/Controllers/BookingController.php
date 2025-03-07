@@ -324,7 +324,11 @@ class BookingController extends ResourceController
 
                 // Store Payment Record as Failed
                 $paymentData = [
+                    'booking_id'      => $data['booking_id'],
+                    'user_id'      => $data['user_id'],
                     'transaction_id'  => $data['razorpay_payment_id'],
+                    'amount'          => 0,
+                    'payment_method'  => 'razorpay',
                     'payment_status'  => 'failed',
                     'razorpay_status' => 'signature_failed',
                     'from_json'       => json_encode(['error' => $e->getMessage()]),
@@ -390,6 +394,7 @@ class BookingController extends ResourceController
             // Store Payment Record (Regardless of Success or Failure)
             $paymentData = [
                 'booking_id'      => $booking['id'],
+                'user_id'      => $data['user_id'],
                 'transaction_id'  => $data['razorpay_payment_id'],
                 'payment_method'  => $order->method ?? 'razorpay',
                 'amount'          => $order->amount / 100,
