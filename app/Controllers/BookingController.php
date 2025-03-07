@@ -411,9 +411,12 @@ class BookingController extends ResourceController
             return $this->respond([
                 'status'    => 200,
                 'message'   => 'Payment verified and processed successfully.',
-                'booking'   => $updateData,
-                'payment'   => $paymentData,
-                'razorpay_status' => $razorpayStatus, // ✅ Return Razorpay status
+                'data'      => [
+                    'booking'   => $updateData,
+                    'amount'    => $order->amount / 100,
+                    'payment'   => $paymentData,
+                    'razorpay_status' => $razorpayStatus, // ✅ Return Razorpay status
+                ]
             ]);
         } catch (\Exception $e) {
             log_message('error', 'Payment Verification Error: ' . $e->getMessage());
