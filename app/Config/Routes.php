@@ -622,8 +622,9 @@ $routes->group('booking', function ($routes) {
     // $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
     $routes->post('store', 'BookingController::createBooking');
     $routes->get('', 'BookingController::getAllBookings'); // Get all bookings
-    $routes->get('user/(:num)', 'BookingController::getBookingsByUser/$1'); 
+    $routes->get('user/(:num)', 'BookingController::getBookingsByUser/$1');
     $routes->get('(:num)', 'BookingController::getBookingById/$1');
+    $routes->post('verify-payment', 'BookingController::verifyPayment');
     // });
 });
 

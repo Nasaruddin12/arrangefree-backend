@@ -166,9 +166,11 @@ class BookingController extends ResourceController
             return $this->respondCreated([
                 'status'         => 201,
                 'message'        => 'Booking successfully created!',
-                'booking_id'     => $bookingId,
-                'amount'         => $razorpayOrder->amount,
-                'razorpay_order' => $razorpayOrder ? $razorpayOrder->id : null
+                'data' => [
+                    'booking_id'     => $bookingId,
+                    'amount'         => $razorpayOrder->amount,
+                    'razorpay_order' => $razorpayOrder ? $razorpayOrder->id : null
+                ]
             ]);
         } catch (\Exception $e) {
             $this->db->transRollback();
