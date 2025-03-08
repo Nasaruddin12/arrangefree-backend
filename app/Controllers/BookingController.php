@@ -329,7 +329,7 @@ class BookingController extends ResourceController
             // Check if it's a UPI Payment
             if ($paymentMethod === 'upi') {
                 // If UPI payment is authorized, mark as completed and booking confirmed
-                $paymentStatus = ($razorpayStatus === 'authorized' || $razorpayStatus === 'captured') ? 'paid' : 'pending';
+                $paymentStatus = ($razorpayStatus === 'authorized' || $razorpayStatus === 'captured') ? 'completed' : 'pending';
                 $bookingStatus = ($razorpayStatus === 'authorized' || $razorpayStatus === 'captured') ? 'confirmed' : 'pending';
             } else {
                 // Validate Order ID & Signature for Non-UPI payments
@@ -377,7 +377,7 @@ class BookingController extends ResourceController
                     $razorpayStatus = 'captured';
                 }
 
-                $paymentStatus = ($razorpayStatus === 'captured') ? 'paid' : 'pending';
+                $paymentStatus = ($razorpayStatus === 'captured') ? 'completed' : 'pending';
                 $bookingStatus = ($razorpayStatus === 'captured') ? 'confirmed' : 'pending';
             }
 
@@ -399,8 +399,8 @@ class BookingController extends ResourceController
                 'amount_due'     => $amountDue,
                 'updated_at'     => date('Y-m-d H:i:s'),
             ]);
-            
-            if ($paymentStatus === 'paid') {
+
+            if ($paymentStatus === 'completed') {
                 $this->seebCartModel->where('user_id', $data['user_id'])->delete();
             }
             // Store Payment Record

@@ -67,7 +67,7 @@ class CreateBookingsTable extends Migration
             ],
             'payment_status' => [
                 'type'       => 'ENUM',
-                'constraint' => ['pending', 'partial', 'paid', 'failed'],
+                'constraint' => ['pending', 'partial', 'completed', 'failed','refunded'],
                 'default'    => 'pending',
             ],
             'status' => [
