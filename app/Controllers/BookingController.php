@@ -318,6 +318,8 @@ class BookingController extends ResourceController
 
             // Fetch Payment Details
             $payment = $razorpay->payment->fetch($data['razorpay_payment_id']);
+            print_r($payment);
+            die();
             if (!$payment) {
                 return $this->failNotFound('Payment not found.');
             }
