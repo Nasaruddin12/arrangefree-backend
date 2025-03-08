@@ -37,7 +37,7 @@ class BookingServicesModel extends Model
         'service_type_id' => 'required|integer',
         'room_id'         => 'required|integer',
         'rate_type'       => 'required|string|max_length[50]',
-        'value'           => 'required|decimal',
+        'value'           => 'required|string',
         'rate'            => 'required|decimal',
         'amount'          => 'required|decimal',
         'description'     => 'permit_empty|string',
@@ -53,7 +53,7 @@ class BookingServicesModel extends Model
         'service_type_id' => ['required' => 'Service Type ID is required.', 'integer' => 'Service Type ID must be a number.'],
         'room_id'         => ['required' => 'Room ID is required.', 'integer' => 'Room ID must be a number.'],
         'rate_type'       => ['required' => 'Rate Type is required.', 'max_length' => 'Rate Type cannot exceed 50 characters.'],
-        'value'           => ['required' => 'Value is required.', 'decimal' => 'Value must be a decimal number.'],
+        'value'           => ['required' => 'Value is required.'],
         'rate'            => ['required' => 'Rate is required.', 'decimal' => 'Rate must be a decimal number.'],
         'amount'          => ['required' => 'Amount is required.', 'decimal' => 'Amount must be a decimal number.'],
     ];

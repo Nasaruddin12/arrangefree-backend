@@ -45,8 +45,8 @@ class CreateBookingServicesTable extends Migration
                 'null'       => false,
             ],
             'value' => [
-                'type'       => 'DECIMAL',
-                'constraint' => '10,2',
+                'type'       => 'VARCHAR',
+                'constraint' => 50,
                 'null'       => false,
             ],
             'rate' => [
