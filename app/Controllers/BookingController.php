@@ -39,7 +39,7 @@ class BookingController extends ResourceController
             $paymentType = $data['payment_type'];
 
             // Determine Payment Status & Amounts
-            $paidAmount = ($paymentType === 'pay_later') ? 0.00 : ($data['paid_amount'] ?? 0.00);
+            $paidAmount = ($paymentType === 'pay_later') ? 0.00 : 0.00;
             $amountDue = max(0, $data['final_amount'] - $paidAmount);
             $paymentStatus = ($paymentType === 'pay_later') ? null : ($data['payment_status'] ?? 'pending');
 
