@@ -74,7 +74,7 @@ class BookingController extends ResourceController
                 'updated_at'     => date('Y-m-d H:i:s'),
             ];
 
-          
+
             // Start Transaction
             $this->db->transStart();
 
@@ -103,8 +103,8 @@ class BookingController extends ResourceController
                         'description'     => $service['description'] ?? null,
                         'reference_image' => $service['reference_image'] ?? null,
                     ];
-                
-        
+
+
 
                     if (!$this->bookingServicesModel->insert($serviceData)) {
                         return $this->failValidationErrors([
@@ -132,7 +132,7 @@ class BookingController extends ResourceController
                         'receipt'         => $receipt,
                         'payment_capture' => 1,
                     ];
-         
+
                     $razorpayOrder = $razorpay->order->create($orderData);
                     // Store order details in database
                     $razorpayModel = new RazorpayOrdersModel();
@@ -305,7 +305,7 @@ class BookingController extends ResourceController
             $data = $this->request->getJSON(true);
 
             // Validate Required Fields
-            if (empty($data['razorpay_payment_id']) || empty($data['razorpay_order_id']) || empty($data['razorpay_signature'])) {
+            if (empty($data['razorpay_payment_id'])) {
                 return $this->failValidationErrors([
                     'status'  => 400,
                     'message' => 'Missing required payment details.',
@@ -316,45 +316,61 @@ class BookingController extends ResourceController
             $config = new \Config\Razorpay();
             $razorpay = new \Razorpay\Api\Api($config->keyId, $config->keySecret);
 
-            // Verify Signature
-            try {
-                $attributes = [
-                    'razorpay_order_id'   => $data['razorpay_order_id'],
-                    'razorpay_payment_id' => $data['razorpay_payment_id'],
-                    'razorpay_signature'  => $data['razorpay_signature']
-                ];
-                $razorpay->utility->verifyPaymentSignature($attributes);
-            } catch (\Exception $e) {
-                // Log and return failure if signature verification fails
-                log_message('error', 'Payment Signature Verification Failed: ' . $e->getMessage());
-
-                // Store Payment Record as Failed
-                $paymentData = [
-                    'booking_id'      => $data['booking_id'],
-                    'user_id'      => $data['user_id'],
-                    'transaction_id'  => $data['razorpay_payment_id'],
-                    'amount'          => 0,
-                    'payment_method'  => 'razorpay',
-                    'payment_status'  => 'failed',
-                    'razorpay_status' => 'signature_failed',
-                    'from_json'       => json_encode(['error' => $e->getMessage()]),
-                    'created_at'      => date('Y-m-d H:i:s'),
-                ];
-                $this->bookingPaymentsModel->insert($paymentData);
-
-                return $this->failValidationErrors([
-                    'status'    => 400,
-                    'message'   => 'Payment verification failed: ' . $e->getMessage(),
-                    'razorpay_status' => 'signature_failed'
-                ]);
-            }
-
             // Fetch Payment Details
             $payment = $razorpay->payment->fetch($data['razorpay_payment_id']);
-            $razorpayStatus = $payment->status;
-            $paymentStatus  = 'pending'; // Default status
+            if (!$payment) {
+                return $this->failNotFound('Payment not found.');
+            }
 
-            // Attempt to Capture Payment if it's authorized
+            $paymentMethod = $payment->method ?? 'razorpay';
+            $razorpayStatus = $payment->status; // "created", "authorized", "captured", "failed"
+
+            // Check if it's a UPI Payment
+            if ($paymentMethod === 'upi') {
+                // UPI does not have signature verification
+                $paymentStatus = ($razorpayStatus === 'captured') ? 'completed' : 'pending';
+            } else {
+                // Validate Order ID & Signature for Non-UPI payments
+                if (empty($data['razorpay_order_id']) || empty($data['razorpay_signature'])) {
+                    return $this->failValidationErrors([
+                        'status'  => 400,
+                        'message' => 'Missing order ID or signature for non-UPI payment.',
+                    ]);
+                }
+
+                // Verify Signature
+                try {
+                    $attributes = [
+                        'razorpay_order_id'   => $data['razorpay_order_id'],
+                        'razorpay_payment_id' => $data['razorpay_payment_id'],
+                        'razorpay_signature'  => $data['razorpay_signature']
+                    ];
+                    $razorpay->utility->verifyPaymentSignature($attributes);
+                } catch (\Exception $e) {
+                    log_message('error', 'Payment Signature Verification Failed: ' . $e->getMessage());
+
+                    // Store failed payment record
+                    $this->bookingPaymentsModel->insert([
+                        'booking_id'      => $data['booking_id'],
+                        'user_id'         => $data['user_id'],
+                        'transaction_id'  => $data['razorpay_payment_id'],
+                        'amount'          => 0,
+                        'payment_method'  => $paymentMethod,
+                        'payment_status'  => 'failed',
+                        'razorpay_status' => 'signature_failed',
+                        'from_json'       => json_encode(['error' => $e->getMessage()]),
+                        'created_at'      => date('Y-m-d H:i:s'),
+                    ]);
+
+                    return $this->failValidationErrors([
+                        'status'    => 400,
+                        'message'   => 'Payment verification failed: ' . $e->getMessage(),
+                        'razorpay_status' => 'signature_failed'
+                    ]);
+                }
+            }
+
+            // Capture Non-UPI Payments if Authorized
             if ($razorpayStatus === 'authorized') {
                 try {
                     $payment = $razorpay->payment->capture([
@@ -370,44 +386,46 @@ class BookingController extends ResourceController
                 }
             }
 
-            // Fetch Order Details
-            $order = $razorpay->order->fetch($data['razorpay_order_id']);
-            if (!$order) {
-                return $this->failNotFound('Razorpay order not found.');
+            // Fetch Order Details (Only for non-UPI)
+            $order = null;
+            if (!empty($data['razorpay_order_id'])) {
+                $order = $razorpay->order->fetch($data['razorpay_order_id']);
+                if (!$order) {
+                    return $this->failNotFound('Razorpay order not found.');
+                }
             }
 
-            // Fetch Booking using order_id
+            // Fetch Booking
             $booking = $this->bookingsModel->where('id', $data['booking_id'])->first();
             if (!$booking) {
                 return $this->failNotFound('Booking not found.');
             }
 
-            // Update Booking Payment Details
-            $paidAmount = $booking['paid_amount'] + ($order->amount / 100);
+            // Calculate Payment Amount
+            $paidAmount = $booking['paid_amount'] + ($payment->amount / 100);
             $amountDue = max($booking['final_amount'] - $paidAmount, 0);
             $bookingStatus = ($paymentStatus === 'completed' && $amountDue == 0) ? 'confirmed' : 'pending';
 
             // Update Booking Record
-            $updateData = [
+            $this->bookingsModel->update($booking['id'], [
                 'payment_status' => $paymentStatus,
                 'status'         => $bookingStatus,
                 'paid_amount'    => $paidAmount,
                 'amount_due'     => $amountDue,
                 'updated_at'     => date('Y-m-d H:i:s'),
-            ];
-            $this->bookingsModel->update($booking['id'], $updateData);
+            ]);
 
-            // Store Payment Record (Regardless of Success or Failure)
+            // Store Payment Record
             $paymentData = [
                 'booking_id'      => $booking['id'],
-                'user_id'      => $data['user_id'],
+                'user_id'         => $data['user_id'],
                 'transaction_id'  => $data['razorpay_payment_id'],
-                'payment_method'  => $order->method ?? 'razorpay',
-                'amount'          => $order->amount / 100,
-                'currency'        => $order->currency,
+                'payment_method'  => $paymentMethod,
+                'amount'          => $payment->amount / 100,
+                'currency'        => $payment->currency,
                 'payment_status'  => $paymentStatus,
                 'razorpay_status' => $razorpayStatus,
-                'from_json'       => json_encode($order),
+                'from_json'       => json_encode($payment),
                 'created_at'      => date('Y-m-d H:i:s'),
             ];
             $this->bookingPaymentsModel->insert($paymentData);
@@ -416,17 +434,92 @@ class BookingController extends ResourceController
                 'status'    => 200,
                 'message'   => 'Payment verified and processed successfully.',
                 'data'      => [
-                    'id'    => $booking['id'],
-                    'booking_id'      => $booking['booking_id'],
-                    'booking'   => $updateData,
-                    'amount'    => $order->amount / 100,
-                    'payment'   => $paymentData,
-                    'payment_status'  => $paymentStatus,
-                    'razorpay_status' => $razorpayStatus, // ✅ Return Razorpay status
+                    'id'            => $booking['id'],
+                    'booking_id'    => $booking['booking_id'],
+                    'booking'       => [
+                        'status'       => $bookingStatus,
+                        'paid_amount'  => $paidAmount,
+                        'amount_due'   => $amountDue,
+                    ],
+                    'payment'       => $paymentData,
+                    'payment_status' => $paymentStatus,
+                    'razorpay_status' => $razorpayStatus,
                 ]
             ]);
         } catch (\Exception $e) {
             log_message('error', 'Payment Verification Error: ' . $e->getMessage());
+            return $this->failServerError('Something went wrong. ' . $e->getMessage());
+        }
+    }
+
+    public function webhookRazorpay()
+    {
+        try {
+            // Read Webhook Payload
+            $payload = $this->request->getJSON(true);
+            log_message('info', 'Webhook Received: ' . json_encode($payload));
+
+            if (empty($payload['event']) || empty($payload['payload']['payment']['entity'])) {
+                return $this->failValidationErrors([
+                    'status'  => 400,
+                    'message' => 'Invalid Webhook Payload.',
+                ]);
+            }
+
+            $event = $payload['event'];
+            $payment = $payload['payload']['payment']['entity'];
+            $razorpayPaymentId = $payment['id'];
+            $razorpayStatus = $payment['status']; // "created", "authorized", "captured", "failed"
+
+            // Fetch Payment Details from DB
+            $existingPayment = $this->bookingPaymentsModel->where('transaction_id', $razorpayPaymentId)->first();
+
+            if (!$existingPayment) {
+                log_message('error', 'Payment not found for Webhook: ' . $razorpayPaymentId);
+                return $this->failNotFound('Payment record not found.');
+            }
+
+            // Fetch Booking Record
+            $booking = $this->bookingsModel->where('id', $existingPayment['booking_id'])->first();
+            if (!$booking) {
+                return $this->failNotFound('Booking not found.');
+            }
+
+            // Determine Payment Status
+            $paymentStatus = 'pending';
+            if ($razorpayStatus === 'captured') {
+                $paymentStatus = 'completed';
+            } elseif ($razorpayStatus === 'failed') {
+                $paymentStatus = 'failed';
+            }
+
+            // Update Booking Payment Status
+            $paidAmount = $booking['paid_amount'] + ($payment['amount'] / 100);
+            $amountDue = max($booking['final_amount'] - $paidAmount, 0);
+            $bookingStatus = ($paymentStatus === 'completed' && $amountDue == 0) ? 'confirmed' : 'pending';
+
+            $this->bookingsModel->update($booking['id'], [
+                'payment_status' => $paymentStatus,
+                'status'         => $bookingStatus,
+                'paid_amount'    => $paidAmount,
+                'amount_due'     => $amountDue,
+                'updated_at'     => date('Y-m-d H:i:s'),
+            ]);
+
+            // Update Payment Record
+            $this->bookingPaymentsModel->update($existingPayment['id'], [
+                'payment_status'  => $paymentStatus,
+                'razorpay_status' => $razorpayStatus,
+                'from_json'       => json_encode($payment),
+                'updated_at'      => date('Y-m-d H:i:s'),
+            ]);
+
+            return $this->respond([
+                'status'  => 200,
+                'message' => 'Webhook processed successfully.',
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Webhook Error: ' . $e->getMessage());
             return $this->failServerError('Something went wrong. ' . $e->getMessage());
         }
     }
