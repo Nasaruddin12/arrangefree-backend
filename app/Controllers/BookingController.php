@@ -74,7 +74,7 @@ class BookingController extends ResourceController
                 'updated_at'     => date('Y-m-d H:i:s'),
             ];
 
-
+          
             // Start Transaction
             $this->db->transStart();
 
@@ -103,6 +103,8 @@ class BookingController extends ResourceController
                         'description'     => $service['description'] ?? null,
                         'reference_image' => $service['reference_image'] ?? null,
                     ];
+                
+        
 
                     if (!$this->bookingServicesModel->insert($serviceData)) {
                         return $this->failValidationErrors([
@@ -130,8 +132,8 @@ class BookingController extends ResourceController
                         'receipt'         => $receipt,
                         'payment_capture' => 1,
                     ];
+         
                     $razorpayOrder = $razorpay->order->create($orderData);
-
                     // Store order details in database
                     $razorpayModel = new RazorpayOrdersModel();
                     $orderRecord = [
@@ -170,7 +172,7 @@ class BookingController extends ResourceController
                 'data' => [
                     'id'     => $bookingId,
                     'booking_id'     => $bookingData['booking_id'],
-                    'amount'         => $razorpayOrder->amount,
+                    'amount'         => $razorpayOrder->amount ?? $amountDue,
                     'razorpay_order' => $razorpayOrder ? $razorpayOrder->id : null
                 ]
             ]);
