@@ -469,11 +469,16 @@ class BookingController extends ResourceController
             }
 
             // Update Payment Record with Razorpay Status Only
-            $this->bookingPaymentsModel->update($existingPayment['id'], [
+            $result = $this->bookingPaymentsModel->update($existingPayment['id'], [
                 'razorpay_status' => $razorpayStatus,
                 'from_json'       => json_encode($payment),
                 'updated_at'      => date('Y-m-d H:i:s'),
             ]);
+
+            if (!$result) {
+                log_message('error', 'Update failed: ' . json_encode($this->bookingPaymentsModel->errors()));
+            }
+
 
             return $this->respond([
                 'status'  => 200,
