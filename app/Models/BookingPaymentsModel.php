@@ -16,6 +16,8 @@ class BookingPaymentsModel extends Model
         'payment_method',
         'transaction_id',
         'payment_status',
+        'razorpay_status',
+        'from_json',
         'payment_date',
         'created_at',
         'updated_at',
