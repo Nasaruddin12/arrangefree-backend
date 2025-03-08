@@ -318,8 +318,6 @@ class BookingController extends ResourceController
 
             // Fetch Payment Details
             $payment = $razorpay->payment->fetch($data['razorpay_payment_id']);
-            print_r($payment);
-            die();
             if (!$payment) {
                 return $this->failNotFound('Payment not found.');
             }
@@ -373,7 +371,7 @@ class BookingController extends ResourceController
             }
 
             // Capture Non-UPI Payments if Authorized
-            if ($razorpayStatus === 'authorized') {
+            if ($razorpayStatus === 'authorized' ) {
                 try {
                     $payment = $razorpay->payment->capture([
                         'amount'   => $payment->amount,
