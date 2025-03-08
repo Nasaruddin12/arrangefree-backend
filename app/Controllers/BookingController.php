@@ -328,7 +328,7 @@ class BookingController extends ResourceController
             // Check if it's a UPI Payment
             if ($paymentMethod === 'upi') {
                 // If UPI payment is authorized, mark as completed and booking confirmed
-                $paymentStatus = ($razorpayStatus === 'authorized' || $razorpayStatus === 'captured') ? 'completed' : 'pending';
+                $paymentStatus = ($razorpayStatus === 'authorized' || $razorpayStatus === 'captured') ? 'paid' : 'pending';
                 $bookingStatus = ($razorpayStatus === 'authorized' || $razorpayStatus === 'captured') ? 'confirmed' : 'pending';
             } else {
                 // Validate Order ID & Signature for Non-UPI payments
@@ -376,7 +376,7 @@ class BookingController extends ResourceController
                     $razorpayStatus = 'captured';
                 }
 
-                $paymentStatus = ($razorpayStatus === 'captured') ? 'completed' : 'pending';
+                $paymentStatus = ($razorpayStatus === 'captured') ? 'paid' : 'pending';
                 $bookingStatus = ($razorpayStatus === 'captured') ? 'confirmed' : 'pending';
             }
 
