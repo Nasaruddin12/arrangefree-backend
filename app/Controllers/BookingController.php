@@ -114,6 +114,7 @@ class BookingController extends ResourceController
                         ]);
                     }
                 }
+                $this->seebCartModel->where('user_id', $data['user_id'])->delete();
             }
 
             // Handle Razorpay Order if Payment Type is Online
@@ -398,7 +399,10 @@ class BookingController extends ResourceController
                 'amount_due'     => $amountDue,
                 'updated_at'     => date('Y-m-d H:i:s'),
             ]);
-
+            
+            if ($paymentStatus === 'paid') {
+                $this->seebCartModel->where('user_id', $data['user_id'])->delete();
+            }
             // Store Payment Record
             $paymentData = [
                 'booking_id'      => $booking['id'],
