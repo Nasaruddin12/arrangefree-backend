@@ -58,7 +58,7 @@ class BookingController extends ResourceController
 
             // Booking Data
             $bookingData = [
-                'booking_id'     => 'SEEB' . date('YmdHis'), // Generates a random 6-digit number
+                'booking_id'     => 'SE' . date('YmdHis'), // Generates a random 6-digit number
                 'user_id'        => $data['user_id'],
                 'total_amount'   => $data['total_amount'],
                 'discount'       => $data['discount'] ?? 0.00,
@@ -237,6 +237,15 @@ class BookingController extends ResourceController
                 ], 404);
             }
 
+            // Fetch booking services for each booking
+            foreach ($bookings as &$booking) {
+                $booking['services'] = $this->bookingServicesModel
+                    ->select('booking_services.*, services.service_name')
+                    ->join('services', 'services.id = booking_services.service_id', 'left')
+                    ->where('booking_services.booking_id', $booking['id'])
+                    ->findAll();
+            }
+
             return $this->respond([
                 'status' => 200,
                 'message' => 'User bookings retrieved successfully.',
@@ -250,6 +259,7 @@ class BookingController extends ResourceController
             ], 500);
         }
     }
+
 
     public function getBookingById($booking_id)
     {
