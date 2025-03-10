@@ -571,7 +571,7 @@ $routes->group('rooms', function ($routes) {
 $routes->group('services', function ($routes) {
     $routes->get('/', 'ServiceController::index'); // Get all work types
     $routes->get('(:num)', 'ServiceController::show/$1'); // Get work type by ID
-    $routes->post('upload-image', 'ServiceController::uploadImage'); // Upload image separately
+    $routes->post('upload-image', 'ServiceController::uploadImages'); // Upload image separately
     $routes->post('create', 'ServiceController::create'); // Create work type
     $routes->put('update/(:num)', 'ServiceController::update/$1'); // Update work type
     // $routes->delete('delete/(:num)', 'ServiceController::delete/$1'); // Delete work type
