@@ -91,25 +91,53 @@ class ServiceController extends BaseController
 
 
     // ✅ Upload Image (Returns only path)
-    public function uploadImage()
+    public function uploadImages()
     {
         try {
-            $file = $this->request->getFile('image');
-            if (!$file || !$file->isValid()) {
-                return $this->respond(['status' => 400, 'message' => 'Invalid image file'], 400);
+            $validation = \Config\Services::validation();
+            $validation->setRules([
+                'images' => 'uploaded[images]|max_size[images,2048]|mime_in[images,image/png,image/jpeg,image/jpg]',
+            ]);
+
+            if (!$validation->withRequest($this->request)->run()) {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'Invalid image files',
+                    'errors' => $validation->getErrors()
+                ], 400);
             }
 
-            // Generate a random name and move the image
-            $imagePath = $file->getRandomName();
-            $file->move(WRITEPATH . 'uploads/services', $imagePath);
+            $imageFiles = $this->request->getFiles();
+            $imagePaths = [];
+
+            if (!empty($imageFiles['images'])) {
+                foreach ($imageFiles['images'] as $imageFile) {
+                    if ($imageFile->isValid() && !$imageFile->hasMoved()) {
+                        $newName = $imageFile->getRandomName();
+                        $imageFile->move('public/uploads/services/', $newName);
+                        $imagePaths[] = 'public/uploads/services/' . $newName;
+                    }
+                }
+            }
+
+            if (empty($imagePaths)) {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'No images were uploaded'
+                ], 400);
+            }
 
             return $this->respond([
                 'status' => 200,
-                'message' => 'Image uploaded successfully',
-                'image_path' => $imagePath
+                'message' => 'Images uploaded successfully',
+                'image_urls' => $imagePaths
             ], 200);
         } catch (Exception $e) {
-            return $this->respond(['status' => 500, 'message' => 'Failed to upload image', 'error' => $e->getMessage()], 500);
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Image upload failed',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 

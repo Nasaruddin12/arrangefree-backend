@@ -27,8 +27,7 @@ class CreateServicesTable extends Migration
                 'null'       => false,
             ],
             'image' => [
-                'type'       => 'VARCHAR',
-                'constraint' => 255,
+                'type'       => 'TEXT',
                 'null'       => true,
             ],
             'rate' => [
