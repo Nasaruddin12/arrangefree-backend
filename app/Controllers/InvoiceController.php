@@ -128,22 +128,22 @@ class InvoiceController extends BaseController
             'af_order_products.increase_percent AS increase_percent',
             'af_order_products.discounted_percent AS discounted_percent',
             'af_order_products.quantity AS quantity',
-            ])->join('af_products', 'af_products.id = af_order_products.product_id')
+        ])->join('af_products', 'af_products.id = af_order_products.product_id')
             ->join('af_brands', 'af_brands.id = af_products.brand_id')
             ->where('af_order_products.order_id', $orderData['id'])->findAll();
-            helper('products');
-            // print_r($invoiceProductsData);
-            $invoiceProductsData = array_map('get_discounted_price', $invoiceProductsData);
-     
+        helper('products');
+        // print_r($invoiceProductsData);
+        $invoiceProductsData = array_map('get_discounted_price', $invoiceProductsData);
+
         foreach ($invoiceProductsData as &$product) {
             // $product['price'] = $product['actual_price'] - ($product['actual_price'] / 100 * $product['discounted_percent']);
             $product['total'] = $product['actual_price'] * $product['quantity'];
             // unset($product['actual_price'], $product['discounted_percent']);
         }
-        
+
         $invoice = new InvoiceGenerator();
         $invoice->AddPage();
-        
+
         $invoice->newInvoice($headData, $invoiceProductsData);
         // $invoice->newInvoice_temp($headData, $productsData);
         foreach (glob("C:\Users\Admin\Downloads\SampleInvoice*.pdf") as $filename) {
@@ -162,7 +162,7 @@ class InvoiceController extends BaseController
         // $email = $emailControler->order_confirmed($orderID, $email);
 
         $mailingController = new MailingController();
-    //    $email =  $mailingController->post_order_mail($orderID);
+        //    $email =  $mailingController->post_order_mail($orderID);
 
         // empty Cart
         $cartModel = new CartModel();
@@ -174,15 +174,27 @@ class InvoiceController extends BaseController
     public function generateInvoice($bookingId)
     {
         $bookingsModel = new BookingsModel();
-        $booking = $bookingsModel->find($bookingId);
+
+        // Fetch booking details with customer name & address
+        $booking = $bookingsModel
+            ->select('bookings.*, af_customers.name as user_name, af_customers.email as user_email, 
+                  customer_addresses.address as customer_address')
+            ->join('af_customers', 'af_customers.id = bookings.user_id', 'left')
+            ->join('customer_addresses', 'customer_addresses.id = bookings.address_id', 'left')
+            ->where('bookings.id', $bookingId)
+            ->first();
 
         if (!$booking) {
             return $this->response->setJSON(['status' => 404, 'message' => 'Booking not found']);
         }
 
-        // Load booking services
+        // Load booking services with service names
         $bookingServicesModel = new \App\Models\BookingServicesModel();
-        $services = $bookingServicesModel->where('booking_id', $bookingId)->findAll();
+        $services = $bookingServicesModel
+            ->select('booking_services.*, services.name as service_name')
+            ->join('services', 'services.id = booking_services.service_id', 'left')
+            ->where('booking_services.booking_id', $bookingId)
+            ->findAll();
 
         // Prepare data for the PDF
         $data = [
@@ -195,7 +207,7 @@ class InvoiceController extends BaseController
 
         // Initialize Dompdf with options
         $options = new Options();
-        $options->set('defaultFont', 'Arial');
+        $options->set('defaultFont', 'DejaVu Sans'); // Supports ₹ symbol
 
         $dompdf = new Dompdf($options);
         $dompdf->loadHtml($html);
