@@ -34,7 +34,7 @@
                 <td><?= $service['service_id'] ?></td>
                 <td>\u20B9<?= number_format($service['rate'], 2) ?></td>
                 <td><?= $service['value'] ?></td>
-                <td>₹<?= number_format($service['amount'], 2) ?></td>
+                <td>&#8377;<?= number_format($service['amount'], 2) ?></td>
             </tr>
             <?php endforeach; ?>
         </table>
