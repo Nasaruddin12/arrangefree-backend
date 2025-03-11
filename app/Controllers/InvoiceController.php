@@ -199,6 +199,7 @@ class InvoiceController extends BaseController
 
         $dompdf = new Dompdf($options);
         $dompdf->loadHtml($html);
+        $dompdf->set_option('isHtml5ParserEnabled', true);
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
 

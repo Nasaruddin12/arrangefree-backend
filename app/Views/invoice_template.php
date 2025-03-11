@@ -41,7 +41,8 @@
 
         <p class="details"><strong>Subtotal:</strong> ₹<?= number_format($booking['total_amount'], 2) ?></p>
         <p class="details"><strong>Discount:</strong> ₹<?= number_format($booking['discount'], 2) ?></p>
-
+        <p class="details"><strong>CGST (9%):</strong> ₹<?= number_format($booking['cgst'], 2) ?></p>
+        <p class="details"><strong>SGST (9%):</strong> ₹<?= number_format($booking['sgst'], 2) ?></p>
         <p class="details total"><strong>Total Amount:</strong> ₹<?= number_format($booking['final_amount'], 2) ?></p>
     </div>
 </body>
