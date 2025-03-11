@@ -8,7 +8,7 @@
     <style>
         @font-face {
             font-family: 'Poppins';
-            src: url('fonts/Poppins-Regular.ttf') format('truetype');
+            src: url('public/fonts/Poppins-Regular.ttf') format('truetype');
         }
 
         body {
