@@ -16,6 +16,8 @@ class BookingsModel extends Model
         'slot_date',
         'total_amount',
         'discount',
+        'cgst',
+        'sgst',
         'final_amount',
         'paid_amount',
         'amount_due',

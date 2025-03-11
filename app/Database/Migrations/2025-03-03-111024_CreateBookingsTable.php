@@ -45,6 +45,16 @@ class CreateBookingsTable extends Migration
                 'constraint' => '10,2',
                 'default'    => 0.00,
             ],
+            'cgst' => [
+                'type'       => 'DECIMAL',
+                'constraint' => '10,2',
+                'default'    => 0.00,
+            ],
+            'sgst' => [
+                'type'       => 'DECIMAL',
+                'constraint' => '10,2',
+                'default'    => 0.00,
+            ],
             'final_amount' => [
                 'type'       => 'DECIMAL',
                 'constraint' => '10,2',

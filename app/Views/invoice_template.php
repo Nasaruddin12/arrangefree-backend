@@ -8,12 +8,12 @@
     <style>
        body { font-family: 'DejaVu Sans', sans-serif; }
         .invoice-box { width: 100%; padding: 20px; border: 1px solid #ddd; }
-        .title { font-size: 20px;  text-align: center; }
+        .title { font-size: 20px; font-weight: bold; text-align: center; }
         .details { margin-top: 10px; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         table, th, td { border: 1px solid #ddd; }
         th, td { padding: 8px; text-align: left; }
-        .total {  }
+        .total { font-weight: bold; }
     </style>
 </head>
 <body>
