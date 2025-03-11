@@ -32,14 +32,14 @@
             <?php foreach ($services as $service) : ?>
             <tr>
                 <td><?= $service['service_id'] ?></td>
-                <td>₹<?= number_format($service['rate'], 2) ?></td>
+                <td>\u20B9<?= number_format($service['rate'], 2) ?></td>
                 <td><?= $service['value'] ?></td>
                 <td>₹<?= number_format($service['amount'], 2) ?></td>
             </tr>
             <?php endforeach; ?>
         </table>
 
-        <p class="details"><strong>Subtotal:</strong> ₹<?= number_format($booking['total_amount'], 2) ?></p>
+        <p class="details"><strong>Subtotal:</strong> \u20B9<?= number_format($booking['total_amount'], 2) ?></p>
         <p class="details"><strong>Discount:</strong> ₹<?= number_format($booking['discount'], 2) ?></p>
 
         <p class="details total"><strong>Total Amount:</strong> ₹<?= number_format($booking['final_amount'], 2) ?></p>
