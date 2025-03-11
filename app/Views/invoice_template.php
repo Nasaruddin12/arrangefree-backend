@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+    
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoice</title>
     <style>
-        body { font-family: 'DejaVu Sans', sans-serif;font-size: 14px; }
+        body { font-family: Arial, sans-serif; font-size: 14px; }
         .invoice-box { width: 100%; padding: 20px; border: 1px solid #ddd; }
         .title { font-size: 20px; font-weight: bold; text-align: center; }
         .details { margin-top: 10px; }
