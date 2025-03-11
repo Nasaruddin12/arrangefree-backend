@@ -195,11 +195,11 @@ class InvoiceController extends BaseController
 
         // Initialize Dompdf with options
         $options = new Options();
-        $options->set('defaultFont', 'Arial');
+        $options->set('isFontSubsettingEnabled', true);
 
         $dompdf = new Dompdf($options);
         $dompdf->loadHtml($html);
-        $dompdf->set_option('isHtml5ParserEnabled', true);
+        $dompdf->set_option('defaultFont', 'Poppins');
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
 
