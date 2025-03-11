@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoice</title>
     <style>
-       body { font-family: 'Times New Roman', sans-serif; }
+       body { font-family: 'Helvetica', sans-serif; }
         .invoice-box { width: 100%; padding: 20px; border: 1px solid #ddd; }
         .title { font-size: 20px; font-weight: bold; text-align: center; }
         .details { margin-top: 10px; }
