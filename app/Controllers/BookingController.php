@@ -208,6 +208,8 @@ class BookingController extends ResourceController
             $subtotal = array_sum(array_column($cartItems, 'amount'));
             $discount = 0.00;
 
+            $coupon = $this->couponsModel->where('coupon_code', $appliedCoupon)->first();
+
             // Apply Coupon Discount
             if (!empty($coupon)) {
                 switch ($coupon['coupon_type']) {
