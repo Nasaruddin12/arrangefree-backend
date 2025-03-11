@@ -32,229 +32,56 @@ class BookingController extends ResourceController
     /**
      * Create Booking (After Payment)
      */
-    public function createBooking()
-    {
-        try {
-            $data = $this->request->getJSON(true) ?? $this->request->getVar();
-
-            // Normalize Payment Type
-            // $paymentType = strtolower(str_replace(' ', '_', $data['payment_type'] ?? 'pay_later'));
-            $paymentType = $data['payment_type'];
-
-            // Determine Payment Status & Amounts
-            $paidAmount = ($paymentType === 'pay_later') ? 0.00 : 0.00;
-            $amountDue = max(0, $data['final_amount'] - $paidAmount);
-            $paymentStatus = ($paymentType === 'pay_later') ? null : ($data['payment_status'] ?? 'pending');
-
-            // Validate Payment Status Enum
-            $validPaymentStatuses = ['pending', 'completed', 'failed', 'refunded'];
-            if ($paymentStatus && !in_array($paymentStatus, $validPaymentStatuses)) {
-                return $this->failValidationErrors([
-                    'status'  => 400,
-                    'message' => 'Invalid payment status.',
-                    'errors'  => ['payment_status' => 'Allowed values: pending, completed, failed, refunded.']
-                ], 400);
-            }
-
-            // Determine Booking Status
-            $bookingStatus = ($paymentType === 'pay_later') ? 'pending' : (($paymentStatus === 'completed' && $amountDue == 0) ? 'confirmed' : 'pending');
-
-            // Booking Data
-            $bookingData = [
-                'booking_id'     => 'SE' . date('YmdHis'), // Generates a random 6-digit number
-                'user_id'        => $data['user_id'],
-                'total_amount'   => $data['total_amount'],
-                'discount'       => $data['discount'] ?? 0.00,
-                'final_amount'   => $data['final_amount'],
-                'paid_amount'    => $paidAmount,
-                'amount_due'     => $amountDue,
-                'payment_type'   => $paymentType,
-                'status'         => $bookingStatus,
-                'applied_coupon' => $data['applied_coupon'] ?? null,
-                'address_id'     => $data['address_id'] ?? null,
-                'slot_date'      => $data['slot_date'] ?? null,
-                'created_at'     => date('Y-m-d H:i:s'),
-                'updated_at'     => date('Y-m-d H:i:s'),
-            ];
-
-
-            // Start Transaction
-            $this->db->transStart();
-
-            // Validate & Insert Booking
-            if (!$this->bookingsModel->insert($bookingData)) {
-                return $this->failValidationErrors([
-                    'status'  => 400,
-                    'message' => 'Validation failed.',
-                    'errors'  => $this->bookingsModel->errors(),
-                ]);
-            }
-            $bookingId = $this->bookingsModel->insertID();
-
-            // Insert Booking Services (if any)
-            if (!empty($data['services'])) {
-                foreach ($data['services'] as $service) {
-                    $serviceData = [
-                        'booking_id'      => $bookingId,
-                        'service_id'      => $service['service_id'],
-                        'service_type_id' => $service['service_type_id'],
-                        'room_id'         => $service['room_id'],
-                        'rate_type'       => $service['rate_type'],
-                        'value'           => $service['value'],
-                        'rate'            => $service['rate'],
-                        'amount'          => $service['amount'],
-                        'description'     => $service['description'] ?? null,
-                        'reference_image' => $service['reference_image'] ?? null,
-                    ];
-
-
-
-                    if (!$this->bookingServicesModel->insert($serviceData)) {
-                        return $this->failValidationErrors([
-                            'status'  => 400,
-                            'message' => 'Validation failed for booking services.',
-                            'errors'  => $this->bookingServicesModel->errors(),
-                        ]);
-                    }
-                }
-                $this->seebCartModel->where('user_id', $data['user_id'])->delete();
-            }
-
-            // Handle Razorpay Order if Payment Type is Online
-            $razorpayOrder = null;
-            if ($paymentType === 'online') {
-                try {
-                    $config = new \Config\Razorpay();
-                    $razorpay = new \Razorpay\Api\Api($config->keyId, $config->keySecret);
-                    $currency = $config->displayCurrency;
-                    $receipt = 'order_' . time();
-
-                    // Create order on Razorpay
-                    $orderData = [
-                        'amount'          => $amountDue * 100, // Convert to paisa
-                        'currency'        => $currency,
-                        'receipt'         => $receipt,
-                        'payment_capture' => 1,
-                    ];
-
-                    $razorpayOrder = $razorpay->order->create($orderData);
-                    // Store order details in database
-                    $razorpayModel = new RazorpayOrdersModel();
-                    $orderRecord = [
-                        'user_id'   => $data['user_id'],
-                        'order_id'  => $razorpayOrder->id,
-                        'amount'    => $razorpayOrder->amount / 100, // Convert back to original amount
-                        'currency'  => $currency,
-                        'status'    => $razorpayOrder->status,
-                        'receipt'   => $razorpayOrder->receipt,
-                        'offer_id'  => $razorpayOrder->offer_id ?? null,
-                        'created_at' => date('Y-m-d H:i:s'),
-                    ];
-                    $razorpayModel->insert($orderRecord);
-                } catch (\Exception $e) {
-                    log_message('error', 'Razorpay Error: ' . $e->getMessage());
-                    return $this->failServerError('Payment gateway error: ' . $e->getMessage());
-                }
-            }
-
-            // Remove Booked Items from Cart **ONLY** if payment type is 'pay_later'
-            if ($paymentType === 'pay_later') {
-                $this->seebCartModel->where('user_id', $data['user_id'])->delete();
-            }
-
-            // Commit Transaction
-            $this->db->transComplete();
-            if ($this->db->transStatus() === false) {
-                $dbError = $this->db->error();
-                log_message('error', 'Transaction failed: ' . json_encode($dbError));
-                return $this->failServerError('Transaction failed. Please try again.');
-            }
-
-            return $this->respondCreated([
-                'status'         => 201,
-                'message'        => 'Booking successfully created!',
-                'data' => [
-                    'id'     => $bookingId,
-                    'booking_id'     => $bookingData['booking_id'],
-                    'amount'         => $razorpayOrder->amount ?? $amountDue,
-                    'razorpay_order' => $razorpayOrder ? $razorpayOrder->id : null
-                ]
-            ]);
-        } catch (\Exception $e) {
-            $this->db->transRollback();
-            log_message('error', 'Booking Error: ' . $e->getMessage());
-            return $this->failServerError('Something went wrong. ' . $e->getMessage());
-        }
-    }
     // public function createBooking()
     // {
     //     try {
     //         $data = $this->request->getJSON(true) ?? $this->request->getVar();
-    //         $userId = $data['user_id'];
+
+    //         // Normalize Payment Type
+    //         // $paymentType = strtolower(str_replace(' ', '_', $data['payment_type'] ?? 'pay_later'));
     //         $paymentType = $data['payment_type'];
-    //         $appliedCoupon = $data['applied_coupon'] ?? null;
 
-    //         // Fetch Cart Data for User
-    //         $cartItems = $this->seebCartModel->where('user_id', $userId)->findAll();
+    //         // Determine Payment Status & Amounts
+    //         $paidAmount = ($paymentType === 'pay_later') ? 0.00 : 0.00;
+    //         $amountDue = max(0, $data['final_amount'] - $paidAmount);
+    //         $paymentStatus = ($paymentType === 'pay_later') ? null : ($data['payment_status'] ?? 'pending');
 
-    //         if (empty($cartItems)) {
+    //         // Validate Payment Status Enum
+    //         $validPaymentStatuses = ['pending', 'completed', 'failed', 'refunded'];
+    //         if ($paymentStatus && !in_array($paymentStatus, $validPaymentStatuses)) {
     //             return $this->failValidationErrors([
-    //                 'status' => 400,
-    //                 'message' => 'Cart is empty. Add services before booking.',
-    //             ]);
+    //                 'status'  => 400,
+    //                 'message' => 'Invalid payment status.',
+    //                 'errors'  => ['payment_status' => 'Allowed values: pending, completed, failed, refunded.']
+    //             ], 400);
     //         }
 
-    //         // Calculate Pricing
-    //         $subtotal = array_sum(array_column($cartItems, 'amount'));
-    //         $cgst = round($subtotal * 0.09, 2); // 9% CGST
-    //         $sgst = round($subtotal * 0.09, 2); // 9% SGST
-    //         $tax = $cgst + $sgst; // Total GST
-    //         $discount = 0.00;
-
-    //         // Apply Coupon Discount
-    //         if (!empty($coupon)) {
-    //             switch ($coupon['coupon_type']) {
-    //                 case 1:
-    //                     $discount = ($subtotal / 100 * $coupon['coupon_type_name']);
-    //                     break;
-    //                 case 2:
-    //                     $discount = $coupon['coupon_type_name'];
-    //                     break;
-    //             }
-    //         }
-
-    //         $finalAmount = max(0, ($subtotal + $tax) - $discount);
-    //         $paidAmount = ($paymentType === 'pay_later') ? 0.00 : 0.00; // Modify if payment processing happens here
-    //         $amountDue = $finalAmount - $paidAmount;
-
-    //         // Booking Status Logic
-    //         $paymentStatus = ($paymentType === 'pay_later') ? null : 'pending';
+    //         // Determine Booking Status
     //         $bookingStatus = ($paymentType === 'pay_later') ? 'pending' : (($paymentStatus === 'completed' && $amountDue == 0) ? 'confirmed' : 'pending');
 
-    //         // Prepare Booking Data
+    //         // Booking Data
     //         $bookingData = [
-    //             'booking_id'     => 'SE' . date('YmdHis'),
-    //             'user_id'        => $userId,
-    //             'total_amount'   => $subtotal,
-    //             'address_id'     => $data['address_id'],
-    //             'cgst'           => $cgst, // 9% CGST
-    //             'sgst'           => $sgst, // 9% SGST
-    //             'tax'            => $tax, // Total GST
-    //             'discount'       => $discount,
-    //             'final_amount'   => $finalAmount,
+    //             'booking_id'     => 'SE' . date('YmdHis'), // Generates a random 6-digit number
+    //             'user_id'        => $data['user_id'],
+    //             'total_amount'   => $data['total_amount'],
+    //             'discount'       => $data['discount'] ?? 0.00,
+    //             'final_amount'   => $data['final_amount'],
     //             'paid_amount'    => $paidAmount,
     //             'amount_due'     => $amountDue,
     //             'payment_type'   => $paymentType,
     //             'status'         => $bookingStatus,
-    //             'applied_coupon' => $appliedCoupon,
+    //             'applied_coupon' => $data['applied_coupon'] ?? null,
+    //             'address_id'     => $data['address_id'] ?? null,
+    //             'slot_date'      => $data['slot_date'] ?? null,
     //             'created_at'     => date('Y-m-d H:i:s'),
     //             'updated_at'     => date('Y-m-d H:i:s'),
     //         ];
 
+
     //         // Start Transaction
     //         $this->db->transStart();
 
-    //         // Insert Booking
+    //         // Validate & Insert Booking
     //         if (!$this->bookingsModel->insert($bookingData)) {
     //             return $this->failValidationErrors([
     //                 'status'  => 400,
@@ -264,31 +91,36 @@ class BookingController extends ResourceController
     //         }
     //         $bookingId = $this->bookingsModel->insertID();
 
-    //         // Insert Booking Services
-    //         foreach ($cartItems as $service) {
-    //             $serviceData = [
-    //                 'booking_id'      => $bookingId,
-    //                 'service_id'      => $service['service_id'],
-    //                 'service_type_id' => $service['service_type_id'],
-    //                 'room_id'         => $service['room_id'],
-    //                 'rate_type'       => $service['rate_type'],
-    //                 'value'           => $service['value'],
-    //                 'rate'            => $service['rate'],
-    //                 'amount'          => $service['amount'],
-    //                 'description'     => $service['description'] ?? null,
-    //                 'reference_image' => $service['reference_image'] ?? null,
-    //             ];
+    //         // Insert Booking Services (if any)
+    //         if (!empty($data['services'])) {
+    //             foreach ($data['services'] as $service) {
+    //                 $serviceData = [
+    //                     'booking_id'      => $bookingId,
+    //                     'service_id'      => $service['service_id'],
+    //                     'service_type_id' => $service['service_type_id'],
+    //                     'room_id'         => $service['room_id'],
+    //                     'rate_type'       => $service['rate_type'],
+    //                     'value'           => $service['value'],
+    //                     'rate'            => $service['rate'],
+    //                     'amount'          => $service['amount'],
+    //                     'description'     => $service['description'] ?? null,
+    //                     'reference_image' => $service['reference_image'] ?? null,
+    //                 ];
 
-    //             if (!$this->bookingServicesModel->insert($serviceData)) {
-    //                 return $this->failValidationErrors([
-    //                     'status'  => 400,
-    //                     'message' => 'Validation failed for booking services.',
-    //                     'errors'  => $this->bookingServicesModel->errors(),
-    //                 ]);
+
+
+    //                 if (!$this->bookingServicesModel->insert($serviceData)) {
+    //                     return $this->failValidationErrors([
+    //                         'status'  => 400,
+    //                         'message' => 'Validation failed for booking services.',
+    //                         'errors'  => $this->bookingServicesModel->errors(),
+    //                     ]);
+    //                 }
     //             }
+    //             $this->seebCartModel->where('user_id', $data['user_id'])->delete();
     //         }
 
-    //         // Razorpay Order for Online Payments
+    //         // Handle Razorpay Order if Payment Type is Online
     //         $razorpayOrder = null;
     //         if ($paymentType === 'online') {
     //             try {
@@ -306,11 +138,10 @@ class BookingController extends ResourceController
     //                 ];
 
     //                 $razorpayOrder = $razorpay->order->create($orderData);
-
-    //                 // Store order details
+    //                 // Store order details in database
     //                 $razorpayModel = new RazorpayOrdersModel();
     //                 $orderRecord = [
-    //                     'user_id'   => $userId,
+    //                     'user_id'   => $data['user_id'],
     //                     'order_id'  => $razorpayOrder->id,
     //                     'amount'    => $razorpayOrder->amount / 100, // Convert back to original amount
     //                     'currency'  => $currency,
@@ -326,9 +157,9 @@ class BookingController extends ResourceController
     //             }
     //         }
 
-    //         // Remove Booked Items from Cart (only for 'pay_later')
+    //         // Remove Booked Items from Cart **ONLY** if payment type is 'pay_later'
     //         if ($paymentType === 'pay_later') {
-    //             $this->seebCartModel->where('user_id', $userId)->delete();
+    //             $this->seebCartModel->where('user_id', $data['user_id'])->delete();
     //         }
 
     //         // Commit Transaction
@@ -355,6 +186,181 @@ class BookingController extends ResourceController
     //         return $this->failServerError('Something went wrong. ' . $e->getMessage());
     //     }
     // }
+    public function createBooking()
+    {
+        try {
+            $data = $this->request->getJSON(true) ?? $this->request->getVar();
+            $userId = $data['user_id'];
+            $paymentType = $data['payment_type'];
+            $appliedCoupon = $data['applied_coupon'] ?? null;
+
+            // Fetch Cart Data for User
+            $cartItems = $this->seebCartModel->where('user_id', $userId)->findAll();
+
+            if (empty($cartItems)) {
+                return $this->failValidationErrors([
+                    'status' => 400,
+                    'message' => 'Cart is empty. Add services before booking.',
+                ]);
+            }
+
+            // Calculate Pricing
+            $subtotal = array_sum(array_column($cartItems, 'amount'));
+            $discount = 0.00;
+
+            // Apply Coupon Discount
+            if (!empty($coupon)) {
+                switch ($coupon['coupon_type']) {
+                    case 1:
+                        $discount = ($subtotal / 100 * $coupon['coupon_type_name']);
+                        break;
+                    case 2:
+                        $discount = $coupon['coupon_type_name'];
+                        break;
+                }
+            }
+
+            // Apply Discount to Subtotal
+            $discountedTotal = max(0, $subtotal - $discount); // Ensure it doesn't go negative
+
+            // Now Calculate GST on the Discounted Total
+            $cgst = round($discountedTotal * 0.09, 2); // 9% CGST
+            $sgst = round($discountedTotal * 0.09, 2); // 9% SGST
+            $tax = $cgst + $sgst; // Total GST
+
+            // Final Amount Calculation
+            $finalAmount = max(0, $discountedTotal + $tax);
+            $paidAmount = ($paymentType === 'pay_later') ? 0.00 : 0.00; // Modify if payment processing happens here
+            $amountDue = $finalAmount - $paidAmount;
+
+            // Booking Status Logic
+            $paymentStatus = ($paymentType === 'pay_later') ? null : 'pending';
+            $bookingStatus = ($paymentType === 'pay_later') ? 'pending' : (($paymentStatus === 'completed' && $amountDue == 0) ? 'confirmed' : 'pending');
+
+            // Prepare Booking Data
+            $bookingData = [
+                'booking_id'     => 'SE' . date('YmdHis'),
+                'user_id'        => $userId,
+                'total_amount'   => $subtotal,
+                'address_id'     => $data['address_id'],
+                'cgst'           => $cgst, // 9% CGST
+                'sgst'           => $sgst, // 9% SGST
+                'discount'       => $discount,
+                'final_amount'   => $finalAmount,
+                'paid_amount'    => $paidAmount,
+                'amount_due'     => $amountDue,
+                'payment_type'   => $paymentType,
+                'status'         => $bookingStatus,
+                'applied_coupon' => $appliedCoupon,
+                'slot_date'      => $data['slot_date'] ?? null,
+                'created_at'     => date('Y-m-d H:i:s'),
+                'updated_at'     => date('Y-m-d H:i:s'),
+            ];
+
+            // Start Transaction
+            $this->db->transStart();
+
+            // Insert Booking
+            if (!$this->bookingsModel->insert($bookingData)) {
+                return $this->failValidationErrors([
+                    'status'  => 400,
+                    'message' => 'Validation failed.',
+                    'errors'  => $this->bookingsModel->errors(),
+                ]);
+            }
+            $bookingId = $this->bookingsModel->insertID();
+
+            // Insert Booking Services
+            foreach ($cartItems as $service) {
+                $serviceData = [
+                    'booking_id'      => $bookingId,
+                    'service_id'      => $service['service_id'],
+                    'service_type_id' => $service['service_type_id'],
+                    'room_id'         => $service['room_id'],
+                    'rate_type'       => $service['rate_type'],
+                    'value'           => $service['value'],
+                    'rate'            => $service['rate'],
+                    'amount'          => $service['amount'],
+                    'description'     => $service['description'] ?? null,
+                    'reference_image' => $service['reference_image'] ?? null,
+                ];
+
+                if (!$this->bookingServicesModel->insert($serviceData)) {
+                    return $this->failValidationErrors([
+                        'status'  => 400,
+                        'message' => 'Validation failed for booking services.',
+                        'errors'  => $this->bookingServicesModel->errors(),
+                    ]);
+                }
+            }
+
+            // Razorpay Order for Online Payments
+            $razorpayOrder = null;
+            if ($paymentType === 'online') {
+                try {
+                    $config = new \Config\Razorpay();
+                    $razorpay = new \Razorpay\Api\Api($config->keyId, $config->keySecret);
+                    $currency = $config->displayCurrency;
+                    $receipt = 'order_' . time();
+
+                    // Create order on Razorpay
+                    $orderData = [
+                        'amount'          => $amountDue * 100, // Convert to paisa
+                        'currency'        => $currency,
+                        'receipt'         => $receipt,
+                        'payment_capture' => 1,
+                    ];
+
+                    $razorpayOrder = $razorpay->order->create($orderData);
+
+                    // Store order details
+                    $razorpayModel = new RazorpayOrdersModel();
+                    $orderRecord = [
+                        'user_id'   => $userId,
+                        'order_id'  => $razorpayOrder->id,
+                        'amount'    => $razorpayOrder->amount / 100, // Convert back to original amount
+                        'currency'  => $currency,
+                        'status'    => $razorpayOrder->status,
+                        'receipt'   => $razorpayOrder->receipt,
+                        'offer_id'  => $razorpayOrder->offer_id ?? null,
+                        'created_at' => date('Y-m-d H:i:s'),
+                    ];
+                    $razorpayModel->insert($orderRecord);
+                } catch (\Exception $e) {
+                    log_message('error', 'Razorpay Error: ' . $e->getMessage());
+                    return $this->failServerError('Payment gateway error: ' . $e->getMessage());
+                }
+            }
+
+            // Remove Booked Items from Cart (only for 'pay_later')
+            if ($paymentType === 'pay_later') {
+                $this->seebCartModel->where('user_id', $userId)->delete();
+            }
+
+            // Commit Transaction
+            $this->db->transComplete();
+            if ($this->db->transStatus() === false) {
+                $dbError = $this->db->error();
+                log_message('error', 'Transaction failed: ' . json_encode($dbError));
+                return $this->failServerError('Transaction failed. Please try again.');
+            }
+
+            return $this->respondCreated([
+                'status'         => 201,
+                'message'        => 'Booking successfully created!',
+                'data' => [
+                    'id'     => $bookingId,
+                    'booking_id'     => $bookingData['booking_id'],
+                    'amount'         => $razorpayOrder->amount ?? $amountDue,
+                    'razorpay_order' => $razorpayOrder ? $razorpayOrder->id : null
+                ]
+            ]);
+        } catch (\Exception $e) {
+            $this->db->transRollback();
+            log_message('error', 'Booking Error: ' . $e->getMessage());
+            return $this->failServerError('Something went wrong. ' . $e->getMessage());
+        }
+    }
 
 
     public function getAllBookings()

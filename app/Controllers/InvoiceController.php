@@ -5,11 +5,14 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use App\Controllers\MailingController;
 use App\Libraries\InvoiceGenerator;
+use App\Models\BookingsModel;
 use App\Models\CartModel;
 use App\Models\CustomerAddressModel;
 use App\Models\CustomerModel;
 use App\Models\InvoiceModel;
 use App\Models\OrderProductsModel;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class InvoiceController extends BaseController
 {
@@ -167,5 +170,42 @@ class InvoiceController extends BaseController
 
 
         return $invoicePath;
+    }
+    public function generateInvoice($bookingId)
+    {
+        $bookingsModel = new BookingsModel();
+        $booking = $bookingsModel->find($bookingId);
+
+        if (!$booking) {
+            return $this->response->setJSON(['status' => 404, 'message' => 'Booking not found']);
+        }
+
+        // Load booking services
+        $bookingServicesModel = new \App\Models\BookingServicesModel();
+        $services = $bookingServicesModel->where('booking_id', $bookingId)->findAll();
+
+        // Prepare data for the PDF
+        $data = [
+            'booking' => $booking,
+            'services' => $services,
+        ];
+
+        // Load HTML view for the invoice
+        $html = view('invoice_template', $data);
+
+        // Initialize Dompdf with options
+        $options = new Options();
+        $options->set('defaultFont', 'Arial');
+
+        $dompdf = new Dompdf($options);
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        // Output the PDF for download
+        return $this->response
+            ->setHeader('Content-Type', 'application/pdf')
+            ->setHeader('Content-Disposition', 'inline; filename="invoice_' . $bookingId . '.pdf"')
+            ->setBody($dompdf->output());
     }
 }
