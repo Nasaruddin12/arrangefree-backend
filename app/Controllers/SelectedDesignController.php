@@ -56,7 +56,7 @@ class SelectedDesignController extends ResourceController
     {
         try {
             $selectedDesignModel = new SelectedDesignModel();
-            $designData = $selectedDesignModel->where('user_id', $userId)->first();
+            $designData = $selectedDesignModel->where('user_id', $userId)->findAll();
 
             if ($designData) {
                 return $this->respond([
