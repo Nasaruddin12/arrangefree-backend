@@ -12,6 +12,7 @@ class SelectedDesignController extends ResourceController
         try {
             $userId = $this->request->getVar('user_id');
             $imagePath = $this->request->getVar('image_path'); // JSON string
+            $designText = $this->request->getVar('design_text'); // New text field
 
             if (empty($userId) || empty($imagePath)) {
                 return $this->fail('User ID and image path are required', 400);
@@ -19,22 +20,38 @@ class SelectedDesignController extends ResourceController
 
             $selectedDesignModel = new SelectedDesignModel();
 
-            // Check if the user_id already exists
-            $existingData = $selectedDesignModel->where('user_id', $userId)->first();
+            // Fetch the last record for this user
+            $existingData = $selectedDesignModel->where('user_id', $userId)
+                ->orderBy('id', 'DESC')
+                ->first();
 
             if ($existingData) {
-                // Update image_path for existing user_id
-                $selectedDesignModel->update($existingData['id'], ['image_path' => $imagePath]);
-                return $this->respond(['message' => 'Design updated successfully'], 200);
-            } else {
-                // Insert new record
-                $selectedDesignModel->insert(['user_id' => $userId, 'image_path' => $imagePath]);
-                return $this->respond(['message' => 'Design saved successfully'], 200);
+                // If the image_path is the same, update the design_text
+                if ($existingData['image_path'] === $imagePath) {
+                    $selectedDesignModel->update($existingData['id'], ['text' => $designText]);
+                    return $this->respond([
+                        'status' => 200,
+                        'message' => 'Design text updated successfully'
+                    ], 200);
+                }
             }
+
+            // Insert a new record if image_path is different
+            $selectedDesignModel->insert([
+                'user_id' => $userId,
+                'image_path' => $imagePath,
+                'text' => $designText
+            ]);
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'New design saved successfully'
+            ], 200);
         } catch (\Exception $e) {
             return $this->failServerError($e->getMessage());
         }
     }
+
     public function getSelectedDesign($userId)
     {
         try {

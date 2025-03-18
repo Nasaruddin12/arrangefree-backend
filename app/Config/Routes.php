@@ -581,7 +581,7 @@ $routes->group('services', function ($routes) {
 });
 $routes->group('selected-design', function ($routes) {
     $routes->post('save', 'SelectedDesignController::saveSelectedDesign');
-    $routes->get('(:num)', 'SelectedDesignController::getSelectedDesign/$1'); // Get all work types
+    $routes->get('(:num)', 'SelectedDesignController::getSelectedDesign/$1'); 
 });
 
 $routes->group('seeb-cart', function ($routes) {
@@ -632,8 +632,23 @@ $routes->post('razorpay-webhook', 'BookingController::webhookRazorpay');
 
 $routes->get('invoice/(:num)', 'InvoiceController::generateInvoice/$1');
 
+$routes->group('faqs', function ($routes) {
+    $routes->get('/', 'FaqController::index');  // Get all FAQs
+    $routes->get('(:num)', 'FaqController::show/$1');  // Get single FAQ
+    $routes->post('/', 'FaqController::create');  // Create FAQ
+    $routes->put('(:num)', 'FaqController::update/$1');  // Update FAQ
+    $routes->delete('(:num)', 'FaqController::delete/$1');  // Delete FAQ
+    $routes->get('category/(:num)', 'FaqController::getFaqsByCategory/$1'); // Get FAQs by category
+});
 
-
+// FAQ Categories
+$routes->group('faq-categories', function ($routes) {
+    $routes->get('/', 'FaqCategoryController::index');  // Get all categories
+    $routes->post('/', 'FaqCategoryController::create');  // Create category
+    $routes->get('(:num)', 'FaqCategoryController::show/$1'); // Get single category
+    $routes->put('(:num)', 'FaqCategoryController::update/$1'); // Update category
+    $routes->delete('(:num)', 'FaqCategoryController::delete/$1');
+});
 
 
 
