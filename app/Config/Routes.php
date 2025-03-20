@@ -581,7 +581,7 @@ $routes->group('services', function ($routes) {
 });
 $routes->group('selected-design', function ($routes) {
     $routes->post('save', 'SelectedDesignController::saveSelectedDesign');
-    $routes->get('(:num)', 'SelectedDesignController::getSelectedDesign/$1'); 
+    $routes->get('(:num)', 'SelectedDesignController::getSelectedDesign/$1');
 });
 
 $routes->group('seeb-cart', function ($routes) {
@@ -649,6 +649,13 @@ $routes->group('faq-categories', function ($routes) {
     $routes->put('(:num)', 'FaqCategoryController::update/$1'); // Update category
     $routes->delete('(:num)', 'FaqCategoryController::delete/$1');
 });
+
+$routes->group('api/aiapihistory', function ($routes) {
+    $routes->get('all', 'AIAPIHistoryController::getAll'); // Get all AI API history records
+    $routes->get('by-user/(:num)', 'AIAPIHistoryController::getHistoryByUser/$1');
+    $routes->post('/', 'AIAPIHistoryController::store');
+});
+
 
 
 
