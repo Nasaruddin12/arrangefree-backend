@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\BookingPaymentRequest;
 use App\Models\BookingsModel;
 use App\Models\BookingServicesModel;
 use App\Models\BookingPaymentsModel;
@@ -17,6 +18,7 @@ class BookingController extends ResourceController
     protected $bookingPaymentsModel;
     protected $seebCartModel;
     protected $couponsModel;
+    protected $paymentRequestsModel;
     protected $db;
 
     public function __construct()
@@ -26,6 +28,7 @@ class BookingController extends ResourceController
         $this->bookingPaymentsModel = new BookingPaymentsModel();
         $this->seebCartModel = new SeebCartModel();
         $this->couponsModel = new CouponModel();
+        $this->paymentRequestsModel = new BookingPaymentRequest();
         $this->db = \Config\Database::connect();
     }
 
@@ -447,7 +450,7 @@ class BookingController extends ResourceController
             // Fetch booking details with user and address
             $booking = $this->bookingsModel
                 ->select('bookings.*, af_customers.name as user_name, af_customers.email as user_email, 
-                      customer_addresses.address as customer_address')
+                  customer_addresses.address as customer_address')
                 ->join('af_customers', 'af_customers.id = bookings.user_id', 'left')
                 ->join('customer_addresses', 'customer_addresses.id = bookings.address_id', 'left')
                 ->where('bookings.id', $booking_id)
@@ -472,13 +475,19 @@ class BookingController extends ResourceController
                 ->where('booking_id', $booking_id)
                 ->findAll();
 
+            // Fetch payment requests
+            $paymentRequests = $this->paymentRequestsModel
+                ->where('booking_id', $booking_id)
+                ->findAll();
+
             return $this->respond([
                 'status' => 200,
                 'message' => 'Booking retrieved successfully.',
                 'data' => [
                     'booking' => $booking,
                     'services' => $services,
-                    'payments' => $payments
+                    'payments' => $payments,
+                    'payment_requests' => $paymentRequests
                 ]
             ], 200);
         } catch (\Exception $e) {
@@ -489,6 +498,7 @@ class BookingController extends ResourceController
             ], 500);
         }
     }
+
 
     public function verifyPayment()
     {

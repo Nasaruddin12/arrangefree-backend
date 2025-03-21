@@ -660,6 +660,7 @@ $routes->group('payment', function ($routes) {
     $routes->post('request', 'PaymentRequestController::create');
     $routes->get('requests', 'PaymentRequestController::index');
     $routes->post('request/update/(:num)', 'PaymentRequestController::update/$1');
+   
 });
 
 

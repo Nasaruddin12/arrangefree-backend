@@ -66,4 +66,24 @@ class PaymentRequestController extends ResourceController
             'message' => 'Payment request updated successfully.'
         ]);
     }
+
+    // Get Payment Requests by Booking ID
+    public function getByBookingId($booking_id = null)
+    {
+        if (!$booking_id) {
+            return $this->failNotFound('Booking ID is required.');
+        }
+
+        $data = $this->model->where('booking_id', $booking_id)->findAll();
+
+        if (empty($data)) {
+            return $this->failNotFound('No payment requests found for this booking.');
+        }
+
+        return $this->respond([
+            'status'  => 200,
+            'message' => 'Payment requests retrieved successfully.',
+            'data'    => $data
+        ]);
+    }
 }
