@@ -24,9 +24,9 @@ class PaymentRequestController extends ResourceController
         }
 
         $data = [
-            'booking_id'     => $this->request->getPost('booking_id'),
-            'user_id'        => $this->request->getPost('user_id'),
-            'amount'         => $this->request->getPost('amount'),
+            'booking_id'     => $this->request->getVar('booking_id'),
+            'user_id'        => $this->request->getVar('user_id'),
+            'amount'         => $this->request->getVar('amount'),
             'request_status' => 'pending',
         ];
 
