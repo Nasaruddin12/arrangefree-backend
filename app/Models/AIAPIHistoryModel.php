@@ -11,7 +11,7 @@ class AIAPIHistoryModel extends Model
     protected $useAutoIncrement = true;
     protected $allowedFields    = [
         'user_id',
-        'api_name',
+        'api_endpoint',
         'request_data',
         'response_data',
         'status_code',

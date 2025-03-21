@@ -650,7 +650,7 @@ $routes->group('faq-categories', function ($routes) {
     $routes->delete('(:num)', 'FaqCategoryController::delete/$1');
 });
 
-$routes->group('api/aiapihistory', function ($routes) {
+$routes->group('ai-api-history', function ($routes) {
     $routes->get('all', 'AIAPIHistoryController::getAll'); // Get all AI API history records
     $routes->get('by-user/(:num)', 'AIAPIHistoryController::getHistoryByUser/$1');
     $routes->post('/', 'AIAPIHistoryController::store');

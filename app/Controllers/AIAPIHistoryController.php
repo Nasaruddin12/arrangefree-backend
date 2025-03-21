@@ -42,7 +42,7 @@ class AIAPIHistoryController extends ResourceController
         try {
             $rules = [
                 'user_id'     => 'required|integer',
-                'api_name'    => 'required|string|max_length[255]',
+                'api_endpoint'    => 'required|string|max_length[255]',
                 'request_data' => 'permit_empty|string',
                 'response_data' => 'permit_empty|string',
                 'status_code' => 'required|integer',
