@@ -53,7 +53,7 @@ class PaymentRequestController extends ResourceController
     // Update Payment Request Status
     public function update($id = null)
     {
-        $status = $this->request->getPost('request_status');
+        $status = $this->request->getVar('request_status');
 
         if (!$status || !in_array($status, ['pending', 'completed', 'cancelled'])) {
             return $this->failValidationErrors(['request_status' => 'Invalid status.']);
@@ -66,6 +66,36 @@ class PaymentRequestController extends ResourceController
             'message' => 'Payment request updated successfully.'
         ]);
     }
+    
+    // Delete Payment Request
+    public function delete($id = null)
+    {
+        try {
+            // Check if the payment request exists
+            $paymentRequest = $this->model->find($id);
+            if (!$paymentRequest) {
+                return $this->respond([
+                    'status'  => 404,
+                    'message' => 'Payment request not found.'
+                ], 404);
+            }
+
+            // Delete the payment request
+            $this->model->delete($id);
+
+            return $this->respond([
+                'status'  => 200,
+                'message' => 'Payment request deleted successfully.'
+            ], 200);
+        } catch (\Exception $e) {
+            log_message('error', 'Error deleting payment request: ' . $e->getMessage());
+            return $this->respond([
+                'status'  => 500,
+                'message' => 'Something went wrong while deleting the payment request.'
+            ], 500);
+        }
+    }
+
 
     // Get Payment Requests by Booking ID
     public function getByBookingId($booking_id = null)
