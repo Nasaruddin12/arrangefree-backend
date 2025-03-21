@@ -656,6 +656,12 @@ $routes->group('ai-api-history', function ($routes) {
     $routes->post('/', 'AIAPIHistoryController::store');
 });
 
+$routes->group('payment', function ($routes) {
+    $routes->post('request', 'PaymentRequestController::create');
+    $routes->get('requests', 'PaymentRequestController::index');
+    $routes->post('request/update/(:num)', 'PaymentRequestController::update/$1');
+});
+
 
 
 
