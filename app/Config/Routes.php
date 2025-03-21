@@ -625,6 +625,8 @@ $routes->group('booking', function ($routes) {
     $routes->get('user/(:num)', 'BookingController::getBookingsByUser/$1');
     $routes->get('(:num)', 'BookingController::getBookingById/$1');
     $routes->post('verify-payment', 'BookingController::verifyPayment');
+    $routes->post('payment/manual', 'BookingController::addManualPayment');
+
     // });
 });
 

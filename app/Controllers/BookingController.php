@@ -689,4 +689,83 @@ class BookingController extends ResourceController
             return $this->failServerError('Something went wrong. ' . $e->getMessage());
         }
     }
+
+    public function addManualPayment()
+    {
+        try {
+            $data = $this->request->getJSON(true);
+
+            // Validate Required Fields
+            if (empty($data['booking_id']) || empty($data['user_id']) || empty($data['amount']) || empty($data['payment_method'])) {
+                return $this->failValidationErrors([
+                    'status'  => 400,
+                    'message' => 'Missing required payment details.',
+                ]);
+            }
+
+            // // Validate Payment Method
+            // $validMethods = ['cash', 'online'];
+            // if (!in_array(strtolower($data['payment_method']), $validMethods)) {
+            //     return $this->failValidationErrors([
+            //         'status'  => 400,
+            //         'message' => 'Invalid payment method. Allowed: cash, online.',
+            //     ]);
+            // }
+
+            // Fetch Booking
+            $booking = $this->bookingsModel->where('id', $data['booking_id'])->first();
+            if (!$booking) {
+                return $this->failNotFound('Booking not found.');
+            }
+
+            // Calculate Payment Amount
+            $paidAmount = $booking['paid_amount'] + $data['amount'];
+            $amountDue = max($booking['final_amount'] - $paidAmount, 0);
+            $paymentStatus = ($amountDue == 0) ? 'completed' : 'partial';
+            $bookingStatus = ($amountDue == 0) ? 'confirmed' : 'pending';
+
+            // Update Booking Record
+            $this->bookingsModel->update($booking['id'], [
+                'payment_status' => $paymentStatus,
+                'status'         => $bookingStatus,
+                'paid_amount'    => $paidAmount,
+                'amount_due'     => $amountDue,
+                'updated_at'     => date('Y-m-d H:i:s'),
+            ]);
+
+            // Store Payment Record
+            $paymentData = [
+                'booking_id'      => $booking['id'],
+                'user_id'         => $data['user_id'],
+                'transaction_id'  => 'manual_' . uniqid(), // Unique transaction ID for manual payments
+                'payment_method'  => strtolower($data['payment_method']),
+                'amount'          => $data['amount'],
+                'currency'        => 'INR',
+                'payment_status'  => 'completed',
+                'razorpay_status' => 'manual',
+                'from_json'       => json_encode($data),
+                'created_at'      => date('Y-m-d H:i:s'),
+            ];
+            $this->bookingPaymentsModel->insert($paymentData);
+
+            return $this->respond([
+                'status'    => 200,
+                'message'   => 'Manual payment added successfully.',
+                'data'      => [
+                    'id'            => $booking['id'],
+                    'booking_id'    => $booking['booking_id'],
+                    'booking'       => [
+                        'status'       => $bookingStatus,
+                        'paid_amount'  => $paidAmount,
+                        'amount_due'   => $amountDue,
+                    ],
+                    'payment'       => $paymentData,
+                    'payment_status' => $paymentStatus,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Manual Payment Error: ' . $e->getMessage());
+            return $this->failServerError('Something went wrong. ' . $e->getMessage());
+        }
+    }
 }
