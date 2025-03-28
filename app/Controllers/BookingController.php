@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\BookingExpenseModel;
 use App\Models\BookingPaymentRequest;
 use App\Models\BookingsModel;
 use App\Models\BookingServicesModel;
@@ -19,6 +20,7 @@ class BookingController extends ResourceController
     protected $seebCartModel;
     protected $couponsModel;
     protected $paymentRequestsModel;
+    protected $bookingExpenseModel;
     protected $db;
 
     public function __construct()
@@ -29,6 +31,7 @@ class BookingController extends ResourceController
         $this->seebCartModel = new SeebCartModel();
         $this->couponsModel = new CouponModel();
         $this->paymentRequestsModel = new BookingPaymentRequest();
+        $this->bookingExpenseModel = new BookingExpenseModel();
         $this->db = \Config\Database::connect();
     }
 
@@ -450,7 +453,7 @@ class BookingController extends ResourceController
             // Fetch booking details with user and address
             $booking = $this->bookingsModel
                 ->select('bookings.*, af_customers.name as user_name, af_customers.email as user_email, 
-                  customer_addresses.address as customer_address')
+              customer_addresses.address as customer_address')
                 ->join('af_customers', 'af_customers.id = bookings.user_id', 'left')
                 ->join('customer_addresses', 'customer_addresses.id = bookings.address_id', 'left')
                 ->where('bookings.id', $booking_id)
@@ -480,6 +483,11 @@ class BookingController extends ResourceController
                 ->where('booking_id', $booking_id)
                 ->findAll();
 
+            // Fetch expenses related to the booking
+            $expenses = $this->bookingExpenseModel
+                ->where('booking_id', $booking_id)
+                ->findAll();
+
             return $this->respond([
                 'status' => 200,
                 'message' => 'Booking retrieved successfully.',
@@ -487,7 +495,8 @@ class BookingController extends ResourceController
                     'booking' => $booking,
                     'services' => $services,
                     'payments' => $payments,
-                    'payment_requests' => $paymentRequests
+                    'payment_requests' => $paymentRequests,
+                    'expenses' => $expenses // Added expenses here
                 ]
             ], 200);
         } catch (\Exception $e) {
@@ -734,7 +743,7 @@ class BookingController extends ResourceController
             ]);
 
             // Store Payment Record
-            $paymentData = [    
+            $paymentData = [
                 'booking_id'      => $booking['id'],
                 'user_id'         => $data['user_id'],
                 'transaction_id'  => 'TXN_' . uniqid(), // Unique transaction ID for manual payments
