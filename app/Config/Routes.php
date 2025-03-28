@@ -663,8 +663,32 @@ $routes->group('payment', function ($routes) {
     $routes->get('requests', 'PaymentRequestController::index');
     $routes->post('request/update/(:num)', 'PaymentRequestController::update/$1');
     $routes->delete('request/delete/(:num)', 'PaymentRequestController::delete/$1');
-
 });
+
+$routes->group('tickets', function ($routes) {
+    $routes->post('create', 'TicketController::createTicket');          // Create a ticket
+    $routes->get('all', 'TicketController::getAllTickets');             // Get all tickets
+    $routes->post('update-status/(:num)', 'TicketController::updateStatus/$1');  // Update ticket status
+    $routes->post('add-message', 'TicketController::addMessage');       // Add a message to a ticket
+    $routes->get('messages/(:num)', 'TicketController::getMessages/$1'); // Get all messages for a ticket
+});
+
+$routes->group('guide-videos', function ($routes) {
+    $routes->get('/', 'GuideVideosController::index');          // Fetch all guide videos
+    $routes->get('(:num)', 'GuideVideosController::show/$1');   // Fetch a single video by ID
+    $routes->post('create', 'GuideVideosController::create');   // Add a new guide video
+    $routes->put('update/(:num)', 'GuideVideosController::update/$1'); // Update a video
+    $routes->delete('delete/(:num)', 'GuideVideosController::delete/$1'); // Delete a video
+});
+
+$routes->group('guide-images', function ($routes) {
+    $routes->get('/', 'GuideImagesController::index');           // Get all guide images
+    $routes->get('(:num)', 'GuideImagesController::show/$1');    // Get a single image
+    $routes->post('create', 'GuideImagesController::create');    // Add new guide image
+    $routes->put('update/(:num)', 'GuideImagesController::update/$1'); // Update guide image
+    $routes->delete('delete/(:num)', 'GuideImagesController::delete/$1'); // Delete guide image
+});
+
 
 
 

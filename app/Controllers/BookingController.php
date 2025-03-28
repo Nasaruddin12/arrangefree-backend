@@ -734,10 +734,10 @@ class BookingController extends ResourceController
             ]);
 
             // Store Payment Record
-            $paymentData = [
+            $paymentData = [    
                 'booking_id'      => $booking['id'],
                 'user_id'         => $data['user_id'],
-                'transaction_id'  => 'manual_' . uniqid(), // Unique transaction ID for manual payments
+                'transaction_id'  => 'TXN_' . uniqid(), // Unique transaction ID for manual payments
                 'payment_method'  => strtolower($data['payment_method']),
                 'amount'          => $data['amount'],
                 'currency'        => 'INR',

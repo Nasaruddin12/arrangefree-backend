@@ -1,0 +1,117 @@
+<?php
+
+namespace App\Controllers;
+
+use App\Models\GuideImagesModel;
+use CodeIgniter\RESTful\ResourceController;
+
+class GuideImagesController extends ResourceController
+{
+    protected $guideImagesModel;
+
+    public function __construct()
+    {
+        $this->guideImagesModel = new GuideImagesModel();
+    }
+
+    // Fetch all guide images
+    public function index()
+    {
+        try {
+            $images = $this->guideImagesModel->findAll();
+            return $this->respond([
+                'status' => 200,
+                'data'   => $images
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError('Something went wrong: ' . $e->getMessage());
+        }
+    }
+
+    // Fetch a single guide image by ID
+    public function show($id = null)
+    {
+        try {
+            $image = $this->guideImagesModel->find($id);
+            if (!$image) {
+                return $this->failNotFound('Guide image not found.');
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'data'   => $image
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError('Something went wrong: ' . $e->getMessage());
+        }
+    }
+
+    // Create a new guide image entry
+    public function create()
+    {
+        try {
+            $data = $this->request->getPost();
+
+            if (empty($data['title']) || empty($data['image_url']) || empty($data['service_type_id']) || empty($data['room_id'])) {
+                return $this->failValidationErrors('Title, Image URL, Service Type ID, and Room ID are required.');
+            }
+
+            $this->guideImagesModel->insert($data);
+
+            return $this->respondCreated([
+                'status'  => 201,
+                'message' => 'Guide image added successfully.',
+                'data'    => $data
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError('Something went wrong: ' . $e->getMessage());
+        }
+    }
+
+    // Update an existing guide image entry
+    public function update($id = null)
+    {
+        try {
+            $image = $this->guideImagesModel->find($id);
+            if (!$image) {
+                return $this->failNotFound('Guide image not found.');
+            }
+
+            $data = $this->request->getRawInput();
+
+            if (empty($data['title']) && empty($data['image_url']) && empty($data['service_type_id']) && empty($data['room_id'])) {
+                return $this->failValidationErrors('At least one field must be provided.');
+            }
+
+            $this->guideImagesModel->update($id, $data);
+
+            return $this->respond([
+                'status'  => 200,
+                'message' => 'Guide image updated successfully.',
+                'data'    => $data
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError('Something went wrong: ' . $e->getMessage());
+        }
+    }
+
+    // Delete a guide image
+    public function delete($id = null)
+    {
+        try {
+            $image = $this->guideImagesModel->find($id);
+            if (!$image) {
+                return $this->failNotFound('Guide image not found.');
+            }
+
+            $this->guideImagesModel->delete($id);
+
+            return $this->respondDeleted([
+                'status'  => 200,
+                'message' => 'Guide image deleted successfully.'
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError('Something went wrong: ' . $e->getMessage());
+        }
+    }
+}
