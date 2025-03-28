@@ -665,6 +665,13 @@ $routes->group('payment', function ($routes) {
     $routes->delete('request/delete/(:num)', 'PaymentRequestController::delete/$1');
 });
 
+$routes->group('expenses', function ($routes) {
+    $routes->post('add', 'BookingExpenseController::addExpense'); // Add a new expense
+    $routes->get('list/(:num)', 'BookingExpenseController::getExpenses/$1'); // Fetch all expenses for a booking
+    $routes->delete('delete/(:num)', 'BookingExpenseController::deleteExpense/$1'); // Delete an expense
+});
+
+
 $routes->group('tickets', function ($routes) {
     $routes->post('create', 'TicketController::createTicket');          // Create a ticket
     $routes->get('all', 'TicketController::getAllTickets');             // Get all tickets
