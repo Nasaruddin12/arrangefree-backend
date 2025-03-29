@@ -53,7 +53,7 @@ class GuideImagesController extends ResourceController
         try {
             $rules = [
                 'title'            => 'required|min_length[3]|max_length[255]',
-                'image_url'        => 'required|valid_image_path',
+                'image_url'        => 'required|string',
                 'service_type_id'  => 'required|integer',
                 'room_id'          => 'required|integer',
             ];
