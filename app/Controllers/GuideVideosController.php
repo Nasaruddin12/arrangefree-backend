@@ -51,11 +51,22 @@ class GuideVideosController extends ResourceController
     public function create()
     {
         try {
-            $data = $this->request->getJSON(true);
+            $validation = \Config\Services::validation();
 
-            if (empty($data['title']) || empty($data['video_link']) || empty($data['service_type_id']) || empty($data['room_id'])) {
-                return $this->failValidationErrors('Title, Video Link, Service Type ID, and Room ID are required.');
+            // Define validation rules
+            $rules = [
+                'title'           => 'required',
+                'description'     => 'required',
+                'video_link'      => 'required|valid_url',
+                'service_type_id' => 'required|integer',
+                'room_id'         => 'required|integer'
+            ];
+    
+            // Validate the request
+            if (!$this->validate($rules)) {
+                return $this->failValidationErrors($validation->getErrors());
             }
+            $data = $this->request->getJSON(true);
 
             $this->guideVideosModel->insert($data);
 
