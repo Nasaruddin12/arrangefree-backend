@@ -51,7 +51,7 @@ class TicketController extends ResourceController
             ]);
         } catch (Exception $e) {
             log_message('error', 'Create Ticket Error: ' . $e->getMessage());
-            return $this->failServerError('Something went wrong.');
+            return $this->failServerError('Something went wrong.'.  $e->getMessage());
         }
     }
 

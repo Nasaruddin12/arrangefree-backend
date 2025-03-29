@@ -12,7 +12,7 @@ class TicketModel extends Model
 
     protected $beforeInsert = ['generateTicketUID'];
 
-    protected function generateTicketUID(array $data)
+    public function generateTicketUID()
     {
         $yearPrefix = date('y'); // Get last two digits of the year (e.g., 24 for 2024)
 
