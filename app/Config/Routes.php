@@ -674,7 +674,7 @@ $routes->group('expenses', function ($routes) {
 
 $routes->group('tickets', function ($routes) {
     $routes->post('create', 'TicketController::createTicket');          // Create a ticket
-    $routes->get('all', 'TicketController::getAllTickets');             // Get all tickets
+    $routes->post('all', 'TicketController::getAllTickets');             // Get all tickets
     $routes->post('update-status/(:num)', 'TicketController::updateStatus/$1');  // Update ticket status
     $routes->post('add-message', 'TicketController::addMessage');       // Add a message to a ticket
     $routes->get('messages/(:num)', 'TicketController::getMessages/$1'); // Get all messages for a ticket
