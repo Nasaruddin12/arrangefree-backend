@@ -51,10 +51,22 @@ class GuideImagesController extends ResourceController
     public function create()
     {
         try {
-            $data = $this->request->getPost();
-
-            if (empty($data['title']) || empty($data['image_url']) || empty($data['service_type_id']) || empty($data['room_id'])) {
-                return $this->failValidationErrors('Title, Image URL, Service Type ID, and Room ID are required.');
+            $rules = [
+                'title'            => 'required|min_length[3]|max_length[255]',
+                'image_url'        => 'required|valid_image_path',
+                'service_type_id'  => 'required|integer',
+                'room_id'          => 'required|integer',
+            ];
+    
+            if (!$this->validate($rules)) {
+                return $this->failValidationErrors($this->validator->getErrors());
+            }
+    
+            $data = $this->request->getJSON(true);
+            
+            // Ensure image_url is a path, not a full URL
+            if (filter_var($data['image_url'], FILTER_VALIDATE_URL)) {
+                return $this->failValidationErrors('Image URL should be a relative path, not a full URL.');
             }
 
             $this->guideImagesModel->insert($data);
