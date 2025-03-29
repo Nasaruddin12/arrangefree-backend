@@ -20,71 +20,68 @@ class TicketController extends ResourceController
 
     // Create a new ticket
     public function createTicket()
-{
-    try {
-        $data = $this->request->getJSON(true);
+    {
+        try {
+            $data = $this->request->getJSON(true);
 
-        if (empty($data['user_id']) || empty($data['subject'])) {
-            return $this->failValidationError('User ID and Subject are required.');
+            if (empty($data['user_id']) || empty($data['subject'])) {
+                return $this->failValidationError('User ID and Subject are required.');
+            }
+
+            // Generate Ticket UID
+            $ticketUID = $this->ticketModel->generateTicketUID();
+
+            $ticketData = [
+                'ticket_uid' => $ticketUID,
+                'user_id'    => $data['user_id'],
+                'subject'    => $data['subject'],
+                'status'     => 'open',
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ];
+
+            if (!$this->ticketModel->insert($ticketData)) {
+                return $this->failServerError('Failed to create ticket.');
+            }
+
+            return $this->respondCreated([
+                'status'  => 201,
+                'message' => 'Ticket created successfully.',
+                'data'    => $ticketData
+            ]);
+        } catch (Exception $e) {
+            log_message('error', 'Create Ticket Error: ' . $e->getMessage());
+            return $this->failServerError('Something went wrong.');
         }
-
-        // Generate Ticket UID
-        $ticketUID = $this->ticketModel->generateTicketUID();
-
-        $ticketData = [
-            'ticket_uid' => $ticketUID,
-            'user_id'    => $data['user_id'],
-            'subject'    => $data['subject'],
-            'status'     => 'open',
-            'created_at' => date('Y-m-d H:i:s'),
-            'updated_at' => date('Y-m-d H:i:s'),
-        ];
-
-        if (!$this->ticketModel->insert($ticketData)) {
-            return $this->failServerError('Failed to create ticket.');
-        }
-
-        return $this->respondCreated([
-            'status'  => 201,
-            'message' => 'Ticket created successfully.',
-            'data'    => $ticketData
-        ]);
-    } catch (Exception $e) {
-        log_message('error', 'Create Ticket Error: ' . $e->getMessage());
-        return $this->failServerError('Something went wrong.');
     }
-}
 
 
     // Get all tickets
     public function getAllTickets()
     {
         try {
-            $limit     = $this->request->getVar('limit') ?? 10; // Default 10 items per page
-            $page      = $this->request->getVar('page') ?? 1; // Default page 1
-            $startDate = $this->request->getVar('start_date'); // Start date filter
-            $endDate   = $this->request->getVar('end_date');   // End date filter
-            $userName  = $this->request->getVar('user_name'); // User name search filter
-            $status    = $this->request->getVar('status'); // Status filter
-            $ticketId  = $this->request->getVar('ticket_id'); // Ticket ID filter
+            $limit       = $this->request->getVar('limit') ?? 10; // Default 10 items per page
+            $page        = $this->request->getVar('page') ?? 1; // Default page 1
+            $startDate   = $this->request->getVar('start_date'); // Start date filter
+            $endDate     = $this->request->getVar('end_date');   // End date filter
+            $status      = $this->request->getVar('status'); // Status filter
+            $searchQuery = $this->request->getVar('search'); // Unified search for user_name or ticket_id
 
             $query = $this->ticketModel
                 ->select('tickets.*, af_customers.name as user_name')
                 ->join('af_customers', 'af_customers.id = tickets.user_id', 'left');
 
-            // Filter by ticket ID (Exact match)
-            if (!empty($ticketId)) {
-                $query->where('tickets.id', $ticketId);
+            // Apply unified search filter (Ticket ID or User Name)
+            if (!empty($searchQuery)) {
+                $query->groupStart()
+                    ->like('af_customers.name', $searchQuery) // User name search
+                    ->orLike('tickets.id', $searchQuery) // Ticket ID search (allows partial match)
+                    ->groupEnd();
             }
 
-            // Filter by status (Only show "pending" tickets if requested)
+            // Filter by status
             if ($status) {
                 $query->where('tickets.status', $status);
-            }
-
-            // Filter by user_name if provided
-            if (!empty($userName)) {
-                $query->like('af_customers.name', $userName);
             }
 
             // Apply date range filtering
