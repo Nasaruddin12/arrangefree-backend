@@ -23,7 +23,7 @@ class TicketController extends ResourceController
     {
         try {
             $data = $this->request->getJSON(true);
-
+            print_r($data);
             if (empty($data['user_id']) || empty($data['subject'])) {
                 return $this->failValidationError('User ID and Subject are required.');
             }
