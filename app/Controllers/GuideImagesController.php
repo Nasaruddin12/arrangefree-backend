@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\GuideImagesModel;
 use CodeIgniter\RESTful\ResourceController;
+use Exception;
 
 class GuideImagesController extends ResourceController
 {
@@ -112,6 +113,34 @@ class GuideImagesController extends ResourceController
             ]);
         } catch (\Exception $e) {
             return $this->failServerError('Something went wrong: ' . $e->getMessage());
+        }
+    }
+    public function uploadImage()
+    {
+        try {
+            $validation = \Config\Services::validation();
+            $validation->setRules([
+                'image' => 'uploaded[image]|is_image[image]|max_size[image,2048]|mime_in[image,image/png,image/jpeg,image/jpg]',
+            ]);
+
+            if (!$validation->withRequest($this->request)->run()) {
+                return $this->respond(['status' => 400, 'message' => 'Invalid image file', 'errors' => $validation->getErrors()], 400);
+            }
+
+            $imageFile = $this->request->getFile('image');
+            if ($imageFile->isValid() && !$imageFile->hasMoved()) {
+                $newName = $imageFile->getRandomName();
+                $imageFile->move('public/uploads/guide/', $newName);
+                return $this->respond([
+                    'status' => 200,
+                    'message' => 'Image uploaded successfully',
+                    'image_url' => 'public/uploads/guide/' . $newName
+                ], 200);
+            }
+
+            return $this->respond(['status' => 400, 'message' => 'Image upload failed'], 400);
+        } catch (Exception $e) {
+            return $this->respond(['status' => 500, 'message' => 'Image upload failed', 'error' => $e->getMessage()], 500);
         }
     }
 }

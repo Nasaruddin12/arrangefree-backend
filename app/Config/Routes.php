@@ -692,6 +692,7 @@ $routes->group('guide-images', function ($routes) {
     $routes->get('/', 'GuideImagesController::index');           // Get all guide images
     $routes->get('(:num)', 'GuideImagesController::show/$1');    // Get a single image
     $routes->post('create', 'GuideImagesController::create');    // Add new guide image
+    $routes->post('upload-image', 'GuideImagesController::uploadImage');    // Add new guide image
     $routes->put('update/(:num)', 'GuideImagesController::update/$1'); // Update guide image
     $routes->delete('delete/(:num)', 'GuideImagesController::delete/$1'); // Delete guide image
 });

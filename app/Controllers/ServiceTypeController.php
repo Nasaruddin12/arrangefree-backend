@@ -263,9 +263,7 @@ class ServiceTypeController extends ResourceController
             ], 500);
         }
     }
-
-
-
+    
     // ✅ Upload Image (Separate method for image handling)
     public function uploadImage()
     {
