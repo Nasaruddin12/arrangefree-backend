@@ -32,7 +32,7 @@ class TicketController extends ResourceController
             $ticketUID = $this->ticketModel->generateTicketUID();
 
             $ticketData = [
-                'ticket_uid' => $ticketUID,
+                'ticket_uid' => $data['ticket_uid'],
                 'user_id'    => $data['user_id'],
                 'subject'    => $data['subject'],
                 'status'     => 'open',
