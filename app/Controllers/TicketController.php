@@ -22,8 +22,7 @@ class TicketController extends ResourceController
     public function createTicket()
     {
         try {
-            $data = $this->request->getJSON(true);
-            print_r($data);
+            $data = json_decode($this->request->getBody(), true);
             if (empty($data['user_id']) || empty($data['subject'])) {
                 return $this->failValidationError('User ID and Subject are required.');
             }
@@ -32,7 +31,7 @@ class TicketController extends ResourceController
             $ticketUID = $this->ticketModel->generateTicketUID();
 
             $ticketData = [
-                'ticket_uid' => $data['ticket_uid'],
+                'ticket_uid' => $ticketUID,
                 'user_id'    => $data['user_id'],
                 'subject'    => $data['subject'],
                 'status'     => 'open',

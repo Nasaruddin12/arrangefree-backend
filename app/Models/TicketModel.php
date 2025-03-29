@@ -10,7 +10,7 @@ class TicketModel extends Model
     protected $primaryKey = 'id';
     protected $allowedFields = ['ticket_uid', 'user_id', 'subject', 'status', 'created_at', 'updated_at'];
 
-    protected $beforeInsert = ['generateTicketUID'];
+    // protected $beforeInsert = ['generateTicketUID'];
 
     public function generateTicketUID()
     {
