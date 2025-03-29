@@ -15,6 +15,13 @@ class Tickets extends Migration
                 'unsigned'       => true,
                 'auto_increment' => true,
             ],
+            'ticket_uid' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 20,
+                'unique'     => true,
+                'null'       => false,
+                'comment'    => 'Unique Ticket Identifier',
+            ],
             'user_id' => [
                 'type'       => 'INT',
                 'constraint' => 11,
