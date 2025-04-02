@@ -122,7 +122,7 @@ class AssetController extends ResourceController
             // Response
             return $this->respondCreated([
                 'message' => 'File uploaded successfully',
-                'file_url' => $uploadPath + $newName
+                'file_url' => $uploadPath . $newName
             ]);
         } catch (\Exception $e) {
             return $this->fail($e->getMessage(), $e->getCode());
