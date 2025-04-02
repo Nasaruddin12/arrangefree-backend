@@ -707,6 +707,15 @@ $routes->group('assets', function ($routes) {
     $routes->post('upload', 'AssetController::uploadFile');
 });
 
+$routes->group('styles', function ($routes) {
+    $routes->get('/', 'StyleController::index');
+    $routes->get('(:num)', 'StyleController::show/$1');
+    $routes->post('/', 'StyleController::create');
+    $routes->put('(:num)', 'StyleController::update/$1');
+    $routes->delete('(:num)', 'StyleController::delete/$1');
+});
+
+
 
 
 
