@@ -50,7 +50,7 @@ class TicketController extends ResourceController
             ]);
         } catch (Exception $e) {
             log_message('error', 'Create Ticket Error: ' . $e->getMessage());
-            return $this->failServerError('Something went wrong.'.  $e->getMessage());
+            return $this->failServerError('Something went wrong.' .  $e->getMessage());
         }
     }
 
@@ -193,6 +193,37 @@ class TicketController extends ResourceController
         } catch (Exception $e) {
             log_message('error', 'Get Ticket Messages Error: ' . $e->getMessage());
             return $this->failServerError('Failed to fetch messages.');
+        }
+    }
+    public function getTicketById($ticketId)
+    {
+        try {
+            $ticket = $this->ticketModel
+                ->select('tickets.*, af_customers.name as user_name')
+                ->join('af_customers', 'af_customers.id = tickets.user_id', 'left')
+                ->where('tickets.id', $ticketId)
+                ->first();
+
+            if (!$ticket) {
+                return $this->failNotFound('Ticket not found.');
+            }
+
+            $messages = $this->ticketMessageModel
+                ->where('ticket_id', $ticketId)
+                ->orderBy('created_at', 'ASC')
+                ->findAll();
+
+            return $this->respond([
+                'status'  => 200,
+                'message' => 'Ticket retrieved successfully.',
+                'data'    => [
+                    'ticket'   => $ticket,
+                    'messages' => $messages
+                ]
+            ]);
+        } catch (Exception $e) {
+            log_message('error', 'Get Ticket By ID Error: ' . $e->getMessage());
+            return $this->failServerError('Failed to fetch ticket details.');
         }
     }
 }

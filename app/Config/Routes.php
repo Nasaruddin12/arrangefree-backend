@@ -673,6 +673,7 @@ $routes->group('expenses', function ($routes) {
 
 
 $routes->group('tickets', function ($routes) {
+    $routes->get('ticket/(:num)', 'TicketController::getTicketById/$1');
     $routes->post('create', 'TicketController::createTicket');          // Create a ticket
     $routes->post('all', 'TicketController::getAllTickets');             // Get all tickets
     $routes->post('update-status/(:num)', 'TicketController::updateStatus/$1');  // Update ticket status
