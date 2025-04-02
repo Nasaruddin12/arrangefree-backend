@@ -58,7 +58,11 @@ class StyleController extends ResourceController
     public function update($id = null)
     {
         try {
-            $data = $this->request->getRawInput();
+            $data = $this->request->getJSON(true); // Fetch JSON payload as array
+
+            if (!isset($data['name']) || empty($data['name'])) {
+                return $this->failValidationErrors('Style name is required.');
+            }
 
             if (!$this->model->find($id)) {
                 return $this->failNotFound("Style not found.");
