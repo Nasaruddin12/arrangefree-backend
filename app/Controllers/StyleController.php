@@ -39,7 +39,7 @@ class StyleController extends ResourceController
     public function create()
     {
         try {
-            $data = $this->request->getPost();
+            $data = $this->request->getVar();
 
             if (!$this->validate([
                 'name' => 'required|string|max_length[255]',
