@@ -698,6 +698,14 @@ $routes->group('guide-images', function ($routes) {
     $routes->delete('delete/(:num)', 'GuideImagesController::delete/$1'); // Delete guide image
 });
 
+$routes->group('assets', function ($routes) {
+    $routes->get('/', 'AssetController::index');
+    $routes->get('(:num)', 'AssetController::show/$1');
+    $routes->post('/', 'AssetController::create');
+    $routes->put('(:num)', 'AssetController::update/$1');
+    $routes->delete('(:num)', 'AssetController::delete/$1');
+    $routes->post('upload', 'AssetController::uploadFile');
+});
 
 
 
