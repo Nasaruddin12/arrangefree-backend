@@ -15,9 +15,18 @@ class StyleController extends ResourceController
     {
         try {
             $styles = $this->model->findAll();
-            return $this->respond($styles);
+
+            if (empty($styles)) {
+                return $this->failNotFound('No styles found.');
+            }
+
+            return $this->respond([
+                'status'  => 200,
+                'message' => 'Styles retrieved successfully',
+                'data'    => $styles
+            ], 200);
         } catch (\Exception $e) {
-            return $this->failServerError("Error fetching styles: " . $e->getMessage());
+            return $this->failServerError('Failed to retrieve styles: ' . $e->getMessage());
         }
     }
 
@@ -26,12 +35,18 @@ class StyleController extends ResourceController
     {
         try {
             $style = $this->model->find($id);
+
             if (!$style) {
                 return $this->failNotFound("Style not found.");
             }
-            return $this->respond($style);
+
+            return $this->respond([
+                'status'  => 200,
+                'message' => 'Style retrieved successfully',
+                'data'    => $style
+            ], 200);
         } catch (\Exception $e) {
-            return $this->failServerError("Error fetching style: " . $e->getMessage());
+            return $this->failServerError('Error fetching style: ' . $e->getMessage());
         }
     }
 
@@ -44,13 +59,16 @@ class StyleController extends ResourceController
             if (!$this->validate([
                 'name' => 'required|string|max_length[255]',
             ])) {
-                return $this->failValidationErrors($this->validator->getErrors());
+                return $this->failValidationErrors($this->validator->listErrors());
             }
 
             $this->model->insert($data);
-            return $this->respondCreated(['message' => 'Style created successfully']);
+            return $this->respondCreated([
+                'status'  => 201,
+                'message' => 'Style created successfully'
+            ]);
         } catch (\Exception $e) {
-            return $this->failServerError("Error creating style: " . $e->getMessage());
+            return $this->failServerError('Error creating style: ' . $e->getMessage());
         }
     }
 
@@ -65,13 +83,16 @@ class StyleController extends ResourceController
             }
 
             if (!$this->model->find($id)) {
-                return $this->failNotFound("Style not found.");
+                return $this->failNotFound('Style not found.');
             }
 
             $this->model->update($id, $data);
-            return $this->respond(['message' => 'Style updated successfully']);
+            return $this->respond([
+                'status'  => 200,
+                'message' => 'Style updated successfully'
+            ], 200);
         } catch (\Exception $e) {
-            return $this->failServerError("Error updating style: " . $e->getMessage());
+            return $this->failServerError('Error updating style: ' . $e->getMessage());
         }
     }
 
@@ -80,13 +101,16 @@ class StyleController extends ResourceController
     {
         try {
             if (!$this->model->find($id)) {
-                return $this->failNotFound("Style not found.");
+                return $this->failNotFound('Style not found.');
             }
 
             $this->model->delete($id);
-            return $this->respondDeleted(['message' => 'Style deleted successfully']);
+            return $this->respondDeleted([
+                'status'  => 200,
+                'message' => 'Style deleted successfully'
+            ]);
         } catch (\Exception $e) {
-            return $this->failServerError("Error deleting style: " . $e->getMessage());
+            return $this->failServerError('Error deleting style: ' . $e->getMessage());
         }
     }
 }
