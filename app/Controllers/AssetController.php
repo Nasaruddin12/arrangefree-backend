@@ -40,28 +40,37 @@ class AssetController extends ResourceController
     public function create()
     {
         try {
-            $data = $this->request->getPost();
+            $data = $this->request->getJSON(true); // Get JSON input as an associative array
 
+            // Validate the request data
             if (!$this->validate([
-                'name'        => 'required|string|max_length[255]',
-                'file'        => 'required|string|max_length[255]',
-                'where_to_use' => 'required|in_list[web,mobile,admin,marketing,other]',
+                'title'    => 'required|string|max_length[255]',
+                'file'     => 'required|string|max_length[255]',
+                'details'  => 'permit_empty|string',
+                'room_id'  => 'permit_empty|string|max_length[255]',
+                'style_id' => 'permit_empty|string|max_length[255]',
             ])) {
                 return $this->failValidationErrors($this->validator->getErrors());
             }
 
+            // Insert into the database
             $this->model->insert($data);
-            return $this->respondCreated(['message' => 'Asset created successfully.']);
+
+            return $this->respondCreated([
+                'message' => 'Asset created successfully.',
+                'data'    => $data
+            ]);
         } catch (\Exception $e) {
             return $this->failServerError("An error occurred while creating the asset: " . $e->getMessage());
         }
     }
 
+
     // Update asset
     public function update($id = null)
     {
         try {
-            $data = $this->request->getRawInput();
+            $data = $this->request->getJSON(true);
 
             if (!$this->model->find($id)) {
                 return $this->failNotFound("Asset not found.");

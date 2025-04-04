@@ -15,7 +15,7 @@ class CreateAssetsTable extends Migration
                 'unsigned'       => true,
                 'auto_increment' => true,
             ],
-            'name' => [
+            'title' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 255,
                 'null'       => false,
@@ -29,10 +29,15 @@ class CreateAssetsTable extends Migration
                 'type' => 'TEXT',
                 'null' => true,
             ],
-            'where_to_use' => [
+            'room_id' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 255,
-                'null'       => false,
+                'null'       => true,
+            ],
+            'style_id' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 255,
+                'null'       => true,
             ],
             'created_at' => [
                 'type'    => 'TIMESTAMP',

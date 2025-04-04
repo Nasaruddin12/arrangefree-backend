@@ -9,7 +9,7 @@ class AssetModel extends Model
     protected $table      = 'assets';
     protected $primaryKey = 'id';
 
-    protected $allowedFields = ['name', 'file', 'details', 'where_to_use', 'created_at', 'updated_at'];
+    protected $allowedFields = ['title', 'file', 'details', 'room_id', 'style_id', 'created_at', 'updated_at'];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
