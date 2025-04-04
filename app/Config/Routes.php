@@ -715,6 +715,14 @@ $routes->group('styles', function ($routes) {
     $routes->delete('(:num)', 'StyleController::delete/$1');
 });
 
+$routes->group('room-elements', function ($routes) {
+    $routes->get('/', 'RoomElementController::index');         // Get all room elements
+    $routes->post('/', 'RoomElementController::create');       // Create a new room element
+    $routes->get('(:num)', 'RoomElementController::show/$1');  // Get a single room element
+    $routes->put('(:num)', 'RoomElementController::update/$1'); // Update a room element
+    $routes->delete('(:num)', 'RoomElementController::delete/$1'); // Delete a room element
+});
+
 
 
 
