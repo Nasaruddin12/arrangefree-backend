@@ -40,14 +40,20 @@ class TicketController extends ResourceController
                 'updated_at' => date('Y-m-d H:i:s'),
             ];
 
-            if (!$this->ticketModel->insert($ticketData)) {
+            // Insert and get ID
+            $data = $this->ticketModel->insert($ticketData);
+
+            if (!$data) {
                 return $this->failServerError('Failed to create ticket.');
             }
+
+            // Add ID to response data
+            // $ticketData['id'] = $insertedId;
 
             return $this->respondCreated([
                 'status'  => 201,
                 'message' => 'Ticket created successfully.',
-                'data'    => $ticketData
+                'data'    => $data
             ]);
         } catch (Exception $e) {
             log_message('error', 'Create Ticket Error: ' . $e->getMessage());
