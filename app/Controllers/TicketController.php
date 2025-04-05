@@ -229,4 +229,43 @@ class TicketController extends ResourceController
             return $this->failServerError('Failed to fetch ticket details.');
         }
     }
+    public function uploadFile()
+    {
+        try {
+            $file = $this->request->getFile('file');
+
+            if (!$file->isValid() || $file->hasMoved()) {
+                return $this->failValidationErrors('Invalid file upload or file already moved.');
+            }
+
+            $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'];
+
+            // Get file extension
+            $extension = $file->getExtension();
+
+            if (!in_array($extension, $allowedExtensions)) {
+                return $this->failValidationErrors("Invalid file type. Allowed types: " . implode(', ', $allowedExtensions));
+            }
+
+            // Define upload directory
+            $uploadPath = 'public/uploads/ticket/';
+
+            // Generate new random name and move file
+            $newName = $file->getRandomName();
+            $file->move($uploadPath, $newName);
+
+            // Generate file URL
+
+
+            // Response
+            return $this->respondCreated([
+                'message' => 'File uploaded successfully',
+                'file_path' => $uploadPath . $newName
+            ]);
+        } catch (\Exception $e) {
+            return $this->fail($e->getMessage(), $e->getCode());
+        } catch (\Exception $e) {
+            return $this->failServerError("An error occurred while uploading the file: " . $e->getMessage());
+        }
+    }
 }
