@@ -176,7 +176,7 @@ class TicketController extends ResourceController
         try {
             $data = $this->request->getJSON(true);
 
-            if (empty($data['ticket_id']) || empty($data['sender_id']) || empty($data['message'])) {
+            if (empty($data['ticket_id']) || empty($data['message'])) {
                 return $this->failValidationError('Ticket ID, Sender ID, and Message are required.');
             }
 
