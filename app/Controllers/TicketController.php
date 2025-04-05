@@ -146,6 +146,30 @@ class TicketController extends ResourceController
         }
     }
 
+    public function getTicketsByUserId($userId = null)
+    {
+        try {
+            if (empty($userId)) {
+                return $this->failValidationError('User ID is required.');
+            }
+
+            $tickets = $this->ticketModel
+                ->where('user_id', $userId)
+                ->orderBy('created_at', 'DESC')
+                ->findAll();
+
+            return $this->respond([
+                'status'  => 200,
+                'message' => 'Tickets fetched successfully.',
+                'data'    => $tickets
+            ]);
+        } catch (Exception $e) {
+            log_message('error', 'Get Tickets Error: ' . $e->getMessage());
+            return $this->failServerError('Something went wrong. ' . $e->getMessage());
+        }
+    }
+
+
     // Add a message to a ticket
     public function addMessage()
     {

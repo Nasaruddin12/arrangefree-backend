@@ -680,6 +680,8 @@ $routes->group('tickets', function ($routes) {
     $routes->post('add-message', 'TicketController::addMessage');       // Add a message to a ticket
     $routes->get('messages/(:num)', 'TicketController::getMessages/$1'); // Get all messages for a ticket
     $routes->post('upload-image', 'TicketController::uploadFile');
+    $routes->get('user/(:num)', 'TicketController::getTicketsByUserId/$1');
+
 });
 
 $routes->group('guide-videos', function ($routes) {
