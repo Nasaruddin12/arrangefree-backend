@@ -41,19 +41,19 @@ class TicketController extends ResourceController
             ];
 
             // Insert and get ID
-            $data = $this->ticketModel->insert($ticketData);
+            $insertedId = $this->ticketModel->insert($ticketData, true);
 
-            if (!$data) {
+            if (!$insertedId) {
                 return $this->failServerError('Failed to create ticket.');
             }
 
             // Add ID to response data
-            // $ticketData['id'] = $insertedId;
+            $ticketData['id'] = $insertedId;
 
             return $this->respondCreated([
                 'status'  => 201,
                 'message' => 'Ticket created successfully.',
-                'data'    => $data
+                'data'    => $ticketData
             ]);
         } catch (Exception $e) {
             log_message('error', 'Create Ticket Error: ' . $e->getMessage());
