@@ -22,12 +22,24 @@ class TicketMessages extends Migration
                 'null'       => false,
                 'comment'    => 'References ticket',
             ],
+            'user_id' => [
+                'type'       => 'INT',
+                'constraint' => 11,
+                'unsigned'   => true,
+                'null'       => false,
+                'comment'    => 'User or admin who sent the message',
+            ],
             'sender_id' => [
                 'type'       => 'INT',
                 'constraint' => 11,
                 'unsigned'   => true,
                 'null'       => false,
                 'comment'    => 'User or admin who sent the message',
+            ],
+            'created_by' =>[
+                'type'       => 'VARCHAR',
+                'constraint' => 255,
+                'null'       => false,
             ],
             'message' => [
                 'type'       => 'TEXT',
@@ -41,7 +53,7 @@ class TicketMessages extends Migration
 
         $this->forge->addPrimaryKey('id');
         $this->forge->addForeignKey('ticket_id', 'tickets', 'id', 'CASCADE', 'CASCADE');
-        // $this->forge->addForeignKey('sender_id', 'af_customers', 'id', 'CASCADE', 'CASCADE');
+        $this->forge->addForeignKey('user_id', 'af_customers', 'id', 'CASCADE', 'CASCADE');
         $this->forge->createTable('ticket_messages');
     }
 

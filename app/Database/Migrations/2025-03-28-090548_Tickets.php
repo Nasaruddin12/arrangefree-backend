@@ -34,6 +34,11 @@ class Tickets extends Migration
                 'constraint' => 255,
                 'null'       => false,
             ],
+            'file' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 255,
+                'null'       => true,
+            ],
             'status' => [
                 'type'       => 'ENUM',
                 'constraint' => ['open', 'in_progress', 'closed'],

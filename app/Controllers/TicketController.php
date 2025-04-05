@@ -34,6 +34,7 @@ class TicketController extends ResourceController
                 'ticket_uid' => $ticketUID,
                 'user_id'    => $data['user_id'],
                 'subject'    => $data['subject'],
+                'file'       => $data['file'],
                 'status'     => 'open',
                 'created_at' => date('Y-m-d H:i:s'),
                 'updated_at' => date('Y-m-d H:i:s'),
@@ -155,7 +156,9 @@ class TicketController extends ResourceController
 
             $messageData = [
                 'ticket_id' => $data['ticket_id'],
+                'user_id' => $data['user_id'],
                 'sender_id' => $data['sender_id'],
+                'created_by' => $data['created_by'],
                 'message'   => $data['message'],
                 'created_at' => date('Y-m-d H:i:s'),
             ];
