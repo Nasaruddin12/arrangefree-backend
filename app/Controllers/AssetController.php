@@ -15,12 +15,13 @@ class AssetController extends ResourceController
     public function index()
     {
         try {
-            $assets = $this->model->findAll();
+            $assets = $this->model->getAssetsWithRoomName();
             return $this->respond($assets);
         } catch (\Exception $e) {
             return $this->failServerError("An error occurred while fetching assets: " . $e->getMessage());
         }
     }
+
 
     // Fetch single asset by ID
     public function show($id = null)
