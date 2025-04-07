@@ -32,8 +32,10 @@ class RoomElementController extends ResourceController
     {
         try {
             $data = $this->request->getJSON(true);
-
-            if (!$this->validate(['title' => 'required|string|max_length[255]'])) {
+            if (!$this->validate([
+                'title' => 'required|string|max_length[255]',
+                'type'  => 'required|string|max_length[255]',
+            ])) {
                 return $this->failValidationErrors($this->validator->getErrors());
             }
 
@@ -76,9 +78,13 @@ class RoomElementController extends ResourceController
         try {
             $data = $this->request->getJSON(true);
 
-            if (!$this->validate(['title' => 'required|string|max_length[255]'])) {
+            if (!$this->validate([
+                'title' => 'required|string|max_length[255]',
+                'type'  => 'required|string|max_length[100]', // or whatever limit/type you need
+            ])) {
                 return $this->failValidationErrors($this->validator->getErrors());
             }
+
 
             if (!$this->model->find($id)) {
                 return $this->failNotFound('Room element not found');

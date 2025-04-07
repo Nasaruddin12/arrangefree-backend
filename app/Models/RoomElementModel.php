@@ -9,6 +9,6 @@ class RoomElementModel extends Model
     protected $table      = 'room_elements';
     protected $primaryKey = 'id';
 
-    protected $allowedFields = ['title', 'created_at', 'updated_at'];
+    protected $allowedFields = ['title', 'type', 'created_at', 'updated_at'];
     protected $useTimestamps = true;
 }
