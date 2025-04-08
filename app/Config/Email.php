@@ -6,15 +6,15 @@ use CodeIgniter\Config\BaseConfig;
 
 class Email extends BaseConfig
 {
-    public string $fromEmail  = '';
-    public string $fromName   = '';
+    public string $fromEmail  = 'info@seeb.in';
+    public string $fromName   = 'Seeb';
     public string $recipients = '';
 
     /**
      * The "user agent"
      */
     // public string $userAgent = 'Arrange Free Sales';
-    public string $userAgent = 'Arrange Free';
+    public string $userAgent = 'Seeb';
 
     /**
      * The mail sending protocol: mail, sendmail, smtp
@@ -35,12 +35,12 @@ class Email extends BaseConfig
      * SMTP Username
      */
     // public string $SMTPUser = 'sales@arrangefree.com';
-    public string $SMTPUser = 'no-reply@arrangefree.com';
+    public string $SMTPUser = 'info@seeb.in';
 
     /**
      * SMTP Password
      */
-    public string $SMTPPass = 'rmfq oyxk tdyy tgxc';
+    public string $SMTPPass = 'flqh nhdz dsqp egji';
 
     /**
      * SMTP Port

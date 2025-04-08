@@ -72,4 +72,72 @@ class EmailController extends BaseController
         // print_r($email->send());die;
         return $email->send();
     }
+
+
+    public function sendWelcomeEmail($toEmail, $userName)
+    {
+        $toEmail = 'haseeb@seeb.in';
+        $userName = 'Haseeb Khan';
+
+        $email = \Config\Services::email();
+
+        $email->setTo($toEmail);
+        $email->setFrom('info@seeb.in', 'Seeb');
+        $email->setSubject('Welcome to Seeb!');
+
+        // Create email content
+        $emailContent = '
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <title>Welcome to Seeb</title>
+        </head>
+        <body style="margin:0; padding:0; background-color:#f4f4f4; font-family: Arial, sans-serif;">
+          <table width="100%" bgcolor="#f4f4f4" cellpadding="0" cellspacing="0">
+            <tr>
+              <td>
+                <table align="center" width="600" bgcolor="#ffffff" cellpadding="40" cellspacing="0" style="border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+                  <tr>
+                    <td align="center">
+                      <img src="https://backend.seeb.in/public/logo.webp" alt="Seeb Logo" width="120" style="margin-bottom: 20px;">
+                      <h1 style="color: #333;">Welcome to Seeb!</h1>
+                      <p style="font-size: 16px; color: #555; line-height: 1.6;">
+                        Hello <strong>{USERNAME}</strong>,
+                        <br><br>
+                        We’re thrilled to have you on board. Thank you for joining Seeb – your one-stop solution for premium services.
+                        <br><br>
+                        You can now login and explore all our offerings.
+                      </p>
+                      <a href="https://seeb.in/login" style="display: inline-block; margin-top: 20px; padding: 12px 24px; background-color: #1e88e5; color: #fff; text-decoration: none; border-radius: 5px;">
+                        Login Now
+                      </a>
+                      <p style="margin-top: 30px; font-size: 14px; color: #999;">
+                        If you have any questions, feel free to contact us at <a href="mailto:info@seeb.in">info@seeb.in</a>.
+                      </p>
+                      <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+                      <p style="font-size: 12px; color: #aaa;">&copy; ' . date("Y") . ' Seeb. All rights reserved.</p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
+        ';
+
+        // Replace username placeholder
+        $emailContent = str_replace('{USERNAME}', $userName, $emailContent);
+
+        // Send email
+        $email->setMessage($emailContent);
+        $email->setMailType('html');
+
+        if ($email->send()) {
+            return '✅ Welcome email sent to ' . $toEmail;
+        } else {
+            return '❌ Email failed to send. <br>' . print_r($email->printDebugger(['headers']), true);
+        }
+    }
 }

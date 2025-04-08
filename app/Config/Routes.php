@@ -726,6 +726,9 @@ $routes->group('room-elements', function ($routes) {
     $routes->delete('(:num)', 'RoomElementController::delete/$1'); // Delete a room element
 });
 
+$routes->get('test-email', 'EmailController::testEmail');
+
+
 
 
 

@@ -6,8 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoice</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap');
+
         body {
-            font-family: 'DejaVu Sans', sans-serif;
+            /* font-family: 'DejaVu Sans', 'Helvetica', sans-serif; */
+            font-family: 'sans-serif', 'Noto Sans', 'DejaVu Sans', 'Segoe UI', sans-serif;
             margin: 0;
             padding: 20px;
             background: #f8f8f8;
@@ -23,16 +26,35 @@
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
         }
 
+        .header {
+            display: flex !important;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header img {
+            height: 60px;
+            /* width: 260px; */
+            object-fit: contain;
+
+        }
+
+        .company-details {
+            /* text-align: right; */
+            font-size: 14px;
+        }
+
         .title {
             font-size: 22px;
             font-weight: bold;
             text-align: center;
-            padding-bottom: 10px;
+            padding: 10px 0;
             border-bottom: 2px solid #ddd;
+            /* margin-top: 15px; */
         }
 
         .details {
-            margin-top: 15px;
+            margin-top: 10px;
             display: flex;
             justify-content: space-between;
         }
@@ -52,12 +74,17 @@
         table td {
             border: 1px solid #ddd;
             padding: 10px;
-            text-align: left;
         }
 
         table th {
             background: #f2f2f2;
             font-weight: bold;
+            text-align: left;
+        }
+
+        table td:last-child,
+        table th:last-child {
+            text-align: right;
         }
 
         .total-section {
@@ -80,23 +107,87 @@
             border-top: 2px solid #ddd;
             padding-top: 10px;
         }
+
+        .note {
+            font-size: 12px;
+            margin-top: 30px;
+        }
+
+        .signature {
+            margin-top: 50px;
+            font-size: 14px;
+        }
+
+        .signature p {
+            margin: 0;
+        }
+
+        @media print {
+            body {
+                background: none;
+            }
+
+            .invoice-box {
+                box-shadow: none;
+            }
+        }
     </style>
 </head>
 
 <body>
     <div class="invoice-box">
-        <div class="title">Invoice</div>
-
+        <div class="title">INVOICE</div>
+        <?php
+        $logoPath = 'https://backend.seeb.in/public/logo.webp'; // Absolute or relative server path
+        $logoData = base64_encode(file_get_contents($logoPath));
+        $logoSrc = 'data:image/png;base64,' . $logoData;
+        ?>
+        <table width="100%" cellspacing="0" cellpadding="0" style="margin-bottom: 5px; border:#f8f8f8">
+            <tr>
+                <td width="40%" style="border: 0px;">
+                    <img src="<?= $logoSrc ?>" alt="Logo" style="width:100px; height:100px;" />
+                </td>
+                <td width="60%" style="text-align: right; font-size: 14px; border:0px;">
+                    <strong>XYZ Services Pvt Ltd</strong><br>
+                    123 Business Street, Pune, India<br>
+                    GSTIN: 29ABCDE1234F2Z5<br>
+                    Phone: +91-9876543210<br>
+                    Email: contact@seeb.in
+                </td>
+            </tr>
+        </table>
+        <div class="title"></div>
+        <table width="100%" cellspacing="0" cellpadding="0" style="margin-bottom: 5px; border:#f8f8f8">
+            <tr>
+                <td width="50%" style="border: 0px;">
+                    <div>
+                        <p><strong>Invoice No:</strong> <?= $booking['booking_id'] ?></p>
+                        <p><strong>Date:</strong> <?= date('d-m-Y', strtotime($booking['created_at'])) ?></p>
+                        <p><strong>Due Date:</strong> <?= date('d-m-Y', strtotime($booking['due_date'] ?? '+7 days')) ?></p>
+                    </div>
+                </td>
+                <td width="50%" style="text-align: left; font-size: 14px; border:0px;">
+                    <div>
+                        <p><strong>Customer Name:</strong> <?= $booking['user_name'] ?></p>
+                        <p><strong>Customer Address:</strong> <?= $booking['customer_address'] ?></p>
+                        <p><strong>Customer GSTIN:</strong> <?= $booking['customer_gstin'] ?? 'N/A' ?></p>
+                    </div>
+                </td>
+            </tr>
+        </table>
+<!-- 
         <div class="details">
             <div>
                 <p><strong>Invoice No:</strong> <?= $booking['booking_id'] ?></p>
                 <p><strong>Date:</strong> <?= date('d-m-Y', strtotime($booking['created_at'])) ?></p>
+                <p><strong>Due Date:</strong> <?= date('d-m-Y', strtotime($booking['due_date'] ?? '+7 days')) ?></p>
             </div>
             <div>
                 <p><strong>Customer Name:</strong> <?= $booking['user_name'] ?></p>
                 <p><strong>Customer Address:</strong> <?= $booking['customer_address'] ?></p>
+                <p><strong>Customer GSTIN:</strong> <?= $booking['customer_gstin'] ?? 'N/A' ?></p>
             </div>
-        </div>
+        </div> -->
 
         <table>
             <tr>
@@ -128,6 +219,15 @@
             <p><strong>Payment Type:</strong> <span><?= ucfirst($booking['payment_type']) ?></span></p>
             <p><strong>Paid Amount:</strong> <span>₹<?= number_format($booking['paid_amount'], 2) ?></span></p>
             <p class="total-amount"><strong>Due Amount:</strong> <span>₹<?= number_format($booking['final_amount'] - $booking['paid_amount'], 2) ?></span></p>
+        </div>
+
+        <div class="note">
+            <strong>Note:</strong> Thank you for your business. Please make the payment by the due date to avoid late fees. For queries, contact us at billing@xyzservices.com.
+        </div>
+
+        <div class="signature">
+            <p><strong>Authorized Signature:</strong></p>
+            <p>__________________________</p>
         </div>
     </div>
 </body>

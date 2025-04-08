@@ -87,7 +87,7 @@ class CustomerController extends BaseController
 
             // Generate OTP
             $otp = random_int(1000, 9999);
-    
+
             // Send OTP via SMS Gateway
             $smsGateway = new SMSGateway();
             $response = $smsGateway->sendOTP($mobileNo, $otp);
@@ -419,6 +419,7 @@ class CustomerController extends BaseController
         try {
             $customerModel = new CustomerModel();
             $validation = &$customerModel;
+            $emailControler = new EmailController();
             // $statusCode = 200;
 
             $userBackendToFrontendAttrs = [
@@ -442,6 +443,7 @@ class CustomerController extends BaseController
                 throw new Exception($customerModel->db->error()['message'], 500);
             }
             if ($customerModel->db->affectedRows() == 1) {
+                $email = $emailControler->sendWelcomeEmail($customerData['email'], $customerData['name']);
                 $statusCode = 200;
                 $response = [
                     'message' => 'Customer updated successfully.',
