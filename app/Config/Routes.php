@@ -727,6 +727,7 @@ $routes->group('room-elements', function ($routes) {
 });
 
 $routes->get('test-email', 'EmailController::testEmail');
+$routes->get('test-step-email', 'EmailController::sendRoomStepEmailToMultiple');
 
 $routes->get('send-notification', 'NotificationController::send');
 

@@ -37,7 +37,7 @@ class CustomerModel extends Model
         'email' => [
             // 'required'=> "EMail IS COMPULSORY",
             'valid_email'=> "PLEASE ENTER A VALID EMAIL",
-            'is_unique'=> "EMIAL IS ALREADY EXISTED",
+            'is_unique'=> "EMAIL IS ALREADY EXISTED",
         ],
 
         // // 'password' => [

@@ -76,6 +76,8 @@ class EmailController extends BaseController
 
   public function sendWelcomeEmail($toEmail, $userName)
   {
+    // $toEmail = 'haseeb@seeb.in';
+    // $userName = 'Mr. Haseeb Khan';
     $email = \Config\Services::email();
 
     $email->setTo($toEmail);
@@ -168,6 +170,99 @@ class EmailController extends BaseController
     } else {
       return '❌ Email failed to send. <br>' . print_r($email->printDebugger(['headers']), true);
     }
+  }
+
+  public function sendRoomStepEmailToMultiple()
+  {
+    $recipients = [
+      ['email' => 'myselfnasaruddin@gmail.com', 'name' => 'Nasaruddin Mulla'],
+      ['email' => 'haseeb@seeb.in', 'name' => 'Haseeb Khan'],
+      ['email' => 'aftab@seeb.in', 'name' => 'Aftab Naik'],
+    ];
+    $email = \Config\Services::email();
+    $results = [];
+
+    foreach ($recipients as $recipient) {
+      // Expecting ['email' => '...', 'name' => '...']
+      $toEmail = $recipient['email'];
+      $userName = $recipient['name'];
+
+      $email->clear(); // Clear previous email setup
+
+      $email->setTo($toEmail);
+      $email->setFrom('info@seeb.in', 'Seeb');
+      $email->setSubject('Begin Your First Step – Add Your Room Size or Scan It');
+
+      $emailContent = '
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <title>Start Designing with Seeb</title>
+          </head>
+          <body style="margin:0; padding:0; background-color:#f9f9f9; font-family: Arial, sans-serif;">
+              <table width="100%" bgcolor="#f9f9f9" cellpadding="0" cellspacing="0">
+                  <tr>
+                      <td>
+                          <table align="center" width="600" bgcolor="#ffffff" cellpadding="40" cellspacing="0" style="border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+                              <tr>
+                                  <td align="center">
+                                      <img src="https://backend.seeb.in/public/logo.webp" alt="Seeb Logo" width="120" style="margin-bottom: 20px;">
+                                      <h2 style="color: #333;">Hi {USERNAME},</h2>
+                                      <p style="font-size: 16px; color: #555; line-height: 1.6;">
+                                          Welcome again! Ready to take the first step toward your dream space?
+                                      </p>
+  
+                                      <h3 style="color:#1e88e5;">🏠 Step 1: Create Your Room Plan</h3>
+                                      <p style="font-size: 16px; color: #555; line-height: 1.6;">
+                                          With Seeb, it’s super simple:
+                                          <br><br>
+                                          📱 <strong>Scan your room</strong> using your phone (LiDAR supported), <br>
+                                          OR<br>
+                                          ✍️ <strong>Manually enter</strong> your room size (like 12x10 ft, height 9 ft)
+                                      </p>
+  
+                                      <h4 style="color:#1e88e5;">⚙️ Why This Matters:</h4>
+                                      <ul style="text-align: left; color: #555; font-size: 15px;">
+                                          <li>Unlocks design tools tailored to your room</li>
+                                          <li>Gives accurate 3D previews & more</li>
+                                          <li>Helps our Skilled Team execute exactly what you see</li>
+                                          <li>Connects to real material estimates & cost breakdowns</li>
+                                      </ul>
+  
+                                      <a href="https://seeb.in/room-start" style="display: inline-block; margin-top: 20px; padding: 12px 24px; background-color: #1e88e5; color: #fff; text-decoration: none; border-radius: 5px;">
+                                          🔗 Scan or Enter My Room
+                                      </a>
+  
+                                      <p style="margin-top: 30px; font-size: 14px; color: #999;">
+                                          Need help? Use “Request a Call” in the app — we’re ready to guide you.
+                                      </p>
+  
+                                      <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+                                      <p style="font-size: 12px; color: #aaa;">&copy; ' . date("Y") . ' Seeb. All rights reserved.</p>
+                                  </td>
+                              </tr>
+                          </table>
+                      </td>
+                  </tr>
+              </table>
+          </body>
+          </html>
+          ';
+
+      $emailContent = str_replace('{USERNAME}', $userName, $emailContent);
+
+      $email->setMessage($emailContent);
+      $email->setMailType('html');
+
+      if ($email->send()) {
+        $results[] = '✅ Email sent to ' . $toEmail;
+      } else {
+        $results[] = '❌ Failed to send to ' . $toEmail . '<br>' . print_r($email->printDebugger(['headers']), true);
+      }
+    }
+
+    return $results;
   }
 
 
