@@ -9,7 +9,6 @@
         "codeigniter4/framework": "^4.0",
         "dompdf/dompdf": "^3.1",
         "firebase/php-jwt": "^6.5",
-        "google/apiclient": "^2.18",
         "razorpay/razorpay": "2.*",
         "setasign/fpdf": "^1.8"
     },
