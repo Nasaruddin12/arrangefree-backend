@@ -10,6 +10,7 @@ use App\Models\BookingPaymentsModel;
 use App\Models\RazorpayOrdersModel;
 use App\Models\SeebCartModel;
 use App\Models\CouponModel;
+use App\Models\CustomerModel;
 use CodeIgniter\RESTful\ResourceController;
 
 class BookingController extends ResourceController
@@ -21,6 +22,7 @@ class BookingController extends ResourceController
     protected $couponsModel;
     protected $paymentRequestsModel;
     protected $bookingExpenseModel;
+    protected $customerModel;
     protected $db;
 
     public function __construct()
@@ -32,6 +34,7 @@ class BookingController extends ResourceController
         $this->couponsModel = new CouponModel();
         $this->paymentRequestsModel = new BookingPaymentRequest();
         $this->bookingExpenseModel = new BookingExpenseModel();
+        $this->customerModel = new CustomerModel();
         $this->db = \Config\Database::connect();
     }
 
@@ -195,6 +198,8 @@ class BookingController extends ResourceController
     public function createBooking()
     {
         try {
+
+            $emailController = new EmailController();
             $data = $this->request->getJSON(true) ?? $this->request->getVar();
             $userId = $data['user_id'];
             $paymentType = $data['payment_type'];
@@ -345,6 +350,8 @@ class BookingController extends ResourceController
                 $this->seebCartModel->where('user_id', $userId)->delete();
             }
 
+
+
             // Commit Transaction
             $this->db->transComplete();
             if ($this->db->transStatus() === false) {
@@ -353,6 +360,8 @@ class BookingController extends ResourceController
                 return $this->failServerError('Transaction failed. Please try again.');
             }
 
+            $user = $this->customerModel->where('id', $userId)->first();
+            $email = $emailController->sendBookingSuccessEmail($user['email'], $user['name'], $data['booking_id'],  $bookingId);
             return $this->respondCreated([
                 'status'         => 201,
                 'message'        => 'Booking successfully created!',

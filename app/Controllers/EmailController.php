@@ -140,4 +140,35 @@ class EmailController extends BaseController
             return '❌ Email failed to send. <br>' . print_r($email->printDebugger(['headers']), true);
         }
     }
+
+    public function sendBookingSuccessEmail($to, $userName, $bookingId, $id)
+    {
+        $email = \Config\Services::email();
+
+        $invoiceLink = base_url("invoice/$id"); // 👈 adjust route as needed
+
+        $subject = '🎉 Booking Confirmed - Seeb';
+        $message = "
+        <h2>Welcome to Seeb, $userName!</h2>
+        <p>Your booking has been successfully confirmed. Below are the details:</p>
+        <ul>
+            <li><strong>Booking ID:</strong> $bookingId</li>
+            <li><strong>Status:</strong> Confirmed ✅</li>
+        </ul>
+        <p>You can view/download your invoice here:</p>
+        <p><a href='$invoiceLink' style='padding:10px 15px; background:#007bff; color:#fff; text-decoration:none; border-radius:5px;'>View Invoice</a></p>
+        <br>
+        <p>Warm regards,<br>Team Seeb</p>
+    ";
+
+        $email->setTo($to);
+        $email->setSubject($subject);
+        $email->setMessage($message);
+
+        if ($email->send()) {
+            return '✅ Email sent successfully!';
+        } else {
+            return '❌ Email failed to send.<br>' . print_r($email->printDebugger(['headers', 'subject', 'body']), true);
+        }
+    }
 }
