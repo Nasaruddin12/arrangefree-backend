@@ -94,18 +94,18 @@ class ServiceController extends BaseController
     public function uploadImages()
     {
         try {
-            $validation = \Config\Services::validation();
-            $validation->setRules([
-                'images' => 'uploaded[images]|max_size[images,2048]|mime_in[images,image/png,image/jpeg,image/jpg]',
-            ]);
+            // $validation = \Config\Services::validation();
+            // $validation->setRules([
+            //     'images' => 'uploaded[images]|max_size[images,2048]|mime_in[images,image/png,image/jpeg,image/jpg]',
+            // ]);
 
-            if (!$validation->withRequest($this->request)->run()) {
-                return $this->respond([
-                    'status' => 400,
-                    'message' => 'Invalid image files',
-                    'errors' => $validation->getErrors()
-                ], 400);
-            }
+            // if (!$validation->withRequest($this->request)->run()) {
+            //     return $this->respond([
+            //         'status' => 400,
+            //         'message' => 'Invalid image files',
+            //         'errors' => $validation->getErrors()
+            //     ], 400);
+            // }
 
             $imageFiles = $this->request->getFiles();
             $imagePaths = [];
