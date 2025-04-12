@@ -120,7 +120,11 @@ class ServiceController extends BaseController
                         }
 
                         // Validate mime type
-                        $allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+                        $allowedTypes = [
+                            'image/png', 'image/jpeg', 'image/jpg', // Image types
+                            'video/mp4', 'video/avi', 'video/mov', 'video/quicktime', 'video/x-msvideo', // Video types
+                        ];
+                        
                         if (!in_array($imageFile->getMimeType(), $allowedTypes)) {
                             continue; // skip this file
                         }
