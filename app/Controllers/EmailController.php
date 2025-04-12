@@ -172,13 +172,13 @@ class EmailController extends BaseController
     }
   }
 
-  public function sendRoomStepEmailToMultiple()
+  public function sendRoomStepEmailToMultiple(array $recipients)
   {
-    $recipients = [
-      ['email' => 'myselfnasaruddin@gmail.com', 'name' => 'Nasaruddin Mulla'],
-      ['email' => 'haseeb@seeb.in', 'name' => 'Haseeb Khan'],
-      ['email' => 'aftab@seeb.in', 'name' => 'Aftab Naik'],
-    ];
+    // $recipients = [
+    //   ['email' => 'myselfnasaruddin@gmail.com', 'name' => 'Nasaruddin Mulla'],
+    //   ['email' => 'haseeb@seeb.in', 'name' => 'Haseeb Khan'],
+    //   ['email' => 'aftab@seeb.in', 'name' => 'Aftab Naik'],
+    // ];
     $email = \Config\Services::email();
     $results = [];
 
@@ -294,6 +294,148 @@ class EmailController extends BaseController
       return '✅ Email sent successfully!';
     } else {
       return '❌ Email failed to send.<br>' . print_r($email->printDebugger(['headers', 'subject', 'body']), true);
+    }
+  }
+
+  public function sendComparisonEmail()
+  {
+    $toEmail = "myselfnasaruddin@gmail.com";
+    $userName = "Haseeb Khan";
+    $email = \Config\Services::email();
+
+    $email->setTo($toEmail);
+    $email->setFrom('info@seeb.in', 'Seeb');
+    $email->setSubject('Seeb vs Others – Not Just Furniture, We Deliver Full Interiors');
+
+    $emailContent = '
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Why Seeb Beats Traditional Players</title>
+    </head>
+    <body style="margin:0; padding:0; background-color:#f9f9f9; font-family: Arial, sans-serif;">
+        <table width="100%" bgcolor="#f9f9f9" cellpadding="0" cellspacing="0">
+            <tr>
+                <td>
+                    <table align="center" width="600" bgcolor="#ffffff" cellpadding="40" cellspacing="0" style="border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.05);">
+                        <tr>
+                            <td>
+                                <img src="https://backend.seeb.in/public/logo.webp" alt="Seeb Logo" width="120" style="margin-bottom: 20px;">
+                                <h2 style="color: #333;">Hi {USERNAME},</h2>
+                                <p style="font-size: 16px; color: #555; line-height: 1.6;">
+                                    When planning your home interiors, it’s important to compare how different platforms work — from design tools to execution support.
+                                    <br><br>
+                                  Before you decide, see why thousands are switching to Seeb – the only app that gives you full interior control, not just product catalogs.
+                                </p>
+
+                                <h3 style="color: #1e88e5;">🆚 Seeb vs Others – Real Interior Comparison</h3>
+
+                                <table border="1" cellpadding="10" cellspacing="0" style="border-collapse: collapse; width:100%; font-size: 14px; color: #555;">
+                                    <tr style="background-color: #f0f0f0;">
+                                        <th>Feature</th>
+                                        <th>Seeb (All-in-One)</th>
+                                        <th>Livspace / HomeLane / DesignCafe / Godrej</th>
+                                    </tr>
+                                    <tr>
+                                        <td>Full Home Interiors</td>
+                                        <td>✅ Yes – End-to-end</td>
+                                        <td>❌ Mostly furniture & modular setup</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Room-Wise Customization</td>
+                                        <td>✅ Design wall-by-wall</td>
+                                        <td>❌ Limited or pre-set designs</td>
+                                    </tr>
+                                    <tr>
+                                        <td>AI-Powered Design App</td>
+                                        <td>✅ Instant 3D + 2D + cost breakdown</td>
+                                        <td>❌ No real design tool</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Single Service Booking</td>
+                                        <td>✅ Book just a wardrobe, ceiling, etc.</td>
+                                        <td>❌ Full package required</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Execution Support</td>
+                                        <td>✅ Skilled Team + Factory Build</td>
+                                        <td>❌ Vendors & showroom dependency</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Real-Time 3D Walkthroughs</td>
+                                        <td>✅ Delivered via app</td>
+                                        <td>❌ Not available</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Material Transparency</td>
+                                        <td>✅ Full details (laminates, color codes)</td>
+                                        <td>❌ Not revealed before work</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Warranty</td>
+                                        <td>✅ 10-Year on all factory-made furniture</td>
+                                        <td>✅ Varies</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Pricing</td>
+                                        <td>✅ 40–60% more affordable</td>
+                                        <td>❌ High fixed-cost packages</td>
+                                    </tr>
+                                </table>
+
+                                <h4 style="margin-top:30px; color:#1e88e5;">🚫 What They Don’t Offer:</h4>
+                                <ul style="font-size: 15px; color:#555; line-height: 1.6;">
+                                    <li>No 100% online design system</li>
+                                    <li>No way to design by yourself</li>
+                                    <li>No single-task booking (e.g., just ceiling or one room)</li>
+                                    <li>No live 3D view before execution</li>
+                                    <li>No AI + Skilled Team combination</li>
+                                </ul>
+
+                                <h4 style="color:#1e88e5;">✅ What You Get with Seeb:</h4>
+                                <ul style="font-size: 15px; color:#555; line-height: 1.6;">
+                                    <li>Design room-by-room using AI</li>
+                                    <li>Preview your home in 3D before starting</li>
+                                    <li>Book only what you need</li>
+                                    <li>Get execution support via Seeb’s well-skilled, trained team</li>
+                                    <li>Direct factory-made furniture with 10-year warranty</li>
+                                </ul>
+                                <h4 style="color:#1e88e5;">How Seeb Compares to Livspace, HomeLane & Others – What You Should Know</h4>
+
+                                <p style="font-size: 16px; color: #555; line-height: 1.6;">
+                                   Brand names like Livspace, HomeLane, DesignCafe, and Godrej Interio are used purely for educational and comparison purposes.
+                                   All rights belong to their respective owners. Seeb respects these companies and provides this information to help customers make informed decisions.
+                                </p>
+                                <a href="https://seeb.in/room-start" style="display: inline-block; margin-top: 20px; padding: 12px 24px; background-color: #1e88e5; color: #fff; text-decoration: none; border-radius: 5px;">
+                                    🔗 Try Seeb Now
+                                </a>
+
+                                <p style="margin-top: 30px; font-size: 14px; color: #999;">
+                                    Questions? We’re here to help at <a href="mailto:info@seeb.in">info@seeb.in</a>
+                                </p>
+
+                                <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+                                <p style="font-size: 12px; color: #aaa;">&copy; ' . date("Y") . ' Seeb. All rights reserved.</p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </body>
+    </html>
+    ';
+
+    $emailContent = str_replace('{USERNAME}', $userName, $emailContent);
+
+    $email->setMessage($emailContent);
+    $email->setMailType('html');
+
+    if ($email->send()) {
+      return '✅ Comparison email sent to ' . $toEmail;
+    } else {
+      return '❌ Failed to send comparison email.<br>' . print_r($email->printDebugger(['headers']), true);
     }
   }
 }

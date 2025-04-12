@@ -681,7 +681,6 @@ $routes->group('tickets', function ($routes) {
     $routes->get('messages/(:num)', 'TicketController::getMessages/$1'); // Get all messages for a ticket
     $routes->post('upload-image', 'TicketController::uploadFile');
     $routes->get('user/(:num)', 'TicketController::getTicketsByUserId/$1');
-
 });
 
 $routes->group('guide-videos', function ($routes) {
@@ -726,7 +725,17 @@ $routes->group('room-elements', function ($routes) {
     $routes->delete('(:num)', 'RoomElementController::delete/$1'); // Delete a room element
 });
 
-$routes->get('test-email', 'EmailController::testEmail');
+$routes->group('cron', function ($routes) {
+    $routes->get('daily/first-step-email', 'NotificationController::sendFirstStepEmail');         // Get all room elements
+});
+
+$routes->group('team', function ($routes) {
+    $routes->post('register', 'TeamController::register');
+    $routes->get('list', 'TeamController::list');
+});
+
+
+$routes->get('test-email', 'EmailController::sendComparisonEmail');
 $routes->get('test-step-email', 'EmailController::sendRoomStepEmailToMultiple');
 
 $routes->get('send-notification', 'NotificationController::send');
