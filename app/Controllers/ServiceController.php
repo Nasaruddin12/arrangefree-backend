@@ -113,26 +113,6 @@ class ServiceController extends BaseController
             if (!empty($imageFiles['images'])) {
                 foreach ($imageFiles['images'] as $imageFile) {
                     if ($imageFile->isValid() && !$imageFile->hasMoved()) {
-
-                        $imageInfo = getimagesize($imageFile->getTempName());
-                        $width = $imageInfo[0];
-                        $height = $imageInfo[1];
-
-                        if ($width > 770 || $height > 770) {
-                            continue; // skip this file
-                        }
-                        // Validate size (max 2MB)
-                        if ($imageFile->getSize() > 2 * 1024 * 1024) {
-                            continue; // skip this file
-                        }
-
-                        // Validate mime type
-                        $allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
-                        if (!in_array($imageFile->getMimeType(), $allowedTypes)) {
-                            continue; // skip this file
-                        }
-
-                        // Move valid image
                         $newName = $imageFile->getRandomName();
                         $imageFile->move('public/uploads/services/', $newName);
                         $imagePaths[] = 'public/uploads/services/' . $newName;
