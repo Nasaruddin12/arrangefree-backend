@@ -332,11 +332,11 @@ class ServiceTypeController extends ResourceController
             return $this->failValidationErrors('Invalid status value. Use 1 (active) or 0 (inactive).');
         }
 
-        if (!$this->serviceTypeRoomModel->find($id)) {
-            return $this->failNotFound('Services not found.');
+        if (!$this->serviceTypeModel->find($id)) {
+            return $this->failNotFound('Services type not found.');
         }
 
-        $this->serviceTypeRoomModel->update($id, ['status' => $status]);
+        $this->serviceTypeModel->update($id, ['status' => $status]);
 
         return $this->respond([
             'status' => 200,
