@@ -9,16 +9,15 @@ class AssetModel extends Model
     protected $table      = 'assets';
     protected $primaryKey = 'id';
 
-    protected $allowedFields = ['title', 'tags', 'file', 'details', 'room_id', 'style_id', 'created_at', 'updated_at'];
+    protected $allowedFields = ['title', 'tags', 'file', 'details', 'size', 'room_id', 'style_id', 'created_at', 'updated_at'];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
     public function getAssetsWithRoomName()
-{
-    return $this->select('assets.*, room_elements.title as room_name')
-        ->join('room_elements', 'room_elements.id = assets.room_id', 'left')
-        ->findAll();
-}
-
+    {
+        return $this->select('assets.*, room_elements.title as room_name')
+            ->join('room_elements', 'room_elements.id = assets.room_id', 'left')
+            ->findAll();
+    }
 }

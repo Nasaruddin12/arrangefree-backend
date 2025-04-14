@@ -49,6 +49,7 @@ class AssetController extends ResourceController
                 'file'     => 'required|string|max_length[255]',
                 'tags'     => 'required|string|max_length[255]',
                 'details'  => 'permit_empty|string',
+                'size'     => 'permit_empty|string',
                 'room_id'  => 'permit_empty|string|max_length[255]',
                 'style_id' => 'permit_empty|string|max_length[255]',
             ])) {
