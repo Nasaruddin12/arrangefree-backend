@@ -35,6 +35,7 @@ class ServiceModel extends Model
             ->join('service_rooms', 'service_rooms.service_id = services.id', 'inner')
             ->where('services.service_type_id', $service_type_id)
             ->where('service_rooms.room_id', $roomId)
+            ->where('services.status', 1)
             ->findAll();
     }
 }
