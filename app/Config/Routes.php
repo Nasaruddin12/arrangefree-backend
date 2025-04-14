@@ -82,6 +82,7 @@ $routes->group('quotation', static function ($routes) {
     $routes->post('changeStatus/(:num)', 'QuotationController::changeStatus/$1');
     // $routes->delete('Delete/(:num)', 'QuotationController::QuotationDelete/$1');
     // });
+    
 });
 $routes->group('sites', static function ($routes) {
     $routes->post('getAllSites', 'QuotationController::getAllSites');
@@ -557,8 +558,9 @@ $routes->group('services-type', function ($routes) {
     $routes->post('upload-image', 'ServiceTypeController::uploadImage');
     $routes->post('create', 'ServiceTypeController::create'); // Create service
     $routes->put('update/(:num)', 'ServiceTypeController::update/$1'); // Update service
-    // $routes->delete('delete/(:num)', 'ServiceTypeController::delete/$1'); // Delete service
+    $routes->delete('delete/(:num)', 'ServiceTypeController::delete/$1'); // Delete service
     $routes->get('(:num)/rooms', 'ServiceTypeController::getRoomsByServiceType/$1');
+    $routes->put('change-status/(:num)', 'ServiceTypeController::changeStatus/$1');
 });
 $routes->group('rooms', function ($routes) {
     $routes->get('/', 'RoomsController::index'); // Get all services

@@ -263,7 +263,7 @@ class ServiceTypeController extends ResourceController
             ], 500);
         }
     }
-    
+
     // ✅ Upload Image (Separate method for image handling)
     public function uploadImage()
     {
@@ -323,5 +323,25 @@ class ServiceTypeController extends ResourceController
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+    public function changeStatus($id)
+    {
+        $status = $this->request->getVar('status'); // Get status from request
+
+        if (!in_array($status, ['0', '1'])) {
+            return $this->failValidationErrors('Invalid status value. Use 1 (active) or 0 (inactive).');
+        }
+
+        if (!$this->serviceTypeRoomModel->find($id)) {
+            return $this->failNotFound('Services not found.');
+        }
+
+        $this->serviceTypeRoomModel->update($id, ['status' => $status]);
+
+        return $this->respond([
+            'status' => 200,
+            'message' => 'Status updated successfully',
+            'new_status' => (int)$status
+        ], 200);
     }
 }
