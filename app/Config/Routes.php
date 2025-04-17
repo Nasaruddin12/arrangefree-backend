@@ -708,7 +708,7 @@ $routes->group('assets', function ($routes) {
     $routes->post('/', 'AssetController::create');
     $routes->put('(:num)', 'AssetController::update/$1');
     $routes->delete('(:num)', 'AssetController::delete/$1');
-    $routes->post('upload', 'AssetController::uploadFiles');
+    $routes->post('upload', 'AssetController::uploadFile');
 });
 
 $routes->group('styles', function ($routes) {
