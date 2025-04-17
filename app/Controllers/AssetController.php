@@ -103,50 +103,56 @@ class AssetController extends ResourceController
     }
 
     // Upload file function
-    public function uploadFiles()
+    public function uploadFile()
     {
         try {
-            $files = $this->request->getFiles();
-            $uploadedFiles = [];
+            $file = $this->request->getFile('file');
 
-            if (empty($files['files'])) {
-                return $this->failValidationErrors('No files were uploaded.');
+            if (!$file || !$file->isValid()) {
+                return $this->failValidationErrors('No valid file was uploaded.');
             }
 
             // Allowed file types
-            $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp', 'tiff', 'pdf', 'usdz', 'fbx', 'obj', 'gltf', 'glb', 'stl', 'dae', 'zip'];
+            $allowedExtensions = [
+                'jpg',
+                'jpeg',
+                'png',
+                'gif',
+                'bmp',
+                'svg',
+                'webp',
+                'tiff',
+                'pdf',
+                'usdz',
+                'fbx',
+                'obj',
+                'gltf',
+                'glb',
+                'stl',
+                'dae',
+                'zip'
+            ];
+
+            $extension = $file->getExtension();
+
+            if (!in_array($extension, $allowedExtensions)) {
+                return $this->failValidationErrors("Invalid file type: {$file->getName()}. Allowed types: " . implode(', ', $allowedExtensions));
+            }
 
             // Define upload directory
             $uploadPath = 'public/uploads/assets/';
 
-            foreach ($files['files'] as $file) {
-                if ($file->isValid() && !$file->hasMoved()) {
-                    $extension = $file->getExtension();
+            // Generate new random name and move file
+            $newName = $file->getRandomName();
+            $file->move($uploadPath, $newName);
 
-                    if (!in_array($extension, $allowedExtensions)) {
-                        return $this->failValidationErrors("Invalid file type: {$file->getName()}. Allowed types: " . implode(', ', $allowedExtensions));
-                    }
-
-                    // Generate new random name and move file
-                    $newName = $file->getRandomName();
-                    $file->move($uploadPath, $newName);
-
-                    // Add file info to response array
-                    $uploadedFiles[] =  $uploadPath . $newName;
-                }
-            }
-
-            if (empty($uploadedFiles)) {
-                return $this->failValidationErrors('No valid files were uploaded.');
-            }
-
-            // Final Response
+            // Response
             return $this->respondCreated([
-                'message' => 'Files uploaded successfully',
-                'files'   => $uploadedFiles
+                'message' => 'File uploaded successfully',
+                'file'    => $uploadPath . $newName
             ]);
         } catch (\Exception $e) {
-            return $this->failServerError("An error occurred while uploading files: " . $e->getMessage());
+            return $this->failServerError("An error occurred while uploading the file: " . $e->getMessage());
         }
     }
 }
