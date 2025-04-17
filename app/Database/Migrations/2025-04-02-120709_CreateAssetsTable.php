@@ -25,7 +25,12 @@ class CreateAssetsTable extends Migration
                 'constraint' => 255,
                 'null'       => false,
             ],
-            'size' => [
+            'width' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 255,
+                'null'       => false,
+            ],
+            'length' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 255,
                 'null'       => false,
