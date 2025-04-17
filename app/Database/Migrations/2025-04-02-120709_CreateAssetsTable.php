@@ -49,6 +49,12 @@ class CreateAssetsTable extends Migration
                 'constraint' => 255,
                 'null'       => true,
             ],
+            'room_element_id'=> [
+                'type'       => 'INT',
+                'constraint' => 11,
+                'unsigned'   => true,
+                'null'       => true,
+            ],
             'created_at' => [
                 'type'    => 'TIMESTAMP',
                 'null'    => true,

@@ -9,7 +9,7 @@ class NotificationController extends BaseController
     {
         $firebase = new FirebaseService();
 
-        $deviceToken = 'YOUR_DEVICE_FCM_TOKEN'; // 🔁 Replace with real token
+        $deviceToken = 'dNbASJF7okXjkWZlSxx4wD:APA91bFMNrQUjP6xghY9ncMA92xvLT-b24aj1R7MViQXitEyqDDnwMxzjRUusDmEDIimWnj-BynO3RIZhSEl3GT7YWIoIpeGzg1H5Ea-8pp1u7M9AXnyv1I'; // 🔁 Replace with real token
         $title = 'Welcome to Seeb!';
         $body = 'Your booking has been confirmed.';
 

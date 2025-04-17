@@ -52,6 +52,7 @@ class AssetController extends ResourceController
                 'size'     => 'permit_empty|string',
                 'room_id'  => 'permit_empty|string|max_length[255]',
                 'style_id' => 'permit_empty|string|max_length[255]',
+                'room_element_id' => 'permit_empty|integer',
             ])) {
                 return $this->failValidationErrors($this->validator->getErrors());
             }
