@@ -709,6 +709,8 @@ $routes->group('assets', function ($routes) {
     $routes->put('(:num)', 'AssetController::update/$1');
     $routes->delete('(:num)', 'AssetController::delete/$1');
     $routes->post('upload', 'AssetController::uploadFile');
+    $routes->get('room/(:num)', 'AssetController::getByRoom/$1');
+
 });
 
 $routes->group('styles', function ($routes) {

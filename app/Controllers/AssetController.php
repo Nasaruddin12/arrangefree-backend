@@ -37,6 +37,26 @@ class AssetController extends ResourceController
         }
     }
 
+    // Fetch assets by room_id
+    public function getByRoom($room_id = null)
+    {
+        try {
+            if (!$room_id) {
+                return $this->failValidationError("Room ID is required.");
+            }
+
+            $assets = $this->model->where('room_id', $room_id)->findAll();
+
+            if (empty($assets)) {
+                return $this->failNotFound("No assets found for this room.");
+            }
+
+            return $this->respond($assets);
+        } catch (\Exception $e) {
+            return $this->failServerError("An error occurred while fetching assets: " . $e->getMessage());
+        }
+    }
+
     // Create new asset
     public function create()
     {
