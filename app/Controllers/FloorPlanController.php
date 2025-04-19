@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Controllers\API;
+namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\FloorPlanModel;
 use CodeIgniter\API\ResponseTrait;
 use CodeIgniter\HTTP\ResponseInterface;
-use CodeIgniter\RESTful\ResourceController;
+
 use Exception;
 
-class FloorPlanController extends ResourceController
+class FloorPlanController extends BaseController
 {
     use ResponseTrait;
 

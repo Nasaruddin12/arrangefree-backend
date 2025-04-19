@@ -728,7 +728,7 @@ $routes->group('room-elements', function ($routes) {
     $routes->delete('(:num)', 'RoomElementController::delete/$1'); // Delete a room element
 });
 
-$routes->group('floor-plans', ['namespace' => 'App\Controllers\API'], function ($routes) {
+$routes->group('floor-plans', function ($routes) {
     $routes->get('/', 'FloorPlanController::index');          // List all plans (optional: ?user_id=1)
     $routes->get('(:num)', 'FloorPlanController::show/$1');   // Get single plan
     $routes->post('/', 'FloorPlanController::create');        // Create new plan
