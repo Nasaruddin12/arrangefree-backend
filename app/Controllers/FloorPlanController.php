@@ -64,6 +64,21 @@ class FloorPlanController extends BaseController
     public function create()
     {
         try {
+            // Access file BEFORE validating
+            $file = $this->request->getFile('file');
+        
+            // Dynamically inject file into request so validator sees it
+            if ($file && $file->isValid()) {
+                $_FILES['file'] = [
+                    'name'     => $file->getName(),
+                    'type'     => $file->getClientMimeType(),
+                    'tmp_name' => $file->getTempName(),
+                    'error'    => $file->getError(),
+                    'size'     => $file->getSize(),
+                ];
+            }
+        
+            // Then validate
             $rules = [
                 'user_id'     => 'required|integer',
                 'room_name'   => 'required|string',
@@ -71,35 +86,32 @@ class FloorPlanController extends BaseController
                 'room_height' => 'required|numeric',
                 'room_length' => 'required|numeric',
                 'canvas_json' => 'permit_empty|string',
-                'file'        => 'required|uploaded[file]|max_size[file,2048]|ext_in[file,png,jpg,jpeg,svg,pdf]'
+                'file'        => 'uploaded[file]|max_size[file,2048]|ext_in[file,png,jpg,jpeg,svg,pdf]'
             ];
-
+        
             if (!$this->validate($rules)) {
                 return $this->respond([
                     'status'  => 422,
                     'message' => $this->validator->getErrors(),
                 ], 422);
             }
-
-            if ($this->request->is('json')) {
-                $data = $this->request->getJSON(true);
-            } else {
-                $data = $this->request->getPost();
-            }
-
-            $file = $this->request->getFile('file');
-            if ($file && $file->isValid()) {
+        
+            // Prepare input
+            $data = $this->request->getPost();
+        
+            // Move file
+            if ($file && $file->isValid() && !$file->hasMoved()) {
                 $fileName = $file->getRandomName();
-                $file->move(WRITEPATH . 'public/uploads/floorplans', $fileName);
-                $data['file'] = 'public/uploads/floorplans/' . $fileName;
+                $file->move(WRITEPATH . 'uploads/floorplans', $fileName);
+                $data['file'] = 'uploads/floorplans/' . $fileName;
             }
-
+        
             $this->floorPlanModel->insert($data);
-
+        
             return $this->respond([
                 'status'  => 201,
                 'message' => 'Floor plan created successfully',
-                'data'    => $data
+                'data'    => $data,
             ], 201);
         } catch (Exception $e) {
             return $this->respond([
@@ -107,6 +119,7 @@ class FloorPlanController extends BaseController
                 'message' => $e->getMessage(),
             ], 500);
         }
+        
     }
 
     public function update($id = null)
