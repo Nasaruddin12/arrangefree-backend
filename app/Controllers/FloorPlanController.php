@@ -6,9 +6,10 @@ use App\Controllers\BaseController;
 use App\Models\FloorPlanModel;
 use CodeIgniter\API\ResponseTrait;
 use CodeIgniter\HTTP\ResponseInterface;
+use CodeIgniter\RESTful\ResourceController;
 use Exception;
 
-class FloorPlanController extends BaseController
+class FloorPlanController extends ResourceController
 {
     use ResponseTrait;
 
