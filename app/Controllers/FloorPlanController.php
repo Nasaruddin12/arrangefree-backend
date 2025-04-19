@@ -80,7 +80,11 @@ class FloorPlanController extends BaseController
                 ], 422);
             }
 
-            $data = $this->request->getPost();
+            if ($this->request->is('json')) {
+                $data = $this->request->getJSON(true);
+            } else {
+                $data = $this->request->getPost();
+            }
 
             $file = $this->request->getFile('file');
             if ($file && $file->isValid()) {
@@ -115,7 +119,11 @@ class FloorPlanController extends BaseController
                 ], 404);
             }
 
-            $data = $this->request->getRawInput();
+            if ($this->request->is('json')) {
+                $data = $this->request->getJSON(true);
+            } else {
+                $data = $this->request->getPost();
+            }
             $this->floorPlanModel->update($id, $data);
 
             return $this->respond([
