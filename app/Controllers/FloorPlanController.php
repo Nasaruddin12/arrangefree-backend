@@ -66,7 +66,7 @@ class FloorPlanController extends BaseController
         try {
             // Access file BEFORE validating
             $file = $this->request->getFile('file');
-        
+
             // Dynamically inject file into request so validator sees it
             if ($file && $file->isValid()) {
                 $_FILES['file'] = [
@@ -77,7 +77,7 @@ class FloorPlanController extends BaseController
                     'size'     => $file->getSize(),
                 ];
             }
-        
+
             // Then validate
             $rules = [
                 'user_id'     => 'required|integer',
@@ -88,26 +88,26 @@ class FloorPlanController extends BaseController
                 'canvas_json' => 'permit_empty|string',
                 'file'        => 'uploaded[file]|max_size[file,2048]|ext_in[file,png,jpg,jpeg,svg,pdf]'
             ];
-        
+
             if (!$this->validate($rules)) {
                 return $this->respond([
                     'status'  => 422,
                     'message' => $this->validator->getErrors(),
                 ], 422);
             }
-        
+
             // Prepare input
             $data = $this->request->getPost();
-        
+
             // Move file
             if ($file && $file->isValid() && !$file->hasMoved()) {
                 $fileName = $file->getRandomName();
-                $file->move(WRITEPATH . 'uploads/floorplans', $fileName);
-                $data['file'] = 'uploads/floorplans/' . $fileName;
+                $file->move(WRITEPATH . 'public/uploads/floorplans', $fileName);
+                $data['file'] = 'public/uploads/floorplans/' . $fileName;
             }
-        
+
             $this->floorPlanModel->insert($data);
-        
+
             return $this->respond([
                 'status'  => 201,
                 'message' => 'Floor plan created successfully',
@@ -119,7 +119,6 @@ class FloorPlanController extends BaseController
                 'message' => $e->getMessage(),
             ], 500);
         }
-        
     }
 
     public function update($id = null)
