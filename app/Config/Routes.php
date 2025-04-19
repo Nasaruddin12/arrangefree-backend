@@ -729,6 +729,15 @@ $routes->group('room-elements', function ($routes) {
     $routes->delete('(:num)', 'RoomElementController::delete/$1'); // Delete a room element
 });
 
+$routes->group('floor-plans', function ($routes) {
+    $routes->get('/', 'FloorPlanController::index');          // List all plans (optional: ?user_id=1)
+    $routes->get('/(:num)', 'FloorPlanController::show/$1'); // Get single plan
+    $routes->post('/', 'FloorPlanController::create');        // Create new plan
+    $routes->put('/(:num)', 'FloorPlanController::update/$1'); // Update plan
+    $routes->delete('/(:num)', 'FloorPlanController::delete/$1'); // Delete plan
+});
+
+
 $routes->group('cron', function ($routes) {
     $routes->get('daily/first-step-email', 'NotificationController::sendFirstStepEmail');         // Get all room elements
 });

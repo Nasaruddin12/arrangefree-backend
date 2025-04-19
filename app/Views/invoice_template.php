@@ -175,7 +175,7 @@
                 </td>
             </tr>
         </table>
-<!-- 
+        <!-- 
         <div class="details">
             <div>
                 <p><strong>Invoice No:</strong> <?= $booking['booking_id'] ?></p>
@@ -222,7 +222,7 @@
         </div>
 
         <div class="note">
-            <strong>Note:</strong> Thank you for your business. Please make the payment by the due date to avoid late fees. For queries, contact us at billing@xyzservices.com.
+            <strong>Note:</strong> Thank you for your business. Please make the payment by the due date to avoid late fees. For queries, contact us at info@seeb.in.
         </div>
 
         <div class="signature">
