@@ -571,8 +571,8 @@ $routes->group('rooms', function ($routes) {
 });
 
 $routes->group('services', function ($routes) {
-    $routes->get('/', 'ServiceController::index'); 
-    $routes->get('(:num)', 'ServiceController::show/$1'); 
+    $routes->get('/', 'ServiceController::index');
+    $routes->get('(:num)', 'ServiceController::show/$1');
     $routes->post('upload-image', 'ServiceController::uploadImages'); // Upload image separately
     $routes->post('create', 'ServiceController::create'); // Create work type
     $routes->put('update/(:num)', 'ServiceController::update/$1'); // Update work type
@@ -710,7 +710,6 @@ $routes->group('assets', function ($routes) {
     $routes->delete('(:num)', 'AssetController::delete/$1');
     $routes->post('upload', 'AssetController::uploadFile');
     $routes->get('room/(:num)', 'AssetController::getByRoom/$1');
-
 });
 
 $routes->group('styles', function ($routes) {
@@ -729,13 +728,14 @@ $routes->group('room-elements', function ($routes) {
     $routes->delete('(:num)', 'RoomElementController::delete/$1'); // Delete a room element
 });
 
-$routes->group('floor-plans', function ($routes) {
+$routes->group('floor-plans', ['namespace' => 'App\Controllers\API'], function ($routes) {
     $routes->get('/', 'FloorPlanController::index');          // List all plans (optional: ?user_id=1)
-    $routes->get('/(:num)', 'FloorPlanController::show/$1'); // Get single plan
+    $routes->get('(:num)', 'FloorPlanController::show/$1');   // Get single plan
     $routes->post('/', 'FloorPlanController::create');        // Create new plan
-    $routes->put('/(:num)', 'FloorPlanController::update/$1'); // Update plan
-    $routes->delete('/(:num)', 'FloorPlanController::delete/$1'); // Delete plan
+    $routes->put('(:num)', 'FloorPlanController::update/$1'); // Update plan
+    $routes->delete('(:num)', 'FloorPlanController::delete/$1'); // Delete plan
 });
+
 
 
 $routes->group('cron', function ($routes) {
