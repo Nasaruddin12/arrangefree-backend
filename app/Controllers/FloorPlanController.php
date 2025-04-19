@@ -101,9 +101,14 @@ class FloorPlanController extends BaseController
 
             // Move file
             if ($file && $file->isValid() && !$file->hasMoved()) {
-                $fileName = $file->getRandomName();
-                $file->move(WRITEPATH . 'public/uploads/floorplans', $fileName);
-                $data['file'] = 'public/uploads/floorplans/' . $fileName;
+
+                $uploadPath = 'public/uploads/floorplans/';
+
+                // Generate new random name and move file
+                $newName = $file->getRandomName();
+                $file->move($uploadPath, $newName);
+                $data['file'] = $uploadPath . $newName;
+    
             }
 
             $this->floorPlanModel->insert($data);
