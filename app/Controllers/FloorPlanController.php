@@ -70,7 +70,7 @@ class FloorPlanController extends BaseController
                 'room_height' => 'required|numeric',
                 'room_length' => 'required|numeric',
                 'canvas_json' => 'permit_empty|string',
-                'file'        => 'permit_empty|uploaded[file]|max_size[file,2048]|ext_in[file,png,jpg,jpeg,svg,pdf]'
+                'file'        => 'required|uploaded[file]|max_size[file,2048]|ext_in[file,png,jpg,jpeg,svg,pdf]'
             ];
 
             if (!$this->validate($rules)) {
