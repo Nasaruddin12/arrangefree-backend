@@ -124,7 +124,7 @@ class DashboardController extends BaseController
     {
         try {
             $bookingModel = new BookingsModel();
-            $builder = $bookingModel->select("MONTH(created_at) as month, SUM(total_price) as total")
+            $builder = $bookingModel->select("MONTH(created_at) as month, SUM(final_amount) as total")
                 ->whereIn('status', ['confirmed', 'completed', 'in_progress'])
                 ->where('YEAR(created_at)', date('Y'))
                 ->groupBy('month')
@@ -158,7 +158,7 @@ class DashboardController extends BaseController
     {
         try {
             $bookingModel = new BookingsModel();
-            $builder = $bookingModel->select("YEAR(created_at) as year, SUM(total_price) as total")
+            $builder = $bookingModel->select("YEAR(created_at) as year, SUM(final_amount) as total")
                 ->whereIn('status', ['confirmed', 'completed', 'in_progress'])
                 ->groupBy('year')
                 ->orderBy('year')
