@@ -87,11 +87,11 @@ class DashboardController extends BaseController
             $inProgressProjects  = $bookingModel->where('status', 'in_progress')->countAllResults();
 
             // Total revenue (sum of paid/valid bookings only if needed)
-            $totalRevenue = $bookingModel->selectSum('total_price')->whereIn('status', [
+            $totalRevenue = $bookingModel->selectSum('final_amount')->whereIn('status', [
                 'confirmed',
                 'completed',
                 'in_progress'
-            ])->first()['total_price'] ?? 0;
+            ])->first()['final_amount'] ?? 0;
 
             // Total sales (consider only successful ones)
             $totalSales = $bookingModel->whereIn('status', [
