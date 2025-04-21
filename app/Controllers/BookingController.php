@@ -789,7 +789,7 @@ class BookingController extends ResourceController
     public function changeStatus($id = null)
     {
         try {
-            $bookingModel = new BookingModel();
+            $bookingModel = new BookingsModel();
     
             $booking = $bookingModel->find($id);
             if (!$booking) {
@@ -815,7 +815,7 @@ class BookingController extends ResourceController
                 'message' => 'Booking status updated successfully.',
                 'data'    => ['id' => $id, 'new_status' => $input['status']],
             ], 200);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return $this->respond([
                 'status'  => 500,
                 'message' => $e->getMessage(),
