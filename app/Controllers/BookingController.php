@@ -461,7 +461,7 @@ class BookingController extends ResourceController
         try {
             // Fetch booking details with user and address
             $booking = $this->bookingsModel
-                ->select('bookings.*, af_customers.name as user_name, af_customers.email as user_email, 
+                ->select('bookings.*, af_customers.name as user_name, af_customers.email as user_email, af_customers.mobile_no as mobile_no,
               customer_addresses.address as customer_address')
                 ->join('af_customers', 'af_customers.id = bookings.user_id', 'left')
                 ->join('customer_addresses', 'customer_addresses.id = bookings.address_id', 'left')
