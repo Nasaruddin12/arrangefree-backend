@@ -628,7 +628,7 @@ $routes->group('booking', function ($routes) {
     $routes->get('(:num)', 'BookingController::getBookingById/$1');
     $routes->post('verify-payment', 'BookingController::verifyPayment');
     $routes->post('payment/manual', 'BookingController::addManualPayment');
-
+    $routes->put('change-status/(:num)', 'BookingController::changeStatus/$1');
     // });
 });
 

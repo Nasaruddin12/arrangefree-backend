@@ -786,4 +786,39 @@ class BookingController extends ResourceController
             return $this->failServerError('Something went wrong. ' . $e->getMessage());
         }
     }
+    public function changeStatus($id = null)
+    {
+        try {
+            $bookingModel = new BookingsModel();
+
+            $booking = $bookingModel->find($id);
+            if (!$booking) {
+                return $this->respond([
+                    'status' => false,
+                    'message' => 'Booking not found.',
+                ], 404);
+            }
+
+            $input = $this->request->getJSON(true); // expects { "status": "confirmed" }
+
+            if (empty($input['status'])) {
+                return $this->respond([
+                    'status' => false,
+                    'message' => 'Status field is required.',
+                ], 400);
+            }
+
+            $bookingModel->update($id, ['status' => $input['status']]);
+
+            return $this->respond([
+                'status'  => true,
+                'message' => 'Booking status updated successfully.',
+            ]);
+        } catch (\Exception $e) {
+            return $this->respond([
+                'status'  => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }
