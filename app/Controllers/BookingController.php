@@ -383,29 +383,68 @@ class BookingController extends ResourceController
     public function getAllBookings()
     {
         try {
-            $page  = $this->request->getVar('page') ?? 1; // Default page is 1
-            $limit = $this->request->getVar('limit') ?? 10; // Default limit is 10
-            $offset = ($page - 1) * $limit;
+            $page       = $this->request->getVar('page') ?? 1;
+            $limit      = $this->request->getVar('limit') ?? 10;
+            $offset     = ($page - 1) * $limit;
 
-            $bookings = $this->bookingsModel
+            $status     = $this->request->getVar('status');
+            $search     = $this->request->getVar('search');
+            $startDate  = $this->request->getVar('startDate');
+            $endDate    = $this->request->getVar('endDate');
+            $filter     = $this->request->getVar('filter'); // today, this_week, this_month
+
+            $builder = $this->bookingsModel
                 ->select('bookings.*, af_customers.name as user_name')
-                ->join('af_customers', 'af_customers.id = bookings.user_id', 'left')
+                ->join('af_customers', 'af_customers.id = bookings.user_id', 'left');
+
+            // ✅ Status filter
+            if ($status) {
+                $builder->where('bookings.status', $status);
+            }
+
+            // ✅ Date range filter
+            if ($startDate && $endDate) {
+                $builder->where('bookings.created_at >=', $startDate)
+                    ->where('bookings.created_at <=', $endDate . ' 23:59:59');
+            }
+
+            // ✅ Quick filter: today, this_week, this_month
+            if ($filter === 'today') {
+                $today = date('Y-m-d');
+                $builder->where('DATE(bookings.created_at)', $today);
+            } elseif ($filter === 'this_week') {
+                $builder->where('YEARWEEK(bookings.created_at, 1) = YEARWEEK(CURDATE(), 1)');
+            } elseif ($filter === 'this_month') {
+                $builder->where('MONTH(bookings.created_at)', date('m'))
+                    ->where('YEAR(bookings.created_at)', date('Y'));
+            }
+
+            // ✅ Search filter (in booking_id and customer name)
+            if ($search) {
+                $builder->groupStart()
+                    ->like('bookings.booking_id', $search)
+                    ->orLike('af_customers.name', $search)
+                    ->groupEnd();
+            }
+
+            // ✅ Total filtered records (for pagination)
+            $totalFiltered = $builder->countAllResults(false); // keep query for fetching data
+
+            $bookings = $builder
                 ->orderBy('bookings.created_at', 'DESC')
                 ->findAll($limit, $offset);
-
-            $totalBookings = $this->bookingsModel->countAll(); // Total count for pagination
 
             return $this->respond([
                 'status' => 200,
                 'message' => 'Bookings retrieved successfully.',
                 'data' => $bookings,
                 'pagination' => [
-                    'current_page' => (int) $page,
-                    'per_page' => (int) $limit,
-                    'total_records' => (int) $totalBookings,
-                    'total_pages' => ceil($totalBookings / $limit)
+                    'current_page'   => (int)$page,
+                    'per_page'       => (int)$limit,
+                    'total_records'  => (int)$totalFiltered,
+                    'total_pages'    => ceil($totalFiltered / $limit)
                 ]
-            ], 200);
+            ]);
         } catch (\Exception $e) {
             log_message('error', 'Error fetching bookings: ' . $e->getMessage());
             return $this->respond([
@@ -414,6 +453,7 @@ class BookingController extends ResourceController
             ], 500);
         }
     }
+
 
     public function getBookingsByUser($user_id)
     {
@@ -790,7 +830,7 @@ class BookingController extends ResourceController
     {
         try {
             $bookingModel = new BookingsModel();
-    
+
             $booking = $bookingModel->find($id);
             if (!$booking) {
                 return $this->respond([
@@ -798,18 +838,18 @@ class BookingController extends ResourceController
                     'message' => 'Booking not found.',
                 ], 404);
             }
-    
+
             $input = $this->request->getJSON(true); // expects: { "status": "confirmed" }
-    
+
             if (empty($input['status'])) {
                 return $this->respond([
                     'status'  => 400,
                     'message' => 'Status field is required.',
                 ], 400);
             }
-    
+
             $bookingModel->update($id, ['status' => $input['status']]);
-    
+
             return $this->respond([
                 'status'  => 200,
                 'message' => 'Booking status updated successfully.',
@@ -822,5 +862,4 @@ class BookingController extends ResourceController
             ], 500);
         }
     }
-    
 }
