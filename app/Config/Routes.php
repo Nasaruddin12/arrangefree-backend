@@ -736,6 +736,13 @@ $routes->group('floor-plans', function ($routes) {
     $routes->delete('(:num)', 'FloorPlanController::delete/$1'); // Delete plan
 });
 
+$routes->group('dashboard', static function ($routes) {
+    // $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
+    $routes->get('overview', 'DashboardController::overview'); // Get user dashboard data
+    $routes->get('monthly-sales', 'DashboardController::monthlySales');
+    $routes->get('yearly-sales', 'DashboardController::yearlySales');
+    // });
+});
 
 
 $routes->group('cron', function ($routes) {
