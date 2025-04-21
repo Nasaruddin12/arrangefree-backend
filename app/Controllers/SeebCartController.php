@@ -29,10 +29,10 @@ class SeebCartController extends ResourceController
 
             if (empty($cartItems)) {
                 return $this->respond([
-                    'status'  => 204,
+                    'status'  => 200,
                     'message' => 'No cart items found',
                     'data'    => []
-                ], 204);
+                ], 200);
             }
 
             return $this->respond([
