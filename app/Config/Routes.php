@@ -43,7 +43,7 @@ $routes->group('customer', static function ($routes) {
     $routes->post('new-send-otp', 'CustomerController::sendSeebOTP');
     $routes->post('login', 'CustomerController::login');
     $routes->post('register', 'CustomerController::createCustomer');
-    $routes->get('getCustomer', 'CustomerController::getCustomer');
+    $routes->post('getCustomer', 'CustomerController::getCustomer');
     $routes->post('contact-us/query', 'CustomerController::contactUs');
     $routes->put('updateCustomer/(:num)', 'CustomerController::updateCustomer/$1');
     $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {

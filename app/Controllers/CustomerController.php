@@ -366,53 +366,81 @@ class CustomerController extends BaseController
         try {
             $customerModel = new CustomerModel();
 
-            $page = (int)$this->request->getVar('page');
-            $latest = $this->request->getVar('latest');
-            $search = $this->request->getVar('search');
+            // Pagination
+            $page  = (int) ($this->request->getVar('page') ?? 1);
+            $limit = (int) ($this->request->getVar('limit') ?? 10);
+            $offset = ($page - 1) * $limit;
 
-            $validation = &$customerModel;
+            // Filters
+            $search     = $this->request->getVar('search');
+            $startDate  = $this->request->getVar('startDate');
+            $endDate    = $this->request->getVar('endDate');
+            $filter     = $this->request->getVar('filter'); // today, this_week, this_month
+            $sortBy     = $this->request->getVar('sort_by') ?? 'created_at';
+            $sortDir    = strtolower($this->request->getVar('sort_dir') ?? 'desc');
 
-            $data = $customerModel;
+            // Validate sort column
+            $allowedSorts = ['created_at', 'name', 'email'];
+            if (!in_array($sortBy, $allowedSorts)) $sortBy = 'created_at';
+            $sortDir = ($sortDir === 'asc') ? 'ASC' : 'DESC';
 
+            // Build query
+            $builder = $customerModel
+                ->select('id, name, email, mobile_no, created_at');
 
-            if ($latest == true) {
-                $data->orderBy('created_at', 'DESC');
+            if ($search) {
+                $builder->groupStart()
+                    ->like('name', $search)
+                    ->orLike('email', $search)
+                    ->orLike('mobile_no', $search)
+                    ->groupEnd();
             }
-            if (!($search == null || $search == '')) {
-                // echo var_dump($order_id);
-                $data = $data->like('name', $search)->orLike('email', $search)->orLike('mobile_no', $search);
-                // $orderCountQuery = $orderCountQuery->like('razorpay_order_id', $search)->orLike('email', $search);
 
-                // $pageCountQuery = $data->like('razorpay_order_id', $search)->orLike('email', $search);
+            if ($startDate && $endDate) {
+                $builder->where('created_at >=', $startDate)
+                    ->where('created_at <=', $endDate . ' 23:59:59');
             }
 
-            $data = $data->paginate(10, 'all_customers', $page);
-
-            if (!empty($customerModel->errors())) {
-                // $validation = &$accountfaqModel;
-                throw new Exception('Validation', 400);
+            if ($filter === 'today') {
+                $builder->where('DATE(created_at)', date('Y-m-d'));
+            } elseif ($filter === 'this_week') {
+                $builder->where('YEARWEEK(created_at, 1) = YEARWEEK(CURDATE(), 1)');
+            } elseif ($filter === 'this_month') {
+                $builder->where('MONTH(created_at)', date('m'))
+                    ->where('YEAR(created_at)', date('Y'));
             }
-            $pageCount = $customerModel->countAllResults();
 
-            if ($customerModel->db->error()['code'])
-                throw new Exception($customerModel->db->error()['message'], 500);
+            $builder->orderBy($sortBy, $sortDir);
 
-            $statusCode = 200;
-            $response = [
-                "data" => $data,
-                'page_count' => ceil($pageCount / 10),
+            // Clone to count total filtered records
+            $countBuilder = clone $builder;
+            $totalRecords = count($countBuilder->get()->getResult());
 
-            ];
-        } catch (Exception $e) {
-            $statusCode = $e->getCode() === 400 ? 400 : 500;
-            $response = [
-                'error' => $e->getCode() === 400 ? $validation->errors() : $e->getMessage()
-            ];
+            // Apply limit and offset
+            $customers = $builder
+                ->limit($limit, $offset)
+                ->get()
+                ->getResultArray();
+
+            return $this->respond([
+                'status'      => 200,
+                'message'     => 'Customer list retrieved successfully.',
+                'data'        => $customers,
+                'pagination'  => [
+                    'current_page'   => $page,
+                    'per_page'       => $limit,
+                    'total_records'  => $totalRecords,
+                    'total_pages'    => ceil($totalRecords / $limit)
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            return $this->respond([
+                'status'  => 500,
+                'message' => 'Something went wrong: ' . $e->getMessage(),
+            ], 500);
         }
-
-        $response['status'] = $statusCode;
-        return $this->respond($response, $statusCode);
     }
+
 
     public function updateCustomer($id)
     {
