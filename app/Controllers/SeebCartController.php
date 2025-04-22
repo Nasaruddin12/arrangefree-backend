@@ -48,39 +48,111 @@ class SeebCartController extends ResourceController
     public function getCartGroupedByUser()
     {
         try {
-            $cartItems = $this->model
+            // Pagination
+            $page  = $this->request->getVar('page') ?? 1;
+            $limit = $this->request->getVar('limit') ?? 10;
+            $offset = ($page - 1) * $limit;
+
+            // Filters
+            $startDate = $this->request->getVar('startDate');
+            $endDate   = $this->request->getVar('endDate');
+            $filter    = $this->request->getVar('filter'); // today, this_week, this_month
+            $search    = $this->request->getVar('search');
+
+            // Sorting
+            $sortBy  = $this->request->getVar('sort_by') ?? 'created_at'; // amount or created_at
+            $sortDir = $this->request->getVar('sort_dir') ?? 'desc';       // asc or desc
+
+            // Validate sort_by and sort_dir
+            $sortColumn = match ($sortBy) {
+                'amount'     => 'total_amount',
+                'created_at' => 'latest_cart_date',
+                default      => 'latest_cart_date'
+            };
+
+            $sortDirection = strtolower($sortDir) === 'asc' ? 'ASC' : 'DESC';
+
+            $builder = $this->model
                 ->select("
                 seeb_cart.user_id, 
-                af_customers.name as user_name, 
-                af_customers.email as user_email, 
-                af_customers.mobile_no as user_phone, 
-                COUNT(seeb_cart.id) as total_items, 
-                SUM(seeb_cart.amount) as total_amount, 
-                MAX(seeb_cart.created_at) as latest_cart_date
+                af_customers.name AS user_name, 
+                af_customers.email AS user_email, 
+                af_customers.mobile_no AS user_phone, 
+                COUNT(seeb_cart.id) AS total_items, 
+                SUM(seeb_cart.amount) AS total_amount, 
+                MAX(seeb_cart.created_at) AS latest_cart_date
             ")
-                ->join('af_customers', 'af_customers.id = seeb_cart.user_id', 'left') // Join to get user details
-                ->groupBy("seeb_cart.user_id") // Group by user ID
-                ->orderBy("latest_cart_date", "DESC") // Order by latest cart first
-                ->findAll();
+                ->join('af_customers', 'af_customers.id = seeb_cart.user_id', 'left');
+
+            // Date range
+            if ($startDate && $endDate) {
+                $builder->where('seeb_cart.created_at >=', $startDate)
+                    ->where('seeb_cart.created_at <=', $endDate . ' 23:59:59');
+            }
+
+            // Quick filters
+            if ($filter === 'today') {
+                $builder->where('DATE(seeb_cart.created_at)', date('Y-m-d'));
+            } elseif ($filter === 'this_week') {
+                $builder->where('YEARWEEK(seeb_cart.created_at, 1) = YEARWEEK(CURDATE(), 1)');
+            } elseif ($filter === 'this_month') {
+                $builder->where('MONTH(seeb_cart.created_at)', date('m'))
+                    ->where('YEAR(seeb_cart.created_at)', date('Y'));
+            }
+
+            // Search
+            if ($search) {
+                $builder->groupStart()
+                    ->like('af_customers.name', $search)
+                    ->orLike('af_customers.email', $search)
+                    ->orLike('af_customers.mobile_no', $search)
+                    ->groupEnd();
+            }
+
+            // Group by user
+            $builder->groupBy("seeb_cart.user_id");
+
+            // Clone for count
+            $countQuery = clone $builder;
+            $totalRecords = count($countQuery->findAll());
+
+            // Apply sort and pagination
+            $cartItems = $builder
+                ->orderBy($sortColumn, $sortDirection)
+                ->findAll($limit, $offset);
 
             if (empty($cartItems)) {
                 return $this->respond([
                     'status'  => 204,
                     'message' => 'No cart items found',
-                    'data'    => []
+                    'data'    => [],
+                    'pagination' => [
+                        'current_page'  => (int)$page,
+                        'per_page'      => (int)$limit,
+                        'total_records' => 0,
+                        'total_pages'   => 0
+                    ]
                 ], 204);
             }
 
             return $this->respond([
                 'status' => 200,
                 'message' => 'Cart items grouped by user retrieved successfully',
-                'data' => $cartItems
-            ], 200);
+                'data' => $cartItems,
+                'pagination' => [
+                    'current_page'  => (int)$page,
+                    'per_page'      => (int)$limit,
+                    'total_records' => $totalRecords,
+                    'total_pages'   => ceil($totalRecords / $limit)
+                ]
+            ]);
         } catch (\Exception $e) {
-            return $this->failServerError($e->getMessage());
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Something went wrong: ' . $e->getMessage()
+            ], 500);
         }
     }
-
 
     // ✅ Get a single cart item by ID
     public function show($id = null)

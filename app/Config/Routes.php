@@ -593,7 +593,7 @@ $routes->group('seeb-cart', function ($routes) {
     $routes->post('save', 'SeebCartController::save');    // Create/Update cart item
     $routes->delete('(:num)', 'SeebCartController::delete/$1'); // Delete cart item
     $routes->post('uploadImages', 'SeebCartController::uploadImages');
-    $routes->get('/', 'SeebCartController::getCartGroupedByUser');
+    $routes->post('/', 'SeebCartController::getCartGroupedByUser');
     // });
 });
 
