@@ -59,15 +59,13 @@ class SeebCartController extends ResourceController
             $filter    = $this->request->getVar('filter'); // today, this_week, this_month
             $search    = $this->request->getVar('search');
 
-            // Sorting
-            $sortBy  = $this->request->getVar('sort_by') ?? 'created_at'; // amount or created_at
-            $sortDir = $this->request->getVar('sort_dir') ?? 'desc';       // asc or desc
+            $sortBy  = $this->request->getVar('sort_by') ?? 'created_at';
+            $sortDir = $this->request->getVar('sort_dir') ?? 'desc';
 
-            // Validate sort_by and sort_dir
             $sortColumn = match ($sortBy) {
-                'amount'     => 'total_amount',
-                'created_at' => 'latest_cart_date',
-                default      => 'latest_cart_date'
+                'amount'     => 'SUM(seeb_cart.amount)',
+                'created_at' => 'MAX(seeb_cart.created_at)',
+                default      => 'MAX(seeb_cart.created_at)'
             };
 
             $sortDirection = strtolower($sortDir) === 'asc' ? 'ASC' : 'DESC';
@@ -83,6 +81,9 @@ class SeebCartController extends ResourceController
                 MAX(seeb_cart.created_at) AS latest_cart_date
             ")
                 ->join('af_customers', 'af_customers.id = seeb_cart.user_id', 'left');
+
+            $builder->orderBy($sortColumn, $sortDirection);
+
 
             // Date range
             if ($startDate && $endDate) {
