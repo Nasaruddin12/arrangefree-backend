@@ -484,11 +484,6 @@ $routes->group('Designer', static function ($routes) {
     $routes->get('GetDeletedDesigner', 'DesignerController::GetDeletedDesigner');
     $routes->post('createDesignerImage', 'DesignerController::createDesignerImage');
 
-
-
-
-
-
     $routes->post('AssignProduct', 'DesignerController::AssignProduct');
     $routes->put('UpdateAssignProduct', 'DesignerController::UpdateAssignProduct');
     $routes->delete('UnAssignProduct/(:num)', 'DesignerController::UnAssignProduct/$1');

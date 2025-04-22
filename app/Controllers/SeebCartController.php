@@ -9,7 +9,12 @@ class SeebCartController extends ResourceController
 {
     protected $modelName = SeebCartModel::class;
     protected $format    = 'json';
+    protected $db;
 
+    public function __construct()
+    {
+        $this->db = \Config\Database::connect();
+    }
     // ✅ Get all cart items (or filter by user_id)
     public function index($userId = null)
     {
@@ -70,7 +75,7 @@ class SeebCartController extends ResourceController
 
             $sortDirection = strtolower($sortDir) === 'asc' ? 'ASC' : 'DESC';
 
-            $builder = $this->model
+            $builder = $this->db->table('seeb_cart')
                 ->select("
                 seeb_cart.user_id, 
                 af_customers.name AS user_name, 
@@ -115,12 +120,15 @@ class SeebCartController extends ResourceController
 
             // Clone for count
             $countQuery = clone $builder;
-            $totalRecords = count($countQuery->findAll());
+            $totalRecords = count($countQuery->get()->getResultArray());
 
             // Apply sort and pagination
             $cartItems = $builder
                 ->orderBy($sortColumn, $sortDirection)
-                ->findAll($limit, $offset);
+                ->limit($limit, $offset)
+                ->get()
+                ->getResultArray();
+
 
             if (empty($cartItems)) {
                 return $this->respond([
