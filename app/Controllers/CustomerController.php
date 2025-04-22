@@ -16,6 +16,13 @@ use Firebase\JWT\JWT;
 class CustomerController extends BaseController
 {
     use ResponseTrait;
+    protected $db;
+
+    public function __construct()
+    {
+        $this->db = \Config\Database::connect();
+    }
+
     public function sendOTP()
     {
         try {
@@ -364,14 +371,10 @@ class CustomerController extends BaseController
     public function getCustomer()
     {
         try {
-            $customerModel = new CustomerModel();
+            $page       = (int)($this->request->getVar('page') ?? 1);
+            $limit      = (int)($this->request->getVar('limit') ?? 10);
+            $offset     = ($page - 1) * $limit;
 
-            // Pagination
-            $page  = (int) ($this->request->getVar('page') ?? 1);
-            $limit = (int) ($this->request->getVar('limit') ?? 10);
-            $offset = ($page - 1) * $limit;
-
-            // Filters
             $search     = $this->request->getVar('search');
             $startDate  = $this->request->getVar('startDate');
             $endDate    = $this->request->getVar('endDate');
@@ -379,15 +382,14 @@ class CustomerController extends BaseController
             $sortBy     = $this->request->getVar('sort_by') ?? 'created_at';
             $sortDir    = strtolower($this->request->getVar('sort_dir') ?? 'desc');
 
-            // Validate sort column
-            $allowedSorts = ['created_at', 'name', 'email'];
-            if (!in_array($sortBy, $allowedSorts)) $sortBy = 'created_at';
-            $sortDir = ($sortDir === 'asc') ? 'ASC' : 'DESC';
+            $allowedSorts = ['name', 'email', 'mobile_no', 'created_at'];
+            $sortColumn = in_array($sortBy, $allowedSorts) ? $sortBy : 'created_at';
+            $sortDirection = $sortDir === 'asc' ? 'ASC' : 'DESC';
 
-            // Build query
-            $builder = $customerModel
+            $builder = $this->db->table('af_customers')
                 ->select('id, name, email, mobile_no, created_at');
 
+            // Search
             if ($search) {
                 $builder->groupStart()
                     ->like('name', $search)
@@ -396,11 +398,13 @@ class CustomerController extends BaseController
                     ->groupEnd();
             }
 
+            // Date Range
             if ($startDate && $endDate) {
                 $builder->where('created_at >=', $startDate)
                     ->where('created_at <=', $endDate . ' 23:59:59');
             }
 
+            // Quick Filters
             if ($filter === 'today') {
                 $builder->where('DATE(created_at)', date('Y-m-d'));
             } elseif ($filter === 'this_week') {
@@ -410,23 +414,36 @@ class CustomerController extends BaseController
                     ->where('YEAR(created_at)', date('Y'));
             }
 
-            $builder->orderBy($sortBy, $sortDir);
-
-            // Clone to count total filtered records
+            // Clone query for total count before limit/offset
             $countBuilder = clone $builder;
             $totalRecords = count($countBuilder->get()->getResult());
 
-            // Apply limit and offset
+            // Apply sorting and pagination
             $customers = $builder
+                ->orderBy($sortColumn, $sortDirection)
                 ->limit($limit, $offset)
                 ->get()
                 ->getResultArray();
 
+            if (empty($customers)) {
+                return $this->respond([
+                    'status' => 204,
+                    'message' => 'No customers found',
+                    'data' => [],
+                    'pagination' => [
+                        'current_page'   => $page,
+                        'per_page'       => $limit,
+                        'total_records'  => 0,
+                        'total_pages'    => 0
+                    ]
+                ], 204);
+            }
+
             return $this->respond([
-                'status'      => 200,
-                'message'     => 'Customer list retrieved successfully.',
-                'data'        => $customers,
-                'pagination'  => [
+                'status' => 200,
+                'message' => 'Customer list retrieved successfully',
+                'data' => $customers,
+                'pagination' => [
                     'current_page'   => $page,
                     'per_page'       => $limit,
                     'total_records'  => $totalRecords,
@@ -435,8 +452,8 @@ class CustomerController extends BaseController
             ], 200);
         } catch (\Exception $e) {
             return $this->respond([
-                'status'  => 500,
-                'message' => 'Something went wrong: ' . $e->getMessage(),
+                'status' => 500,
+                'message' => 'Something went wrong: ' . $e->getMessage()
             ], 500);
         }
     }
