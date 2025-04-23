@@ -209,10 +209,7 @@ class BookingController extends ResourceController
             $cartItems = $this->seebCartModel->where('user_id', $userId)->findAll();
 
             if (empty($cartItems)) {
-                return $this->failValidationErrors([
-                    'status' => 400,
-                    'message' => 'Cart is empty. Add services before booking.',
-                ]);
+                return $this->failValidationErrors('Cart is empty. Add services before booking.');
             }
 
             // Calculate Pricing
@@ -361,7 +358,7 @@ class BookingController extends ResourceController
             }
 
             $user = $this->customerModel->where('id', $userId)->first();
-            $email = $emailController->sendBookingSuccessEmail($user['email'], $user['name'], $data['booking_id'],  $bookingId);
+            $email = $emailController->sendBookingSuccessEmail($user['email'], $user['name'], $bookingData['booking_id'],  $bookingId);
             return $this->respondCreated([
                 'status'         => 201,
                 'message'        => 'Booking successfully created!',
