@@ -3,10 +3,12 @@
 namespace App\Controllers\API;
 
 use App\Controllers\BaseController;
+use App\Libraries\SMSGateway;
 use App\Models\PartnerBankDetailModel;
 use App\Models\PartnerModel;
 use App\Models\PartnerOtpModel;
 use CodeIgniter\API\ResponseTrait;
+use Exception;
 
 class PartnerController extends BaseController
 {
@@ -162,6 +164,12 @@ class PartnerController extends BaseController
 
         // TODO: Send OTP using SMS API (Twilio, MSG91, etc.)
 
+        $smsGateway = new SMSGateway();
+        $response = $smsGateway->sendOTP($mobile, $otp);
+        if ($response->statusCode != 200) {
+            throw new Exception('Unable to send OTP.', 500);
+        }
+        
         return $this->respond([
             'status'  => 200,
             'message' => 'OTP sent successfully',
