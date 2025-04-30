@@ -589,6 +589,7 @@ $routes->group('seeb-cart', function ($routes) {
     $routes->delete('(:num)', 'SeebCartController::delete/$1'); // Delete cart item
     $routes->post('uploadImages', 'SeebCartController::uploadImages');
     $routes->post('/', 'SeebCartController::getCartGroupedByUser');
+    $routes->put('(:num)', 'SeebCartController::update/$1');
     // });
 });
 
@@ -743,12 +744,6 @@ $routes->group('dashboard', static function ($routes) {
 $routes->group('cron', function ($routes) {
     $routes->get('daily/first-step-email', 'NotificationController::sendFirstStepEmail');         // Get all room elements
 });
-
-$routes->group('team', function ($routes) {
-    $routes->post('register', 'TeamController::register');
-    $routes->get('list', 'TeamController::list');
-});
-
 
 $routes->get('test-email', 'EmailController::sendComparisonEmail');
 $routes->get('test-step-email', 'EmailController::sendRoomStepEmailToMultiple');
