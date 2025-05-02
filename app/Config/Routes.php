@@ -740,10 +740,20 @@ $routes->group('dashboard', static function ($routes) {
     // });
 });
 
+$routes->group('partner', function ($routes) {
+    $routes->post('login', 'PartnerController::login');
+    $routes->post('send-otp', 'PartnerController::sendOtp');
+    $routes->post('verify-otp', 'PartnerController::verifyOtp');
+    $routes->post('register', 'PartnerController::registerOrUpdate');
+    $routes->get('profile/(:num)', 'PartnerController::profile/$1');
+    $routes->get('onboarding-status', 'PartnerController::onboardingStatus');
+    $routes->get('onboarding-data/(:num)', 'PartnerController::onboardingData/$1');
+});
 
 $routes->group('cron', function ($routes) {
     $routes->get('daily/first-step-email', 'NotificationController::sendFirstStepEmail');         // Get all room elements
 });
+
 
 $routes->get('test-email', 'EmailController::sendComparisonEmail');
 $routes->get('test-step-email', 'EmailController::sendRoomStepEmailToMultiple');
