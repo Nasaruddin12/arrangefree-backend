@@ -241,16 +241,19 @@ class PartnerController extends BaseController
 
             // Optional: mark mobile_verified
             if (!$partner['mobile_verified']) {
-                $this->partnerModel->update($partner['id'], ['mobile_verified' => true]);
+                $this->partnerModel->update($partner['id'], ['mobile_verified' => 1]);
             }
 
             // ✅ Check onboarding flags
             $onboardingStatus = [
-                'mobile_verified'     => (bool) $partner['mobile_verified'],
-                'documents_verified'  => (bool) $partner['documents_verified'],
-                'bank_verified'       => (bool) $partner['bank_verified'],
-                'is_onboarding_complete' =>
-                (bool) ($partner['mobile_verified'] && $partner['documents_verified'] && $partner['bank_verified'])
+                'mobile_verified'     => $partner['mobile_verified'] ? 'verified' : 'pending',
+                'documents_verified'  => $partner['documents_verified'] ?? 'pending', // 'pending', 'verified', 'rejected'
+                'bank_verified'       => $partner['bank_verified'] ?? 'pending',      // 'pending', 'verified', 'rejected'
+                'is_onboarding_complete' => (
+                    $partner['mobile_verified'] &&
+                    $partner['documents_verified'] === 'verified' &&
+                    $partner['bank_verified'] === 'verified'
+                )
             ];
 
             // ✅ Generate JWT Token
