@@ -144,16 +144,16 @@ class PartnerController extends BaseController
                 ->where('created_at >=', date('Y-m-d H:i:s', strtotime('-2 minutes')))
                 ->countAllResults();
 
-            if ($recentOtpsCount >= 3) {
-                $otpModel->insert([
-                    'mobile'            => $mobile,
-                    'otp'               => null,
-                    'expires_at'        => null,
-                    'otp_blocked_until' => date('Y-m-d H:i:s', strtotime('+10 minutes'))
+                if ($recentOtpsCount >= 3) {
+                    $otpModel->insert([
+                        'mobile'            => $mobile,
+                        'otp'               => $lastOtp['otp'] ?? null,
+                        'expires_at'        => null,
+                        'otp_blocked_until' => date('Y-m-d H:i:s', strtotime('+10 minutes'))
                 ]);
                 throw new \Exception('Too many OTPs. You are blocked for 10 minutes.', 429);
             }
-
+            
             // ✅ Generate & Save OTP
             $otp = rand(1000, 9999);
             $otpModel->insert([
