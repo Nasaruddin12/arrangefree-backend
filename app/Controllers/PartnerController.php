@@ -144,16 +144,16 @@ class PartnerController extends BaseController
                 ->where('created_at >=', date('Y-m-d H:i:s', strtotime('-2 minutes')))
                 ->countAllResults();
 
-                if ($recentOtpsCount >= 3) {
-                    $otpModel->insert([
-                        'mobile'            => $mobile,
-                        'otp'               => $lastOtp['otp'] ?? null,
-                        'expires_at'        => null,
-                        'otp_blocked_until' => date('Y-m-d H:i:s', strtotime('+10 minutes'))
+            if ($recentOtpsCount >= 3) {
+                $otpModel->insert([
+                    'mobile'            => $mobile,
+                    'otp'               => $lastOtp['otp'] ?? null,
+                    'expires_at'        => $lastOtp['expires_at'] ?? null,
+                    'otp_blocked_until' => date('Y-m-d H:i:s', strtotime('+10 minutes'))
                 ]);
                 throw new \Exception('Too many OTPs. You are blocked for 10 minutes.', 429);
             }
-            
+
             // ✅ Generate & Save OTP
             $otp = rand(1000, 9999);
             $otpModel->insert([
@@ -447,13 +447,24 @@ class PartnerController extends BaseController
                 ->where('partner_id', $id)
                 ->first();
 
+            $onboardingStatus = [
+                'mobile_verified'     => $partner['mobile_verified'] ? 'verified' : 'pending',
+                'documents_verified'  => $partner['documents_verified'] ?? 'pending', // 'pending', 'verified', 'rejected'
+                'bank_verified'       => $partner['bank_verified'] ?? 'pending',      // 'pending', 'verified', 'rejected'
+                'is_onboarding_complete' => (
+                    $partner['mobile_verified'] &&
+                    $partner['documents_verified'] === 'verified' &&
+                    $partner['bank_verified'] === 'verified'
+                )
+            ];
             return $this->respond([
                 'status' => 200,
                 'message' => 'Onboarding data retrieved successfully',
                 'data' => [
                     'partner'       => $partner,
                     'documents'     => $documents,
-                    'bank_details'  => $bank ?? (object) []
+                    'bank_details'  => $bank ?? (object) [],
+                    'onboarding_status' => $onboardingStatus
                 ]
             ], 200);
         } catch (\Exception $e) {
