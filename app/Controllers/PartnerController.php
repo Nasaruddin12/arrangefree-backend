@@ -284,15 +284,15 @@ class PartnerController extends BaseController
         $db->transStart();
 
         try {
-            $request = $this->request;
-            $partnerId = $request->getVar('partner_id');
-            $isUpdate = !empty($partnerId);
+            $request    = $this->request;
+            $partnerId  = $request->getVar('partner_id');
+            $isUpdate   = !empty($partnerId);
 
             $partnerModel = new \App\Models\PartnerModel();
             $docModel     = new \App\Models\PartnerDocumentModel();
             $bankModel    = new \App\Models\PartnerBankDetailModel();
 
-            // ✅ Partner data
+            // Step 1: Validate and Save Partner Info
             $partnerData = [
                 'id'               => $partnerId,
                 'name'             => $request->getVar('name'),
@@ -307,17 +307,16 @@ class PartnerController extends BaseController
                 'pan_no'           => $request->getVar('pan_no'),
             ];
 
-            // ✅ Validate partner
-            if ($isUpdate && $partnerId) {
+            if ($isUpdate) {
                 $partnerModel->setValidationRules([
-                    'mobile' => 'required|regex_match[/^[0-9]{10}$/]|is_unique[partners.mobile,id,' . $partnerId . ']',
+                    'mobile'     => 'required|regex_match[/^[0-9]{10}$/]|is_unique[partners.mobile,id,' . $partnerId . ']',
                     'aadhaar_no' => 'required|regex_match[/^[0-9]{12}$/]|is_unique[partners.aadhaar_no,id,' . $partnerId . ']',
-                    'pan_no' => 'required|regex_match[/^[A-Z]{5}[0-9]{4}[A-Z]$/]|is_unique[partners.pan_no,id,' . $partnerId . ']',
+                    'pan_no'     => 'required|regex_match[/^[A-Z]{5}[0-9]{4}[A-Z]$/]|is_unique[partners.pan_no,id,' . $partnerId . ']',
                 ]);
             }
 
             if (!$partnerModel->validate($partnerData)) {
-                throw new \Exception('Validation failed', 422);
+                throw new \Exception(json_encode($partnerModel->errors()), 422);
             }
 
             if ($isUpdate) {
@@ -327,7 +326,7 @@ class PartnerController extends BaseController
                 $partnerId = $partnerModel->getInsertID();
             }
 
-            // ✅ Upload + insert/update documents
+            // Step 2: Handle Partner Documents
             $docTypes = [
                 'aadhar_front'  => 'aadhar_front',
                 'aadhar_back'   => 'aadhar_back',
@@ -343,8 +342,6 @@ class PartnerController extends BaseController
                     $file->move(WRITEPATH . 'uploads/partner_docs/', $fileName);
                     $docPath = 'uploads/partner_docs/' . $fileName;
 
-                    // Upsert document
-                    $existing = $docModel->where('partner_id', $partnerId)->where('type', $type)->first();
                     $docData = [
                         'partner_id' => $partnerId,
                         'type'       => $type,
@@ -352,6 +349,7 @@ class PartnerController extends BaseController
                         'status'     => 'pending'
                     ];
 
+                    $existing = $docModel->where('partner_id', $partnerId)->where('type', $type)->first();
                     if ($existing) {
                         $docModel->update($existing['id'], $docData);
                     } else {
@@ -360,7 +358,7 @@ class PartnerController extends BaseController
                 }
             }
 
-            // ✅ Bank details
+            // Step 3: Validate and Save Bank Details
             $bankData = [
                 'partner_id'          => $partnerId,
                 'account_holder_name' => $request->getVar('account_holder_name'),
@@ -368,53 +366,62 @@ class PartnerController extends BaseController
                 'bank_branch'         => $request->getVar('bank_branch'),
                 'account_number'      => $request->getVar('account_number'),
                 'ifsc_code'           => $request->getVar('ifsc_code'),
+                'status'              => 'pending',
             ];
 
-            if (!$bankModel->validate($bankData)) {
-                throw new \Exception('Bank validation failed', 422);
+            $bankFile = $request->getFile('bank_document');
+            $existingBank = $bankModel->where('partner_id', $partnerId)->first();
+
+            if (!$existingBank && (!$bankFile || !$bankFile->isValid())) {
+                throw new \Exception(json_encode(['bank_document' => 'Bank document is required for new registration.']), 422);
             }
 
-            $bankFile = $request->getFile('bank_document');
             if ($bankFile && $bankFile->isValid()) {
                 $bankFileName = $bankFile->getRandomName();
                 $bankFile->move(WRITEPATH . 'uploads/bank_docs/', $bankFileName);
                 $bankData['bank_document'] = 'uploads/bank_docs/' . $bankFileName;
             }
+            
+            if (!$bankModel->validate($bankData)) {
+                throw new \Exception(json_encode($bankModel->errors()), 422);
+            }
 
-            $existingBank = $bankModel->where('partner_id', $partnerId)->first();
             if ($existingBank) {
                 $bankModel->update($existingBank['id'], $bankData);
             } else {
                 $bankModel->insert($bankData);
             }
-
+         
             $db->transComplete();
             if (!$db->transStatus()) {
                 throw new \Exception("Transaction failed", 500);
             }
 
             return $this->respond([
-                'status' => 200,
-                'message' => $isUpdate ? 'Partner updated successfully.' : 'Partner registered successfully.',
+                'status'     => 200,
+                'message'    => $isUpdate ? 'Partner updated successfully.' : 'Partner registered successfully.',
                 'partner_id' => $partnerId
             ], 200);
         } catch (\Exception $e) {
             $db->transRollback();
-
             $statusCode = $e->getCode() ?: 500;
+            $message = $e->getMessage();
+
+            // Check if message is JSON (validation error object)
+            $decoded = json_decode($message, true);
             $response = [
-                'status' => $statusCode,
-                'message' => $e->getMessage()
+                'status'  => $statusCode,
+                'message' => $statusCode === 422 ? 'Validation failed' : $message,
             ];
 
-            if ($statusCode === 422) {
-                $response['errors'] = $partnerModel->errors()
-                    ?: ($bankModel->errors() ?: []);
+            if (is_array($decoded)) {
+                $response['errors'] = $decoded;
             }
 
             return $this->respond($response, $statusCode);
         }
     }
+
     public function onboardingData($id = null)
     {
         try {
