@@ -339,8 +339,10 @@ class PartnerController extends BaseController
                 $file = $request->getFile($field);
                 if ($file && $file->isValid()) {
                     $fileName = $file->getRandomName();
-                    $file->move(WRITEPATH . 'uploads/partner_docs/', $fileName);
-                    $docPath = 'uploads/partner_docs/' . $fileName;
+
+                    $uploadPath = 'public/uploads/partner_docs/';
+                    $file->move($uploadPath, $fileName);
+                    $docPath = $uploadPath . $fileName;
 
                     $docData = [
                         'partner_id' => $partnerId,
@@ -378,10 +380,13 @@ class PartnerController extends BaseController
 
             if ($bankFile && $bankFile->isValid()) {
                 $bankFileName = $bankFile->getRandomName();
-                $bankFile->move(WRITEPATH . 'uploads/bank_docs/', $bankFileName);
-                $bankData['bank_document'] = 'uploads/bank_docs/' . $bankFileName;
+                $uploadPath = 'public/uploads/partner_docs/';
+                
+                $file->move($uploadPath, $bankFileName);
+                $docPath = $uploadPath . $bankFileName;
+                $bankData['bank_document'] = $docPath;
             }
-            
+
             if (!$bankModel->validate($bankData)) {
                 throw new \Exception(json_encode($bankModel->errors()), 422);
             }
@@ -391,7 +396,7 @@ class PartnerController extends BaseController
             } else {
                 $bankModel->insert($bankData);
             }
-         
+
             $db->transComplete();
             if (!$db->transStatus()) {
                 throw new \Exception("Transaction failed", 500);
