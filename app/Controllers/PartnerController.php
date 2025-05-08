@@ -382,7 +382,7 @@ class PartnerController extends BaseController
                 $bankFileName = $bankFile->getRandomName();
                 $uploadPath = 'public/uploads/partner_docs/';
 
-                $file->move($uploadPath, $bankFileName);
+                $bankFile->move($uploadPath, $bankFileName);
                 $docPath = $uploadPath . $bankFileName;
                 $bankData['bank_document'] = $docPath;
             }
