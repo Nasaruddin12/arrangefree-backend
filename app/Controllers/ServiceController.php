@@ -115,9 +115,9 @@ class ServiceController extends BaseController
                     if ($imageFile->isValid() && !$imageFile->hasMoved()) {
 
                         // Validate size (max 2MB)
-                        if ($imageFile->getSize() > 2 * 1024 * 1024) {
-                            continue; // skip this file
-                        }
+                        // if ($imageFile->getSize() > 2 * 1024 * 1024) {
+                        //     continue; // skip this file
+                        // }
 
                         // Validate mime type
                         $allowedTypes = [
