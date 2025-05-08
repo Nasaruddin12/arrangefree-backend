@@ -337,7 +337,7 @@ class PartnerController extends BaseController
 
             foreach ($docTypes as $field => $type) {
                 $file = $request->getFile($field);
-                if ($file && $file->isValid()) {
+                if ($file && $file->isValid() && !$file->hasMoved()) {
                     $fileName = $file->getRandomName();
 
                     $uploadPath = 'public/uploads/partner_docs/';
@@ -378,10 +378,10 @@ class PartnerController extends BaseController
                 throw new \Exception(json_encode(['bank_document' => 'Bank document is required for new registration.']), 422);
             }
 
-            if ($bankFile && $bankFile->isValid()) {
+            if ($bankFile && $bankFile->isValid() && !$bankFile->hasMoved()) {
                 $bankFileName = $bankFile->getRandomName();
                 $uploadPath = 'public/uploads/partner_docs/';
-                
+
                 $file->move($uploadPath, $bankFileName);
                 $docPath = $uploadPath . $bankFileName;
                 $bankData['bank_document'] = $docPath;
