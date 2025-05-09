@@ -750,7 +750,7 @@ $routes->group('partner', function ($routes) {
     $routes->get('onboarding-data/(:num)', 'PartnerController::onboardingData/$1');
     $routes->post('list', 'PartnerController::index');
     $routes->post('verify-bank', 'PartnerController::verifyBank');
-    $routes->post('verify-documents/(:num)', 'PartnerController::verifyDocuments/$1');
+    $routes->post('verify-documents/(:num)', 'PartnerController::verifyDocument/$1');
 });
 
 $routes->group('cron', function ($routes) {
