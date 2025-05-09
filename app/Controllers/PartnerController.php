@@ -75,6 +75,135 @@ class PartnerController extends BaseController
         }
     }
 
+    public function verifyBank()
+    {
+        try {
+            $partnerId  = $this->request->getVar('partner_id');
+            $status     = $this->request->getVar('status'); // 'verified' or 'rejected'
+            $reason     = $this->request->getVar('rejection_reason'); // optional
+            $verifiedBy = $this->request->getVar('verified_by'); // admin ID
+
+            if (!$partnerId || !in_array($status, ['verified', 'rejected'])) {
+                return $this->respond([
+                    'status'  => 422,
+                    'message' => 'Invalid partner_id or status value.'
+                ], 422);
+            }
+
+            $partnerModel = new \App\Models\PartnerModel();
+            $partner      = $partnerModel->find($partnerId);
+
+            if (!$partner) {
+                return $this->respond([
+                    'status' => 404,
+                    'message' => 'Partner not found.'
+                ], 404);
+            }
+
+            // ✅ Update bank_verified status
+            $partnerModel->update($partnerId, [
+                'bank_verified' => $status,
+                'verified_by'   => $status === 'verified' ? $verifiedBy : null,
+                'verified_at'   => $status === 'verified' ? date('Y-m-d H:i:s') : null
+            ]);
+
+            // ✅ Also update bank table (just for logging)
+            $bankModel = new \App\Models\PartnerBankDetailModel();
+            $bank = $bankModel->where('partner_id', $partnerId)->first();
+            if ($bank) {
+                $bankModel->update($bank['id'], [
+                    'status'           => $status,
+                    'rejection_reason' => $status === 'rejected' ? $reason : null,
+                    'verified_by'      => $verifiedBy,
+                    'verified_at'      => date('Y-m-d H:i:s')
+                ]);
+            }
+
+            // ✅ Check if partner can be marked as fully verified
+            if ($status === 'verified' && $partner['documents_verified'] === 'verified') {
+                $partnerModel->update($partnerId, [
+                    'status' => 'verified',
+                    'verified_by' => $verifiedBy,
+                    'verified_at' => date('Y-m-d H:i:s')
+                ]);
+            }
+
+            return $this->respond([
+                'status'  => 200,
+                'message' => "Bank status updated to $status."
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError('Something went wrong: ' . $e->getMessage());
+        }
+    }
+
+
+    public function verifyDocument($docId)
+    {
+        try {
+            $status     = $this->request->getVar('status'); // 'verified' or 'rejected'
+            $reason     = $this->request->getVar('rejection_reason'); // optional
+            $verifiedBy = $this->request->getVar('verified_by'); // admin ID
+
+            if (!in_array($status, ['verified', 'rejected'])) {
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Status must be either "verified" or "rejected".'
+                ], 422);
+            }
+
+            $docModel = new \App\Models\PartnerDocumentModel();
+            $document = $docModel->find($docId);
+
+            if (!$document) {
+                return $this->respond([
+                    'status' => 404,
+                    'message' => 'Document not found.'
+                ], 404);
+            }
+
+            // ✅ Update this document
+            $docModel->update($docId, [
+                'status'           => $status,
+                'rejection_reason' => $status === 'rejected' ? $reason : null,
+                'verified_by'      => $verifiedBy,
+                'verified_at'      => date('Y-m-d H:i:s')
+            ]);
+
+            $partnerId = $document['partner_id'];
+
+            if ($status === 'verified') {
+                // ✅ Check if all documents are verified
+                $allDocs = $docModel->where('partner_id', $partnerId)->findAll();
+                $allVerified = array_reduce($allDocs, fn($ok, $d) => $ok && $d['status'] === 'verified', true);
+
+                if ($allVerified) {
+                    $partnerModel = new \App\Models\PartnerModel();
+                    $partner = $partnerModel->find($partnerId);
+
+                    $partnerModel->update($partnerId, ['documents_verified' => 'verified']);
+
+                    // ✅ If both documents and bank are verified, mark partner as verified
+                    if ($partner && $partner['bank_verified'] === 'verified') {
+                        $partnerModel->update($partnerId, [
+                            'status'       => 'verified',
+                            'verified_by'  => $verifiedBy,
+                            'verified_at'  => date('Y-m-d H:i:s')
+                        ]);
+                    }
+                }
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => "Document marked as $status successfully."
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError('Verification failed: ' . $e->getMessage());
+        }
+    }
+
+
     /**
      * Show a single partner by ID
      */

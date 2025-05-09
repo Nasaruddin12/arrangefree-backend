@@ -24,7 +24,8 @@ class PartnerModel extends Model
         'documents_verified',
         'bank_verified',
         'verified_by',
-        'verified_at'
+        'verified_at',
+        'status'
     ];
 
     protected $useTimestamps = true;
@@ -41,6 +42,7 @@ class PartnerModel extends Model
         'service_areas' => 'required',
         'aadhaar_no'    => 'required|regex_match[/^[0-9]{12}$/]|is_unique[partners.aadhaar_no]',
         'pan_no'        => 'required|regex_match[/^[A-Z]{5}[0-9]{4}[A-Z]$/]|is_unique[partners.pan_no]',
+        'status' => 'permit_empty|in_list[pending,active,blocked,terminated,resigned,rejected]',
     ];
 
     protected $validationMessages = [
@@ -70,6 +72,10 @@ class PartnerModel extends Model
         'labour_count' => [
             'is_natural_no_zero' => 'Labour count must be greater than 0.'
         ],
+        'status' => [
+            'in_list' => 'Invalid status value.'
+        ],
+
     ];
 
     /**

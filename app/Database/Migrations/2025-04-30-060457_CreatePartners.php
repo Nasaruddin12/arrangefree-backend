@@ -32,6 +32,11 @@ class CreatePartners extends Migration
             ],
             'verified_by'          => ['type' => 'INT', 'null' => true],
             'verified_at'          => ['type' => 'DATETIME', 'null' => true],
+            'status' => [
+                'type'       => 'ENUM',
+                'constraint' => ['pending', 'active', 'blocked', 'terminated', 'resigned', 'rejected'],
+                'default'    => 'pending',
+            ],
             'created_at'           => ['type' => 'DATETIME', 'null' => true],
             'updated_at'           => ['type' => 'DATETIME', 'null' => true],
         ]);
