@@ -748,6 +748,7 @@ $routes->group('partner', function ($routes) {
     $routes->get('profile/(:num)', 'PartnerController::profile/$1');
     $routes->get('onboarding-status', 'PartnerController::onboardingStatus');
     $routes->get('onboarding-data/(:num)', 'PartnerController::onboardingData/$1');
+    $routes->post('list', 'PartnerController::index');
 });
 
 $routes->group('cron', function ($routes) {

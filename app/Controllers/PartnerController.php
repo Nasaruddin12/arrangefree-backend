@@ -32,12 +32,43 @@ class PartnerController extends BaseController
     public function index()
     {
         try {
-            $partners = $this->partnerModel->findAll();
+            $page     = (int) $this->request->getVar('page') ?: 1;
+            $limit    = (int) $this->request->getVar('limit') ?: 10;
+            $offset   = ($page - 1) * $limit;
+            $search   = $this->request->getVar('search');
+
+            $builder = $this->partnerModel
+                ->select('*')
+                ->orderBy('created_at', 'DESC');
+
+            // 🔍 Apply search
+            if (!empty($search)) {
+                $builder->groupStart()
+                    ->like('name', $search)
+                    ->orLike('mobile', $search)
+                    ->orLike('aadhaar_no', $search)
+                    ->orLike('pan_no', $search)
+                    ->groupEnd();
+            }
+
+            // Clone for total count before limit/offset
+            $total = $builder->countAllResults(false);
+
+            // Apply pagination
+            $partners = $builder
+                ->limit($limit, $offset)
+                ->find();
 
             return $this->respond([
-                'status' => 200,
-                'message' => 'Partners retrieved successfully',
-                'data' => $partners
+                'status'    => 200,
+                'message'   => 'Partners retrieved successfully',
+                'data'      => $partners,
+                'pagination' => [
+                    'current_page'  => $page,
+                    'per_page'      => $limit,
+                    'total_records' => $total,
+                    'total_pages'   => ceil($total / $limit)
+                ]
             ], 200);
         } catch (\Exception $e) {
             return $this->failServerError('Failed to fetch partners: ' . $e->getMessage());
