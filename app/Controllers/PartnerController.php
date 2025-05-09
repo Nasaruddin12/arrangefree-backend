@@ -122,7 +122,7 @@ class PartnerController extends BaseController
             // ✅ Check if partner can be marked as fully verified
             if ($status === 'verified' && $partner['documents_verified'] === 'verified') {
                 $partnerModel->update($partnerId, [
-                    'status' => 'verified',
+                    'status' => 'active',
                     'verified_by' => $verifiedBy,
                     'verified_at' => date('Y-m-d H:i:s')
                 ]);
@@ -186,7 +186,7 @@ class PartnerController extends BaseController
                     // ✅ If both documents and bank are verified, mark partner as verified
                     if ($partner && $partner['bank_verified'] === 'verified') {
                         $partnerModel->update($partnerId, [
-                            'status'       => 'verified',
+                            'status'       => 'active',
                             'verified_by'  => $verifiedBy,
                             'verified_at'  => date('Y-m-d H:i:s')
                         ]);
