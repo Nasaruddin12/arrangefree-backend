@@ -166,8 +166,8 @@ class PartnerController extends BaseController
             $docModel->update($docId, [
                 'status'           => $status,
                 'rejection_reason' => $status === 'rejected' ? $reason : null,
-                'verified_by'      => $verifiedBy,
-                'verified_at'      => date('Y-m-d H:i:s')
+                'reviewed_by'      => $verifiedBy,
+                'reviewed_at'      => date('Y-m-d H:i:s')
             ]);
 
             $partnerId = $document['partner_id'];
