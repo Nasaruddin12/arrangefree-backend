@@ -545,6 +545,8 @@ $routes->group('freepik-api', static function ($routes) {
     $routes->post('all', 'FreepikApiHistoryController::getAll');
     $routes->get('user/(:num)', 'FreepikApiHistoryController::getByUser/$1');
     $routes->get('check-user-limit/(:num)', 'FreepikApiHistoryController::checkUserLimit/$1');
+    $routes->post('image-generate', 'FreepikApiHistoryController::imageGenerate');
+    
 });
 
 $routes->group('services-type', function ($routes) {

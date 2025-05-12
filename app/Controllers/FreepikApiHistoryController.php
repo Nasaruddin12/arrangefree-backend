@@ -8,6 +8,8 @@ use Exception;
 
 class FreepikApiHistoryController extends ResourceController
 {
+
+
     public function store()
     {
         try {
@@ -146,5 +148,98 @@ class FreepikApiHistoryController extends ResourceController
             ], 403);
         }
     }
-    
+
+    public function imageGenerate()
+    {
+        try {
+            $user_id = $this->request->getVar('user_id');
+            $prompt  = $this->request->getVar('prompt');
+
+            if (empty($user_id) || empty($prompt)) {
+                return $this->respond(['status' => 400, 'message' => 'User ID and prompt are required'], 400);
+            }
+
+            // 🔁 Call Freepik API
+            $response = $this->callFreepikApi($prompt);
+            if (!$response || empty($response['data'])) {
+                return $this->respond(['status' => 400, 'message' => 'No images generated'], 400);
+            }
+
+            $uploadDirectory = 'public/uploads/freepik-api-history/';
+            if (!is_dir($uploadDirectory)) {
+                mkdir($uploadDirectory, 0777, true);
+            }
+
+            $imagePaths = [];
+
+            foreach ($response['data'] as $index => $img) {
+                $fileName = uniqid("img_") . '.png';
+                $filePath = $uploadDirectory . $fileName;
+                file_put_contents($filePath, base64_decode($img['base64']));
+                $imagePaths[] = $uploadDirectory . $fileName;
+            }
+
+            // ✅ Save to DB
+            $model = new \App\Models\FreepikApiHistoryModel();
+            $model->insert([
+                'user_id'    => $user_id,
+                'prompt'     => $prompt,
+                'images'     => json_encode($imagePaths),
+                'created_at' => date('Y-m-d H:i:s'),
+            ]);
+
+            return $this->respond([
+                'status'  => 201,
+                'message' => 'Images generated and saved successfully',
+                'data'    => ['images' => $imagePaths]
+            ]);
+        } catch (\Exception $e) {
+            return $this->respond([
+                'status'  => 500,
+                'message' => 'Failed to generate images',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+
+    private function callFreepikApi(string $prompt): ?array
+    {
+        $client = \Config\Services::curlrequest();
+
+        $payload = [
+            'prompt' => $prompt,
+            'negative_prompt' => 'b&w, earth, cartoon, ugly',
+            'guidance_scale' => 2,
+            'seed' => 42,
+            'num_images' => 2,
+            'image' => ['size' => 'square_1_1'],
+            // 'styling' => [
+            //     'style' => 'anime',
+            //     'effects' => [
+            //         'color' => 'pastel',
+            //         'lightning' => 'warm',
+            //         'framing' => 'portrait'
+            //     ],
+            //     'colors' => [
+            //         ['color' => '#FF5733', 'weight' => 1],
+            //         ['color' => '#33FF57', 'weight' => 1],
+            //     ]
+            // ],
+            'filter_nsfw' => true
+        ];
+
+        $headers = [
+            'Content-Type'        => 'application/json',
+            'x-freepik-api-key'   => 'FPSX6fb14b5c917c4ba5a9f150a5184bc728'
+        ];
+
+        $response = $client->post(
+            'https://api.freepik.com/v1/ai/text-to-image',
+            ['headers' => $headers, 'json' => $payload]
+        );
+
+        return json_decode($response->getBody(), true);
+    }
 }
