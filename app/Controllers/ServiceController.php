@@ -27,67 +27,89 @@ class ServiceController extends BaseController
     {
         try {
             $db = \Config\Database::connect();
-            $db->transStart(); // Start Transaction
+            $db->transStart();
 
-            // Step 1: Insert Services
+            // Step 1: Create Service
             $data = [
-                'name' => $this->request->getVar('name'),
-                'service_type_id' => $this->request->getVar('service_type_id'),
-                'rate' => $this->request->getVar('rate'),
-                'rate_type' => $this->request->getVar('rate_type'),
-                'description' => $this->request->getVar('description'),
-                'materials' => $this->request->getVar('materials'),
-                'features' => $this->request->getVar('features'),
-                'care_instructions' => $this->request->getVar('care_instructions'),
-                'warranty_details' => $this->request->getVar('warranty_details'),
-                'quality_promise' => $this->request->getVar('quality_promise'),
-                'status' => $this->request->getVar('status'),
-                'image' => $this->request->getVar('image'), // Image path
+                'name'                => $this->request->getVar('name'),
+                'service_type_id'     => $this->request->getVar('service_type_id'),
+                'rate'                => $this->request->getVar('rate'),
+                'rate_type'           => $this->request->getVar('rate_type'),
+                'description'         => $this->request->getVar('description'),
+                'materials'           => $this->request->getVar('materials'),
+                'features'            => $this->request->getVar('features'),
+                'care_instructions'   => $this->request->getVar('care_instructions'),
+                'warranty_details'    => $this->request->getVar('warranty_details'),
+                'quality_promise'     => $this->request->getVar('quality_promise'),
+                'status'              => $this->request->getVar('status'),
+                'image'               => $this->request->getVar('image'),
             ];
 
             if (!$this->serviceModel->save($data)) {
-                return $this->respond(['status' => 400, 'message' => 'Failed to create Services'], 400);
+                return $this->respond(['status' => 400, 'message' => 'Failed to create service'], 400);
             }
 
-            $serviceId = $this->serviceModel->getInsertID(); // Get the last inserted ID
+            $serviceId = $this->serviceModel->getInsertID();
 
-            // Step 2: Insert Services Rooms
-            $roomIds = $this->request->getVar('room_ids'); // Expecting an array of room IDs
-
+            // Step 2: Insert Service-Room Relations
+            $roomIds = $this->request->getVar('room_ids'); // array
             if (!empty($roomIds) && is_array($roomIds)) {
-
                 $roomData = [];
-
                 foreach ($roomIds as $roomId) {
                     $roomData[] = [
                         'service_id' => $serviceId,
-                        'room_id' => $roomId
+                        'room_id'    => $roomId
+                    ];
+                }
+                $this->serviceRoomModel->insertBatch($roomData);
+            }
+
+            // Step 3: Insert Add-ons
+            $addons = $this->request->getJSON(true)['addons'] ?? []; // Expecting array of objects
+
+            if (!empty($addons) && is_array($addons)) {
+                $addonModel = new \App\Models\ServiceAddonModel();
+                $addonBatch = [];
+
+                foreach ($addons as $addon) {
+                    $addonBatch[] = [
+                        'service_id'   => $serviceId,
+                        'group_name'   => $addon['group_name'] ?? null,
+                        'is_required'  => $addon['is_required'] ?? false,
+                        'name'         => $addon['name'],
+                        'price_type'   => $addon['price_type'], // 'unit' or 'square_feet'
+                        'qty'          => $addon['qty'],
+                        'price'        => $addon['price'],
+                        'description'  => $addon['description'] ?? null,
                     ];
                 }
 
-                if (!empty($roomData)) {
-                    $this->serviceRoomModel->insertBatch($roomData);
+                if (!empty($addonBatch)) {
+                    $addonModel->insertBatch($addonBatch);
                 }
             }
 
-            $db->transComplete(); // Commit Transaction
+            $db->transComplete();
 
             return $this->respond([
                 'status' => 201,
-                'message' => 'Services Created Successfully',
+                'message' => 'Service created with add-ons and room mappings',
                 'data' => [
-                    'service' => $data,
-                    'room_ids' => $roomIds ?? []
+                    'service_id' => $serviceId,
+                    'rooms' => $roomIds ?? [],
+                    'addons' => $addons ?? []
                 ]
             ], 201);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
+            $db->transRollback();
             return $this->respond([
                 'status' => 500,
-                'message' => 'An error occurred while creating Services',
+                'message' => 'Error occurred during creation',
                 'error' => $e->getMessage()
             ], 500);
         }
     }
+
 
 
     // ✅ Upload Image (Returns only path)
@@ -121,10 +143,16 @@ class ServiceController extends BaseController
 
                         // Validate mime type
                         $allowedTypes = [
-                            'image/png', 'image/jpeg', 'image/jpg', // Image types
-                            'video/mp4', 'video/avi', 'video/mov', 'video/quicktime', 'video/x-msvideo', // Video types
+                            'image/png',
+                            'image/jpeg',
+                            'image/jpg', // Image types
+                            'video/mp4',
+                            'video/avi',
+                            'video/mov',
+                            'video/quicktime',
+                            'video/x-msvideo', // Video types
                         ];
-                        
+
                         if (!in_array($imageFile->getMimeType(), $allowedTypes)) {
                             continue; // skip this file
                         }
@@ -362,7 +390,7 @@ class ServiceController extends BaseController
                 return $this->failValidationErrors('ID is required');
             }
 
-            // Fetch services details
+            // Fetch service details
             $service = $this->serviceModel
                 ->select('services.*, service_types.name as service_name')
                 ->join('service_types', 'service_types.id = services.service_type_id', 'left')
@@ -370,31 +398,47 @@ class ServiceController extends BaseController
                 ->first();
 
             if (!$service) {
-                return $this->failNotFound('Services not found.');
+                return $this->failNotFound('Service not found.');
             }
 
-            // Fetch associated room_ids
+            // Fetch associated room IDs
             $roomIds = $this->serviceRoomModel
                 ->where('service_id', $id)
                 ->select('room_id')
                 ->findAll();
 
-            // Convert to array of room_ids
             $service['room_ids'] = array_column($roomIds, 'room_id');
+
+            // Fetch add-ons and group by group_name
+            $addonModel = new \App\Models\ServiceAddonModel();
+            $addons = $addonModel
+                ->where('service_id', $id)
+                ->orderBy('group_name', 'asc')
+                ->findAll();
+
+            $groupedAddons = [];
+
+            foreach ($addons as $addon) {
+                $group = $addon['group_name'] ?? 'Others';
+                $groupedAddons[$group][] = $addon;
+            }
+
+            $service['addons'] = $groupedAddons;
 
             return $this->respond([
                 'status' => 200,
-                'message' => 'Data retrieved successfully',
+                'message' => 'Service details retrieved successfully',
                 'data' => $service
             ], 200);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return $this->respond([
                 'status' => 500,
-                'message' => 'Failed to retrieve Services',
+                'message' => 'Failed to retrieve service details',
                 'error' => $e->getMessage()
             ], 500);
         }
     }
+
 
     public function findByServiceTypeAndRoom($serviceTypeId = null, $roomId = null)
     {
