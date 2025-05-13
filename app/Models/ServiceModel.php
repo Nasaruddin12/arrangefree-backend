@@ -31,11 +31,24 @@ class ServiceModel extends Model
 
     public function findByServiceTypeAndRoom($service_type_id, $roomId)
     {
-        return $this->select('services.*')
+        // Step 1: Get all matching services
+        $services = $this->select('services.*')
             ->join('service_rooms', 'service_rooms.service_id = services.id', 'inner')
             ->where('services.service_type_id', $service_type_id)
             ->where('service_rooms.room_id', $roomId)
             ->where('services.status', 1)
             ->findAll();
+
+        // Step 2: Attach addons for each service
+        if (!empty($services)) {
+            $addonModel = new \App\Models\ServiceAddonModel();
+
+            foreach ($services as &$service) {
+                $addons = $addonModel->where('service_id', $service['id'])->findAll();
+                $service['addons'] = $addons;
+            }
+        }
+
+        return $services;
     }
 }
