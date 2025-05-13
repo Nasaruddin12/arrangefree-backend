@@ -281,7 +281,8 @@ class ServiceController extends BaseController
             }
 
             // ✅ Addon handling
-            $addons = $this->request->getVar('addons');
+            $addons = $this->request->getJSON(true)['addons'] ?? [];
+            
             $addonModel = new \App\Models\ServiceAddonModel();
 
             $existingAddons = $addonModel->where('service_id', $id)->findAll();
