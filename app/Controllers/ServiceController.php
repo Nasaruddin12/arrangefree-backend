@@ -248,41 +248,75 @@ class ServiceController extends BaseController
             $db = \Config\Database::connect();
             $service = $this->serviceModel->find($id);
             if (!$service) {
-                return $this->failNotFound('Services not found.');
+                return $this->failNotFound('Service not found.');
             }
 
             $data = [
-                'name' => $this->request->getVar('name'),
-                'service_type_id' => $this->request->getVar('service_type_id'),
-                'rate' => $this->request->getVar('rate'),
-                'rate_type' => $this->request->getVar('rate_type'),
-                'description' => $this->request->getVar('description'),
-                'materials' => $this->request->getVar('materials'),
-                'features' => $this->request->getVar('features'),
-                'care_instructions' => $this->request->getVar('care_instructions'),
-                'warranty_details' => $this->request->getVar('warranty_details'),
-                'quality_promise' => $this->request->getVar('quality_promise'),
-                'status' => $this->request->getVar('status'),
-                'image' => $this->request->getVar('image') ?? $service['image'], // Keep old image if not provided
+                'name'               => $this->request->getVar('name'),
+                'service_type_id'    => $this->request->getVar('service_type_id'),
+                'rate'               => $this->request->getVar('rate'),
+                'rate_type'          => $this->request->getVar('rate_type'),
+                'description'        => $this->request->getVar('description'),
+                'materials'          => $this->request->getVar('materials'),
+                'features'           => $this->request->getVar('features'),
+                'care_instructions'  => $this->request->getVar('care_instructions'),
+                'warranty_details'   => $this->request->getVar('warranty_details'),
+                'quality_promise'    => $this->request->getVar('quality_promise'),
+                'status'             => $this->request->getVar('status'),
+                'image'              => $this->request->getVar('image') ?? $service['image'],
             ];
 
-            // Start transaction
             $db->transStart();
 
-            // Update the work_type record
+            // Update service
             $this->serviceModel->update($id, $data);
 
-            // Update service_rooms if room_ids are provided
-            $roomIds = $this->request->getVar('room_ids'); // Expected as an array [1, 2, 3]
+            // ✅ Update rooms
+            $roomIds = $this->request->getVar('room_ids');
             if (!empty($roomIds) && is_array($roomIds)) {
                 if (!$this->serviceRoomModel->updateServiceRooms($id, $roomIds)) {
-                    // Rollback if updating service_rooms fails
                     $db->transRollback();
                     return $this->respond(['status' => 400, 'message' => 'Failed to update Services Rooms'], 400);
                 }
             }
 
-            // Commit transaction
+            // ✅ Addon handling
+            $addons = $this->request->getVar('addons');
+            $addonModel = new \App\Models\ServiceAddonModel();
+
+            $existingAddons = $addonModel->where('service_id', $id)->findAll();
+            $existingAddonIds = array_column($existingAddons, 'id');
+            $incomingAddonIds = [];
+
+            if (!empty($addons) && is_array($addons)) {
+                foreach ($addons as $addon) {
+                    $addonData = [
+                        'service_id'  => $id,
+                        'group_name'  => $addon['group_name'] ?? null,
+                        'is_required' => $addon['is_required'] ?? false,
+                        'name'        => $addon['name'],
+                        'price_type'  => $addon['price_type'],
+                        'qty'         => $addon['qty'],
+                        'price'       => $addon['price'],
+                        'description' => $addon['description'] ?? null,
+                    ];
+
+                    if (!empty($addon['id'])) {
+                        $incomingAddonIds[] = $addon['id'];
+                        $addonModel->update($addon['id'], $addonData);
+                    } else {
+                        $addonModel->insert($addonData);
+                        $incomingAddonIds[] = $addonModel->getInsertID();
+                    }
+                }
+            }
+
+            // ✅ Delete removed addons
+            $idsToDelete = array_diff($existingAddonIds, $incomingAddonIds);
+            if (!empty($idsToDelete)) {
+                $addonModel->whereIn('id', $idsToDelete)->delete();
+            }
+
             $db->transComplete();
 
             if (!$db->transStatus()) {
@@ -291,19 +325,17 @@ class ServiceController extends BaseController
 
             return $this->respond([
                 'status' => 200,
-                'message' => 'Services Updated Successfully',
+                'message' => 'Service updated successfully',
                 'data' => $data
             ], 200);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return $this->respond([
                 'status' => 500,
-                'message' => 'Failed to update Services',
+                'message' => 'Failed to update Service',
                 'error' => $e->getMessage()
             ], 500);
         }
     }
-
-
 
     // ✅ Delete Services
     public function delete($id)
@@ -383,6 +415,7 @@ class ServiceController extends BaseController
             'new_status' => (int)$status
         ], 200);
     }
+
     public function show($id = null)
     {
         try {
@@ -409,21 +442,14 @@ class ServiceController extends BaseController
 
             $service['room_ids'] = array_column($roomIds, 'room_id');
 
-            // Fetch add-ons and group by group_name
+            // Fetch all add-ons (flat list)
             $addonModel = new \App\Models\ServiceAddonModel();
             $addons = $addonModel
                 ->where('service_id', $id)
                 ->orderBy('group_name', 'asc')
                 ->findAll();
 
-            $groupedAddons = [];
-
-            foreach ($addons as $addon) {
-                $group = $addon['group_name'] ?? 'Others';
-                $groupedAddons[$group][] = $addon;
-            }
-
-            $service['addons'] = $groupedAddons;
+            $service['addons'] = $addons;
 
             return $this->respond([
                 'status' => 200,
