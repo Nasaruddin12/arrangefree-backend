@@ -55,4 +55,11 @@ abstract class BaseController extends Controller
 
         // E.g.: $this->session = \Config\Services::session();
     }
+    protected function failServerErrors($message = 'Internal Server Error', $code = 500)
+    {
+        return $this->response->setJSON([
+            'status' => $code,
+            'message' => $message,
+        ])->setStatusCode($code);
+    }
 }

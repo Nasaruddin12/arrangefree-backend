@@ -546,7 +546,6 @@ $routes->group('freepik-api', static function ($routes) {
     $routes->get('user/(:num)', 'FreepikApiHistoryController::getByUser/$1');
     $routes->get('check-user-limit/(:num)', 'FreepikApiHistoryController::checkUserLimit/$1');
     $routes->post('image-generate', 'FreepikApiHistoryController::imageGenerate');
-    
 });
 
 $routes->group('services-type', function ($routes) {
@@ -764,6 +763,16 @@ $routes->get('test-email', 'EmailController::sendComparisonEmail');
 $routes->get('test-step-email', 'EmailController::sendRoomStepEmailToMultiple');
 
 $routes->get('send-notification', 'NotificationController::send');
+
+$routes->group('prompts', function ($routes) {
+    $routes->get('/', 'PromptController::index');
+    $routes->get('style/(:num)', 'PromptController::getByStyle/$1');
+    $routes->get('(:num)', 'PromptController::show/$1');
+    $routes->post('/', 'PromptController::create');
+    $routes->post('update/(:num)', 'PromptController::update/$1'); // or use PUT with route filter
+    $routes->delete('(:num)', 'PromptController::delete/$1');
+});
+
 
 
 
