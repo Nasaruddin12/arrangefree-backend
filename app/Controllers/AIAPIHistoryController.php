@@ -56,9 +56,9 @@ class AIAPIHistoryController extends ResourceController
                 ])->setStatusCode(ResponseInterface::HTTP_UNPROCESSABLE_ENTITY);
             }
 
+
             $imageUrl = $input['image_url'];
             $apiKey = getenv('OPENAI_API_KEY'); // <-- Securely from .env
-
             if (empty($apiKey)) {
                 return $this->response->setJSON([
                     'status'  => 500,
@@ -67,18 +67,18 @@ class AIAPIHistoryController extends ResourceController
             }
 
             $data = [
-                "model" => "gpt-4o-mini",
-                "messages" => [
+                'model' => 'gpt-4o-mini',
+                'messages' => [
                     [
                         "role" => "system",
                         "content" => "Analyze the interior design image and extract a detailed material breakdown based **only on visible elements**. Follow strict commercial standards: \n\n✅ Provide paint, laminate, lighting, fabric, and material details. \n✅ Always include **Asian Paints color codes** for walls & ceilings.\n✅ Always include **Royale Touche & Merino laminate codes** for wardrobes, wood paneling, and furniture.\n✅ Always include **Wipro Lights** for all lighting fixtures.\n✅ Always specify **wood type** (Pine, Teak).\n✅ Always specify **kitchen material** (Shore Acrylic, Merino Acrylic).\n✅ Always specify **curtains** from **D'Decor** fabrics with color codes."
                     ],
                     [
-                        "role" => "user",
-                        "content" => [
+                        'role' => 'user',
+                        'content' => [
                             [
-                                "type" => "image_url",
-                                "image_url" => ["url" => $imageUrl]
+                                'type' => 'image_url',
+                                'image_url' => ['url' => $imageUrl]
                             ]
                         ]
                     ]
@@ -86,8 +86,8 @@ class AIAPIHistoryController extends ResourceController
             ];
 
             $headers = [
-                "Authorization: Bearer {$apiKey}",
-                "Content-Type: application/json",
+                'Authorization' => 'Bearer ' . $apiKey,
+                'Content-Type'  => 'application/json',
             ];
 
             $client = \Config\Services::curlrequest();
@@ -95,11 +95,22 @@ class AIAPIHistoryController extends ResourceController
             $response = $client->post('https://api.openai.com/v1/chat/completions', [
                 'headers' => $headers,
                 'body'    => json_encode($data),
-                'timeout' => 30,
             ]);
 
             $responseData = json_decode($response->getBody(), true);
-            $aiResponse = $responseData['choices'][0]['message']['content'] ?? 'No response received';
+            // dd($responseData);
+            // print_r($responseData);
+            $aiResponse = 'No response received';
+
+            if (
+                isset($responseData['choices'][0]['message']['content']) &&
+                !empty($responseData['choices'][0]['message']['content'])
+            ) {
+                $aiResponse = $responseData['choices'][0]['message']['content'];
+            } else {
+                log_message('error', 'OpenAI unexpected response: ' . json_encode($responseData));
+            }
+
 
             // Save to DB
             $historyData = [
