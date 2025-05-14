@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\AIAPIHistoryModel;
+use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\RESTful\ResourceController;
 use Config\Database;
 
@@ -37,35 +38,98 @@ class AIAPIHistoryController extends ResourceController
         }
     }
 
-    public function store()
+    public function analyzeImage()
     {
         try {
             $rules = [
-                'user_id'     => 'required|integer',
-                'api_endpoint'    => 'required|string|max_length[255]',
-                'request_data' => 'permit_empty|string',
-                'response_data' => 'permit_empty|string',
-                'status_code' => 'required|integer',
+                'user_id'   => 'required|integer',
+                'image_url' => 'required|valid_url',
             ];
 
             $input = $this->request->getJSON(true);
 
             if (!$this->validate($rules)) {
-                return $this->failValidationErrors($this->validator->getErrors());
+                return $this->response->setJSON([
+                    'status'  => 422,
+                    'message' => 'Validation failed',
+                    'errors'  => $this->validator->getErrors(),
+                ])->setStatusCode(ResponseInterface::HTTP_UNPROCESSABLE_ENTITY);
             }
 
-            $aiApiHistoryModel = new AIAPIHistoryModel();
-            $aiApiHistoryModel->insert($input);
+            $imageUrl = $input['image_url'];
+            $apiKey = getenv('OPENAI_API_KEY'); // <-- Securely from .env
 
-            return $this->respondCreated([
-                'status'  => 201,
-                'message' => 'AI API history recorded successfully.',
-                'data'    => $input
+            if (empty($apiKey)) {
+                return $this->response->setJSON([
+                    'status'  => 500,
+                    'message' => 'OpenAI API key is missing in environment config.',
+                ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+            }
+
+            $data = [
+                "model" => "gpt-4o-mini",
+                "messages" => [
+                    [
+                        "role" => "system",
+                        "content" => "Analyze the interior design image and extract a detailed material breakdown based **only on visible elements**. Follow strict commercial standards: \n\n✅ Provide paint, laminate, lighting, fabric, and material details. \n✅ Always include **Asian Paints color codes** for walls & ceilings.\n✅ Always include **Royale Touche & Merino laminate codes** for wardrobes, wood paneling, and furniture.\n✅ Always include **Wipro Lights** for all lighting fixtures.\n✅ Always specify **wood type** (Pine, Teak).\n✅ Always specify **kitchen material** (Shore Acrylic, Merino Acrylic).\n✅ Always specify **curtains** from **D'Decor** fabrics with color codes."
+                    ],
+                    [
+                        "role" => "user",
+                        "content" => [
+                            [
+                                "type" => "image_url",
+                                "image_url" => ["url" => $imageUrl]
+                            ]
+                        ]
+                    ]
+                ]
+            ];
+
+            $headers = [
+                "Authorization: Bearer {$apiKey}",
+                "Content-Type: application/json",
+            ];
+
+            $client = \Config\Services::curlrequest();
+
+            $response = $client->post('https://api.openai.com/v1/chat/completions', [
+                'headers' => $headers,
+                'body'    => json_encode($data),
+                'timeout' => 30,
             ]);
-        } catch (\Throwable $e) {
-            return $this->failServerError('An error occurred while saving AI API history: ' . $e->getMessage());
+
+            $responseData = json_decode($response->getBody(), true);
+            $aiResponse = $responseData['choices'][0]['message']['content'] ?? 'No response received';
+
+            // Save to DB
+            $historyData = [
+                'user_id'       => $input['user_id'],
+                'api_endpoint'  => 'https://api.openai.com/v1/chat/completions',
+                'request_data'  => json_encode($data),
+                'response_data' => $aiResponse,
+                'status_code'   => $response->getStatusCode(),
+            ];
+
+            $aiApiHistoryModel = new \App\Models\AIAPIHistoryModel();
+            $aiApiHistoryModel->insert($historyData);
+
+            return $this->response->setJSON([
+                'status'  => 200,
+                'message' => 'AI response fetched and saved successfully',
+                'data'    => [
+                    'response' => $aiResponse,
+                    'history_id' => $aiApiHistoryModel->getInsertID(),
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'status'  => 500,
+                'message' => 'API Request Failed',
+                'error'   => $e->getMessage(),
+            ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
     public function getAll()
     {
         try {

@@ -654,7 +654,7 @@ $routes->group('faq-categories', function ($routes) {
 $routes->group('ai-api-history', function ($routes) {
     $routes->post('all', 'AIAPIHistoryController::getAll'); // Get all AI API history records
     $routes->get('by-user/(:num)', 'AIAPIHistoryController::getHistoryByUser/$1');
-    $routes->post('/', 'AIAPIHistoryController::store');
+    $routes->post('/analyze-image', 'AIAPIHistoryController::analyzeImage');
 });
 
 $routes->group('payment', function ($routes) {
