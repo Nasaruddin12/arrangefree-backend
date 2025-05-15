@@ -159,6 +159,177 @@ class FreepikApiHistoryController extends ResourceController
                 return $this->respond(['status' => 400, 'message' => 'User ID and prompt are required'], 400);
             }
 
+            $prompt  = $this->request->getVar('prompt');
+
+            // $originalPrompt = $prompt;
+            $prompt = strtolower($prompt);
+
+            // Interior design keyword filter
+            $interiorKeywords = [
+                // General terms
+                'interior',
+                'interior design',
+                'interior concept',
+                'home design',
+                'room design',
+                'home decor',
+                'interior decor',
+                'space planning',
+                'layout',
+                'room layout',
+                'floor plan',
+                'house plan',
+                '3d render',
+                'interior rendering',
+                'interior visualization',
+                'room',
+
+                // Rooms
+                'living room',
+                'bedroom',
+                'master bedroom',
+                'guest bedroom',
+                'kitchen',
+                'modular kitchen',
+                'dining room',
+                'bathroom',
+                'toilet',
+                'kids room',
+                'study room',
+                'home office',
+                'pooja room',
+                'laundry room',
+                'balcony',
+                'foyer',
+
+                // Furniture
+                'sofa',
+                'sectional sofa',
+                'coffee table',
+                'center table',
+                'dining table',
+                'side table',
+                'bed',
+                'king size bed',
+                'queen size bed',
+                'wardrobe',
+                'tv unit',
+                'bookshelf',
+                'study desk',
+                'console table',
+                'shoe rack',
+                'recliner',
+                'ottoman',
+
+                // Materials & finishes
+                'false ceiling',
+                'pop ceiling',
+                'gypsum ceiling',
+                'plywood ceiling',
+                'laminate',
+                'veneer',
+                'acrylic finish',
+                'duco paint',
+                'mica finish',
+                'granite',
+                'marble',
+                'wooden flooring',
+                'tiles',
+                'vinyl flooring',
+                'textured wall',
+                'stone cladding',
+                'wall paneling',
+                'glass partition',
+                'mirror finish',
+
+                // Lighting
+                'lighting',
+                'ceiling light',
+                'spotlight',
+                'strip light',
+                'ambient light',
+                'task lighting',
+                'cove lighting',
+                'chandelier',
+                'pendant light',
+                'wall sconce',
+                'table lamp',
+                'floor lamp',
+                'false ceiling light',
+
+                // Styling & theme
+                'minimalist',
+                'modern',
+                'contemporary',
+                'boho',
+                'industrial',
+                'rustic',
+                'scandinavian',
+                'traditional',
+                'luxury design',
+                'classic interior',
+                'vintage',
+                'aesthetic interior',
+                'color palette',
+                'warm tones',
+                'neutral theme',
+                'accent wall',
+                'feature wall',
+                'mirror decor',
+                'green wall',
+                'indoor plants',
+                'curtains',
+                'blinds',
+                'window treatment',
+
+                // Functional elements
+                'storage unit',
+                'modular storage',
+                'pull-out drawers',
+                'corner unit',
+                'tv panel',
+                'partition design',
+                'wall shelves',
+                'foldable furniture',
+                'space-saving furniture',
+                'multi-purpose furniture',
+                'hidden storage',
+
+                // Extras
+                'interior theme',
+                'decor style',
+                'home ambiance',
+                'lighting layout',
+                'furniture layout',
+                'interior setup'
+            ];
+
+
+            $isInteriorRelated = false;
+            foreach ($interiorKeywords as $keyword) {
+                if (strpos($prompt, $keyword) !== false) {
+                    $isInteriorRelated = true;
+                    break;
+                }
+            }
+
+            if (!$isInteriorRelated) {
+                $prompt = 'Interior design of a modern living room';
+            }
+
+
+            // 🔐 Check user image generation limit
+            $model = new \App\Models\FreepikApiHistoryModel();
+            $requestCount = $model->where('user_id', $user_id)->countAllResults();
+
+            if ($requestCount >= 250) {
+                return $this->respond([
+                    'status' => 403,
+                    'allowed' => false,
+                    'message' => 'You have exceeded the limit. Reach out to Arrange Free.'
+                ], 403);
+            }
+
             // 🔁 Call Freepik API
             $response = $this->callFreepikApi($prompt);
             if (!$response || empty($response['data'])) {
@@ -180,7 +351,6 @@ class FreepikApiHistoryController extends ResourceController
             }
 
             // ✅ Save to DB
-            $model = new \App\Models\FreepikApiHistoryModel();
             $dataToInsert = [
                 'user_id'    => $user_id,
                 'prompt'     => $prompt,
@@ -209,7 +379,6 @@ class FreepikApiHistoryController extends ResourceController
             ], 500);
         }
     }
-
 
 
     private function callFreepikApi(string $prompt): ?array
