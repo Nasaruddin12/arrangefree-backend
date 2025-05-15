@@ -45,7 +45,15 @@ class FaqController extends ResourceController
     public function create()
     {
         try {
-            $data = $this->request->getJSON(true);
+            // $data = $this->request->getJSON(true);
+            $data = [
+                'category_id' => $this->request->getVar('category_id') !== '' ? $this->request->getVar('category_id') : null,
+                'service_id'  => $this->request->getVar('service_id') !== '' ? $this->request->getVar('service_id') : null,
+                'question'    => $this->request->getVar('question'),
+                'answer'      => $this->request->getVar('answer'),
+                'status'      => $this->request->getVar('status') ?? 1,
+                'created_at'  => date('Y-m-d H:i:s'),
+            ];
 
             // Validate data
             $validation = \Config\Services::validation();
