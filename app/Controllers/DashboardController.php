@@ -5,7 +5,7 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use App\Models\BookingsModel;
 use App\Models\QuotationModel;
-use App\Models\TeamModel;
+use App\Models\PartnerModel;
 use CodeIgniter\API\ResponseTrait;
 use Exception;
 
@@ -77,7 +77,7 @@ class DashboardController extends BaseController
     {
         try {
             $bookingModel = new BookingsModel();
-            $teamModel    = new TeamModel();
+            $partnerModel    = new PartnerModel();
 
             // Total projects (all except deleted maybe)
             $totalProjects = $bookingModel->countAll();
@@ -100,7 +100,7 @@ class DashboardController extends BaseController
             ])->countAllResults();
 
             // Total teams
-            $totalTeams = $teamModel->countAll();
+            $totalTeams = $partnerModel->countAll();
 
             return $this->respond([
                 'status' => true,
