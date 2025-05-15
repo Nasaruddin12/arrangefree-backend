@@ -181,12 +181,20 @@ class FreepikApiHistoryController extends ResourceController
 
             // ✅ Save to DB
             $model = new \App\Models\FreepikApiHistoryModel();
-            $model->insert([
+            $dataToInsert = [
                 'user_id'    => $user_id,
                 'prompt'     => $prompt,
                 'images'     => json_encode($imagePaths),
                 'created_at' => date('Y-m-d H:i:s'),
-            ]);
+            ];
+
+            if (!$model->insert($dataToInsert)) {
+                return $this->respond([
+                    'status'  => 400,
+                    'message' => 'Insert failed',
+                    'errors'  => $model->errors(),
+                ], 400);
+            }
 
             return $this->respond([
                 'status'  => 201,
