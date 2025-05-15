@@ -18,6 +18,7 @@ class BookingServicesModel extends Model
         'value',
         'rate',
         'amount',
+        'addons',
         'description',
         'reference_image',
         'created_at',

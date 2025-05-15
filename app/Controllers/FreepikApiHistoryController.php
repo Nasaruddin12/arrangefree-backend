@@ -211,8 +211,8 @@ class FreepikApiHistoryController extends ResourceController
         $payload = [
             'prompt' => $prompt,
             'negative_prompt' => 'b&w, earth, cartoon, ugly',
-            'guidance_scale' => 2,
-            'seed' => 42,
+            // 'guidance_scale' => 2,
+            // 'seed' => 42,
             'num_images' => 2,
             'image' => ['size' => 'square_1_1'],
             // 'styling' => [
@@ -227,7 +227,7 @@ class FreepikApiHistoryController extends ResourceController
             //         ['color' => '#33FF57', 'weight' => 1],
             //     ]
             // ],
-            'filter_nsfw' => true
+            // 'filter_nsfw' => true
         ];
 
         $headers = [

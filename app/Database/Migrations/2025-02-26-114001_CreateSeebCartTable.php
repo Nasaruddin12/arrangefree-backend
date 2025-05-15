@@ -59,6 +59,11 @@ class CreateSeebCartTable extends Migration
                 'constraint' => '10,2',
                 'null'       => false,
             ],
+            'addons'      =>
+            [
+                'type' => 'TEXT',
+                'null' => true
+            ],
             'description' => [
                 'type'       => 'TEXT',
                 'null'       => true,

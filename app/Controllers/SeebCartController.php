@@ -192,6 +192,33 @@ class SeebCartController extends ResourceController
     }
 
     // ✅ Save/Update cart item
+    // public function save()
+    // {
+    //     try {
+    //         $data = $this->request->getJSON(true);
+
+    //         if (empty($data['user_id']) || empty($data['service_id'])) {
+    //             return $this->fail('User ID and Service ID are required', 400);
+    //         }
+
+    //         // Check if rate_type and value fields exist
+    //         if (!isset($data['rate_type']) || !isset($data['value'])) {
+    //             return $this->fail('Rate Type and Value are required', 400);
+    //         }
+
+    //         // Insert new record (allowing multiple entries for the same user_id & service_id)
+    //         $this->model->insert($data);
+
+    //         return $this->respondCreated([
+    //             'status' => 201,
+    //             'message' => 'Cart item added successfully',
+    //             'data' => $data
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         return $this->failServerError($e->getMessage());
+    //     }
+    // }
+
     public function save()
     {
         try {
@@ -201,12 +228,47 @@ class SeebCartController extends ResourceController
                 return $this->fail('User ID and Service ID are required', 400);
             }
 
-            // Check if rate_type and value fields exist
             if (!isset($data['rate_type']) || !isset($data['value'])) {
                 return $this->fail('Rate Type and Value are required', 400);
             }
 
-            // Insert new record (allowing multiple entries for the same user_id & service_id)
+            // Base area calculation (e.g., 10X12 = 120 sqft)
+            $area = 1;
+            if ($data['rate_type'] === 'square_feet') {
+                $value = strtoupper(trim($data['value']));
+                if (strpos($value, 'X') !== false) {
+                    // Format: 10X12
+                    [$w, $h] = explode('X', $value);
+                    $area = floatval($w) * floatval($h);
+                } else {
+                    // Format: 120 (already in sqft)
+                    $area = floatval($value);
+                }
+            }
+
+            // Base service amount
+            $rate = floatval($data['rate'] ?? 0);
+            $baseAmount = $data['rate_type'] === 'square_feet' ? ($area * $rate) : ($area * $rate);
+
+            // Addon amount calculation
+            $addonTotal = 0;
+            $addons = json_decode($data['addons'] ?? '[]', true);
+
+            foreach ($addons as $addon) {
+                $qty = floatval($addon['qty'] ?? 0);
+                $price = floatval($addon['price'] ?? 0);
+
+                // Always treat qty as a raw number (square feet or unit), and multiply directly
+                $addonTotal += $qty * $price;
+            }
+
+            // Final total amount
+            $totalAmount = $baseAmount + $addonTotal;
+
+            $data['amount'] = $totalAmount;
+            $data['addons'] = json_encode($addons);
+            $data['created_at'] = date('Y-m-d H:i:s');
+
             $this->model->insert($data);
 
             return $this->respondCreated([
@@ -218,6 +280,7 @@ class SeebCartController extends ResourceController
             return $this->failServerError($e->getMessage());
         }
     }
+
 
     // ✅ Update a cart item
     public function update($id = null)
