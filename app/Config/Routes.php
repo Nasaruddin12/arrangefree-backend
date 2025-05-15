@@ -640,6 +640,7 @@ $routes->group('faqs', function ($routes) {
     $routes->put('(:num)', 'FaqController::update/$1');  // Update FAQ
     $routes->delete('(:num)', 'FaqController::delete/$1');  // Delete FAQ
     $routes->get('category/(:num)', 'FaqController::getFaqsByCategory/$1'); // Get FAQs by category
+    $routes->get('service/(:num)', 'FaqController::listForService/$1');
 });
 
 // FAQ Categories

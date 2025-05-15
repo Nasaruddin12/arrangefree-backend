@@ -51,6 +51,7 @@ class FaqController extends ResourceController
             $validation = \Config\Services::validation();
             $validation->setRules([
                 'category_id' => 'permit_empty|integer',
+                'service_id' => 'permit_empty|integer',
                 'question'    => 'required|min_length[3]',
                 'answer'      => 'required|min_length[3]',
                 'status'      => 'required|in_list[0,1]'
@@ -85,6 +86,7 @@ class FaqController extends ResourceController
             $validation = \Config\Services::validation();
             $validation->setRules([
                 'category_id' => 'permit_empty|integer',
+                'service_id' => 'permit_empty|integer',
                 'question'    => 'required|min_length[3]',
                 'answer'      => 'required|min_length[3]',
                 'status'      => 'required|in_list[0,1]'
@@ -130,7 +132,7 @@ class FaqController extends ResourceController
                 return $this->failValidationErrors('Invalid category ID');
             }
 
-            $faqs = $this->faqModel->where('category_id', $categoryId)->findAll();
+            $faqs = $this->faqModel->getFaqsByCategory($categoryId);
 
             if (empty($faqs)) {
                 return $this->failNotFound('No FAQs found for this category');
@@ -143,6 +145,28 @@ class FaqController extends ResourceController
         } catch (DataException $e) {
             return $this->failServerError('Database error: ' . $e->getMessage());
         } catch (Exception $e) {
+            return $this->failServerError('Something went wrong: ' . $e->getMessage());
+        }
+    }
+
+    public function listForService($service_id)
+    {
+        try {
+            // Basic validation: must be a positive integer
+            if (!is_numeric($service_id) || intval($service_id) <= 0) {
+                return $this->failValidationErrors([
+                    'service_id' => 'Service ID must be a positive number.'
+                ]);
+            }
+
+            $faqs = $this->faqModel->getFaqsByService($service_id);
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Service FAQs fetched successfully',
+                'data' => $faqs
+            ]);
+        } catch (\Exception $e) {
             return $this->failServerError('Something went wrong: ' . $e->getMessage());
         }
     }

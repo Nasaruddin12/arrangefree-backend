@@ -21,6 +21,12 @@ class CreateFaqsTable extends Migration
                 'unsigned'   => true,
                 'null'       => true,
             ],
+            'service_id' => [
+                'type'       => 'INT',
+                'constraint' => 11,
+                'unsigned'   => true,
+                'null'       => true,
+            ],
             'question' => [
                 'type'       => 'TEXT',
                 'null'       => false,
@@ -46,6 +52,7 @@ class CreateFaqsTable extends Migration
 
         $this->forge->addKey('id', true);
         $this->forge->addForeignKey('category_id', 'faq_categories', 'id', 'CASCADE', 'SET NULL'); // Adding Foreign Key
+        $this->forge->addForeignKey('service_id', 'services', 'id', 'CASCADE', 'SET NULL'); // Adding Foreign Key
         $this->forge->createTable('faqs');
     }
 
