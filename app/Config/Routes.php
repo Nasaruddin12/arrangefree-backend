@@ -644,7 +644,7 @@ $routes->group('faqs', function ($routes) {
 });
 
 // FAQ Categories
-$routes->group('faq-categories', function ($routes) {
+$routes->group('faq-category', function ($routes) {
     $routes->get('/', 'FaqCategoryController::index');  // Get all categories
     $routes->post('/', 'FaqCategoryController::create');  // Create category
     $routes->get('(:num)', 'FaqCategoryController::show/$1'); // Get single category
