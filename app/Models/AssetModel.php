@@ -16,8 +16,8 @@ class AssetModel extends Model
     protected $updatedField  = 'updated_at';
     public function getAssetsWithRoomName()
     {
-        return $this->select('assets.*, rooms.name as room_name')
-            ->join('room_elements', 'rooms.id = assets.room_id', 'left')
+        return $this->select('assets.*, rooms.title as room_name')
+            ->join('rooms', 'rooms.id = assets.room_id', 'left')
             ->findAll();
     }
 }
