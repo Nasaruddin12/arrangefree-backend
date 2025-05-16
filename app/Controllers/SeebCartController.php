@@ -248,11 +248,11 @@ class SeebCartController extends ResourceController
 
             // Base service amount
             $rate = floatval($data['rate'] ?? 0);
-            $baseAmount = $data['rate_type'] === 'square_feet' ? ($area * $rate) : ($area * $rate);
+            $baseAmount = $data['rate_type'] === 'square_feet' ? ($area * $rate) : ($data['value'] * $rate);
 
             // Addon amount calculation
             $addonTotal = 0;
-            $addons = json_decode($data['addons'] ?? '[]', true);
+            $addons = is_array($data['addons']) ? $data['addons'] : json_decode($data['addons'] ?? '[]', true);
 
             foreach ($addons as $addon) {
                 $qty = floatval($addon['qty'] ?? 0);
