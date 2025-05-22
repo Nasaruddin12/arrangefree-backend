@@ -293,6 +293,7 @@ class BookingController extends ResourceController
                     'amount'          => $service['amount'],
                     'description'     => $service['description'] ?? null,
                     'reference_image' => $service['reference_image'] ?? null,
+                    'addons'          => $service['addons'] ?? null,
                 ];
 
                 if (!$this->bookingServicesModel->insert($serviceData)) {
@@ -346,9 +347,6 @@ class BookingController extends ResourceController
             if ($paymentType === 'pay_later') {
                 $this->seebCartModel->where('user_id', $userId)->delete();
             }
-
-
-
             // Commit Transaction
             $this->db->transComplete();
             if ($this->db->transStatus() === false) {
@@ -472,7 +470,7 @@ class BookingController extends ResourceController
             // Fetch booking services for each booking
             foreach ($bookings as &$booking) {
                 $booking['services'] = $this->bookingServicesModel
-                    ->select('booking_services.*, services.name')
+                    ->select('booking_services.*, services.name, services.images as service_image')
                     ->join('services', 'services.id = booking_services.service_id', 'left')
                     ->where('booking_services.booking_id', $booking['id'])
                     ->findAll();
