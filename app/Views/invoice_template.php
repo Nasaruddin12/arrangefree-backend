@@ -203,23 +203,39 @@
 
                         <?php
                         $addons = json_decode($service['addons'], true);
-                        if (!empty($addons)):
-                        ?>
-                            <ul style="padding-left: 16px; margin: 5px 0 0 0; font-size: 13px; color: #555;">
-                                <?php foreach ($addons as $addon): ?>
-                                    <li>
-                                        <?= htmlspecialchars($addon['name']) ?>:
-                                        <?= $addon['qty'] ?> × ₹<?= number_format($addon['price'], 2) ?> =
-                                        ₹<?= number_format($addon['total'], 2) ?>
-                                    </li>
-                                <?php endforeach; ?>
-                            </ul>
+                        if (!empty($addons)): ?>
+                            <table style="margin-top: 5px; font-size: 12px; width: 100%; color: #555;">
+                                <thead>
+                                    <tr>
+                                        <th style="text-align: left;">Addon</th>
+                                        <th>Qty</th>
+                                        <th>Price</th>
+                                        <th style="text-align: right;">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($addons as $addon): ?>
+                                        <tr>
+                                            <td><?= htmlspecialchars($addon['name']) ?></td>
+                                            <td><?= $addon['qty'] ?></td>
+                                            <td>₹<?= number_format($addon['price'], 2) ?></td>
+                                            <td style="text-align: right;">₹<?= number_format($addon['total'], 2) ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
                         <?php endif; ?>
                     </td>
-                    <td><?= number_format($service['rate'], 2) ?></td>
+                    <td>₹<?= number_format($service['rate'], 2) ?></td>
                     <td><?= $service['value'] ?></td>
-                    <td><?= number_format($service['amount'], 2) ?></td>
+                    <td>
+                        <?php
+                        $totalAmount = floatval($service['amount']);
+                        echo '₹' . number_format($totalAmount, 2);
+                        ?>
+                    </td>
                 </tr>
+
             <?php endforeach; ?>
         </table>
 
