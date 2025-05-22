@@ -470,7 +470,7 @@ class BookingController extends ResourceController
             // Fetch booking services for each booking
             foreach ($bookings as &$booking) {
                 $booking['services'] = $this->bookingServicesModel
-                    ->select('booking_services.*, services.name, services.images as service_image')
+                    ->select('booking_services.*, services.name, services.image as service_image')
                     ->join('services', 'services.id = booking_services.service_id', 'left')
                     ->where('booking_services.booking_id', $booking['id'])
                     ->findAll();
