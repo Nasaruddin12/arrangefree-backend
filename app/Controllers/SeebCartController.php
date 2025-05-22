@@ -297,6 +297,48 @@ class SeebCartController extends ResourceController
                 return $this->failNotFound('Cart item not found');
             }
 
+            // Validate required fields
+            if (empty($data['user_id']) || empty($data['service_id'])) {
+                return $this->fail('User ID and Service ID are required', 400);
+            }
+
+            if (!isset($data['rate_type']) || !isset($data['value'])) {
+                return $this->fail('Rate Type and Value are required', 400);
+            }
+
+            // Area calculation
+            $area = 1;
+            if ($data['rate_type'] === 'square_feet') {
+                $value = strtoupper(trim($data['value']));
+                if (strpos($value, 'X') !== false) {
+                    [$w, $h] = explode('X', $value);
+                    $area = floatval($w) * floatval($h);
+                } else {
+                    $area = floatval($value);
+                }
+            }
+
+            // Base amount
+            $rate = floatval($data['rate'] ?? 0);
+            $baseAmount = $data['rate_type'] === 'square_feet' ? ($area * $rate) : ($data['value'] * $rate);
+
+            // Addon total
+            $addonTotal = 0;
+            $addons = is_array($data['addons']) ? $data['addons'] : json_decode($data['addons'] ?? '[]', true);
+
+            foreach ($addons as $addon) {
+                $qty = floatval($addon['qty'] ?? 0);
+                $price = floatval($addon['price'] ?? 0);
+                $addonTotal += $qty * $price;
+            }
+
+            // Final amount
+            $totalAmount = $baseAmount + $addonTotal;
+
+            $data['amount'] = $totalAmount;
+            $data['addons'] = json_encode($addons);
+            $data['updated_at'] = date('Y-m-d H:i:s');
+
             $this->model->update($id, $data);
 
             return $this->respond([
@@ -308,6 +350,7 @@ class SeebCartController extends ResourceController
             return $this->failServerError($e->getMessage());
         }
     }
+
 
     // ✅ Delete a cart item
     public function delete($id = null)
