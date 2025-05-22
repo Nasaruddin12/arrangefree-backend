@@ -200,42 +200,41 @@
                 <tr>
                     <td>
                         <strong><?= $service['service_name'] ?></strong>
-
                         <?php
                         $addons = json_decode($service['addons'], true);
                         if (!empty($addons)): ?>
-                            <table style="margin-top: 5px; font-size: 12px; width: 100%; color: #555;">
-                                <thead>
-                                    <tr>
-                                        <th style="text-align: left;">Addon</th>
-                                        <th>Qty</th>
-                                        <th>Price</th>
-                                        <th style="text-align: right;">Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php foreach ($addons as $addon): ?>
-                                        <tr>
-                                            <td><?= htmlspecialchars($addon['name']) ?></td>
-                                            <td><?= $addon['qty'] ?></td>
-                                            <td>₹<?= number_format($addon['price'], 2) ?></td>
-                                            <td style="text-align: right;">₹<?= number_format($addon['total'], 2) ?></td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
+                            <div style="font-size: 13px; color: #555; margin-top: 4px;">
+                                <?php foreach ($addons as $addon): ?>
+                                    <div>+ <?= htmlspecialchars($addon['name']) ?></div>
+                                <?php endforeach; ?>
+                            </div>
                         <?php endif; ?>
                     </td>
-                    <td>₹<?= number_format($service['rate'], 2) ?></td>
-                    <td><?= $service['value'] ?></td>
-                    <td>
-                        <?php
-                        $totalAmount = floatval($service['amount']);
-                        echo '₹' . number_format($totalAmount, 2);
-                        ?>
-                    </td>
-                </tr>
 
+                    <td>
+                        ₹<?= number_format($service['rate'], 2) ?>
+                        <?php if (!empty($addons)): ?>
+                            <div style="font-size: 13px; color: #555; margin-top: 4px;">
+                                <?php foreach ($addons as $addon): ?>
+                                    <div>+ ₹<?= number_format($addon['price'], 2) ?></div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+                    </td>
+
+                    <td>
+                        <?= $service['value'] ?>
+                        <?php if (!empty($addons)): ?>
+                            <div style="font-size: 13px; color: #555; margin-top: 4px;">
+                                <?php foreach ($addons as $addon): ?>
+                                    <div>+ <?= $addon['qty'] ?></div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+                    </td>
+
+                    <td>₹<?= number_format($service['amount'], 2) ?></td>
+                </tr>
             <?php endforeach; ?>
         </table>
 
