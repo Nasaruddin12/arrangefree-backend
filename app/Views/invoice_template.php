@@ -198,7 +198,24 @@
             </tr>
             <?php foreach ($services as $service) : ?>
                 <tr>
-                    <td><?= $service['service_name'] ?></td>
+                    <td>
+                        <strong><?= $service['service_name'] ?></strong>
+
+                        <?php
+                        $addons = json_decode($service['addons'], true);
+                        if (!empty($addons)):
+                        ?>
+                            <ul style="padding-left: 16px; margin: 5px 0 0 0; font-size: 13px; color: #555;">
+                                <?php foreach ($addons as $addon): ?>
+                                    <li>
+                                        <?= htmlspecialchars($addon['name']) ?>:
+                                        <?= $addon['qty'] ?> × ₹<?= number_format($addon['price'], 2) ?> =
+                                        ₹<?= number_format($addon['total'], 2) ?>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
+                    </td>
                     <td><?= number_format($service['rate'], 2) ?></td>
                     <td><?= $service['value'] ?></td>
                     <td><?= number_format($service['amount'], 2) ?></td>
