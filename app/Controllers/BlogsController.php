@@ -117,7 +117,14 @@ class BlogsController extends BaseController
 
 
             $productImage = $this->request->getFile('blog_image');
-            $blog = "public/uploads/blogs/";
+            $uploadPath = 'public/uploads/blogs/';
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0777, true);
+            }
+            if (!$productImage->isValid()) {
+                throw new Exception('Invalid image file.', 400);
+            }
+        
             $imageName = bin2hex(random_bytes(10)) . time() . '.jpeg';
             $productImagesData = array();
             // $productID = $this->request->getVar('product_id');
@@ -125,10 +132,10 @@ class BlogsController extends BaseController
                 // ->resize(1080, 1620, true)
                 ->resize(1620, 1620, true)
                 ->convert(IMAGETYPE_JPEG)
-                ->save($blog . $imageName, 90);
+                ->save($uploadPath . $imageName, 90);
 
             $data = [
-                'blog_image' => $blog . $imageName,
+                'blog_image' => $uploadPath . $imageName,
             ];
 
             $response = [
