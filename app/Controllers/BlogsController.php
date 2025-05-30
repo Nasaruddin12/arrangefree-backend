@@ -204,6 +204,26 @@ class BlogsController extends BaseController
         return $this->respond($response, $statusCode);
     }
 
+    public function deleteImage()
+    {
+        try {
+            $image_path = $this->request->getVar('image_path');
+
+            if (file_exists($image_path)) {
+                unlink($image_path);
+            }
+
+            $statusCode = 200;
+            $response = [
+                'message' => 'Image deleted successfully.'
+            ];
+        } catch (Exception $e) {
+            $statusCode = $e->getCode() === 400 ? 400 : 500;
+        }
+        $response['status'] = $statusCode;
+        return $this->respond($response, $statusCode);
+    }
+
     public function deleteBlog($id)
     {
         try {
@@ -434,6 +454,7 @@ class BlogsController extends BaseController
                 'description' => $this->request->getVar('description'),
                 'banner_image' => $this->request->getVar('banner_image'),
                 'section_link' => $this->request->getVar('section_link'),
+                'sub_sections' => $this->request->getVar('sub_sections'),
             ];
 
             $BlogSectionModel->update($id, $data);

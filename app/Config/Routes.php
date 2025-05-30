@@ -169,11 +169,13 @@ $routes->group('blog', static function ($routes) {
     $routes->get('get-all', 'BlogsController::getAllBlogs');
     $routes->post('deleteBlogImage', 'BlogsController::deleteBlogImage');
     $routes->post('deleteSectionImage', 'BlogsController::deleteSectionImage');
+
     $routes->delete('deleteBlog/(:num)', 'BlogsController::deleteBlog/$1');
     $routes->get('single-blog/(:num)', 'BlogsController::singleBlog/$1');
     $routes->post('updateStatus/(:num)', 'BlogsController::updateBlogStatus/$1');
     $routes->put('updateBlog/(:num)', 'BlogsController::update/$1');
 
+    $routes->post('delete-image', 'BlogsController::deleteImage');
 
     $routes->get('blog-section/(:num)', 'BlogsController::getBlogSections/$1');
     $routes->post('blog-section', 'BlogsController::createBlogSection');
