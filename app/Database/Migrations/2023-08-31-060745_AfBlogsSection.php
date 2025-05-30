@@ -31,12 +31,17 @@ class AfBlogsSection extends Migration
             ],
             'section_link' => [
                 'type' => 'VARCHAR',
-                'constraint' => 256
+                'constraint' => 256,
+                'null' => true,
+            ],
+            'sub_sections' => [
+                'type' => 'TEXT',
+                'null' => true,
             ],
             'created_at DATETIME DEFAULT CURRENT_TIMESTAMP',
             'updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
         ]);
-    
+
         $this->forge->addKey('id', true);
         $this->forge->createTable('af_blogs_section');
     }

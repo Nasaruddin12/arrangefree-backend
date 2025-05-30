@@ -19,6 +19,7 @@ class BlogsSectionModel extends Model
         'description',
         'banner_image',
         'section_link',
+        'sub_sections',
     ];
 
     // Dates

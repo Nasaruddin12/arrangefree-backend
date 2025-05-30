@@ -124,7 +124,7 @@ class BlogsController extends BaseController
             if (!$productImage->isValid()) {
                 throw new Exception('Invalid image file.', 400);
             }
-        
+
             $imageName = bin2hex(random_bytes(10)) . time() . '.jpeg';
             $productImagesData = array();
             // $productID = $this->request->getVar('product_id');
@@ -326,6 +326,7 @@ class BlogsController extends BaseController
                 'description' => $this->request->getVar('description'),
                 'banner_image' => $this->request->getVar('banner_image'), // Image path or filename
                 'section_link' => $this->request->getVar('section_link'),
+                'sub_sections' => $this->request->getVar('sub_sections'),
             ];
 
             $BlogSectionModel->insert($data);
