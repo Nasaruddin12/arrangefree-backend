@@ -38,6 +38,10 @@ class AfBlogsSection extends Migration
                 'type' => 'TEXT',
                 'null' => true,
             ],
+            'cta_text' => [
+                'type' => 'TEXT',
+                'null' => true,
+            ],
             'created_at DATETIME DEFAULT CURRENT_TIMESTAMP',
             'updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
         ]);

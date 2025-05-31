@@ -20,6 +20,7 @@ class BlogsSectionModel extends Model
         'banner_image',
         'section_link',
         'sub_sections',
+        'cta_text'
     ];
 
     // Dates

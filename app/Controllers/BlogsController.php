@@ -347,6 +347,7 @@ class BlogsController extends BaseController
                 'banner_image' => $this->request->getVar('banner_image'), // Image path or filename
                 'section_link' => $this->request->getVar('section_link'),
                 'sub_sections' => $this->request->getVar('sub_sections'),
+                'cta_text' => $this->request->getVar('cta_text'),
             ];
 
             $BlogSectionModel->insert($data);
@@ -455,6 +456,7 @@ class BlogsController extends BaseController
                 'banner_image' => $this->request->getVar('banner_image'),
                 'section_link' => $this->request->getVar('section_link'),
                 'sub_sections' => $this->request->getVar('sub_sections'),
+                'cta_text' => $this->request->getVar('cta_text'),
             ];
 
             $BlogSectionModel->update($id, $data);
