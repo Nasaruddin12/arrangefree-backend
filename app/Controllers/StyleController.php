@@ -30,6 +30,17 @@ class StyleController extends ResourceController
         }
     }
 
+    public function getStylesByCategory($categoryId = null)
+    {
+        if ($categoryId) {
+            $styles = $this->model->where('styles_category', $categoryId)->findAll();
+        } else {
+            $styles = $this->model->findAll();
+        }
+
+        return $this->response->setJSON($styles);
+    }
+
     // Fetch a single style by ID
     public function show($id = null)
     {

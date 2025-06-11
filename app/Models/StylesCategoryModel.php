@@ -16,7 +16,5 @@ class StylesCategoryModel extends Model
     ];
 
     protected $useTimestamps    = true;
-    protected $useSoftDeletes   = true;
-
-    protected $returnType       = 'array'; // or 'object' if you prefer
+    protected $useSoftDeletes   = false;
 }

@@ -721,7 +721,16 @@ $routes->group('styles', function ($routes) {
     $routes->post('/', 'StyleController::create');
     $routes->put('(:num)', 'StyleController::update/$1');
     $routes->delete('(:num)', 'StyleController::delete/$1');
+
+    $routes->get('by-category/(:num)', 'StyleController::getStylesByCategory/$1');
+
+    $routes->get('category', 'StylesCategoryController::index');
+    $routes->post('category/create', 'StylesCategoryController::create');
+    $routes->get('category/show/(:num)', 'StylesCategoryController::show/$1');
+    $routes->post('category/update/(:num)', 'StylesCategoryController::update/$1');
+    $routes->delete('category/delete/(:num)', 'StylesCategoryController::delete/$1');
 });
+
 
 $routes->group('room-elements', function ($routes) {
     $routes->get('/', 'RoomElementController::index');         // Get all room elements
