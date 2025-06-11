@@ -65,47 +65,110 @@ class StyleController extends ResourceController
     public function create()
     {
         try {
-            $data = $this->request->getVar();
+            $request = service('request');
+            $data = $request->getVar();
 
-            if (!$this->validate([
-                'name' => 'required|string|max_length[255]',
-            ])) {
-                return $this->failValidationErrors($this->validator->listErrors());
+            // Validation rules
+            $rules = [
+                'name'            => 'required|string|max_length[255]',
+                'styles_category' => 'required|integer',
+                'image'           => 'if_exist|is_image[image]|max_size[image,2048]',
+            ];
+
+            if (!$this->validate($rules)) {
+                return $this->failValidationErrors($this->validator->getErrors());
             }
 
-            $this->model->insert($data);
+            // Handle image upload if present
+            $imagePath = null;
+            $imageFile = $request->getFile('image');
+
+            if ($imageFile && $imageFile->isValid() && !$imageFile->hasMoved()) {
+                $newName  = $imageFile->getRandomName();
+                $savePath = 'public/uploads/styles/';
+                $imageFile->move(FCPATH . $savePath, $newName);
+                $imagePath = $savePath . $newName;
+            }
+
+            $this->model->insert([
+                'name'            => $request->getVar('name'),
+                'styles_category' => $request->getVar('styles_category'),
+                'image'           => $imagePath,
+                'status'          => 'active',
+            ]);
+
             return $this->respondCreated([
                 'status'  => 201,
-                'message' => 'Style created successfully'
+                'message' => 'Style created successfully',
             ]);
         } catch (\Exception $e) {
             return $this->failServerError('Error creating style: ' . $e->getMessage());
         }
     }
 
+
     // Update an existing style
     public function update($id = null)
     {
         try {
-            $data = $this->request->getJSON(true); // Fetch JSON payload as array
+            $request = service('request');
+            $data = $request->getVar();
 
-            if (!isset($data['name']) || empty($data['name'])) {
-                return $this->failValidationErrors('Style name is required.');
-            }
-
-            if (!$this->model->find($id)) {
+            if (!$id || !$this->model->find($id)) {
                 return $this->failNotFound('Style not found.');
             }
 
-            $this->model->update($id, $data);
+            // Validation rules
+            $rules = [
+                'name'            => 'required|string|max_length[255]',
+                'styles_category' => 'required|integer',
+                'image'           => 'permit_empty|string', // allow direct path
+            ];
+
+            // Run validation
+            if (!$this->validate($rules)) {
+                return $this->failValidationErrors($this->validator->getErrors());
+            }
+
+            // Initialize imagePath
+            $imagePath = null;
+
+            // Case 1: Check for uploaded file
+            $imageFile = $request->getFile('image');
+            if ($imageFile && $imageFile->isValid() && !$imageFile->hasMoved()) {
+                $newName = $imageFile->getRandomName();
+                $savePath = 'uploads/styles/';
+                $imageFile->move(FCPATH . $savePath, $newName);
+                $imagePath = $savePath . $newName;
+            }
+
+            // Case 2: Check if image path is passed directly as string
+            $directPath = $request->getVar('image');
+            if (!$imagePath && $directPath && is_string($directPath)) {
+                $imagePath = $directPath;
+            }
+
+            // Prepare update data
+            $updateData = [
+                'name'            => $data['name'],
+                'styles_category' => $data['styles_category'],
+            ];
+
+            if ($imagePath) {
+                $updateData['image'] = $imagePath;
+            }
+
+            $this->model->update($id, $updateData);
+
             return $this->respond([
                 'status'  => 200,
                 'message' => 'Style updated successfully'
-            ], 200);
+            ]);
         } catch (\Exception $e) {
             return $this->failServerError('Error updating style: ' . $e->getMessage());
         }
     }
+
 
     // Delete a style
     public function delete($id = null)
