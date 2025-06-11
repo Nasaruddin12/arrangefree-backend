@@ -712,6 +712,9 @@ $routes->group('assets', function ($routes) {
     $routes->get('room/(:num)', 'AssetController::getByRoom/$1');
 });
 
+$routes->get('serve-file/(:any)', 'FileController::serveFile/$1');
+
+
 $routes->group('styles', function ($routes) {
     $routes->get('/', 'StyleController::index');
     $routes->get('(:num)', 'StyleController::show/$1');
