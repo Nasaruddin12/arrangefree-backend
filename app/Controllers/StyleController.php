@@ -33,7 +33,7 @@ class StyleController extends ResourceController
     public function getStylesByCategory($categoryId = null)
     {
         if ($categoryId) {
-            $styles = $this->model->where('styles_category', $categoryId)->findAll();
+            $styles = $this->model->where('styles_category_id', $categoryId)->findAll();
         } else {
             $styles = $this->model->findAll();
         }
@@ -71,7 +71,7 @@ class StyleController extends ResourceController
             // Validation rules
             $rules = [
                 'name'            => 'required|string|max_length[255]',
-                'styles_category' => 'required|integer',
+                'styles_category_id' => 'required|integer',
                 'image'           => 'if_exist|is_image[image]|max_size[image,2048]',
             ];
 
@@ -121,7 +121,7 @@ class StyleController extends ResourceController
             // Validation rules
             $rules = [
                 'name'            => 'required|string|max_length[255]',
-                'styles_category' => 'required|integer',
+                'styles_category_id' => 'required|integer',
                 'image'           => 'permit_empty|string', // allow direct path
             ];
 

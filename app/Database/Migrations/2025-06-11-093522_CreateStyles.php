@@ -19,10 +19,11 @@ class CreateStyles extends Migration
                 'type'       => 'VARCHAR',
                 'constraint' => 255,
             ],
-            'styles_category'  => [
+            'styles_category_id'  => [
                 'type'       => 'INT',
                 'constraint' => 11,
                 'unsigned'   => true,
+                'null'       => true,
             ],
             'image'            => [
                 'type'       => 'VARCHAR',
@@ -45,7 +46,7 @@ class CreateStyles extends Migration
         ]);
 
         $this->forge->addKey('id', true);
-        $this->forge->addForeignKey('styles_category', 'styles_category', 'id', 'CASCADE', 'CASCADE');
+        $this->forge->addForeignKey('styles_category_id', 'styles_category', 'id', 'CASCADE', 'SET NULL');
         $this->forge->createTable('styles');
     }
 
