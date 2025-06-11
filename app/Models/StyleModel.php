@@ -11,7 +11,7 @@ class StyleModel extends Model
 
     protected $allowedFields = [
         'name',
-        'styles_category', // foreign key or reference to styles_category
+        'styles_category_id', // foreign key or reference to styles_category
         'image',
         'status',
         'created_at',
