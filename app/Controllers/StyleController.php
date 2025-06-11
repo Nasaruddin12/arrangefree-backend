@@ -32,13 +32,25 @@ class StyleController extends ResourceController
 
     public function getStylesByCategory($categoryId = null)
     {
-        if ($categoryId) {
-            $styles = $this->model->where('styles_category_id', $categoryId)->findAll();
-        } else {
-            $styles = $this->model->findAll();
-        }
+        try {
+            if ($categoryId) {
+                $styles = $this->model->where('styles_category_id', $categoryId)->findAll();
+            } else {
+                $styles = $this->model->findAll();
+            }
 
-        return $this->response->setJSON($styles);
+            if (empty($styles)) {
+                return $this->failNotFound('No styles found.');
+            }
+
+            return $this->respond([
+                'status'  => 200,
+                'message' => $categoryId ? 'Styles for category retrieved successfully' : 'All styles retrieved successfully',
+                'data'    => $styles
+            ], 200);
+        } catch (\Exception $e) {
+            return $this->failServerError('Failed to retrieve styles: ' . $e->getMessage());
+        }
     }
 
     // Fetch a single style by ID
@@ -137,7 +149,7 @@ class StyleController extends ResourceController
             $imageFile = $request->getFile('image');
             if ($imageFile && $imageFile->isValid() && !$imageFile->hasMoved()) {
                 $newName = $imageFile->getRandomName();
-                $savePath = 'uploads/styles/';
+                $savePath = 'public/uploads/styles/';
                 $imageFile->move(FCPATH . $savePath, $newName);
                 $imagePath = $savePath . $newName;
             }
