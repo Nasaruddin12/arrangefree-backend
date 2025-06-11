@@ -104,7 +104,7 @@ class StyleController extends ResourceController
 
             $this->model->insert([
                 'name'            => $request->getVar('name'),
-                'styles_category' => $request->getVar('styles_category'),
+                'styles_category_id' => $request->getVar('styles_category_id'),
                 'image'           => $imagePath,
                 'status'          => 'active',
             ]);
@@ -163,7 +163,7 @@ class StyleController extends ResourceController
             // Prepare update data
             $updateData = [
                 'name'            => $data['name'],
-                'styles_category' => $data['styles_category'],
+                'styles_category_id' => $data['styles_category_id'],
             ];
 
             if ($imagePath) {
