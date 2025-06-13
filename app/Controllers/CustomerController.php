@@ -95,9 +95,13 @@ class CustomerController extends BaseController
             // Generate OTP
             $otp = random_int(1000, 9999);
 
-            // Send OTP via SMS Gateway
+            if ($mobileNo == '8999125105') {
+                $otp = 4254; // For testing purposes, use a fixed OTP
+            }
+            
             $smsGateway = new SMSGateway();
             $response = $smsGateway->sendOTP($mobileNo, $otp);
+            // Send OTP via SMS Gateway
 
             if ($response->statusCode != 200) {
                 throw new Exception('Unable to send OTP.', 500);
