@@ -727,7 +727,7 @@ $routes->group('styles', function ($routes) {
     $routes->get('category', 'StylesCategoryController::index');
     $routes->post('category/create', 'StylesCategoryController::create');
     $routes->get('category/show/(:num)', 'StylesCategoryController::show/$1');
-    $routes->post('category/update/(:num)', 'StylesCategoryController::update/$1');
+    $routes->put('category/update/(:num)', 'StylesCategoryController::update/$1');
     $routes->delete('category/delete/(:num)', 'StylesCategoryController::delete/$1');
 });
 
