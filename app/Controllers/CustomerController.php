@@ -96,7 +96,7 @@ class CustomerController extends BaseController
             $otp = random_int(1000, 9999);
 
             if ($mobileNo == '8999125105') {
-                $otp = 4254; // For testing purposes, use a fixed OTP
+                $otp = 4256; // For testing purposes, use a fixed OTP
             }
             
             $smsGateway = new SMSGateway();
