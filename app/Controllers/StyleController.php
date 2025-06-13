@@ -81,15 +81,15 @@ class StyleController extends ResourceController
             $data = $request->getVar();
 
             // Validation rules
-            $rules = [
-                'name'            => 'required|string|max_length[255]',
-                'styles_category_id' => 'required|integer',
-                'image'           => 'if_exist|is_image[image]|max_size[image,2048]',
-            ];
+            // $rules = [
+            //     'name'            => 'required|string|max_length[255]',
+            //     'styles_category_id' => 'required|integer',
+            //     'image'           => 'if_exist|is_image[image]|max_size[image,2048]',
+            // ];
 
-            if (!$this->validate($rules)) {
-                return $this->failValidationErrors($this->validator->getErrors());
-            }
+            // if (!$this->validate($rules)) {
+            //     return $this->failValidationErrors($this->validator->getErrors());
+            // }
 
             // Handle image upload if present
             $imagePath = null;
@@ -125,6 +125,7 @@ class StyleController extends ResourceController
         try {
             $request = service('request');
             $data = $request->getVar();
+
 
             if (!$id || !$this->model->find($id)) {
                 return $this->failNotFound('Style not found.');
