@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\StyleModel;
 use App\Models\StylesCategoryModel;
 use CodeIgniter\RESTful\ResourceController;
 
@@ -144,6 +145,35 @@ class StylesCategoryController extends ResourceController
             ]);
         } catch (\Exception $e) {
             return $this->failServerError('Error deleting style category: ' . $e->getMessage());
+        }
+    }
+
+    public function getAllCategoriesWithStyles()
+    {
+        try {
+            $categoryModel = new StylesCategoryModel();
+            $styleModel    = new StyleModel();
+
+            $categories = $categoryModel->findAll();
+
+            if (empty($categories)) {
+                return $this->failNotFound('No categories found.');
+            }
+
+            // Attach styles to each category
+            foreach ($categories as &$category) {
+                $category['styles'] = $styleModel
+                    ->where('styles_category_id', $category['id'])
+                    ->findAll();
+            }
+
+            return $this->respond([
+                'status'  => 200,
+                'message' => 'Categories with styles retrieved successfully',
+                'data'    => $categories
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError('Failed to retrieve categories and styles: ' . $e->getMessage());
         }
     }
 }

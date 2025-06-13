@@ -30,29 +30,6 @@ class StyleController extends ResourceController
         }
     }
 
-    public function getStylesByCategory($categoryId = null)
-    {
-        try {
-            if ($categoryId) {
-                $styles = $this->model->where('styles_category_id', $categoryId)->findAll();
-            } else {
-                $styles = $this->model->findAll();
-            }
-
-            if (empty($styles)) {
-                return $this->failNotFound('No styles found.');
-            }
-
-            return $this->respond([
-                'status'  => 200,
-                'message' => $categoryId ? 'Styles for category retrieved successfully' : 'All styles retrieved successfully',
-                'data'    => $styles
-            ], 200);
-        } catch (\Exception $e) {
-            return $this->failServerError('Failed to retrieve styles: ' . $e->getMessage());
-        }
-    }
-
     // Fetch a single style by ID
     public function show($id = null)
     {
