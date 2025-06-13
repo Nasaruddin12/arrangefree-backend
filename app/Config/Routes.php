@@ -719,7 +719,7 @@ $routes->group('styles', function ($routes) {
     $routes->get('/', 'StyleController::index');
     $routes->get('(:num)', 'StyleController::show/$1');
     $routes->post('/', 'StyleController::create');
-    $routes->put('(:num)', 'StyleController::update/$1');
+    $routes->post('update/(:num)', 'StyleController::update/$1');
     $routes->delete('(:num)', 'StyleController::delete/$1');
 
     $routes->get('by-category/(:num)', 'StyleController::getStylesByCategory/$1');
@@ -727,7 +727,7 @@ $routes->group('styles', function ($routes) {
     $routes->get('category', 'StylesCategoryController::index');
     $routes->post('category/create', 'StylesCategoryController::create');
     $routes->get('category/show/(:num)', 'StylesCategoryController::show/$1');
-    $routes->put('category/update/(:num)', 'StylesCategoryController::update/$1');
+    $routes->post('category/update/(:num)', 'StylesCategoryController::update/$1');
     $routes->delete('category/delete/(:num)', 'StylesCategoryController::delete/$1');
 });
 

@@ -123,52 +123,55 @@ class StyleController extends ResourceController
     public function update($id = null)
     {
         try {
-            $request = service('request');
-            $data = $request->getVar();
-            
+            $data = $this->request->getVar();
 
             if (!$id || !$this->model->find($id)) {
                 return $this->failNotFound('Style not found.');
             }
 
             // Validation rules
-            // $rules = [
-            //     'name'            => 'required|string|max_length[255]',
-            //     'styles_category_id' => 'required|integer',
-            //     'image'           => 'permit_empty|string', // allow direct path
-            // ];
+            $rules = [
+                'name'               => 'required|string|max_length[255]',
+                'styles_category_id' => 'required|integer',
+                'status'             => 'permit_empty|in_list[active,inactive]',
+                'image'              => 'if_exist|is_image[image]|max_size[image,2048]', // for file upload
+            ];
 
-            // // Run validation
-            // if (!$this->validate($rules)) {
-            //     return $this->failValidationErrors($this->validator->getErrors());
-            // }
+            if (!$this->validate($rules)) {
+                return $this->failValidationErrors($this->validator->getErrors());
+            }
 
             // Initialize imagePath
             $imagePath = null;
 
-            // Case 1: Check for uploaded file
-            $imageFile = $request->getFile('image');
+            // Case 1: Uploaded file
+            $imageFile = $this->request->getFile('image');
             if ($imageFile && $imageFile->isValid() && !$imageFile->hasMoved()) {
                 $newName = $imageFile->getRandomName();
-                $savePath = 'public/uploads/styles/';
+                $savePath = 'uploads/styles/';
                 $imageFile->move(FCPATH . $savePath, $newName);
                 $imagePath = $savePath . $newName;
             }
 
-            // Case 2: Check if image path is passed directly as string
-            $directPath = $request->getVar('image');
+            // Case 2: Image path passed directly
+            $directPath = $this->request->getVar('image');
             if (!$imagePath && $directPath && is_string($directPath)) {
                 $imagePath = $directPath;
             }
 
             // Prepare update data
             $updateData = [
-                'name'            => $data['name'],
+                'name'               => $data['name'],
                 'styles_category_id' => $data['styles_category_id'],
             ];
 
             if ($imagePath) {
                 $updateData['image'] = $imagePath;
+            }
+
+            // Optional status
+            if (!empty($data['status'])) {
+                $updateData['status'] = $data['status'];
             }
 
             $this->model->update($id, $updateData);
@@ -181,6 +184,7 @@ class StyleController extends ResourceController
             return $this->failServerError('Error updating style: ' . $e->getMessage());
         }
     }
+
 
 
     // Delete a style
