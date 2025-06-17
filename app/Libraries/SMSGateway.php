@@ -18,7 +18,7 @@ class SMSGateway
 
     public function sendOTP($destination, $otp)
     {
-        $text = "$otp is your OTP for verification with Seeb \n\n-Team Haps";
+        $text = "Your SEEB verification code is $otp. It is valid for 10 minutes. Do not share this code with anyone. \n\n- www.seeb.in";
         $text = rawurlencode($text);
         $data = array(
             'ver' => $this->gatewayVariables['version'],
