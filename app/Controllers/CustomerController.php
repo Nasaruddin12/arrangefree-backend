@@ -102,7 +102,7 @@ class CustomerController extends BaseController
             $smsGateway = new SMSGateway();
             $response = $smsGateway->sendOTP($mobileNo, $otp);
             // Send OTP via SMS Gateway
-            print_r($response);
+            
             if ($response->statusCode != 200) {
                 throw new Exception('Unable to send OTP.', 500);
             }
