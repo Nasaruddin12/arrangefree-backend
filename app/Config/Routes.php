@@ -659,6 +659,11 @@ $routes->group('ai-api-history', function ($routes) {
     $routes->get('by-user/(:num)', 'AIAPIHistoryController::getHistoryByUser/$1');
     $routes->post('analyze-image', 'AIAPIHistoryController::analyzeImage');
 });
+$routes->group('ai-api', function ($routes) {
+    $routes->post('gpt4o-mini', 'AIAPIHistoryController::gpt4oMini');
+    $routes->post('dalle-image', 'AIAPIHistoryController::dalleImageGenerate');
+    $routes->post('gemini-generate', 'AIAPIHistoryController::generateWithGemini');
+});
 
 $routes->group('payment', function ($routes) {
     $routes->post('request', 'PaymentRequestController::create');
@@ -741,11 +746,13 @@ $routes->group('room-elements', function ($routes) {
 });
 
 $routes->group('floor-plans', function ($routes) {
-    $routes->get('/', 'FloorPlanController::index');          // List all plans (optional: ?user_id=1)
+    $routes->get('', 'FloorPlanController::index');          // List all plans (optional: ?user_id=1)
+    $routes->get('user-id/(:num)', 'FloorPlanController::index/$1');          // List all plans (optional: ?user_id=1)
     $routes->get('(:num)', 'FloorPlanController::show/$1');   // Get single plan
     $routes->post('/', 'FloorPlanController::create');        // Create new plan
     $routes->put('(:num)', 'FloorPlanController::update/$1'); // Update plan
     $routes->delete('(:num)', 'FloorPlanController::delete/$1'); // Delete plan
+    $routes->post('upload-image', 'FloorPlanController::upload'); // Upload image for a plan
 });
 
 $routes->group('dashboard', static function ($routes) {

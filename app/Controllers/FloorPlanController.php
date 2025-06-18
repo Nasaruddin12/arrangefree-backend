@@ -6,7 +6,6 @@ use App\Controllers\BaseController;
 use App\Models\FloorPlanModel;
 use CodeIgniter\API\ResponseTrait;
 use CodeIgniter\HTTP\ResponseInterface;
-
 use Exception;
 
 class FloorPlanController extends BaseController
@@ -20,11 +19,13 @@ class FloorPlanController extends BaseController
         $this->floorPlanModel = new FloorPlanModel();
     }
 
-    public function index()
+    public function index($userId = null)
     {
         try {
-            $userId = $this->request->getGet('user_id');
-            $plans = $this->floorPlanModel->where('user_id', $userId)->findAll();
+
+            $plans = $userId
+                ? $this->floorPlanModel->where('user_id', $userId)->findAll()
+                : $this->floorPlanModel->findAll();
 
             return $this->respond([
                 'status' => 200,
@@ -64,29 +65,17 @@ class FloorPlanController extends BaseController
     public function create()
     {
         try {
-            // Access file BEFORE validating
-            $file = $this->request->getFile('file');
-
-            // Dynamically inject file into request so validator sees it
-            if ($file && $file->isValid()) {
-                $_FILES['file'] = [
-                    'name'     => $file->getName(),
-                    'type'     => $file->getClientMimeType(),
-                    'tmp_name' => $file->getTempName(),
-                    'error'    => $file->getError(),
-                    'size'     => $file->getSize(),
-                ];
-            }
-
-            // Then validate
             $rules = [
-                'user_id'     => 'required|integer',
-                'room_name'   => 'required|string',
-                'room_width'  => 'required|numeric',
-                'room_height' => 'required|numeric',
-                'room_length' => 'required|numeric',
-                'canvas_json' => 'permit_empty|string',
-                'file'        => 'uploaded[file]|max_size[file,2048]|ext_in[file,png,jpg,jpeg,svg,pdf]'
+                'user_id'         => 'required|integer',
+                'room_name'       => 'required|string|max_length[255]',
+                'room_size'       => 'required|string|max_length[100]',
+                'name'            => 'required|string|max_length[255]', // ✅ added
+                'primary_color'   => 'permit_empty|string|max_length[50]',
+                'accent_color'    => 'permit_empty|string|max_length[50]',
+                'style_name'      => 'permit_empty|string|max_length[255]',
+                'floorplan_image' => 'required|valid_url',
+                'floor3d_image'   => 'permit_empty|valid_url',
+                'elements_json'   => 'required|string',
             ];
 
             if (!$this->validate($rules)) {
@@ -96,28 +85,15 @@ class FloorPlanController extends BaseController
                 ], 422);
             }
 
-            // Prepare input
-            $data = $this->request->getPost();
-
-            // Move file
-            if ($file && $file->isValid() && !$file->hasMoved()) {
-
-                $uploadPath = 'public/uploads/floorplans/';
-
-                // Generate new random name and move file
-                $newName = $file->getRandomName();
-                $file->move($uploadPath, $newName);
-                $data['file'] = $uploadPath . $newName;
-    
-            }
+            $data = $this->request->getVar();
 
             $this->floorPlanModel->insert($data);
 
-            return $this->respond([
+            return $this->respondCreated([
                 'status'  => 201,
                 'message' => 'Floor plan created successfully',
                 'data'    => $data,
-            ], 201);
+            ]);
         } catch (Exception $e) {
             return $this->respond([
                 'status'  => 500,
@@ -125,6 +101,7 @@ class FloorPlanController extends BaseController
             ], 500);
         }
     }
+
 
     public function update($id = null)
     {
@@ -137,16 +114,13 @@ class FloorPlanController extends BaseController
                 ], 404);
             }
 
-            if ($this->request->is('json')) {
-                $data = $this->request->getJSON(true);
-            } else {
-                $data = $this->request->getPost();
-            }
+            $data = $this->request->getVar(); // ✅ Supports JSON, form-data, and x-www-form-urlencoded
+
             $this->floorPlanModel->update($id, $data);
 
             return $this->respond([
                 'status'  => 200,
-                'message' => 'Floor plan updated',
+                'message' => 'Floor plan updated successfully',
             ]);
         } catch (Exception $e) {
             return $this->respond([
@@ -155,6 +129,7 @@ class FloorPlanController extends BaseController
             ], 500);
         }
     }
+
 
     public function delete($id = null)
     {
@@ -178,6 +153,31 @@ class FloorPlanController extends BaseController
                 'status'  => 500,
                 'message' => $e->getMessage(),
             ], 500);
+        }
+    }
+    public function upload()
+    {
+        try {
+            $file = $this->request->getFile('file');
+
+            if (!$file || !$file->isValid()) {
+                return $this->failValidationError('Invalid or missing file.');
+            }
+
+            $uploadPath = 'public/uploads/floorplans/';
+            $newName = $file->getRandomName();
+            $file->move(FCPATH . $uploadPath, $newName);
+
+            // Return only the relative path
+            $relativePath = $uploadPath . $newName;
+
+            return $this->respond([
+                'status'     => 200,
+                'message'    => 'File uploaded successfully',
+                'file_path'  => $relativePath
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError('Upload failed: ' . $e->getMessage());
         }
     }
 }

@@ -15,11 +15,16 @@ class FloorPlanModel extends Model
     protected $allowedFields = [
         'user_id',
         'room_name',
-        'room_width',
-        'room_height',
-        'room_length',
-        'canvas_json',
-        'file',
+        'room_size',
+        'name',
+        'primary_color',
+        'accent_color',
+        'style_name',
+        'floorplan_image',
+        'floor3d_image',
+        'elements_json',
+        'created_at',
+        'updated_at',
     ];
 
     protected $useTimestamps = true;

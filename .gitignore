@@ -15,3 +15,4 @@ app/Config/Razorpay.php
 public/public_rest.zip
 public/uploads.zip
 app/Config/firebase-service-account.json
+app/Config/service-account.json

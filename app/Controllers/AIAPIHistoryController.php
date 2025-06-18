@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Libraries\GeminiAI;
 use App\Models\AIAPIHistoryModel;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\RESTful\ResourceController;
@@ -207,4 +208,221 @@ class AIAPIHistoryController extends ResourceController
             return $this->failServerError('An unexpected error occurred: ' . $e->getMessage());
         }
     }
+
+
+    public function gpt4oMini()
+    {
+        try {
+            $rules = [
+                'user_id' => 'required|integer',
+                'prompt'  => 'required|string|max_length[2000]',
+            ];
+
+            $input = $this->request->getJSON(true);
+
+            // Validate
+            if (!$this->validate($rules)) {
+                return $this->response->setJSON([
+                    'status'  => 422,
+                    'message' => 'Validation failed',
+                    'errors'  => $this->validator->getErrors(),
+                ])->setStatusCode(ResponseInterface::HTTP_UNPROCESSABLE_ENTITY);
+            }
+
+            $userId     = $input['user_id'];
+            $userPrompt = $input['prompt'];
+            $imageUrl   = $input['image_url'] ?? null; // optional
+
+            $apiKey = getenv('OPENAI_API_KEY');
+            if (empty($apiKey)) {
+                return $this->response->setJSON([
+                    'status'  => 500,
+                    'message' => 'OpenAI API key is missing in environment config.',
+                ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+            }
+
+            // Build messages array
+            $messages = [
+                [
+                    'role' => 'user',
+                    'content' => $imageUrl
+                        ? [
+                            ['type' => 'text', 'text' => $userPrompt],
+                            ['type' => 'image_url', 'image_url' => ['url' => $imageUrl]]
+                        ]
+                        : $userPrompt
+                ]
+            ];
+
+            $data = [
+                'model' => 'gpt-4o',
+                'messages' => $messages,
+            ];
+
+            $headers = [
+                'Authorization' => 'Bearer ' . $apiKey,
+                'Content-Type'  => 'application/json',
+            ];
+
+            $client = \Config\Services::curlrequest();
+
+            $response = $client->post('https://api.openai.com/v1/chat/completions', [
+                'headers' => $headers,
+                'body'    => json_encode($data),
+            ]);
+            $responseData = json_decode($response->getBody(), true);
+            $content = $responseData['choices'][0]['message']['content'] ?? 'No content generated.';
+
+            return $this->response->setJSON([
+                'status'  => 200,
+                'message' => 'AI analysis completed successfully.',
+                'data' => $content,
+            ]);
+        } catch (\Throwable $e) {
+            log_message('error', 'GPT-4o API Error: ' . $e->getMessage());
+            return $this->failServerError('An error occurred while processing the request: ' . $e->getMessage());
+        }
+    }
+    
+    public function dalleImageGenerate()
+    {
+        try {
+            $rules = [
+                'user_id' => 'required|integer',
+                'prompt'  => 'required|string|max_length[1000]',
+            ];
+
+            $input = $this->request->getJSON(true);
+
+            if (!$this->validate($rules)) {
+                return $this->response->setJSON([
+                    'status'  => 422,
+                    'message' => 'Validation failed',
+                    'errors'  => $this->validator->getErrors(),
+                ])->setStatusCode(ResponseInterface::HTTP_UNPROCESSABLE_ENTITY);
+            }
+
+            $userId     = $input['user_id'];
+            $userPrompt = $input['prompt'];
+
+            $apiKey = getenv('OPENAI_API_KEY');
+            if (empty($apiKey)) {
+                return $this->response->setJSON([
+                    'status'  => 500,
+                    'message' => 'OpenAI API key is missing in environment config.',
+                ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+            }
+
+            $data = [
+                'model' => 'dall-e-3',
+                'prompt' => $userPrompt,
+                'n' => 1, // Number of images
+                'size' => '1024x1024',
+                'response_format' => 'url' // or 'b64_json' for base64
+            ];
+
+            $headers = [
+                'Authorization' => 'Bearer ' . $apiKey,
+                'Content-Type'  => 'application/json',
+            ];
+
+            $client = \Config\Services::curlrequest();
+
+            $response = $client->post('https://api.openai.com/v1/images/generations', [
+                'headers' => $headers,
+                'body'    => json_encode($data),
+            ]);
+
+            $responseData = json_decode($response->getBody(), true);
+
+            $imageUrl = $responseData['data'][0]['url'] ?? null;
+
+            if (!$imageUrl) {
+                return $this->response->setJSON([
+                    'status'  => 500,
+                    'message' => 'Image generation failed.',
+                    'data'    => $responseData,
+                ])->setStatusCode(ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+            }
+
+            return $this->response->setJSON([
+                'status'  => 200,
+                'message' => 'Image generated successfully.',
+                'image_url' => $imageUrl,
+            ]);
+        } catch (\Throwable $e) {
+            log_message('error', 'DALL·E API Error: ' . $e->getMessage());
+            return $this->failServerError('Image generation error: ' . $e->getMessage());
+        }
+    }
+
+
+    public function generateWithGemini()
+    {
+        $prompt = $this->request->getVar('prompt');
+        $imageFile = $this->request->getFile('image'); // Optional
+
+        if (empty($prompt)) {
+            return $this->response->setJSON([
+                'status' => 400,
+                'message' => 'Prompt is required.',
+            ]);
+        }
+
+        try {
+            $base64Image = null;
+            $mimeType = null;
+
+            if ($imageFile && $imageFile->isValid() && !$imageFile->hasMoved()) {
+                $mimeType = $imageFile->getMimeType();
+                $base64Image = base64_encode(file_get_contents($imageFile->getTempName()));
+            }
+
+            $geminiAI = new GeminiAI();
+            $result = $geminiAI->generateImageWithOptionalImage($prompt, $base64Image, $mimeType);
+
+            return $this->response->setJSON([
+                'status'  => 200,
+                'message' => 'Image generated successfully using Gemini.',
+                'data'    => [
+                    'prompt' => $prompt,
+                    'generatedImages' => $result['images'] ?? [],
+                ]
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Gemini API Error: ' . $e->getMessage());
+            return $this->failServerError('Image generation error: ' . $e->getMessage());
+        }
+    }
+
+
+    // public function edit()
+    // {
+    //     $prompt = $this->request->getPost('edit_prompt');
+    //     $imageFile = $this->request->getFile('input_image');
+
+    //     if (empty($prompt) || !$imageFile->isValid()) {
+    //         return redirect()->back()->with('error', 'Please provide a prompt and an image for editing.');
+    //     }
+
+    //     try {
+    //         // Read image and convert to base64
+    //         $imageData = file_get_contents($imageFile->getTempName());
+    //         $imageDataBase64 = base64_encode($imageData);
+    //         $imageMimeType = $imageFile->getMimeType();
+
+    //         $geminiAI = new GeminiAI();
+    //         $result = $geminiAI->editImage($prompt, $imageDataBase64, $imageMimeType);
+
+    //         $data = [
+    //             'prompt' => $prompt,
+    //             'editedImages' => $result['images'],
+    //             'generatedText' => $result['text']
+    //         ];
+
+    //         return view('image_editor_result', $data);
+    //     } catch (\Exception $e) {
+    //         return redirect()->back()->with('error', $e->getMessage());
+    //     }
+    // }
 }

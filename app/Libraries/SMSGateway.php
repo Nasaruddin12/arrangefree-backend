@@ -37,6 +37,7 @@ class SMSGateway
     {
         $url = 'https://japi.instaalerts.zone/httpapi/QueryStringReceiver';
         $optionsArray = array();
+        // print_r($data);
 
         foreach ($data as $key => $value) {
             $optionsArray[] = $key . '=' . $value;
@@ -60,6 +61,7 @@ class SMSGateway
             'info' => explode('=', $output[2])[1],
             'time' => explode('=', $output[3])[1],
         );
+        // print_r($responseArray);
         return (object)$responseArray;
     }
 }
