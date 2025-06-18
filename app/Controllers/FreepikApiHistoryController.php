@@ -484,7 +484,8 @@ class FreepikApiHistoryController extends ResourceController
 
         $headers = [
             'Content-Type'        => 'application/json',
-            'x-freepik-api-key'   => 'FPSX6fb14b5c917c4ba5a9f150a5184bc728'
+            // 'x-freepik-api-key'   => 'FPSX6fb14b5c917c4ba5a9f150a5184bc728'
+            'x-freepik-api-key'   => 'FPSX957aabc7c6bdddd5244c17564b0b6826'
         ];
 
         $response = $client->post(
