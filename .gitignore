@@ -1,5 +1,5 @@
 public/invoice/
-vendor/
+# vendor/
 writable/
 
 
