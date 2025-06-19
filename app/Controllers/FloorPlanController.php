@@ -73,8 +73,8 @@ class FloorPlanController extends BaseController
                 'primary_color'   => 'permit_empty|string|max_length[50]',
                 'accent_color'    => 'permit_empty|string|max_length[50]',
                 'style_name'      => 'permit_empty|string|max_length[255]',
-                'floorplan_image' => 'required|valid_url',
-                'floor3d_image'   => 'permit_empty|valid_url',
+                'floorplan_image' => 'required|string',
+                'floor3d_image'   => 'permit_empty|string',
                 'elements_json'   => 'required|string',
             ];
 
