@@ -154,6 +154,14 @@ class FreepikApiHistoryController extends ResourceController
         try {
             $user_id = $this->request->getVar('user_id');
             $prompt  = $this->request->getVar('prompt');
+            $type  = $this->request->getVar('type');
+
+            if (!in_array($type, ['search', 'floorplan'])) {
+                return $this->respond([
+                    'status'  => 422,
+                    'message' => 'Invalid type. Allowed values: search, floorplan.'
+                ], 422);
+            }
 
             if (empty($user_id) || empty($prompt)) {
                 return $this->respond(['status' => 400, 'message' => 'User ID and prompt are required'], 400);
@@ -430,6 +438,7 @@ class FreepikApiHistoryController extends ResourceController
                 'user_id'    => $user_id,
                 'prompt'     => $prompt,
                 'images'     => json_encode($imagePaths),
+                'type'       => $type,
                 'created_at' => date('Y-m-d H:i:s'),
             ];
 

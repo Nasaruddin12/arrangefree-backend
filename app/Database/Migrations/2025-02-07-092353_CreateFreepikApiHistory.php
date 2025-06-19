@@ -28,6 +28,11 @@ class CreateFreepikApiHistory extends Migration
                 'type'       => 'TEXT',
                 'null'       => false,
             ],
+            'type' => [
+                'type'       => 'ENUM',
+                'constraint' => ['search', 'floorplan'],
+                'default'    => 'search',
+            ],
             'created_at' => [
                 'type'    => 'DATETIME',
                 'null'    => true,
