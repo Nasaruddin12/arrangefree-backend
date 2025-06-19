@@ -69,7 +69,7 @@ class FloorPlanController extends BaseController
                 'user_id'         => 'required|integer',
                 'room_name'       => 'required|string|max_length[255]',
                 'room_size'       => 'required|string|max_length[100]',
-                'name'            => 'required|string|max_length[255]', // ✅ added
+                'name'            => 'permit_empty|string|max_length[255]', // ✅ added
                 'primary_color'   => 'permit_empty|string|max_length[50]',
                 'accent_color'    => 'permit_empty|string|max_length[50]',
                 'style_name'      => 'permit_empty|string|max_length[255]',
