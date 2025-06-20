@@ -235,6 +235,7 @@ class FreepikApiHistoryController extends ResourceController
                 'ottoman',
                 'recliner',
                 'swing chair',
+                'chair',
 
                 // 🔹 Ceilings & Walls
                 'false ceiling',
