@@ -148,10 +148,10 @@
                     <img src="<?= $logoSrc ?>" alt="Logo" style="width:100px; height:100px;" />
                 </td>
                 <td width="60%" style="text-align: right; font-size: 14px; border:0px;">
-                    <strong>XYZ Services Pvt Ltd</strong><br>
-                    123 Business Street, Pune, India<br>
-                    GSTIN: 29ABCDE1234F2Z5<br>
-                    Phone: +91-9876543210<br>
+                    <strong>Seeb Design Pvt Ltd</strong><br>
+                    217, Tower-2 WTC Kharadi, Pune, India<br>
+                    <!-- GSTIN: 29ABCDE1234F2Z5<br> -->
+                    Phone: 18005703133<br>
                     Email: contact@seeb.in
                 </td>
             </tr>
@@ -214,7 +214,7 @@
                     <td>
                         ₹<?= number_format($service['rate'], 2) ?>
                         <?php if (!empty($addons)): ?>
-                            <div style="font-size: 13px; color: #555; margin-top: 4px;">
+                            <div style="font-size: 13px; color: #555; margin-top: 2px;">
                                 <?php foreach ($addons as $addon): ?>
                                     <div>+ ₹<?= number_format($addon['price'], 2) ?></div>
                                 <?php endforeach; ?>
