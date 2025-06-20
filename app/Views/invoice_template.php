@@ -149,7 +149,7 @@
                 </td>
                 <td width="60%" style="text-align: right; font-size: 14px; border:0px;">
                     <strong>Seeb Design Pvt Ltd</strong><br>
-                    217, Tower-2 WTC Kharadi, Pune, India<br>
+                    217, Tower-2 WTC<br>Kharadi Pune, India<br>
                     <!-- GSTIN: 29ABCDE1234F2Z5<br> -->
                     Phone: 18005703133<br>
                     Email: contact@seeb.in
