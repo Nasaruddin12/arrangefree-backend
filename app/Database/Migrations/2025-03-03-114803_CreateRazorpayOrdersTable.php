@@ -21,6 +21,12 @@ class CreateRazorpayOrdersTable extends Migration
                 'unsigned'   => true,
                 'null'       => false,
             ],
+            'booking_id' => [  // Foreign key to associate with bookings
+                'type'       => 'INT',
+                'constraint' => 11,
+                'unsigned'   => true,
+                'null'       => true, // Nullable if not always associated with a booking
+            ],
             'order_id' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 100,
@@ -57,6 +63,7 @@ class CreateRazorpayOrdersTable extends Migration
 
         $this->forge->addKey('id', true);
         $this->forge->addForeignKey('user_id', 'af_customers', 'id', 'CASCADE', 'CASCADE'); // Foreign key to af_customers table
+        $this->forge->addForeignKey('booking_id', 'bookings', 'id', 'SET NULL', 'CASCADE'); // Foreign key to af_bookings table
         $this->forge->createTable('razorpay_orders');
     }
 

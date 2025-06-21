@@ -11,6 +11,7 @@ class RazorpayOrdersModel extends Model
 
     protected $allowedFields = [
         'user_id',
+        'booking_id',
         'order_id',
         'amount',
         'currency',
@@ -29,6 +30,7 @@ class RazorpayOrdersModel extends Model
      */
     protected $validationRules = [
         'user_id'    => 'required|integer',
+        'booking_id' => 'required|integer', // Nullable if not always associated with a booking
         'order_id'   => 'required|string|max_length[100]',
         'amount'     => 'required|decimal',
         'currency'   => 'required|string|max_length[3]',
@@ -41,6 +43,7 @@ class RazorpayOrdersModel extends Model
      */
     protected $validationMessages = [
         'user_id'    => ['required' => 'User ID is required.', 'integer' => 'User ID must be a valid number.'],
+        'booking_id' => ['required' => 'Booking ID is required.', 'integer' => 'Booking ID must be a valid number.'],
         'order_id'   => ['required' => 'Order ID is required.', 'max_length' => 'Order ID must not exceed 100 characters.'],
         'amount'     => ['required' => 'Amount is required.', 'decimal' => 'Amount must be a decimal value.'],
         'currency'   => ['required' => 'Currency is required.', 'max_length' => 'Currency must be 3 characters (e.g., INR, USD).'],

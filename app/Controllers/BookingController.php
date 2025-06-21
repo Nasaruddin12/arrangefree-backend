@@ -11,6 +11,7 @@ use App\Models\RazorpayOrdersModel;
 use App\Models\SeebCartModel;
 use App\Models\CouponModel;
 use App\Models\CustomerModel;
+use App\Models\PaymentDisputeModel;
 use CodeIgniter\RESTful\ResourceController;
 
 class BookingController extends ResourceController
@@ -329,6 +330,7 @@ class BookingController extends ResourceController
                     $orderRecord = [
                         'user_id'   => $userId,
                         'order_id'  => $razorpayOrder->id,
+                        'booking_id' => $bookingId,
                         'amount'    => $razorpayOrder->amount / 100, // Convert back to original amount
                         'currency'  => $currency,
                         'status'    => $razorpayOrder->status,
@@ -356,7 +358,9 @@ class BookingController extends ResourceController
             }
 
             $user = $this->customerModel->where('id', $userId)->first();
-            $email = $emailController->sendBookingSuccessEmail($user['email'], $user['name'], $bookingData['booking_id'],  $bookingId);
+            if ($paymentType === 'pay_later') {
+                $email = $emailController->sendBookingSuccessEmail($user['email'], $user['name'], $bookingData['booking_id'],  $bookingId);
+            }
             return $this->respondCreated([
                 'status'         => 201,
                 'message'        => 'Booking successfully created!',
@@ -694,54 +698,54 @@ class BookingController extends ResourceController
     }
 
 
-    public function webhookRazorpay()
-    {
-        try {
-            // Read Webhook Payload
-            $payload = $this->request->getJSON(true);
-            log_message('info', 'Webhook Received: ' . json_encode($payload));
+    // public function webhookRazorpay()
+    // {
+    //     try {
+    //         // Read Webhook Payload
+    //         $payload = $this->request->getJSON(true);
+    //         log_message('info', 'Webhook Received: ' . json_encode($payload));
 
-            if (empty($payload['event']) || empty($payload['payload']['payment']['entity'])) {
-                return $this->failValidationErrors([
-                    'status'  => 400,
-                    'message' => 'Invalid Webhook Payload.',
-                ]);
-            }
+    //         if (empty($payload['event']) || empty($payload['payload']['payment']['entity'])) {
+    //             return $this->failValidationErrors([
+    //                 'status'  => 400,
+    //                 'message' => 'Invalid Webhook Payload.',
+    //             ]);
+    //         }
 
-            $event = $payload['event'];
-            $payment = $payload['payload']['payment']['entity'];
-            $razorpayPaymentId = $payment['id'];
-            $razorpayStatus = $payment['status']; // "created", "authorized", "captured", "failed"
+    //         $event = $payload['event'];
+    //         $payment = $payload['payload']['payment']['entity'];
+    //         $razorpayPaymentId = $payment['id'];
+    //         $razorpayStatus = $payment['status']; // "created", "authorized", "captured", "failed"
 
-            // Fetch Payment Details from DB
-            $existingPayment = $this->bookingPaymentsModel->where('transaction_id', $razorpayPaymentId)->first();
+    //         // Fetch Payment Details from DB
+    //         $existingPayment = $this->bookingPaymentsModel->where('transaction_id', $razorpayPaymentId)->first();
 
-            if (!$existingPayment) {
-                log_message('error', 'Payment not found for Webhook: ' . $razorpayPaymentId);
-                return $this->failNotFound('Payment record not found.');
-            }
+    //         if (!$existingPayment) {
+    //             log_message('error', 'Payment not found for Webhook: ' . $razorpayPaymentId);
+    //             return $this->failNotFound('Payment record not found.');
+    //         }
 
-            // Update Payment Record with Razorpay Status Only
-            $result = $this->bookingPaymentsModel->update($existingPayment['id'], [
-                'razorpay_status' => $razorpayStatus,
-                'from_json'       => json_encode($payment),
-                'updated_at'      => date('Y-m-d H:i:s'),
-            ]);
+    //         // Update Payment Record with Razorpay Status Only
+    //         $result = $this->bookingPaymentsModel->update($existingPayment['id'], [
+    //             'razorpay_status' => $razorpayStatus,
+    //             'from_json'       => json_encode($payment),
+    //             'updated_at'      => date('Y-m-d H:i:s'),
+    //         ]);
 
-            if (!$result) {
-                log_message('error', 'Update failed: ' . json_encode($this->bookingPaymentsModel->errors()));
-            }
+    //         if (!$result) {
+    //             log_message('error', 'Update failed: ' . json_encode($this->bookingPaymentsModel->errors()));
+    //         }
 
 
-            return $this->respond([
-                'status'  => 200,
-                'message' => 'Webhook processed successfully.',
-            ]);
-        } catch (\Exception $e) {
-            log_message('error', 'Webhook Error: ' . $e->getMessage());
-            return $this->failServerError('Something went wrong. ' . $e->getMessage());
-        }
-    }
+    //         return $this->respond([
+    //             'status'  => 200,
+    //             'message' => 'Webhook processed successfully.',
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         log_message('error', 'Webhook Error: ' . $e->getMessage());
+    //         return $this->failServerError('Something went wrong. ' . $e->getMessage());
+    //     }
+    // }
 
     public function addManualPayment()
     {
@@ -856,5 +860,151 @@ class BookingController extends ResourceController
                 'message' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function webhookRazorpay()
+    {
+        try {
+            $payload = $this->request->getJSON(true);
+            log_message('info', 'Webhook Received: ' . json_encode($payload));
+
+            if (empty($payload['event']) || empty($payload['payload']['payment']['entity'])) {
+                return $this->failValidationErrors([
+                    'status'  => 400,
+                    'message' => 'Invalid Webhook Payload.',
+                ]);
+            }
+
+            $event   = $payload['event'];
+            $payment = $payload['payload']['payment']['entity'];
+            $paymentId = $payment['id'];
+            $orderId   = $payment['order_id'] ?? null;
+            $status    = $payment['status'];
+
+            // Find payment
+            $existingPayment = $this->bookingPaymentsModel->where('transaction_id', $paymentId)->first();
+            $bookingId = $existingPayment['booking_id'] ?? null;
+
+            // Fallback to Razorpay Order if payment not found
+            if (!$existingPayment && $orderId) {
+                $orderRow = $this->db->table('razorpay_orders')->where('order_id', $orderId)->get()->getRowArray();
+                $bookingId = $orderRow['booking_id'] ?? null;
+
+                // Update payment_id in razorpay_orders
+                if ($orderRow) {
+                    $this->db->table('razorpay_orders')->where('id', $orderRow['id'])->update([
+                        'payment_id' => $paymentId,
+                        'status'     => $status === 'captured' ? 'paid' : 'failed',
+                        'updated_at' => date('Y-m-d H:i:s'),
+                    ]);
+                }
+            }
+
+            if (!$bookingId) {
+                return $this->failNotFound('Booking not found from payment or order ID.');
+            }
+
+            // 🔄 Event-specific Logic
+            switch ($event) {
+                case 'payment.authorized':
+                    $this->handleAuthorized($bookingId, $payment, $paymentId);
+                    break;
+
+                case 'payment.captured':
+                    $this->handleCaptured($bookingId, $payment, $paymentId);
+                    break;
+
+                case 'payment.failed':
+                    $this->handleFailed($bookingId, $payment, $paymentId);
+                    break;
+
+                case 'payment.dispute.created':
+                    $this->logDispute($bookingId, $payment, 'created');
+                    break;
+
+                case 'payment.dispute.won':
+                    $this->logDispute($bookingId, $payment, 'won');
+                    break;
+
+                case 'payment.dispute.lost':
+                    $this->logDispute($bookingId, $payment, 'lost');
+                    break;
+
+                case 'payment.dispute.closed':
+                    $this->logDispute($bookingId, $payment, 'closed');
+                    break;
+
+                default:
+                    log_message('warning', 'Unhandled Razorpay Event: ' . $event);
+                    break;
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Webhook handled: ' . $event,
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Webhook Error: ' . $e->getMessage());
+            return $this->failServerError('Error: ' . $e->getMessage());
+        }
+    }
+
+    private function handleAuthorized($bookingId, $payment, $paymentId)
+    {
+        $this->bookingPaymentsModel->where('transaction_id', $paymentId)->set([
+            'payment_status' => 'pending',
+            'razorpay_status' => 'authorized',
+            'from_json' => json_encode($payment),
+            'updated_at' => date('Y-m-d H:i:s')
+        ])->update();
+
+        log_message('info', "Payment Authorized for Booking ID: $bookingId");
+    }
+
+    private function handleCaptured($bookingId, $payment, $paymentId)
+    {
+        $this->bookingPaymentsModel->where('transaction_id', $paymentId)->set([
+            'payment_status' => 'completed',
+            'razorpay_status' => 'captured',
+            'from_json' => json_encode($payment),
+            'updated_at' => date('Y-m-d H:i:s')
+        ])->update();
+
+        $this->bookingsModel->update($bookingId, [
+            'payment_status' => 'completed',
+            'status'         => 'confirmed',
+            'updated_at'     => date('Y-m-d H:i:s')
+        ]);
+    }
+
+    private function handleFailed($bookingId, $payment, $paymentId)
+    {
+        $this->bookingPaymentsModel->where('transaction_id', $paymentId)->set([
+            'payment_status' => 'failed',
+            'razorpay_status' => 'failed',
+            'from_json' => json_encode($payment),
+            'updated_at' => date('Y-m-d H:i:s')
+        ])->update();
+
+        $this->bookingsModel->update($bookingId, [
+            'payment_status' => 'failed',
+            'status'         => 'failed_payment',
+            'updated_at'     => date('Y-m-d H:i:s')
+        ]);
+    }
+
+    private function logDispute($bookingId, $payment, $status)
+    {
+        $disputeModel = new PaymentDisputeModel();
+
+        $disputeModel->insert([
+            'payment_id' => $payment['id'],
+            'booking_id' => $bookingId,
+            'status'     => $status,
+            'reason'     => $payment['error_description'] ?? null,
+            'payload'    => json_encode($payment),
+        ]);
+
+        log_message('info', "Dispute $status logged for Booking ID: $bookingId");
     }
 }
