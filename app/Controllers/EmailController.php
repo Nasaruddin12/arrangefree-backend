@@ -66,7 +66,7 @@ class EmailController extends BaseController
 
 
     $email->setTo($to);
-    $email->setFrom('no-reply@dorfee.com', 'Dorfee');
+    $email->setFrom('info@seeb.in', 'Seeb');
     $email->setSubject($subject);
     $email->setMessage($message);
     // print_r($email->send());die;

@@ -6,6 +6,7 @@ class SMSGateway
 {
     protected $gatewayVariables = array(
         'sender_id' => 'HAPSIN',
+        // 'sender_id' => 'SEEBDS',
         'key' => 'addGYdRieeyho068Dp6uwg==',
         'version' => '1.0',
         'encrypt' => '0',

@@ -98,11 +98,11 @@ class CustomerController extends BaseController
             if ($mobileNo == '8999125105') {
                 $otp = 4256; // For testing purposes, use a fixed OTP
             }
-            
+
             $smsGateway = new SMSGateway();
             $response = $smsGateway->sendOTP($mobileNo, $otp);
             // Send OTP via SMS Gateway
-            
+
             if ($response->statusCode != 200) {
                 throw new Exception('Unable to send OTP.', 500);
             }
@@ -613,8 +613,8 @@ class CustomerController extends BaseController
 
                 $emailController = new EmailController();
                 $subject = 'New Leads Added';
-                $message = "Hey! Admin,\n There is new Lead in Dorfee.\n Name:$name\n Email:$email_id\n Contact:$contact_number\n Message:$msg";
-                $emailController->sendMail('leads@dorfee.com', $subject, $message);
+                $message = "Hey! Admin,<br>There is a new Lead in Seeb.<br>Name: $name<br>Email: $email_id<br>Contact: $contact_number<br>Message: $msg";
+                $emailController->sendMail('haseeb@seeb.in', $subject, $message);
 
 
 
