@@ -747,6 +747,7 @@ $routes->group('room-elements', function ($routes) {
 });
 
 $routes->group('floor-plans', function ($routes) {
+    $routes->post('all', 'FloorPlanController::getAll');
     $routes->get('', 'FloorPlanController::index');          // List all plans (optional: ?user_id=1)
     $routes->get('user-id/(:num)', 'FloorPlanController::index/$1');          // List all plans (optional: ?user_id=1)
     $routes->get('(:num)', 'FloorPlanController::show/$1');   // Get single plan

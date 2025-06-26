@@ -615,6 +615,7 @@ class CustomerController extends BaseController
                 $subject = 'New Leads Added';
                 $message = "Hey! Admin,<br>There is a new Lead in Seeb.<br>Name: $name<br>Email: $email_id<br>Contact: $contact_number<br>Message: $msg";
                 $emailController->sendMail('haseeb@seeb.in', $subject, $message);
+                $emailController->sendMail('narendradmspl@gmail.com', $subject, $message);
 
 
 
