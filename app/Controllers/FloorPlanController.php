@@ -55,6 +55,7 @@ class FloorPlanController extends BaseController
             // Base builder for subquery
             $builder = $db->table('floor_plans')
                 ->select('user_id, MAX(created_at) as latest_created_at, COUNT(id) as floor_plan_count')
+                ->where('deleted_at', null)
                 ->groupBy('user_id');
 
             if (!empty($startDate) && !empty($endDate)) {
