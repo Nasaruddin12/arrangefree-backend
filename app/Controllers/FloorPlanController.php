@@ -43,9 +43,6 @@ class FloorPlanController extends BaseController
     {
         try {
             $db = \Config\Database::connect();
-            $builder = $db->table('floor_plans');
-            $builder->select('floor_plans.*, af_customers.name AS user_name');
-            $builder->join('af_customers', 'af_customers.id = floor_plans.user_id', 'left');
 
             // Parameters
             $page      = (int) ($this->request->getVar('page') ?? 1);
@@ -55,27 +52,35 @@ class FloorPlanController extends BaseController
             $endDate   = $this->request->getVar('end_date');
             $offset    = max(0, ($page - 1) * $perPage);
 
-            // Filters
-            if (!empty($search)) {
-                $builder->groupStart()
-                    ->like('af_customers.name', $search)
-                    ->orLike('floor_plans.room_name', $search)
-                    ->groupEnd();
-            }
+            // Base builder for subquery
+            $builder = $db->table('floor_plans')
+                ->select('user_id, MAX(created_at) as latest_created_at, COUNT(id) as floor_plan_count')
+                ->groupBy('user_id');
 
             if (!empty($startDate) && !empty($endDate)) {
-                $builder->where('floor_plans.created_at >=', date('Y-m-d', strtotime($startDate)));
-                $builder->where('floor_plans.created_at <=', date('Y-m-d', strtotime($endDate)));
+                $builder->where('created_at >=', date('Y-m-d', strtotime($startDate)))
+                    ->where('created_at <=', date('Y-m-d', strtotime($endDate)));
             }
 
-            // Count total results before pagination
-            $totalQuery = clone $builder;
-            $totalRecords = $totalQuery->countAllResults(false); // Do not reset query
+            $subQuery = $builder->getCompiledSelect();
 
-            // Pagination
-            $builder->orderBy('floor_plans.created_at', 'DESC');
-            $builder->limit($perPage, $offset);
-            $data = $builder->get()->getResultArray();
+            // Final builder joining subquery + customer names
+            $finalBuilder = $db->table("($subQuery) as summary")
+                ->select('summary.user_id, af_customers.name as user_name, summary.floor_plan_count, summary.latest_created_at')
+                ->join('af_customers', 'af_customers.id = summary.user_id', 'left');
+
+            if (!empty($search)) {
+                $finalBuilder->like('af_customers.name', $search);
+            }
+
+            // Clone for total count
+            $totalQuery = clone $finalBuilder;
+            $totalRecords = count($totalQuery->get()->getResultArray());
+
+            // Pagination + order
+            $finalBuilder->orderBy('summary.latest_created_at', 'DESC');
+            $finalBuilder->limit($perPage, $offset);
+            $data = $finalBuilder->get()->getResultArray();
 
             if (empty($data)) {
                 return $this->failNotFound('No floor plans found.');
@@ -83,7 +88,7 @@ class FloorPlanController extends BaseController
 
             return $this->respond([
                 'status'     => 200,
-                'message'    => 'Floor plans retrieved successfully',
+                'message'    => 'User floor plan summary retrieved successfully',
                 'data'       => $data,
                 'pagination' => [
                     'currentPage'   => $page,
@@ -96,6 +101,7 @@ class FloorPlanController extends BaseController
             return $this->failServerError('Unexpected error: ' . $e->getMessage());
         }
     }
+
 
     public function show($id = null)
     {
