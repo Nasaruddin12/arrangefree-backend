@@ -66,7 +66,7 @@ class FloorPlanController extends BaseController
 
             // Final builder joining subquery + customer names
             $finalBuilder = $db->table("($subQuery) as summary")
-                ->select('summary.user_id, af_customers.name as user_name, summary.floor_plan_count, summary.latest_created_at')
+                ->select('summary.user_id, af_customers.name as user_name, af_customers.mobile_no as user_mobile, summary.floor_plan_count, summary.latest_created_at')
                 ->join('af_customers', 'af_customers.id = summary.user_id', 'left');
 
             if (!empty($search)) {
