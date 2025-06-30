@@ -315,7 +315,15 @@ class PartnerController extends BaseController
             }
 
             // ✅ Generate & Save OTP
-            $otp = rand(1000, 9999);
+            if ($mobile == 8999125105) {
+                // For development purposes, use a fixed OTP
+                $otp = 4256;
+            } else {
+                $otp = rand(1000, 9999);
+            }
+
+            // $otp = rand(1000, 9999);
+
             $otpModel->insert([
                 'mobile'     => $mobile,
                 'otp'        => $otp,
