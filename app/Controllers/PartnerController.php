@@ -627,8 +627,6 @@ class PartnerController extends BaseController
     public function onboardingData($id = null)
     {
         try {
-            // $partnerId = $this->request->getVar('partner_id');
-
             if (!$id) {
                 return $this->respond([
                     'status' => 400,
@@ -639,6 +637,7 @@ class PartnerController extends BaseController
             $partnerModel = new \App\Models\PartnerModel();
             $docModel     = new \App\Models\PartnerDocumentModel();
             $bankModel    = new \App\Models\PartnerBankDetailModel();
+            $addressModel = new \App\Models\PartnerAddressModel(); // <-- Add this
 
             $partner = $partnerModel->find($id);
             if (!$partner) {
@@ -656,23 +655,29 @@ class PartnerController extends BaseController
                 ->where('partner_id', $id)
                 ->first();
 
+            $address = $addressModel
+                ->where('partner_id', $id)
+                ->first(); // <-- Fetch address
+
             $onboardingStatus = [
                 'mobile_verified'     => $partner['mobile_verified'] ? 'verified' : 'pending',
-                'documents_verified'  => $partner['documents_verified'] ?? 'pending', // 'pending', 'verified', 'rejected'
-                'bank_verified'       => $partner['bank_verified'] ?? 'pending',      // 'pending', 'verified', 'rejected'
+                'documents_verified'  => $partner['documents_verified'] ?? 'pending',
+                'bank_verified'       => $partner['bank_verified'] ?? 'pending',
                 'is_onboarding_complete' => (
                     $partner['mobile_verified'] &&
                     $partner['documents_verified'] === 'verified' &&
                     $partner['bank_verified'] === 'verified'
                 )
             ];
+
             return $this->respond([
                 'status' => 200,
                 'message' => 'Onboarding data retrieved successfully',
                 'data' => [
-                    'partner'       => $partner,
-                    'documents'     => $documents,
-                    'bank_details'  => $bank ?? (object) [],
+                    'partner'           => $partner,
+                    'documents'         => $documents,
+                    'bank_details'      => $bank ?? (object) [],
+                    'address_details'   => $address ?? (object) [], // <-- Added
                     'onboarding_status' => $onboardingStatus
                 ]
             ], 200);
