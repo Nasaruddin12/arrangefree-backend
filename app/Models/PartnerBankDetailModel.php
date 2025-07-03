@@ -35,7 +35,7 @@ class PartnerBankDetailModel extends Model
         'bank_branch'          => 'required',
         'account_number'       => 'required|numeric|min_length[6]',
         'ifsc_code'            => 'required|alpha_numeric|exact_length[11]',
-        'bank_document'        => 'required',
+        'bank_document'        => 'permit_empty',
         'status'               => 'required|in_list[pending,verified,rejected]',
     ];
 

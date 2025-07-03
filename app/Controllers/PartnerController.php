@@ -446,6 +446,7 @@ class PartnerController extends BaseController
             ], $e->getCode() ?: 500);
         }
     }
+
     public function registerOrUpdate()
     {
         $db = \Config\Database::connect();
@@ -459,20 +460,22 @@ class PartnerController extends BaseController
             $partnerModel = new \App\Models\PartnerModel();
             $docModel     = new \App\Models\PartnerDocumentModel();
             $bankModel    = new \App\Models\PartnerBankDetailModel();
+            $addressModel = new \App\Models\PartnerAddressModel();
 
             // Step 1: Validate and Save Partner Info
             $partnerData = [
-                'id'               => $partnerId,
-                'name'             => $request->getVar('name'),
-                'mobile'           => $request->getVar('mobile'),
-                'mobile_verified'  => $request->getVar('mobile_verified') ?? true,
-                'dob'              => $request->getVar('dob'),
-                'work'             => $request->getVar('work'),
-                'labour_count'     => $request->getVar('labour_count'),
-                'area'             => $request->getVar('area'),
-                'service_areas'    => $request->getVar('service_areas'),
-                'aadhaar_no'       => $request->getVar('aadhaar_no'),
-                'pan_no'           => $request->getVar('pan_no'),
+                'id'                => $partnerId,
+                'name'              => $request->getVar('name'),
+                'mobile'            => $request->getVar('mobile'),
+                'mobile_verified'   => $request->getVar('mobile_verified') ?? true,
+                'dob'               => $request->getVar('dob'),
+                'gender'            => $request->getVar('gender'),
+                'emergency_contact' => $request->getVar('emergency_contact'),
+                'profession'        => $request->getVar('profession'),
+                'team_size'         => $request->getVar('team_size'),
+                'service_areas'     => $request->getVar('service_areas'),
+                'aadhaar_no'        => $request->getVar('aadhaar_no'),
+                'pan_no'            => $request->getVar('pan_no'),
             ];
 
             if ($isUpdate) {
@@ -494,7 +497,32 @@ class PartnerController extends BaseController
                 $partnerId = $partnerModel->getInsertID();
             }
 
-            // Step 2: Handle Partner Documents
+            // Step 2: Save Address (Primary)
+            $addressData = [
+                'partner_id'      => $partnerId,
+                'address_line_1'  => $request->getVar('address_line_1'),
+                'address_line_2'  => $request->getVar('address_line_2'),
+                'landmark'        => $request->getVar('landmark'),
+                'pincode'         => $request->getVar('pincode'),
+                'city'            => $request->getVar('city'),
+                'state'           => $request->getVar('state'),
+                'country'         => $request->getVar('country') ?? 'India',
+                'is_primary'      => 1,
+            ];
+
+            if (!$addressModel->validate($addressData)) {
+                throw new \Exception(json_encode($addressModel->errors()), 422);
+            }
+
+            $existingAddress = $addressModel->where('partner_id', $partnerId)->where('is_primary', 1)->first();
+
+            if ($existingAddress) {
+                $addressModel->update($existingAddress['id'], $addressData);
+            } else {
+                $addressModel->insert($addressData);
+            }
+
+            // Step 3: Handle Partner Documents
             $docTypes = [
                 'aadhar_front'  => 'aadhar_front',
                 'aadhar_back'   => 'aadhar_back',
@@ -528,7 +556,7 @@ class PartnerController extends BaseController
                 }
             }
 
-            // Step 3: Validate and Save Bank Details
+            // Step 4: Validate and Save Bank Details
             $bankData = [
                 'partner_id'          => $partnerId,
                 'account_holder_name' => $request->getVar('account_holder_name'),
@@ -542,10 +570,6 @@ class PartnerController extends BaseController
             $bankFile = $request->getFile('bank_document');
             $existingBank = $bankModel->where('partner_id', $partnerId)->first();
 
-            if (!$existingBank && (!$bankFile || !$bankFile->isValid())) {
-                throw new \Exception(json_encode(['bank_document' => 'Bank document is required for new registration.']), 422);
-            }
-
             if ($bankFile && $bankFile->isValid() && !$bankFile->hasMoved()) {
                 $bankFileName = $bankFile->getRandomName();
                 $uploadPath = 'public/uploads/partner_docs/';
@@ -555,6 +579,7 @@ class PartnerController extends BaseController
                 $bankData['bank_document'] = $docPath;
             }
 
+            // Skip validation only if no new file or changes
             if (!$bankModel->validate($bankData)) {
                 throw new \Exception(json_encode($bankModel->errors()), 422);
             }
@@ -566,8 +591,13 @@ class PartnerController extends BaseController
             }
 
             $db->transComplete();
+
             if (!$db->transStatus()) {
-                throw new \Exception("Transaction failed", 500);
+                // Get last query error
+                $dbError = $db->error();
+                $errorMessage = !empty($dbError['message']) ? $dbError['message'] : 'Transaction failed';
+
+                throw new \Exception("Transaction failed: " . $errorMessage, 500);
             }
 
             return $this->respond([
@@ -580,7 +610,6 @@ class PartnerController extends BaseController
             $statusCode = $e->getCode() ?: 500;
             $message = $e->getMessage();
 
-            // Check if message is JSON (validation error object)
             $decoded = json_decode($message, true);
             $response = [
                 'status'  => $statusCode,
