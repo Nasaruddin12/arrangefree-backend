@@ -688,4 +688,204 @@ class PartnerController extends BaseController
             ], 500);
         }
     }
+
+    public function updatePersonalInfo($partnerId = null)
+    {
+        try {
+            // $partnerId = $this->request->getVar('partner_id');
+            if (empty($partnerId)) {
+                return $this->failValidationError('Partner ID is required.');
+            }
+
+            $partnerModel = new \App\Models\PartnerModel();
+
+            // Prepare data from request
+            $data = [
+                'name'              => $this->request->getVar('name'),
+                'mobile'            => $this->request->getVar('mobile'),
+                'dob'               => $this->request->getVar('dob'),
+                'gender'            => $this->request->getVar('gender'),
+                'emergency_contact' => $this->request->getVar('emergency_contact'),
+                'profession'        => $this->request->getVar('profession'),
+                // 'team_size'         => $this->request->getVar('team_size'),
+                'aadhaar_no'        => $this->request->getVar('aadhaar_no'),
+                'pan_no'            => $this->request->getVar('pan_no'),
+            ];
+
+            // Dynamic validation rules
+            $partnerModel->setValidationRules([
+                'name' => 'required|min_length[3]',
+                'mobile' => 'required|regex_match[/^[0-9]{10}$/]|is_unique[partners.mobile,id,' . $partnerId . ']',
+                'dob' => 'required|valid_date|check_age',
+                'gender' => 'required|in_list[male,female,other]',
+                'emergency_contact' => 'required|regex_match[/^[0-9]{10}$/]',
+                'profession' => 'required',
+                'team_size' => 'required',
+                'aadhaar_no' => 'required|regex_match[/^[0-9]{12}$/]|is_unique[partners.aadhaar_no,id,' . $partnerId . ']',
+                'pan_no' => 'required|regex_match[/^[A-Z]{5}[0-9]{4}[A-Z]$/]|is_unique[partners.pan_no,id,' . $partnerId . ']',
+            ]);
+
+            // Validate input
+            if (!$partnerModel->validate($data)) {
+                return $this->failValidationErrors($partnerModel->errors());
+            }
+
+            // Update record
+            $partnerModel->update($partnerId, $data);
+
+            return $this->respond([
+                'status'  => 200,
+                'message' => 'Personal details updated successfully.',
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError('Unexpected error: ' . $e->getMessage());
+        }
+    }
+    public function updateBankDetails($id = null)
+    {
+        try {
+            $request = $this->request;
+            if (empty($id)) {
+                return $this->failValidationErrors('Bank detail ID is required.');
+            }
+
+            $bankModel = new \App\Models\PartnerBankDetailModel();
+
+            // Check if record exists
+            $existing = $bankModel->find($id);
+            if (!$existing) {
+                return $this->failNotFound('Bank detail record not found.');
+            }
+
+            $bankData = [
+                'account_holder_name' => $request->getVar('account_holder_name'),
+                'bank_name'           => $request->getVar('bank_name'),
+                'bank_branch'         => $request->getVar('bank_branch'),
+                'account_number'      => $request->getVar('account_number'),
+                'ifsc_code'           => $request->getVar('ifsc_code'),
+                'status'              => 'pending',
+            ];
+
+            // Optional file upload
+            $file = $request->getFile('bank_document');
+            if ($file && $file->isValid() && !$file->hasMoved()) {
+                $fileName = $file->getRandomName();
+                $uploadPath = 'public/uploads/partner_docs/';
+                $file->move($uploadPath, $fileName);
+                $bankData['bank_document'] = $uploadPath . $fileName;
+            }
+
+            // Validate
+            if (!$bankModel->validate($bankData)) {
+                return $this->failValidationErrors($bankModel->errors());
+            }
+
+            // Update record
+            $bankModel->update($id, $bankData);
+
+            return $this->respond([
+                'status'  => 200,
+                'message' => 'Bank details updated successfully.'
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError($e->getMessage());
+        }
+    }
+    public function updateAddress($id = null)
+    {
+        try {
+            $request = $this->request;
+
+            if (empty($id)) {
+                return $this->failValidationErrors('Address ID is required.');
+            }
+
+            $addressModel = new \App\Models\PartnerAddressModel();
+
+            // Ensure the address exists
+            $existing = $addressModel->find($id);
+            if (!$existing) {
+                return $this->failNotFound('Address record not found.');
+            }
+
+            $data = [
+                'address_line_1' => $request->getVar('address_line_1'),
+                'address_line_2' => $request->getVar('address_line_2'),
+                'landmark'       => $request->getVar('landmark'),
+                'pincode'        => $request->getVar('pincode'),
+                'city'           => $request->getVar('city'),
+                'state'          => $request->getVar('state'),
+                'country'        => $request->getVar('country') ?? 'India',
+                'is_primary'     => $request->getVar('is_primary') == '1' ? 1 : 0,
+            ];
+
+            // Validate
+            if (!$addressModel->validate($data)) {
+                return $this->failValidationErrors($addressModel->errors());
+            }
+
+            // Update address
+            $addressModel->update($id, $data);
+
+            return $this->respond([
+                'status'  => 200,
+                'message' => 'Address updated successfully.'
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError($e->getMessage());
+        }
+    }
+    public function updateDocuments()
+    {
+        try {
+            $request    = $this->request;
+            $partnerId  = $request->getVar('partner_id');
+
+            if (empty($partnerId)) {
+                return $this->failValidationErrors('Partner ID is required.');
+            }
+
+            $docModel   = new \App\Models\PartnerDocumentModel();
+            $uploadPath = 'public/uploads/partner_docs/';
+
+            $docTypes = [
+                'aadhar_front'  => 'aadhar_front',
+                'aadhar_back'   => 'aadhar_back',
+                'pan_card'      => 'pan_card',
+                'address_proof' => 'address_proof',
+                'photo'         => 'photo',
+            ];
+
+            foreach ($docTypes as $field => $type) {
+                $file = $request->getFile($field);
+                $existing = $docModel->where('partner_id', $partnerId)->where('type', $type)->first();
+
+                if ($file && $file->isValid() && !$file->hasMoved()) {
+                    $fileName = $file->getRandomName();
+                    $file->move($uploadPath, $fileName);
+                    $filePath = $uploadPath . $fileName;
+
+                    $docData = [
+                        'partner_id' => $partnerId,
+                        'type'       => $type,
+                        'file_path'  => $filePath,
+                        'status'     => 'pending'
+                    ];
+
+                    if ($existing) {
+                        $docModel->update($existing['id'], $docData);
+                    } else {
+                        $docModel->insert($docData);
+                    }
+                }
+            }
+
+            return $this->respond([
+                'status'  => 200,
+                'message' => 'Documents updated successfully.'
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError($e->getMessage());
+        }
+    }
 }

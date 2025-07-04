@@ -776,6 +776,12 @@ $routes->group('partner', function ($routes) {
     $routes->post('list', 'PartnerController::index');
     $routes->post('verify-bank', 'PartnerController::verifyBank');
     $routes->post('verify-documents/(:num)', 'PartnerController::verifyDocument/$1');
+    $routes->put('update-personal-info/(:num)', 'PartnerController::updatePersonalInfo/$1');
+    $routes->put('update-bank-details/(:num)', 'PartnerController::updateBankDetails/$1');
+    $routes->put('update-address/(:num)', 'PartnerController::updateAddress/$1');
+    $routes->post('update-documents', 'PartnerController::updateDocuments');
+
+
 });
 
 $routes->group('cron', function ($routes) {
