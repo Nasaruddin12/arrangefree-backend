@@ -906,11 +906,11 @@ class PartnerController extends BaseController
                 ->orderBy('id', 'desc')
                 ->first();
 
-            if (!$photo || !file_exists(FCPATH . $photo['file_url'])) {
+            if (!$photo || !file_exists(FCPATH . $photo['file_path'])) {
                 return $this->response->setStatusCode(404)->setBody('Image not found');
             }
 
-            $path = FCPATH . $photo['file_url'];
+            $path = FCPATH . $photo['file_path'];
             $mime = mime_content_type($path);
 
             return $this->response
