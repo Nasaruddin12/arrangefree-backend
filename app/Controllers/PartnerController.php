@@ -412,6 +412,15 @@ class PartnerController extends BaseController
                 $this->partnerModel->update($partner['id'], ['mobile_verified' => 1]);
             }
 
+            // ✅ Get partner photo from documents
+            $docModel = new \App\Models\PartnerDocumentModel();
+            $photo = $docModel->where('partner_id', $partner['id'])
+                ->where('type', 'photo')
+                ->orderBy('id', 'desc')
+                ->first();
+
+            $partner['photo'] = $photo['file_path'] ?? null;
+
             // ✅ Check onboarding flags
             $onboardingStatus = [
                 'mobile_verified'     => $partner['mobile_verified'] ? 'verified' : 'pending',
