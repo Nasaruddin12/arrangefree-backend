@@ -913,10 +913,14 @@ class PartnerController extends BaseController
             $path = FCPATH . $photo['file_path'];
             $mime = mime_content_type($path);
 
-            return $this->response
-                ->setHeader('Content-Type', $mime)
-                ->setHeader('Content-Length', filesize($path))
-                ->setBody(file_get_contents($path));
+            // Clean any prior output
+            if (ob_get_length()) ob_end_clean();
+
+            // Set headers and output raw file
+            header('Content-Type: ' . $mime);
+            header('Content-Length: ' . filesize($path));
+            readfile($path);
+            exit;
         } catch (\Exception $e) {
             return $this->response->setStatusCode(500)->setBody('Error loading image');
         }
