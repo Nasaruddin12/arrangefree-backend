@@ -780,6 +780,8 @@ $routes->group('partner', function ($routes) {
     $routes->put('update-bank-details/(:num)', 'PartnerController::updateBankDetails/$1');
     $routes->put('update-address/(:num)', 'PartnerController::updateAddress/$1');
     $routes->post('update-documents', 'PartnerController::updateDocuments');
+    $routes->get('photo/(:num)', 'PartnerController::servePhoto/$1');
+
 
 
 });

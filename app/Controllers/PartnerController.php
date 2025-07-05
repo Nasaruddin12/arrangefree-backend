@@ -897,4 +897,28 @@ class PartnerController extends BaseController
             return $this->failServerError($e->getMessage());
         }
     }
+    public function servePhoto($partnerId)
+    {
+        try {
+            $docModel = new \App\Models\PartnerDocumentModel();
+            $photo = $docModel->where('partner_id', $partnerId)
+                ->where('type', 'photo')
+                ->orderBy('id', 'desc')
+                ->first();
+
+            if (!$photo || !file_exists(FCPATH . $photo['file_url'])) {
+                return $this->response->setStatusCode(404)->setBody('Image not found');
+            }
+
+            $path = FCPATH . $photo['file_url'];
+            $mime = mime_content_type($path);
+
+            return $this->response
+                ->setHeader('Content-Type', $mime)
+                ->setHeader('Content-Length', filesize($path))
+                ->setBody(file_get_contents($path));
+        } catch (\Exception $e) {
+            return $this->response->setStatusCode(500)->setBody('Error loading image');
+        }
+    }
 }
