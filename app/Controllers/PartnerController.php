@@ -711,7 +711,7 @@ class PartnerController extends BaseController
             // Prepare data from request
             $data = [
                 'name'              => $this->request->getVar('name'),
-                'mobile'            => $this->request->getVar('mobile'),
+                // 'mobile'            => $this->request->getVar('mobile'),
                 'dob'               => $this->request->getVar('dob'),
                 'gender'            => $this->request->getVar('gender'),
                 'emergency_contact' => $this->request->getVar('emergency_contact'),
@@ -724,12 +724,12 @@ class PartnerController extends BaseController
             // Dynamic validation rules
             $partnerModel->setValidationRules([
                 'name' => 'required|min_length[3]',
-                'mobile' => 'required|regex_match[/^[0-9]{10}$/]|is_unique[partners.mobile,id,' . $partnerId . ']',
+                // 'mobile' => 'required|regex_match[/^[0-9]{10}$/]|is_unique[partners.mobile,id,' . $partnerId . ']',
                 'dob' => 'required|valid_date|check_age',
                 'gender' => 'required|in_list[male,female,other]',
                 'emergency_contact' => 'required|regex_match[/^[0-9]{10}$/]',
                 'profession' => 'required',
-                'team_size' => 'required',
+                // 'team_size' => 'required',
                 'aadhaar_no' => 'required|regex_match[/^[0-9]{12}$/]|is_unique[partners.aadhaar_no,id,' . $partnerId . ']',
                 'pan_no' => 'required|regex_match[/^[A-Z]{5}[0-9]{4}[A-Z]$/]|is_unique[partners.pan_no,id,' . $partnerId . ']',
             ]);
