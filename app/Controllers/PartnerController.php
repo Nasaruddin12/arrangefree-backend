@@ -315,12 +315,14 @@ class PartnerController extends BaseController
             }
 
             // ✅ Generate & Save OTP
-            if ($mobile == 8999125105) {
-                // For development purposes, use a fixed OTP
+            if ($mobile == '8999125105') {
                 $otp = 4256;
+            } elseif ($mobile == '9371995000') {
+                $otp = 1122;
             } else {
                 $otp = rand(1000, 9999);
             }
+
 
             // $otp = rand(1000, 9999);
 
