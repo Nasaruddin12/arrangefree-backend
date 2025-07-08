@@ -599,7 +599,7 @@ class CustomerController extends BaseController
                 'name'           => 'required|min_length[2]',
                 'contact_number' => 'required|regex_match[/^[0-9]{10}$/]',
                 'email_id'       => 'required|valid_email',
-                'message'        => 'required|min_length[5]',
+                'message'        => 'permit_empty|min_length[5]',
                 'city'           => 'permit_empty|max_length[50]',
                 'space_type'     => 'permit_empty|max_length[50]',
                 'status'         => 'required|in_list[0,1]'
@@ -619,7 +619,6 @@ class CustomerController extends BaseController
                     'valid_email'  => 'Please enter a valid email address.',
                 ],
                 'message' => [
-                    'required'     => 'Message is required.',
                     'min_length'   => 'Message must be at least 5 characters.',
                 ],
                 'status' => [
