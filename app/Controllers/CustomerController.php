@@ -591,6 +591,51 @@ class CustomerController extends BaseController
             foreach ($userBackendToFrontendAttrs as $backendAttr => $frontendAttr) {
                 $contactUsData[$backendAttr] = $this->request->getVar($frontendAttr);
             }
+
+
+
+            // ✅ Validation rules
+            $rules = [
+                'name'           => 'required|min_length[2]',
+                'contact_number' => 'required|regex_match[/^[0-9]{10}$/]',
+                'email_id'       => 'required|valid_email',
+                'message'        => 'required|min_length[5]',
+                'city'           => 'permit_empty|max_length[50]',
+                'space_type'     => 'permit_empty|max_length[50]',
+                'status'         => 'required|in_list[0,1]'
+            ];
+            // ✅ Validation messages
+            $messages = [
+                'name' => [
+                    'required'    => 'Name is required.',
+                    'min_length'  => 'Name must be at least 2 characters long.',
+                ],
+                'contact_number' => [
+                    'required'     => 'Contact number is required.',
+                    'regex_match'  => 'Enter a valid 10-digit contact number.',
+                ],
+                'email_id' => [
+                    'required'     => 'Email is required.',
+                    'valid_email'  => 'Please enter a valid email address.',
+                ],
+                'message' => [
+                    'required'     => 'Message is required.',
+                    'min_length'   => 'Message must be at least 5 characters.',
+                ],
+                'status' => [
+                    'required'     => 'Status is required.',
+                    'in_list'      => 'Invalid status value.',
+                ],
+            ];
+
+            // ✅ Perform validation
+            if (!$this->validate($rules, $messages)) {
+                return $this->respond([
+                    'status'  => 422,
+                    'message' => 'Validation failed',
+                    'errors'  => $this->validator->getErrors(),
+                ], 422);
+            }
             // var_dump($contactUsData);
             // die;
             $contactUsModel->insert($contactUsData);
