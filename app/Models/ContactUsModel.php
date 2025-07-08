@@ -19,6 +19,8 @@ class ContactUsModel extends Model
         'email_id',
         'message',
         'remark',
+        'city',
+        'space_type',
         'status'
     ];
 

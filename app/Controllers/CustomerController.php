@@ -582,6 +582,8 @@ class CustomerController extends BaseController
                 'contact_number' => 'contact_number',
                 'email_id' => 'email_id',
                 'message' => 'message',
+                'city' => 'city',
+                'space_type' => 'space_type',
                 'status' => 'status',
             ];
 

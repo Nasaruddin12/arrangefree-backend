@@ -39,6 +39,16 @@ class AfContactUs extends Migration
                     'type'       => 'JSON',
                     'null'       => true,
                 ],
+                'city' => [
+                    'type' => 'VARCHAR',
+                    'constraint' => 50,
+                    'null' => true,
+                ],
+                'space_type' => [
+                    'type' => 'VARCHAR',
+                    'constraint' => 50,
+                    'null' => true,
+                ],
                 'status' => [
                     'type' => 'TINYINT',
                     'null' => false,
