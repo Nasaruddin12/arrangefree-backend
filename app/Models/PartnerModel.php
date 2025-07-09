@@ -26,7 +26,8 @@ class PartnerModel extends Model
         'bank_verified',
         'verified_by',
         'verified_at',
-        'status'
+        'status',
+        'fcm_token',
     ];
 
     protected $useTimestamps = true;

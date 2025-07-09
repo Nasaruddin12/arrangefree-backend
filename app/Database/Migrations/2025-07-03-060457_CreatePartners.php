@@ -38,6 +38,7 @@ class CreatePartners extends Migration
                 'constraint' => ['pending', 'active', 'blocked', 'terminated', 'resigned', 'rejected'],
                 'default'    => 'pending',
             ],
+            'fcm_token' => ['type' => 'TEXT', 'null' => true],
             'created_at' => ['type' => 'DATETIME', 'null' => true],
             'updated_at' => ['type' => 'DATETIME', 'null' => true],
         ]);

@@ -388,6 +388,7 @@ class PartnerController extends BaseController
         try {
             $mobile = $this->request->getVar('mobile');
             $otp    = $this->request->getVar('otp');
+            $fcmToken = $this->request->getVar('fcm_token');
 
             if (!preg_match('/^[0-9]{10}$/', $mobile) || empty($otp)) {
                 throw new \Exception('Mobile and OTP are required', 422);
@@ -409,11 +410,19 @@ class PartnerController extends BaseController
                 throw new \Exception('Invalid or expired OTP', 401);
             }
 
-            // Optional: mark mobile_verified
+            $updateData = [];
             if (!$partner['mobile_verified']) {
-                $this->partnerModel->update($partner['id'], ['mobile_verified' => 1]);
+                $updateData['mobile_verified'] = 1;
             }
 
+            // ✅ Update FCM Token if provided
+            if (!empty($fcmToken)) {
+                $updateData['fcm_token'] = $fcmToken;
+            }
+
+            if (!empty($updateData)) {
+                $this->partnerModel->update($partner['id'], $updateData);
+            }
             // ✅ Get partner photo from documents
             $docModel = new \App\Models\PartnerDocumentModel();
             $photo = $docModel->where('partner_id', $partner['id'])
@@ -487,6 +496,7 @@ class PartnerController extends BaseController
                 'service_areas'     => $request->getVar('service_areas'),
                 'aadhaar_no'        => $request->getVar('aadhaar_no'),
                 'pan_no'            => $request->getVar('pan_no'),
+                'fcm_token'        =>  $request->getVar('fcm_token'),
             ];
 
             if ($isUpdate) {
