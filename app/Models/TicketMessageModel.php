@@ -8,6 +8,6 @@ class TicketMessageModel extends Model
 {
     protected $table = 'ticket_messages';
     protected $primaryKey = 'id';
-    protected $allowedFields = ['ticket_id', 'user_id','sender_id', 'created_by',  'message', 'created_at'];
-    protected $useTimestamps = true;
+    protected $allowedFields = ['ticket_id', 'sender_type', 'sender_id', 'message', 'file', 'is_read_by_admin', 'is_read_by_user', 'created_at'];
+    // protected $useTimestamps = true;
 }

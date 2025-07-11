@@ -21,89 +21,217 @@ class TicketController extends ResourceController
     // Create a new ticket
     public function createTicket()
     {
+        $db = db_connect();
+        $ticketModel = new \App\Models\TicketModel();
+        $ticketMessageModel = new \App\Models\TicketMessageModel();
+
         try {
+            $db->transBegin(); // Start transaction
+
             $data = json_decode($this->request->getBody(), true);
-            if (empty($data['user_id']) || empty($data['subject'])) {
-                return $this->failValidationError('User ID and Subject are required.');
-            }
 
-            // Generate Ticket UID
-            $ticketUID = $this->ticketModel->generateTicketUID();
-
-            $ticketData = [
-                'ticket_uid' => $ticketUID,
-                'user_id'    => $data['user_id'],
-                'subject'    => $data['subject'],
-                'file'       => $data['file'],
-                'status'     => 'open',
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s'),
+            // Dynamic validation rules based on user_type
+            $rules = [
+                'user_type' => 'required|in_list[customer,partner]',
+                'subject'   => 'required|string|max_length[255]',
+                'priority'  => 'required|in_list[low,medium,high]',
+                'category'  => 'required|in_list[general,payment,complaint,other]',
+                'message'   => 'required|string',
+                'status'    => 'permit_empty|in_list[open,in_progress,closed]',
+                'file'      => 'permit_empty',
             ];
 
-            // Insert and get ID
-            $insertedId = $this->ticketModel->insert($ticketData, true);
-
-            if (!$insertedId) {
-                return $this->failServerError('Failed to create ticket.');
+            if ($data['user_type'] === 'customer') {
+                $rules['user_id'] = 'required|integer';
+            } elseif ($data['user_type'] === 'partner') {
+                $rules['partner_id'] = 'required|integer';
             }
 
-            // Add ID to response data
-            $ticketData['id'] = $insertedId;
+            $messages = [
+                'user_type' => [
+                    'required' => 'User type is required.',
+                    'in_list'  => 'User type must be either customer or partner.'
+                ],
+                'subject' => [
+                    'required'   => 'Subject is required.',
+                    'max_length' => 'Subject must not exceed 255 characters.'
+                ],
+                'priority' => [
+                    'required' => 'Priority is required.',
+                    'in_list'  => 'Priority must be either low, medium, or high.'
+                ],
+                'category' => [
+                    'required' => 'Category is required.'
+                ],
+                'message' => [
+                    'required' => 'Message is required.'
+                ]
+            ];
 
-            return $this->respondCreated([
+            // Validate input
+            if (!$this->validateData($data, $rules, $messages)) {
+                throw new \Exception(json_encode($this->validator->getErrors()), 400);
+            }
+            // ✅ Check if referenced user/partner exists (foreign key protection)
+            if ($data['user_type'] === 'partner') {
+                $partnerExists = $db->table('partners')
+                    ->where('id', $data['partner_id'] ?? 0)
+                    ->countAllResults();
+
+                if (!$partnerExists) {
+                    throw new \Exception(json_encode(['partner_id' => 'Invalid partner_id. Partner not found.']), 400);
+                }
+            } elseif ($data['user_type'] === 'customer') {
+                $userExists = $db->table('af_customers')
+                    ->where('id', $data['user_id'] ?? 0)
+                    ->countAllResults();
+
+                if (!$userExists) {
+                    throw new \Exception(json_encode(['user_id' => 'Invalid user_id. Customer not found.']), 400);
+                }
+            }
+
+            // Generate UID and prepare ticket data
+            $ticketUID = $ticketModel->generateTicketUID();
+            $ticketData = [
+                'ticket_uid'        => $ticketUID,
+                'user_type'         => $data['user_type'],
+                'user_id'           => $data['user_id'] ?? null,
+                'partner_id'        => $data['partner_id'] ?? null,
+                'booking_id'        => $data['booking_id'] ?? null,
+                'task_id'           => $data['task_id'] ?? null,
+                'subject'           => $data['subject'],
+                'file'              => $data['file'] ?? null,
+                'status'            => 'open',
+                'priority'          => $data['priority'],
+                'category'          => $data['category'],
+                'assigned_admin_id' => $data['assigned_admin_id'] ?? null,
+                // 'created_at'        => date('Y-m-d H:i:s'),
+                // 'updated_at'        => date('Y-m-d H:i:s'),
+            ];
+
+
+
+            // Insert ticket
+            if (!$ticketModel->insert($ticketData)) {
+                throw new \Exception(json_encode($ticketModel->errors()), 400);
+            }
+
+            if ($ticketModel->db->error()['code']) {
+                throw new \Exception($ticketModel->db->error()['message'], 500);
+            }
+
+            $ticketID = $ticketModel->insertID();
+
+            // Insert ticket message
+            $messageData = [
+                'ticket_id'    => $ticketID,
+                'sender_type'  => $data['user_type'],
+                'sender_id'    => $data['user_id'] ?? $data['partner_id'],
+                'message'      => $data['message'],
+                'file'         => $data['file'] ?? null,
+                'is_read_by_admin' => false,
+                'is_read_by_user'  => true,
+                'created_at'   => date('Y-m-d H:i:s'),
+            ];
+
+            if (!$ticketMessageModel->insert($messageData)) {
+                throw new \Exception(json_encode($ticketMessageModel->errors()), 400);
+            }
+
+            if ($ticketMessageModel->db->error()['code']) {
+                throw new \Exception($ticketMessageModel->db->error()['message'], 500);
+            }
+
+            $db->transCommit();
+
+            return $this->respond([
                 'status'  => 201,
                 'message' => 'Ticket created successfully.',
-                'data'    => $ticketData
-            ]);
-        } catch (Exception $e) {
-            log_message('error', 'Create Ticket Error: ' . $e->getMessage());
-            return $this->failServerError('Something went wrong.' .  $e->getMessage());
+                'data'    => [
+                    'ticket_id'  => $ticketID,
+                    'ticket_uid' => $ticketUID
+                ]
+            ], 201);
+        } catch (\Exception $e) {
+            $db->transRollback();
+
+            $statusCode = $e->getCode() === 400 ? 400 : 500;
+
+            // If the exception message is JSON (from validation), decode it
+            $decodedMessage = json_decode($e->getMessage(), true);
+            $errorData = is_array($decodedMessage)
+                ? ['validation' => $decodedMessage]
+                : ['error' => $e->getMessage()];
+
+            return $this->respond([
+                'status' => $statusCode,
+                'error' => $errorData
+            ], $statusCode);
+        } catch (\CodeIgniter\Database\Exceptions\DatabaseException $e) {
+            return $this->failServerError('Database error: ' . $e->getMessage());
         }
     }
-
 
     // Get all tickets
     public function getAllTickets()
     {
         try {
-            $limit       = $this->request->getVar('limit') ?? 10; // Default 10 items per page
-            $page        = $this->request->getVar('page') ?? 1; // Default page 1
-            $startDate   = $this->request->getVar('start_date'); // Start date filter
-            $endDate     = $this->request->getVar('end_date');   // End date filter
-            $status      = $this->request->getVar('status'); // Status filter
-            $searchQuery = $this->request->getVar('search'); // Unified search for user_name or ticket_id
+            $limit       = $this->request->getVar('limit') ?? 10;
+            $page        = $this->request->getVar('page') ?? 1;
+            $startDate   = $this->request->getVar('start_date');
+            $endDate     = $this->request->getVar('end_date');
+            $status      = $this->request->getVar('status');
+            $searchQuery = $this->request->getVar('search');
 
             $query = $this->ticketModel
                 ->select('tickets.*, af_customers.name as user_name')
                 ->join('af_customers', 'af_customers.id = tickets.user_id', 'left');
 
-            // Apply unified search filter (Ticket ID or User Name)
+            // Apply search
             if (!empty($searchQuery)) {
                 $query->groupStart()
-                    ->like('af_customers.name', $searchQuery) // User name search
-                    ->orLike('tickets.id', $searchQuery) // Ticket ID search (allows partial match)
+                    ->like('af_customers.name', $searchQuery)
+                    ->orLike('tickets.id', $searchQuery)
                     ->groupEnd();
             }
 
-            // Filter by status
+            // Status filter
             if ($status) {
                 $query->where('tickets.status', $status);
             }
 
-            // Apply date range filtering
+            // Date range filter
             if ($startDate && $endDate) {
                 $query->where('tickets.created_at >=', $startDate)
                     ->where('tickets.created_at <=', $endDate);
             }
 
-            // Apply pagination
+            // Fetch paginated result
             $tickets = $query->paginate($limit, 'default', $page);
             $pager   = $this->ticketModel->pager;
 
+            // ✅ Append unread message counts for each ticket
+            $ticketMessageModel = new \App\Models\TicketMessageModel();
+
+            foreach ($tickets as &$ticket) {
+                $ticket_id = $ticket['id'];
+
+                $ticket['unread_admin_messages'] = $ticketMessageModel
+                    ->where('ticket_id', $ticket_id)
+                    ->where('is_read_by_admin', false)
+                    ->countAllResults();
+
+                $ticket['unread_user_messages'] = $ticketMessageModel
+                    ->where('ticket_id', $ticket_id)
+                    ->where('is_read_by_user', false)
+                    ->countAllResults();
+            }
+
             return $this->respond([
-                'status'  => 200,
-                'message' => 'Tickets retrieved successfully.',
-                'data'    => $tickets,
+                'status'     => 200,
+                'message'    => 'Tickets retrieved successfully.',
+                'data'       => $tickets,
                 'pagination' => [
                     'current_page' => $pager->getCurrentPage(),
                     'per_page'     => $limit,
@@ -111,9 +239,12 @@ class TicketController extends ResourceController
                     'last_page'    => $pager->getPageCount(),
                 ]
             ]);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             log_message('error', 'Get Tickets Error: ' . $e->getMessage());
-            return $this->failServerError('Failed to fetch tickets.');
+            return $this->respond([
+                'status' => 500,
+                'error'  => 'Failed to fetch tickets.'
+            ], 500);
         }
     }
 
@@ -296,6 +427,76 @@ class TicketController extends ResourceController
             return $this->fail($e->getMessage(), $e->getCode());
         } catch (\Exception $e) {
             return $this->failServerError("An error occurred while uploading the file: " . $e->getMessage());
+        }
+    }
+
+    public function markTicketAsRead()
+    {
+        $ticketModel = new \App\Models\TicketModel();
+        $messageModel = new \App\Models\TicketMessageModel();
+        $db = db_connect();
+
+        try {
+            $data = $this->request->getJSON(true);
+
+            // Basic manual validation
+            if (empty($data['ticket_id']) || empty($data['viewer_type'])) {
+                return $this->respond([
+                    'status' => 400,
+                    'error' => [
+                        'ticket_id'    => 'ticket_id is required.',
+                        'viewer_type'  => 'viewer_type is required.'
+                    ]
+                ], 400);
+            }
+
+            $ticketID = $data['ticket_id'];
+            $viewerType = $data['viewer_type']; // "admin", "customer", "partner"
+
+            // Check if ticket exists
+            $ticket = $ticketModel->find($ticketID);
+            if (!$ticket) {
+                return $this->respond([
+                    'status' => 404,
+                    'error'  => 'Ticket not found.'
+                ], 404);
+            }
+
+            // Update status based on viewer type
+            if ($viewerType === 'admin') {
+                // Update ticket
+                $ticketModel->update($ticketID, [
+                    'admin_unread' => false,
+                    'last_admin_viewed_at' => date('Y-m-d H:i:s'),
+                ]);
+
+                // Mark messages as read by admin
+                $messageModel->where('ticket_id', $ticketID)
+                    ->where('is_read_by_admin', false)
+                    ->set(['is_read_by_admin' => true])
+                    ->update();
+            } elseif ($viewerType === 'customer' || $viewerType === 'partner') {
+                // Mark messages as read by user
+                $messageModel->where('ticket_id', $ticketID)
+                    ->where('is_read_by_user', false)
+                    ->set(['is_read_by_user' => true])
+                    ->update();
+            } else {
+                return $this->respond([
+                    'status' => 400,
+                    'error'  => ['viewer_type' => 'Invalid viewer_type.']
+                ], 400);
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Ticket and messages marked as read successfully.'
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->respond([
+                'status' => 500,
+                'error'  => $e->getMessage()
+            ], 500);
         }
     }
 }

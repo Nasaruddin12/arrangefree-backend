@@ -689,6 +689,7 @@ $routes->group('tickets', function ($routes) {
     $routes->get('messages/(:num)', 'TicketController::getMessages/$1'); // Get all messages for a ticket
     $routes->post('upload-image', 'TicketController::uploadFile');
     $routes->get('user/(:num)', 'TicketController::getTicketsByUserId/$1');
+    $routes->post('mark-as-read', 'TicketController::markTicketAsRead');
 });
 
 $routes->group('guide-videos', function ($routes) {
@@ -781,9 +782,6 @@ $routes->group('partner', function ($routes) {
     $routes->put('update-address/(:num)', 'PartnerController::updateAddress/$1');
     $routes->post('update-documents', 'PartnerController::updateDocuments');
     $routes->get('photo/(:num)', 'PartnerController::servePhoto/$1');
-
-
-
 });
 
 $routes->group('cron', function ($routes) {
