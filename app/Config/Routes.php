@@ -784,6 +784,7 @@ $routes->group('partner', function ($routes) {
     $routes->get('photo/(:num)', 'PartnerController::servePhoto/$1');
 
     $routes->post('tickets/create', 'TicketController::createTicket');
+    $routes->get('tickets/partner/(:num)', 'TicketController::getTicketsByPartnerId/$1');
 });
 
 $routes->group('cron', function ($routes) {

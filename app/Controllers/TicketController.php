@@ -317,6 +317,45 @@ class TicketController extends ResourceController
     }
 
 
+    public function getTicketsByPartnerId($partnerID = null)
+    {
+        try {
+            if (empty($partnerID)) {
+                return $this->respond([
+                    'status'  => 422,
+                    'message' => 'Partner ID is required.',
+                    'data'    => [],
+                ], 422);
+            }
+
+            $tickets = $this->ticketModel
+                ->where('partner_id', $partnerID)
+                ->orderBy('created_at', 'DESC')
+                ->findAll();
+
+            if (empty($tickets)) {
+                return $this->respond([
+                    'status'  => 204,
+                    'message' => 'No tickets found for this partner.',
+                    'data'    => [],
+                ], 200); // HTTP 200 OK but custom message code 204
+            }
+
+            return $this->respond([
+                'status'  => 200,
+                'message' => 'Tickets fetched successfully.',
+                'data'    => $tickets
+            ], 200);
+        } catch (Exception $e) {
+            log_message('error', '❌ Get Tickets Error: ' . $e->getMessage());
+            return $this->respond([
+                'status'  => 500,
+                'message' => 'Internal server error. Please try again later.',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
+    }
+
     // Add a message to a ticket
     public function addMessage()
     {
