@@ -785,6 +785,7 @@ $routes->group('partner', function ($routes) {
 
     $routes->post('tickets/create', 'TicketController::createTicket');
     $routes->get('tickets/partner/(:num)', 'TicketController::getTicketsByPartnerId/$1');
+    $routes->get('ticket/(:num)', 'TicketController::getTicketById/$1');
 });
 
 $routes->group('cron', function ($routes) {
