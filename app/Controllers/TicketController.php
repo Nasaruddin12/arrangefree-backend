@@ -36,7 +36,7 @@ class TicketController extends ResourceController
                 'subject'   => 'required|string|max_length[255]',
                 'priority'  => 'required|in_list[low,medium,high]',
                 'category'  => 'required|in_list[general,payment,complaint,other]',
-                'message'   => 'required|string',
+                'message'   => 'permit_empty|string',
                 'status'    => 'permit_empty|in_list[open,in_progress,closed]',
                 'file'      => 'permit_empty',
             ];
@@ -64,8 +64,8 @@ class TicketController extends ResourceController
                     'required' => 'Category is required.'
                 ],
                 'message' => [
-                    'required' => 'Message is required.'
-                ]
+                    'string' => 'Message must be a string.'
+                ],
             ];
 
             // Validate input
@@ -122,6 +122,22 @@ class TicketController extends ResourceController
             }
 
             $ticketID = $ticketModel->insertID();
+            if (!$ticketID) {
+                throw new \Exception('Failed to create ticket.', 500);
+            }
+
+            if ($data['message'] === null && $data['file'] === null) {
+                // If no message or file, skip inserting a ticket message
+                $db->transCommit();
+                return $this->respond([
+                    'status'  => 201,
+                    'message' => 'Ticket created successfully without a message.',
+                    'data'    => [
+                        'ticket_id'  => $ticketID,
+                        'ticket_uid' => $ticketUID
+                    ]
+                ], 201);
+            }
 
             // Insert ticket message
             $messageData = [
@@ -307,25 +323,61 @@ class TicketController extends ResourceController
         try {
             $data = $this->request->getJSON(true);
 
-            if (empty($data['ticket_id']) || empty($data['message'])) {
-                return $this->failValidationError('Ticket ID, Sender ID, and Message are required.');
+            // ✅ Define validation rules
+            $rules = [
+                'ticket_id'   => 'required|integer',
+                'sender_type' => 'required|in_list[customer,partner,admin]',
+                'sender_id'   => 'required|integer',
+                'message'     => 'permit_empty|string',
+                'file'        => 'permit_empty'
+            ];
+
+            // ✅ Validate input
+            if (!$this->validateData($data, $rules)) {
+                throw new \Exception('Validation', 400);
             }
 
+            // ✅ Check if at least one of message or file is present
+            if (empty($data['message']) && empty($data['file'])) {
+                // Manually format the validation error like CI
+                $customValidationError = [
+                    'validation' => [
+                        'message' => 'Either message or file is required.'
+                    ]
+                ];
+                return $this->respond(['status' => 400, 'error' => $customValidationError], 400);
+            }
+
+
+            // ✅ Check if ticket exists
             if (!$this->ticketModel->find($data['ticket_id'])) {
                 return $this->failNotFound('Ticket not found.');
             }
 
+            // ✅ Set read flags based on sender_type
+            $isReadByAdmin = ($data['sender_type'] === 'admin') ? true : false;
+            $isReadByUser  = ($data['sender_type'] === 'admin') ? false : true;
+
+
+            // ✅ Prepare message data
             $messageData = [
-                'ticket_id' => $data['ticket_id'],
-                'user_id' => $data['user_id'],
-                'sender_id' => $data['sender_id'],
-                'created_by' => $data['created_by'],
-                'message'   => $data['message'],
-                'created_at' => date('Y-m-d H:i:s'),
+                'ticket_id'        => $data['ticket_id'],
+                'sender_type'      => $data['sender_type'],
+                'sender_id'        => $data['sender_id'],
+                'message'          => $data['message'] ?? '',
+                'file'             => $data['file'] ?? null,
+                'is_read_by_admin' => $isReadByAdmin,
+                'is_read_by_user'  => $isReadByUser,
+                'created_at'       => date('Y-m-d H:i:s'),
             ];
 
+            // ✅ Insert into DB
             if (!$this->ticketMessageModel->insert($messageData)) {
-                return $this->failServerError('Failed to add message.');
+                throw new \Exception('Validation', 400);
+            }
+
+            if ($this->ticketMessageModel->db->error()['code']) {
+                throw new \Exception($this->ticketMessageModel->db->error()['message'], 500);
             }
 
             return $this->respondCreated([
@@ -333,11 +385,20 @@ class TicketController extends ResourceController
                 'message' => 'Message added to ticket.',
                 'data'    => $messageData
             ]);
-        } catch (Exception $e) {
-            log_message('error', 'Add Ticket Message Error: ' . $e->getMessage());
-            return $this->failServerError('Something went wrong.');
+        } catch (\Exception $e) {
+            $statusCode = $e->getCode() === 400 ? 400 : 500;
+
+            $errorData = $e->getCode() === 400
+                ? ['validation' => $this->validator->getErrors() ?: $e->getMessage()]
+                : $e->getMessage();
+
+            return $this->respond([
+                'status' => $statusCode,
+                'error'  => $errorData
+            ], $statusCode);
         }
     }
+
 
     // Get all messages for a ticket
     public function getMessages($ticketId)

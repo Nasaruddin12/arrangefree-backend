@@ -782,6 +782,8 @@ $routes->group('partner', function ($routes) {
     $routes->put('update-address/(:num)', 'PartnerController::updateAddress/$1');
     $routes->post('update-documents', 'PartnerController::updateDocuments');
     $routes->get('photo/(:num)', 'PartnerController::servePhoto/$1');
+
+    $routes->post('tickets/create', 'TicketController::createTicket');
 });
 
 $routes->group('cron', function ($routes) {
