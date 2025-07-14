@@ -13,7 +13,9 @@ class FirebaseService
     public function __construct()
     {
         $serviceAccount = json_decode(file_get_contents(APPPATH . 'Config/firebase-service-account.json'), true);
-
+        if (!$serviceAccount) {
+            throw new \Exception('Firebase service account file not found or invalid.');
+        }
         $this->projectId = $serviceAccount['project_id'];
         $this->clientEmail = $serviceAccount['client_email'];
         $this->privateKey = str_replace("\\n", "\n", $serviceAccount['private_key']);
@@ -61,48 +63,71 @@ class FirebaseService
 
             return $body['access_token'];
         } catch (\Exception $e) {
+            print_r($e->getMessage());
             log_message('error', 'Access token fetch failed: ' . $e->getMessage());
             return null;
         }
     }
 
-    public function sendNotification($token, $title, $body)
+    public function sendNotification($token, $title, $body, $screen = "TicketChat", $id = "3")
     {
         $accessToken = $this->getAccessToken();
 
         if (!$accessToken) {
-            return ['error' => 'Failed to retrieve access token'];
+            throw new \Exception('Failed to retrieve access token');
         }
 
-        $client = new Client();
+        $client = new \GuzzleHttp\Client();
         $url = "https://fcm.googleapis.com/v1/projects/{$this->projectId}/messages:send";
 
+        // Prepare data payload
+        $dataPayload = [
+            'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+            'sound'        => 'default',
+        ];
+
+  
         $message = [
             'message' => [
                 'token' => $token,
-                'notification' => [
-                    'title' => $title,
-                    'body'  => $body
-                ],
                 'android' => [
-                    'priority' => 'high'
+                    'priority' => 'high',
+                    'notification' => [
+                        'sound' => 'default' // ✅ Android sound
+                    ]
+                ],
+                'apns' => [
+                    'payload' => [
+                        'aps' => [
+                            'sound' => 'default', // ✅ iOS sound
+                            'content-available' => 1 // optional: for background notifications
+                        ]
+                    ]
+                ],
+                'data' => [ // ✅ Optional navigation support
+                    'screen' => $screen ?? null,
+                    'id'     => $id ?? null,
+                    'title'  => $title,
+                    'body'   => $body,
+                    'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+                    'sound' => 'default',
+                    
                 ]
             ]
         ];
 
         try {
-            $response = $client->post($url, [
+            return $client->post($url, [
                 'headers' => [
                     'Authorization' => "Bearer $accessToken",
                     'Content-Type'  => 'application/json'
                 ],
                 'json' => $message
             ]);
-
-            return json_decode($response->getBody(), true);
-        } catch (\Exception $e) {
-            log_message('error', 'Notification send failed: ' . $e->getMessage());
-            return ['error' => $e->getMessage()];
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            $errorResponse = $e->hasResponse() ? $e->getResponse()->getBody()->getContents() : $e->getMessage();
+            log_message('error', 'Notification send failed: ' . $errorResponse);
+            throw new \Exception($errorResponse, 500);
         }
     }
 }

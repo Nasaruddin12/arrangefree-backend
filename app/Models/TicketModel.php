@@ -23,6 +23,8 @@ class TicketModel extends Model
         'priority',
         'category',
         'assigned_admin_id',
+        'admin_unread',
+        'last_admin_viewed_at',
         'created_at',
         'updated_at'
     ];

@@ -571,9 +571,9 @@ class TicketController extends ResourceController
                 ]);
 
                 // Mark messages as read by admin
-                $messageModel->where('ticket_id', $ticketID)
+                $messageModel->set(['is_read_by_admin' => true])
+                    ->where('ticket_id', $ticketID)
                     ->where('is_read_by_admin', false)
-                    ->set(['is_read_by_admin' => true])
                     ->update();
             } elseif ($viewerType === 'customer' || $viewerType === 'partner') {
                 // Mark messages as read by user
