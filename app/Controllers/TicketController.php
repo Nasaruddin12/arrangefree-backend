@@ -35,7 +35,7 @@ class TicketController extends ResourceController
                 'user_type' => 'required|in_list[customer,partner]',
                 'subject'   => 'required|string|max_length[255]',
                 'priority'  => 'required|in_list[low,medium,high]',
-                'category'  => 'required|in_list[general,payment,complaint,other]',
+                'category'  => 'required',
                 'message'   => 'permit_empty|string',
                 'status'    => 'permit_empty|in_list[open,in_progress,closed]',
                 'file'      => 'permit_empty',
