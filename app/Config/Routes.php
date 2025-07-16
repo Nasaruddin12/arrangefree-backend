@@ -791,7 +791,7 @@ $routes->group('partner', function ($routes) {
 });
 
 $routes->group('cron', function ($routes) {
-    $routes->get('daily/first-step-email', 'NotificationController::sendFirstStepEmail');         // Get all room elements
+    $routes->get('daily/first-step-email', 'EmailController::sendFirstStepEmail');         // Get all room elements
 });
 
 
@@ -809,10 +809,13 @@ $routes->group('prompts', function ($routes) {
     $routes->delete('(:num)', 'PromptController::delete/$1');
 });
 
-
-
-
-
+$routes->group('notifications', function ($routes) {
+    $routes->get('/', 'NotificationController::index');
+    $routes->post('create', 'NotificationController::create');
+    $routes->post('mark-as-read', 'NotificationController::markAsRead');
+    $routes->post('mark-all-read', 'NotificationController::markAllAsRead');
+    $routes->delete('delete', 'NotificationController::delete');
+});
 
 
 /*

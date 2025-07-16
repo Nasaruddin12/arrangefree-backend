@@ -69,7 +69,7 @@ class FirebaseService
         }
     }
 
-    public function sendNotification($token, $title, $body, $screen = "TicketChat", $id = "3")
+    public function sendNotification($tokens, $title, $body, $screen = "Home", $id = null, $unreadCount = 1, $image = null)
     {
         $accessToken = $this->getAccessToken();
 
@@ -77,57 +77,80 @@ class FirebaseService
             throw new \Exception('Failed to retrieve access token');
         }
 
+        $tokens = is_array($tokens) ? $tokens : [$tokens];
         $client = new \GuzzleHttp\Client();
         $url = "https://fcm.googleapis.com/v1/projects/{$this->projectId}/messages:send";
 
-        // Prepare data payload
-        $dataPayload = [
-            'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
-            'sound'        => 'default',
-        ];
+        $responses = [];
 
-  
-        $message = [
-            'message' => [
-                'token' => $token,
-                'android' => [
-                    'priority' => 'high',
-                    'notification' => [
-                        'sound' => 'default' // ✅ Android sound
-                    ]
-                ],
-                'apns' => [
-                    'payload' => [
-                        'aps' => [
-                            'sound' => 'default', // ✅ iOS sound
-                            'content-available' => 1 // optional: for background notifications
+        foreach ($tokens as $token) {
+            $payload = [
+                'message' => [
+                    'token' => $token,
+                    // 'notification' => [
+                    //     'title' => $title,
+                    //     'body'  => $body,
+                    //     'image' => $image // ✅ Include image here if provided
+                    // ],
+                    'android' => [
+                        'priority' => 'high',
+                        'notification' => [
+                            'sound' => 'default',
+                            'image' => $image // ✅ Optional for Android compatibility
                         ]
+                    ],
+                    'apns' => [
+                        'headers' => [
+                            'apns-priority' => '10'
+                        ],
+                        'payload' => [
+                            'aps' => [
+                                'sound' => 'default',
+                                'content-available' => 1,
+                                'badge' => $unreadCount
+                            ]
+                        ]
+                    ],
+                    'data' => [
+                        'screen'        => $screen,
+                        'id'            => $id,
+                        'title'         => $title,
+                        'body'          => $body,
+                        'image'         => $image, // ✅ for custom data parsing
+                        'click_action'  => 'FLUTTER_NOTIFICATION_CLICK',
+                        'sound'         => 'default'
                     ]
-                ],
-                'data' => [ // ✅ Optional navigation support
-                    'screen' => $screen ?? null,
-                    'id'     => $id ?? null,
-                    'title'  => $title,
-                    'body'   => $body,
-                    'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
-                    'sound' => 'default',
-                    
                 ]
-            ]
-        ];
+            ];
 
-        try {
-            return $client->post($url, [
-                'headers' => [
-                    'Authorization' => "Bearer $accessToken",
-                    'Content-Type'  => 'application/json'
-                ],
-                'json' => $message
-            ]);
-        } catch (\GuzzleHttp\Exception\RequestException $e) {
-            $errorResponse = $e->hasResponse() ? $e->getResponse()->getBody()->getContents() : $e->getMessage();
-            log_message('error', 'Notification send failed: ' . $errorResponse);
-            throw new \Exception($errorResponse, 500);
+            try {
+                $response = $client->post($url, [
+                    'headers' => [
+                        'Authorization' => "Bearer $accessToken",
+                        'Content-Type'  => 'application/json'
+                    ],
+                    'json' => $payload
+                ]);
+
+                $responses[] = [
+                    'token' => $token,
+                    'status' => $response->getStatusCode(),
+                    'response' => json_decode($response->getBody(), true)
+                ];
+            } catch (\GuzzleHttp\Exception\RequestException $e) {
+                $error = $e->hasResponse()
+                    ? $e->getResponse()->getBody()->getContents()
+                    : $e->getMessage();
+                log_message('error', 'Notification send failed: ' . $error);
+
+                $responses[] = [
+                    'token' => $token,
+                    'status' => 500,
+                    'error' => $error
+                ];
+            }
         }
+
+        return $responses;
     }
 }

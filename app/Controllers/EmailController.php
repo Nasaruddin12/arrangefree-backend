@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
+use App\Models\CustomerModel;
 use CodeIgniter\API\ResponseTrait;
 
 class EmailController extends BaseController
@@ -436,6 +437,41 @@ class EmailController extends BaseController
       return '✅ Comparison email sent to ' . $toEmail;
     } else {
       return '❌ Failed to send comparison email.<br>' . print_r($email->printDebugger(['headers']), true);
+    }
+  }
+
+  public function sendFirstStepEmail()
+  {
+    $userModel = new CustomerModel();
+
+    // Get tomorrow's date
+    $tomorrow = date('Y-m-d', strtotime('+1 day'));
+
+    // Fetch users created tomorrow (assuming `created_at` is DATE or DATETIME)
+    $users = $userModel
+      ->where("DATE(created_at)", $tomorrow)
+      ->findAll();
+
+    if (empty($users)) {
+      return 'ℹ️ No users found with created_at = tomorrow (' . $tomorrow . ')';
+    }
+
+    // Prepare recipients array
+    $recipients = [];
+
+    foreach ($users as $user) {
+      $recipients[] = [
+        'email' => $user['email'],
+        'name'  => $user['name'] ?? 'Customer'
+      ];
+    }
+
+    // Call EmailController's function
+    $result = $this->sendRoomStepEmailToMultiple($recipients);
+
+    // Log results
+    foreach ($result as $log) {
+      echo $log . "<br>";
     }
   }
 }
