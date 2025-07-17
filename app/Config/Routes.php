@@ -790,7 +790,7 @@ $routes->group('partner', function ($routes) {
     $routes->post('ticket/mark-as-read', 'TicketController::markTicketAsRead');
 
     $routes->post('notifications/mark-all-read', 'NotificationController::markAllAsRead');
-    $routes->delete('notifications/delete', 'NotificationController::delete');
+    $routes->delete('notifications/delete/(:num)', 'NotificationController::delete/$1');
     $routes->post('notifications/user', 'NotificationController::index');
     $routes->post('notifications/clear-all', 'NotificationController::clearAll');
 
