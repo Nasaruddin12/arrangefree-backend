@@ -84,9 +84,9 @@ class NotificationController extends BaseController
             ->countAllResults();
 
         return $this->respond([
-            'status' => true,
+            'status' => 200,
             'unread_count' => $unreadCount,
-            'notifications' => $notifications
+            'data' => $notifications
         ]);
     }
 
