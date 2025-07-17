@@ -93,36 +93,51 @@ class NotificationController extends BaseController
     // 🔹 POST /notifications/create
     public function create()
     {
-        $data = $this->request->getJSON(true);
-        $rules = [
-            'user_id'   => 'required|integer',
-            'user_type' => 'required|in_list[customer,partner,admin]',
-            'title'     => 'required|string',
-            'message'   => 'required|string',
-            'type'      => 'required|string',
-        ];
-        $validation = \Config\Services::validation();
-        if (!$this->validateData($data, $rules)) {
-            return $this->failValidationErrors($validation->getErrors());
-        }
+        try {
+            $data = $this->request->getJSON(true);
 
-        $notificationService = new NotificationService();
-        $result = $notificationService->notifyUser($data);
+            // ✅ Validation rules
+            $rules = [
+                'user_id'   => 'required|integer',
+                'user_type' => 'required|in_list[customer,partner,admin]',
+                'title'     => 'required|string',
+                'message'   => 'required|string',
+                'type'      => 'required|string',
+            ];
 
-        if ($result['status']) {
-            return $this->respond([
-                'status' => 200,
-                'message' => 'Notification sent and saved',
-                'fcm_result' => $result['fcm'] ?? null
-            ], 200);
-        } else {
+            $validation = \Config\Services::validation();
+            if (!$this->validateData($data, $rules)) {
+                return $this->failValidationErrors($validation->getErrors());
+            }
+
+            // ✅ Send and save notification
+            $notificationService = new NotificationService();
+            $result = $notificationService->notifyUser($data);
+
+            if ($result['status']) {
+                return $this->respond([
+                    'status' => 200,
+                    'message' => 'Notification sent and saved',
+                    'fcm_result' => $result['fcm'] ?? null
+                ], 200);
+            } else {
+                return $this->respond([
+                    'status' => false,
+                    'message' => $result['message'],
+                    'error'   => $result['missing'] ?? null
+                ], 400);
+            }
+        } catch (\Throwable $e) {
+            log_message('error', 'NotificationController::create error - ' . $e->getMessage());
+
             return $this->respond([
                 'status' => false,
-                'message' => $result['message'],
-                'error' => $result['missing'] ?? null
-            ], 400);
+                'message' => 'Something went wrong while sending notification.',
+                'error' =>  $e->getMessage()
+            ], 500);
         }
     }
+
     // 🔹 POST /notifications/mark-as-read
     public function markAsRead()
     {
@@ -163,5 +178,24 @@ class NotificationController extends BaseController
         $this->notificationModel->delete($id);
 
         return $this->respond(['status' => true, 'message' => 'Notification deleted']);
+    }
+    public function clearAll()
+    {
+        $userId = $this->request->getPost('user_id');
+        $userType = $this->request->getPost('user_type');
+
+        if (!$userId || !$userType) {
+            return $this->failValidationErrors("user_id and user_type are required");
+        }
+
+        $this->notificationModel
+            ->where('user_id', $userId)
+            ->where('user_type', $userType)
+            ->delete();
+
+        return $this->respond([
+            'status' => 200,
+            'message' => 'All notifications cleared for this user'
+        ]);
     }
 }

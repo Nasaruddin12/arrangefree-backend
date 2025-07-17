@@ -788,6 +788,12 @@ $routes->group('partner', function ($routes) {
     $routes->get('ticket/(:num)', 'TicketController::getTicketById/$1');
     $routes->post('ticket/add-message', 'TicketController::addMessage');
     $routes->post('ticket/mark-as-read', 'TicketController::markTicketAsRead');
+
+    $routes->post('notifications/mark-all-read', 'NotificationController::markAllAsRead');
+    $routes->delete('notifications/delete', 'NotificationController::delete');
+    $routes->post('notifications/user', 'NotificationController::index');
+    $routes->post('notifications/clear-all', 'NotificationController::clearAll');
+
 });
 
 $routes->group('cron', function ($routes) {
@@ -801,7 +807,6 @@ $routes->get('test-step-email', 'EmailController::sendRoomStepEmailToMultiple');
 $routes->get('send-notification', 'NotificationController::send');
 
 $routes->group('prompts', function ($routes) {
-    $routes->get('/', 'PromptController::index');
     $routes->get('style/(:num)', 'PromptController::getByStyle/$1');
     $routes->get('(:num)', 'PromptController::show/$1');
     $routes->post('/', 'PromptController::create');
@@ -810,7 +815,7 @@ $routes->group('prompts', function ($routes) {
 });
 
 $routes->group('notifications', function ($routes) {
-    $routes->get('/', 'NotificationController::index');
+    $routes->post('/user', 'NotificationController::index');
     $routes->post('create', 'NotificationController::create');
     $routes->post('mark-as-read', 'NotificationController::markAsRead');
     $routes->post('mark-all-read', 'NotificationController::markAllAsRead');
