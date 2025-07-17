@@ -181,8 +181,8 @@ class NotificationController extends BaseController
     }
     public function clearAll()
     {
-        $userId = $this->request->getPost('user_id');
-        $userType = $this->request->getPost('user_type');
+        $userId = $this->request->getVar('user_id');
+        $userType = $this->request->getVar('user_type');
 
         if (!$userId || !$userType) {
             return $this->failValidationErrors("user_id and user_type are required");
