@@ -64,8 +64,8 @@ class NotificationController extends BaseController
         //     ->where('created_at <', date('Y-m-d H:i:s', strtotime('-1 month')))
         //     ->delete();
 
-        $userId = $this->request->getGet('user_id');
-        $userType = $this->request->getGet('user_type');
+        $userId = $this->request->getVar('user_id');
+        $userType = $this->request->getVar('user_type');
 
         if (!$userId || !$userType) {
             return $this->failValidationErrors("user_id and user_type are required");
