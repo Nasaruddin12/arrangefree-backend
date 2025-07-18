@@ -199,6 +199,7 @@ class TicketController extends ResourceController
             $endDate     = $this->request->getVar('end_date');
             $status      = $this->request->getVar('status');
             $searchQuery = $this->request->getVar('search');
+            $userType    = $this->request->getVar('user_type');
 
             $query = $this->ticketModel
                 ->select('tickets.*, af_customers.name as user_name')
@@ -215,6 +216,10 @@ class TicketController extends ResourceController
             // Status filter
             if ($status) {
                 $query->where('tickets.status', $status);
+            }
+
+            if ($userType) {
+                $query->where('tickets.user_type', $userType);
             }
 
             // Date range filter
