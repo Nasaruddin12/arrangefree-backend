@@ -305,21 +305,31 @@ class TicketController extends ResourceController
                 return $this->failValidationError('User ID is required.');
             }
 
+            $ticketMessageModel = new \App\Models\TicketMessageModel();
+
             $tickets = $this->ticketModel
                 ->where('user_id', $userId)
                 ->orderBy('created_at', 'DESC')
                 ->findAll();
+
+            foreach ($tickets as &$ticket) {
+                $ticket['unread_user_messages'] = $ticketMessageModel
+                    ->where('ticket_id', $ticket['id'])
+                    ->where('is_read_by_user', false)
+                    ->countAllResults();
+            }
 
             return $this->respond([
                 'status'  => 200,
                 'message' => 'Tickets fetched successfully.',
                 'data'    => $tickets
             ]);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             log_message('error', 'Get Tickets Error: ' . $e->getMessage());
             return $this->failServerError('Something went wrong. ' . $e->getMessage());
         }
     }
+
 
 
     public function getTicketsByPartnerId($partnerID = null)
