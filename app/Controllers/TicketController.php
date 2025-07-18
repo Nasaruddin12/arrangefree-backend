@@ -201,19 +201,27 @@ class TicketController extends ResourceController
             $searchQuery = $this->request->getVar('search');
             $userType    = $this->request->getVar('user_type');
 
-            $query = $this->ticketModel
-                ->select('tickets.*, af_customers.name as user_name')
-                ->join('af_customers', 'af_customers.id = tickets.user_id', 'left');
+            $query = $this->ticketModel;
+
+            // Apply dynamic join based on user_type
+            if ($userType === 'partner') {
+                $query = $query->select('tickets.*, partners.name as user_name')
+                    ->join('partners', 'partners.id = tickets.partner_id', 'left');
+            } else {
+                // Default to customer
+                $query = $query->select('tickets.*, af_customers.name as user_name')
+                    ->join('af_customers', 'af_customers.id = tickets.user_id', 'left');
+            }
 
             // Apply search
             if (!empty($searchQuery)) {
                 $query->groupStart()
-                    ->like('af_customers.name', $searchQuery)
+                    ->like(($userType === 'partner' ? 'partners.name' : 'af_customers.name'), $searchQuery)
                     ->orLike('tickets.id', $searchQuery)
                     ->groupEnd();
             }
 
-            // Status filter
+            // Apply filters
             if ($status) {
                 $query->where('tickets.status', $status);
             }
@@ -222,7 +230,6 @@ class TicketController extends ResourceController
                 $query->where('tickets.user_type', $userType);
             }
 
-            // Date range filter
             if ($startDate && $endDate) {
                 $query->where('tickets.created_at >=', $startDate)
                     ->where('tickets.created_at <=', $endDate);
@@ -232,7 +239,7 @@ class TicketController extends ResourceController
             $tickets = $query->paginate($limit, 'default', $page);
             $pager   = $this->ticketModel->pager;
 
-            // ✅ Append unread message counts for each ticket
+            // Append unread counts
             $ticketMessageModel = new \App\Models\TicketMessageModel();
 
             foreach ($tickets as &$ticket) {
@@ -268,6 +275,7 @@ class TicketController extends ResourceController
             ], 500);
         }
     }
+
 
     // Update ticket status
     public function updateStatus($ticketId)
