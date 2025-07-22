@@ -39,16 +39,18 @@ class BookingAssignmentController extends ResourceController
         $partnerModel = new \App\Models\PartnerModel();
         $notificationService = new NotificationService();
         $bookingModel = new \App\Models\BookingsModel();
-        $serviceModel = new \App\Models\BookingServicesModel();
+        $bookingServiceModel = new \App\Models\BookingServicesModel();
         $customerModel = new \App\Models\CustomerModel();
+        $serviceModel = new \App\Models\ServiceModel();
 
-        $booking = $bookingModel->find($bookingServiceId);
-        if (!$booking) {
-            return $this->failNotFound('Booking not found');
+        $bookingService = $bookingServiceModel->find($bookingServiceId);
+        if (!$bookingService) {
+            return $this->failNotFound('Service not found');
         }
 
-        $service = $serviceModel->find($booking['service_id']);
+        $booking = $bookingModel->find($bookingService['booking_id']);
         $customer = $customerModel->find($booking['user_id']);
+        $service = $serviceModel->find($bookingService['service_id']);
 
         $serviceName = $service['name'] ?? '';
         $customerName = $customer['name'] ?? '';
