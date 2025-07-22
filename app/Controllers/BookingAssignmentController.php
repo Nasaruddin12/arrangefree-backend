@@ -49,7 +49,7 @@ class BookingAssignmentController extends ResourceController
 
         try {
             foreach ($partnerIds as $partnerId) {
-                if (in_array($partnerId, $existingPartnerIds)) continue;
+                // if (in_array($partnerId, $existingPartnerIds)) continue;
 
                 $requestModel->insert([
                     'booking_service_id' => $bookingServiceId,

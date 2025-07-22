@@ -112,14 +112,15 @@ class FirebaseService
                         ]
                     ],
                     'data' => [
-                        'screen'        => $screen,
-                        'id'            => $id,
-                        'title'         => $title,
-                        'body'          => $body,
-                        'image'         => $image, // ✅ for custom data parsing
+                        'screen'        => (string) $screen,
+                        'id'            => $id !== null ? (string) $id : '',
+                        'title'         => (string) $title,
+                        'body'          => (string) $body,
+                        'image'         => $image !== null ? (string) $image : '',
                         'click_action'  => 'FLUTTER_NOTIFICATION_CLICK',
                         'sound'         => 'default'
                     ]
+
                 ]
             ];
 
