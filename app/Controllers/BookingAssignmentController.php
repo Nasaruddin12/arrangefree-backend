@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Libraries\FirebaseService;
 use App\Libraries\FirestoreService;
 use App\Models\BookingAssignmentModel;
 use App\Models\BookingAssignmentRequestModel;
@@ -34,18 +35,20 @@ class BookingAssignmentController extends ResourceController
         $assignedAmount   = $this->request->getVar('amount');
 
         $requestModel = new BookingAssignmentRequestModel();
+        $partnerModel = new \App\Models\PartnerModel();
+        $notificationService = new FirebaseService();
 
         // Skip already assigned partners
-        // $existing = $requestModel
-        //     ->where('booking_service_id', $bookingServiceId)
-        //     ->whereIn('partner_id', $partnerIds)
-        //     ->findAll();
+        $existing = $requestModel
+            ->where('booking_service_id', $bookingServiceId)
+            ->whereIn('partner_id', $partnerIds)
+            ->findAll();
 
-        // $existingPartnerIds = array_column($existing, 'partner_id');
+        $existingPartnerIds = array_column($existing, 'partner_id');
 
         try {
             foreach ($partnerIds as $partnerId) {
-                // if (in_array($partnerId, $existingPartnerIds)) continue;
+                if (in_array($partnerId, $existingPartnerIds)) continue;
 
                 $requestModel->insert([
                     'booking_service_id' => $bookingServiceId,
@@ -58,6 +61,15 @@ class BookingAssignmentController extends ResourceController
                 if (!$result['success']) {
                     $skipped[] = $result;
                 }
+                // ✅ Send notification
+                $partner = $partnerModel->find($partnerId);
+                if (!empty($partner['fcm_token'])) {
+                    $title = "New Booking Request";
+                    $body = "You've received a new assignment request.";
+                    $notificationService->sendNotification($partner['fcm_token'], $title, $body, "booking-assign", $bookingServiceId);
+                }
+
+                $assignedPartners[] = $partnerId;
             }
 
             return $this->respond([
@@ -96,6 +108,18 @@ class BookingAssignmentController extends ResourceController
                 'status' => 'assigned',
                 'assigned_at' => date('Y-m-d H:i:s')
             ]);
+
+            $partnerModel = new \App\Models\PartnerModel();
+            $partner = $partnerModel->find($partnerId);
+            if (!empty($partner['fcm_token'])) {
+                $title = "New Assignment";
+                $body = "You’ve been assigned a new booking request.";
+                $fcmToken = $partner['fcm_token'];
+
+                // ✅ Call sendNotification
+                $notificationService = new FirebaseService(); // or wherever your sendNotification is defined
+                $notificationService->sendNotification($fcmToken, $title, $body, "Home", $bookingServiceId);
+            }
 
             // 🔥 Optional: notify Firestore
             $this->updateFirestoreOnClaim($bookingServiceId, $partnerId);
