@@ -66,7 +66,7 @@ class BookingAssignmentController extends ResourceController
                 if (!empty($partner['fcm_token'])) {
                     $title = "New Booking Request";
                     $body = "You've received a new assignment request.";
-                    $notificationService->sendNotification($partner['fcm_token'], $title, $body, "booking-assign", $bookingServiceId);
+                   $res= $notificationService->sendNotification($partner['fcm_token'], $title, $body, "booking-assign", $bookingServiceId);
                 }
 
                 $assignedPartners[] = $partnerId;
@@ -79,7 +79,8 @@ class BookingAssignmentController extends ResourceController
                     'booking_service_id' => $bookingServiceId,
                     'assigned_partners' => array_filter($assignedPartners ?? []),
                     'skipped_partners' => $skipped ?? []
-                ]
+                ],
+                'notification_response' => $res ?? []
             ]);
         } catch (\Throwable $e) {
             log_message('error', 'Assignment creation failed: ' . $e->getMessage());
