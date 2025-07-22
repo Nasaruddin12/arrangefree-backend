@@ -117,7 +117,7 @@ class FirestoreService
                 'booking_service_id' => ['stringValue' => (string) $bookingServiceId],
                 'service_name'       => ['stringValue' => (string) $serviceName],
                 'customer_name'      => ['stringValue' => (string) $customerName],
-                'slot_date'          => ['timestampValue' => $slotDate],
+                'slot_date'          => ['stringValue' => (string) $slotDate],
                 'firebase_uid'       => ['stringValue' => (string) $firebaseUid],
                 'partner_id'        => ['stringValue' => (string) $partnerId],
                 'amount'             => $assignedAmount !== null ? ['doubleValue' => (float) $assignedAmount] : ['nullValue' => null],
