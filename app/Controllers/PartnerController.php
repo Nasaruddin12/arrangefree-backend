@@ -937,4 +937,35 @@ class PartnerController extends BaseController
             return $this->response->setStatusCode(500)->setBody('Error loading image');
         }
     }
+
+    public function storeFirebaseUid()
+    {
+        $partnerId = $this->request->getVar('partner_id');
+        $firebaseUid = $this->request->getVar('firebase_uid');
+
+        if (!$partnerId || !$firebaseUid) {
+            return $this->failValidationErrors('partner_id and firebase_uid are required');
+        }
+
+        $partnerModel = new PartnerModel(); // Update with your actual model namespace
+
+        $partner = $partnerModel->find($partnerId);
+        if (!$partner) {
+            return $this->failNotFound('Partner not found');
+        }
+
+        try {
+            $partnerModel->update($partnerId, [
+                'firebase_uid' => $firebaseUid
+            ]);
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Firebase UID stored successfully'
+            ]);
+        } catch (\Throwable $e) {
+            log_message('error', 'Failed to store Firebase UID: ' . $e->getMessage());
+            return $this->failServerError('Something went wrong while saving Firebase UID');
+        }
+    }
 }

@@ -39,6 +39,7 @@ class CreatePartners extends Migration
                 'default'    => 'pending',
             ],
             'fcm_token' => ['type' => 'TEXT', 'null' => true],
+            'firebase_uid' => ['type' => 'VARCHAR', 'constraint' => 255, 'null' => true],
             'created_at' => ['type' => 'DATETIME', 'null' => true],
             'updated_at' => ['type' => 'DATETIME', 'null' => true],
         ]);

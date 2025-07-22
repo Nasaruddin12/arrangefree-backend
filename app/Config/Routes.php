@@ -782,6 +782,8 @@ $routes->group('partner', function ($routes) {
     $routes->put('update-address/(:num)', 'PartnerController::updateAddress/$1');
     $routes->post('update-documents', 'PartnerController::updateDocuments');
     $routes->get('photo/(:num)', 'PartnerController::servePhoto/$1');
+    $routes->post('store-firebase-uid', 'PartnerController::storeFirebaseUid');
+
 
     $routes->post('tickets/create', 'TicketController::createTicket');
     $routes->get('tickets/partner/(:num)', 'TicketController::getTicketsByPartnerId/$1');
@@ -794,6 +796,7 @@ $routes->group('partner', function ($routes) {
     $routes->post('notifications/user', 'NotificationController::index');
     $routes->post('notifications/clear-all', 'NotificationController::clearAll');
 
+    $routes->post('booking_assignment/accept', 'BookingAssignmentController::acceptAssignment');
 });
 
 $routes->group('cron', function ($routes) {
@@ -822,6 +825,9 @@ $routes->group('notifications', function ($routes) {
     $routes->delete('delete', 'NotificationController::delete');
 });
 
+$routes->group('assignment', function ($routes) {
+    $routes->post('create-requests', 'BookingAssignmentController::createAssignmentRequests');
+});
 
 /*
  * --------------------------------------------------------------------

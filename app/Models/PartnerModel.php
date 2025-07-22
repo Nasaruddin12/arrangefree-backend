@@ -28,6 +28,7 @@ class PartnerModel extends Model
         'verified_at',
         'status',
         'fcm_token',
+        'firebase_uid',
     ];
 
     protected $useTimestamps = true;
