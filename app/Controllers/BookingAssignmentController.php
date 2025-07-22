@@ -7,6 +7,7 @@ use App\Libraries\FirestoreService;
 use App\Models\BookingAssignmentModel;
 use App\Models\BookingAssignmentRequestModel;
 use App\Models\PartnerModel;
+use App\Services\NotificationService;
 use CodeIgniter\RESTful\ResourceController;
 
 class BookingAssignmentController extends ResourceController
@@ -36,7 +37,7 @@ class BookingAssignmentController extends ResourceController
 
         $requestModel = new BookingAssignmentRequestModel();
         $partnerModel = new \App\Models\PartnerModel();
-        $notificationService = new FirebaseService();
+        $notificationService = new NotificationService();
 
         // Skip already assigned partners
         $existing = $requestModel
@@ -66,7 +67,16 @@ class BookingAssignmentController extends ResourceController
                 if (!empty($partner['fcm_token'])) {
                     $title = "New Booking Request";
                     $body = "You've received a new assignment request.";
-                   $res= $notificationService->sendNotification($partner['fcm_token'], $title, $body, "booking-assign", $bookingServiceId);
+                    $res = $notificationService->notifyUser([
+                        'user_id' => $partnerId,
+                        'user_type' => 'partner',
+                        'title' => $title,
+                        'message' => $body,
+                        'type' => 'booking_assignment',
+                        'navigation_screen' => 'booking_assignment',
+                        'navigation_id' => $bookingServiceId
+                    ]);
+                    $notificationsResult[] = $res;
                 }
 
                 $assignedPartners[] = $partnerId;
@@ -80,7 +90,7 @@ class BookingAssignmentController extends ResourceController
                     'assigned_partners' => array_filter($assignedPartners ?? []),
                     'skipped_partners' => $skipped ?? []
                 ],
-                'notification_response' => $res ?? []
+                'notification_response' => $notificationsResult ?? []
             ]);
         } catch (\Throwable $e) {
             log_message('error', 'Assignment creation failed: ' . $e->getMessage());
@@ -118,8 +128,16 @@ class BookingAssignmentController extends ResourceController
                 $fcmToken = $partner['fcm_token'];
 
                 // ✅ Call sendNotification
-                $notificationService = new FirebaseService(); // or wherever your sendNotification is defined
-                $notificationService->sendNotification($fcmToken, $title, $body, "Home", $bookingServiceId);
+                $notificationService = new NotificationService();
+                $notificationService->notifyUser([
+                    'user_id' => $partnerId,
+                    'user_type' => 'partner',
+                    'title' => $title,
+                    'message' => $body,
+                    'type' => 'booking_assignment',
+                    'navigation_screen' => 'booking_assignment',
+                    'navigation_id' => $bookingServiceId
+                ]);
             }
 
             // 🔥 Optional: notify Firestore
