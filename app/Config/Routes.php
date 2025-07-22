@@ -797,6 +797,8 @@ $routes->group('partner', function ($routes) {
     $routes->post('notifications/clear-all', 'NotificationController::clearAll');
 
     $routes->post('booking_assignment/accept', 'BookingAssignmentController::acceptAssignment');
+    $routes->get('accepted-bookings/(:num)', 'BookingAssignmentController::getAcceptedBookings/$1');
+
 });
 
 $routes->group('cron', function ($routes) {

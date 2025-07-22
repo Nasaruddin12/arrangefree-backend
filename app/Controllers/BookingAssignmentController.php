@@ -38,6 +38,21 @@ class BookingAssignmentController extends ResourceController
         $requestModel = new BookingAssignmentRequestModel();
         $partnerModel = new \App\Models\PartnerModel();
         $notificationService = new NotificationService();
+        $bookingModel = new \App\Models\BookingsModel();
+        $serviceModel = new \App\Models\BookingServicesModel();
+        $customerModel = new \App\Models\CustomerModel();
+
+        $booking = $bookingModel->find($bookingServiceId);
+        if (!$booking) {
+            return $this->failNotFound('Booking not found');
+        }
+
+        $service = $serviceModel->find($booking['service_id']);
+        $customer = $customerModel->find($booking['user_id']);
+
+        $serviceName = $service['name'] ?? '';
+        $customerName = $customer['name'] ?? '';
+        $slotDate = $booking['slot_date'] ?? null;
 
         // Skip already assigned partners
         $existing = $requestModel
@@ -49,7 +64,7 @@ class BookingAssignmentController extends ResourceController
 
         try {
             foreach ($partnerIds as $partnerId) {
-                // if (in_array($partnerId, $existingPartnerIds)) continue;
+                if (in_array($partnerId, $existingPartnerIds)) continue;
 
                 $requestModel->insert([
                     'booking_service_id' => $bookingServiceId,
@@ -58,7 +73,14 @@ class BookingAssignmentController extends ResourceController
                     'sent_at'            => date('Y-m-d H:i:s')
                 ]);
 
-                $result = $this->pushToFirestore($bookingServiceId, $partnerId, $assignedAmount);
+                $result = $this->pushToFirestore(
+                    $bookingServiceId,
+                    $partnerId,
+                    $assignedAmount,
+                    $serviceName,
+                    $customerName,
+                    $slotDate
+                );
                 if (!$result['success']) {
                     $skipped[] = $result;
                 }
@@ -83,7 +105,7 @@ class BookingAssignmentController extends ResourceController
             }
 
             return $this->respond([
-                'status' => true,
+                'status' => 200,
                 'message' => 'Assignment requests created',
                 'data' => [
                     'booking_service_id' => $bookingServiceId,
@@ -94,7 +116,7 @@ class BookingAssignmentController extends ResourceController
             ]);
         } catch (\Throwable $e) {
             log_message('error', 'Assignment creation failed: ' . $e->getMessage());
-            return $this->fail(['status' => false, 'message' => $e->getMessage()]);
+            return $this->fail(['status' => 500, 'message' => $e->getMessage()]);
         }
     }
 
@@ -143,15 +165,15 @@ class BookingAssignmentController extends ResourceController
             // 🔥 Optional: notify Firestore
             $this->updateFirestoreOnClaim($bookingServiceId, $partnerId);
 
-            return $this->respond(['status' => true, 'message' => 'Assignment accepted']);
+            return $this->respond(['status' => 200, 'message' => 'Assignment accepted']);
         } catch (\Exception $e) {
 
-            return $this->fail(['status' => false, 'message' => $e->getMessage()]);
+            return $this->fail(['status' => 500, 'message' => $e->getMessage()]);
         }
     }
 
     // 🔥 Firestore broadcast per partner (you can call Firebase PHP SDK or use REST API)
-    private function pushToFirestore($bookingServiceId, $partnerId, $assignedAmount)
+    private function pushToFirestore($bookingServiceId, $partnerId, $assignedAmount, $serviceName, $customerName, $slotDate)
     {
         $partner = (new \App\Models\PartnerModel())->find($partnerId);
         if (!$partner || empty($partner['firebase_uid'])) {
@@ -159,7 +181,7 @@ class BookingAssignmentController extends ResourceController
 
             // return a flag indicating failure
             return [
-                'success' => false,
+                'success' => 500,
                 'partner_id' => $partnerId,
                 'name' => $partner['name'] ?? '',
                 'reason' => 'Missing firebase_uid'
@@ -168,9 +190,9 @@ class BookingAssignmentController extends ResourceController
 
         $firebaseUid = $partner['firebase_uid'];
         $firestore = new FirestoreService();
-        $firestore->pushAssignmentRequest($bookingServiceId, $firebaseUid, $partnerId, $assignedAmount);
+        $firestore->pushAssignmentRequest($bookingServiceId, $firebaseUid, $partnerId, $assignedAmount, $serviceName, $customerName, $slotDate);
 
-        return ['success' => true, 'partner_id' => $partnerId];
+        return ['success' => 200, 'partner_id' => $partnerId];
     }
 
     private function updateFirestoreOnClaim($bookingServiceId, $acceptedPartnerId)
@@ -183,7 +205,7 @@ class BookingAssignmentController extends ResourceController
         if (!$acceptedPartner || empty($acceptedPartner['firebase_uid'])) {
             log_message('error', "Missing firebase_uid for accepted partner ID: $acceptedPartnerId");
             return [
-                'success' => false,
+                'success' => 500,
                 'partner_id' => $acceptedPartnerId,
                 'name' => $acceptedPartner['name'] ?? '',
                 'reason' => 'Missing firebase_uid'
@@ -202,6 +224,30 @@ class BookingAssignmentController extends ResourceController
                     $firestore->updateStatus($bookingServiceId, $otherPartner['firebase_uid'], 'expired');
                 }
             }
+        }
+    }
+
+    public function getAcceptedBookings($partnerId)
+    {
+        $assignmentModel = new \App\Models\BookingAssignmentModel();
+
+        try {
+            $assignments = $assignmentModel
+                ->where('partner_id', $partnerId)
+                ->where('status', 'assigned')
+                ->orderBy('assigned_at', 'desc')
+                ->findAll();
+
+            return $this->respond([
+                'status' => 200,
+                'data' => $assignments
+            ]);
+        } catch (\Exception $e) {
+            return $this->fail([
+                'status' => 500,
+                'message' => 'Failed to fetch accepted bookings',
+                'error' => $e->getMessage()
+            ]);
         }
     }
 }
