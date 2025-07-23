@@ -147,6 +147,14 @@ class BookingAssignmentController extends ResourceController
         $assignmentModel = new BookingAssignmentModel();
         $bookingServiceId = $this->request->getVar('booking_service_id');
         $partnerId = $this->request->getVar('partner_id');
+        
+        if (!$bookingServiceId || !$partnerId) {
+            return $this->failValidationErrors([
+                'booking_service_id' => 'Required',
+                'partner_id' => 'Required'
+            ]);
+        }
+
 
         try {
             // Lock request and expire others
