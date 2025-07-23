@@ -19,12 +19,13 @@ class BookingAssignmentController extends ResourceController
     {
         // Define validation rules
         $rules = [
-            'booking_service_id' => 'required|integer',
-            'partner_ids'        => 'required|is_array',
-            'partner_ids.*'      => 'required|integer',
-            'amount'             => 'permit_empty|decimal'
+            'booking_service_id'         => 'required|integer',
+            'partner_ids'                => 'required|is_array',
+            'partner_ids.*'              => 'required|integer',
+            'amount'                     => 'permit_empty|decimal',
+            'helper_count'               => 'permit_empty|integer',
+            'estimated_completion_date'  => 'permit_empty|valid_date' // Format: Y-m-d or Y-m-d H:i:s
         ];
-
         // Validate request
         if (!$this->validate($rules)) {
             return $this->failValidationErrors($this->validator->getErrors());
@@ -37,27 +38,25 @@ class BookingAssignmentController extends ResourceController
         $helperCount     = $this->request->getVar('helper_count') ?? 0;
         $estimatedCompletionDate = $this->request->getVar('estimated_completion_date') ?? null;
 
-        $requestModel = new BookingAssignmentRequestModel();
-        $partnerModel = new \App\Models\PartnerModel();
-        $notificationService = new NotificationService();
-        $bookingModel = new \App\Models\BookingsModel();
+        $requestModel     = new BookingAssignmentRequestModel();
+        $assignmentModel  = new BookingAssignmentModel();
+        $bookingModel     = new \App\Models\BookingsModel();
         $bookingServiceModel = new \App\Models\BookingServicesModel();
-        $customerModel = new \App\Models\CustomerModel();
-        $serviceModel = new \App\Models\ServiceModel();
-        $assignmentModel = new BookingAssignmentModel();
+        $customerModel    = new \App\Models\CustomerModel();
+        $serviceModel     = new \App\Models\ServiceModel();
 
         $bookingService = $bookingServiceModel->find($bookingServiceId);
-        if (!$bookingService) {
-            return $this->failNotFound('Service not found');
-        }
+        if (!$bookingService) return $this->failNotFound('Booking service not found');
 
         $booking = $bookingModel->find($bookingService['booking_id']);
+        if (!$booking) return $this->failNotFound('Booking not found');
+
         $customer = $customerModel->find($booking['user_id']);
         $service = $serviceModel->find($bookingService['service_id']);
 
-        $serviceName = $service['name'] ?? '';
-        $customerName = $customer['name'] ?? '';
-        $slotDate = $booking['slot_date'] ?? null;
+        $serviceName   = $service['name'] ?? '';
+        $customerName  = $customer['name'] ?? '';
+        $slotDate      = $booking['slot_date'] ?? null;
 
         // Skip already assigned partners
         $existing = $requestModel
@@ -147,7 +146,7 @@ class BookingAssignmentController extends ResourceController
         $assignmentModel = new BookingAssignmentModel();
         $bookingServiceId = $this->request->getVar('booking_service_id');
         $partnerId = $this->request->getVar('partner_id');
-        
+
         if (!$bookingServiceId || !$partnerId) {
             return $this->failValidationErrors([
                 'booking_service_id' => 'Required',
