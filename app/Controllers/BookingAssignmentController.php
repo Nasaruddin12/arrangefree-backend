@@ -71,6 +71,9 @@ class BookingAssignmentController extends ResourceController
             foreach ($partnerIds as $partnerId) {
                 if (in_array($partnerId, $existingPartnerIds)) continue;
 
+                $partner = $partnersMap[$partnerId] ?? null;
+                if (!$partner) continue;
+
                 $requestModel->insert([
                     'booking_service_id' => $bookingServiceId,
                     'partner_id'         => $partnerId,
@@ -87,28 +90,21 @@ class BookingAssignmentController extends ResourceController
                     $slotDate,
                     $estimatedCompletionDate
                 );
+
                 if (!$result['success']) {
-                    $skipped[] = $result;
+                    $skipped[] = [
+                        'partner_id' => $partnerId,
+                        'reason'     => $result['reason'] ?? 'Firestore push failed'
+                    ];
+                    continue;
                 }
-                // ✅ Send notification
-                $partner = $partnerModel->find($partnerId);
-                if (!empty($partner['fcm_token'])) {
-                    $title = "New Booking Assigned";
-                    $body = "You've received a new booking. Accept it to earn more.";
-                    $res = $notificationService->notifyUser([
-                        'user_id' => $partnerId,
-                        'user_type' => 'partner',
-                        'title' => $title,
-                        'message' => $body,
-                        'type' => 'booking_assignment',
-                        'navigation_screen' => 'booking_assignment',
-                        'navigation_id' => $bookingServiceId
-                    ]);
-                    $notificationsResult[] = $res;
-                }
+
+                $res = $this->sendAssignmentNotification($partner, $bookingServiceId);
+                if ($res) $notificationsResult[] = $res;
 
                 $assignedPartners[] = $partnerId;
             }
+
 
             $existingAssignment = $assignmentModel
                 ->where('booking_service_id', $bookingServiceId)
@@ -174,26 +170,6 @@ class BookingAssignmentController extends ResourceController
                 'assigned_at'    => date('Y-m-d H:i:s'),
                 'updated_at'     => date('Y-m-d H:i:s')
             ]);
-
-            // $partnerModel = new \App\Models\PartnerModel();
-            // $partner = $partnerModel->find($partnerId);
-            // if (!empty($partner['fcm_token'])) {
-            //     $title = "New Assignment";
-            //     $body = "You’ve been assigned a new booking request.";
-            //     $fcmToken = $partner['fcm_token'];
-
-            //     // ✅ Call sendNotification
-            //     $notificationService = new NotificationService();
-            //     $notificationService->notifyUser([
-            //         'user_id' => $partnerId,
-            //         'user_type' => 'partner',
-            //         'title' => $title,
-            //         'message' => $body,
-            //         'type' => 'booking_assignment',
-            //         'navigation_screen' => 'booking_assignment',
-            //         'navigation_id' => $bookingServiceId
-            //     ]);
-            // }
 
             // 🔥 Optional: notify Firestore
             $this->updateFirestoreOnClaim($bookingServiceId, $partnerId);
@@ -282,5 +258,20 @@ class BookingAssignmentController extends ResourceController
                 'error' => $e->getMessage()
             ]);
         }
+    }
+    private function sendAssignmentNotification($partner, $bookingServiceId)
+    {
+        if (empty($partner['fcm_token'])) return null;
+
+        $notificationService = new NotificationService();
+        return $notificationService->notifyUser([
+            'user_id'           => $partner['id'],
+            'user_type'         => 'partner',
+            'title'             => "New Booking Assigned",
+            'message'           => "You've received a new booking. Accept it to earn more.",
+            'type'              => 'booking_assignment',
+            'navigation_screen' => 'booking_assignment',
+            'navigation_id'     => $bookingServiceId
+        ]);
     }
 }
