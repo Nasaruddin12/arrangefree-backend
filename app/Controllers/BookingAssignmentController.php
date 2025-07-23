@@ -66,13 +66,15 @@ class BookingAssignmentController extends ResourceController
 
         $existingPartnerIds = array_column($existing, 'partner_id');
 
+        $assignedPartners = [];
+        $skipped = [];
+        $notificationsResult = [];
+
         try {
             foreach ($partnerIds as $partnerId) {
                 if (in_array($partnerId, $existingPartnerIds)) continue;
 
-                $partner = $partnersMap[$partnerId] ?? null;
-                if (!$partner) continue;
-
+                // Insert assignment request
                 $requestModel->insert([
                     'booking_service_id' => $bookingServiceId,
                     'partner_id'         => $partnerId,
@@ -98,7 +100,7 @@ class BookingAssignmentController extends ResourceController
                     continue;
                 }
 
-                $res = $this->sendAssignmentNotification($partner, $bookingServiceId);
+                $res = $this->sendAssignmentNotification($partnerId, $bookingServiceId);
                 if ($res) $notificationsResult[] = $res;
 
                 $assignedPartners[] = $partnerId;
@@ -266,15 +268,17 @@ class BookingAssignmentController extends ResourceController
             ]);
         }
     }
-    private function sendAssignmentNotification($partner, $bookingServiceId)
+
+    private function sendAssignmentNotification($partnerId, $bookingServiceId)
     {
+        $partner = (new \App\Models\PartnerModel())->find($partnerId);
         if (empty($partner['fcm_token'])) return null;
 
         $notificationService = new NotificationService();
         return $notificationService->notifyUser([
             'user_id'           => $partner['id'],
             'user_type'         => 'partner',
-            'title'             => "New Booking Assigned",
+            'title'             => "New Booking Assigned!",
             'message'           => "You've received a new booking. Accept it to earn more.",
             'type'              => 'booking_assignment',
             'navigation_screen' => 'booking_assignment',
