@@ -117,6 +117,7 @@ class BookingAssignmentController extends ResourceController
                     'partner_id'         => null,
                     'status'             => 'unclaimed',
                     'assigned_amount'    => $assignedAmount ?? 0,
+                    'assigned_at'       => date('Y-m-d H:i:s'),
                     'helper_count'      => $helperCount,
                     'estimated_start_date' => $slotDate ?? null,
                     'estimated_completion_date' => $estimatedCompletionDate ?? null,
@@ -176,7 +177,7 @@ class BookingAssignmentController extends ResourceController
             $assignmentModel->update($assignment['id'], [
                 'partner_id'     => $partnerId,
                 'status'         => 'assigned',
-                'assigned_at'    => date('Y-m-d H:i:s'),
+                'accepted_at'    => date('Y-m-d H:i:s'),
                 'updated_at'     => date('Y-m-d H:i:s')
             ]);
 
@@ -251,9 +252,12 @@ class BookingAssignmentController extends ResourceController
 
         try {
             $assignments = $assignmentModel
-                ->where('partner_id', $partnerId)
-                ->where('status', 'assigned')
-                ->orderBy('assigned_at', 'desc')
+                ->select('booking_assignments.*, services.name AS service_name')
+                ->join('booking_services', 'booking_services.id = booking_assignments.booking_service_id')
+                ->join('services', 'services.id = booking_services.service_id')
+                ->where('booking_assignments.partner_id', $partnerId)
+                ->where('booking_assignments.status', 'assigned')
+                ->orderBy('booking_assignments.assigned_at', 'desc')
                 ->findAll();
 
             return $this->respond([
@@ -268,6 +272,7 @@ class BookingAssignmentController extends ResourceController
             ]);
         }
     }
+
 
     private function sendAssignmentNotification($partnerId, $bookingServiceId)
     {
