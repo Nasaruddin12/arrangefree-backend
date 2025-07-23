@@ -34,6 +34,8 @@ class BookingAssignmentController extends ResourceController
         $bookingServiceId = $this->request->getVar('booking_service_id');
         $partnerIds       = $this->request->getVar('partner_ids');
         $assignedAmount   = $this->request->getVar('amount');
+        $helperCount     = $this->request->getVar('helper_count') ?? 0;
+        $estimatedCompletionDate = $this->request->getVar('estimated_completion_date') ?? null;
 
         $requestModel = new BookingAssignmentRequestModel();
         $partnerModel = new \App\Models\PartnerModel();
@@ -42,6 +44,7 @@ class BookingAssignmentController extends ResourceController
         $bookingServiceModel = new \App\Models\BookingServicesModel();
         $customerModel = new \App\Models\CustomerModel();
         $serviceModel = new \App\Models\ServiceModel();
+        $assignmentModel = new BookingAssignmentModel();
 
         $bookingService = $bookingServiceModel->find($bookingServiceId);
         if (!$bookingService) {
@@ -81,7 +84,8 @@ class BookingAssignmentController extends ResourceController
                     $assignedAmount,
                     $serviceName,
                     $customerName,
-                    $slotDate
+                    $slotDate,
+                    $estimatedCompletionDate
                 );
                 if (!$result['success']) {
                     $skipped[] = $result;
@@ -89,8 +93,8 @@ class BookingAssignmentController extends ResourceController
                 // ✅ Send notification
                 $partner = $partnerModel->find($partnerId);
                 if (!empty($partner['fcm_token'])) {
-                    $title = "New Booking Request";
-                    $body = "You've received a new assignment request.";
+                    $title = "New Booking Assigned";
+                    $body = "You've received a new booking. Accept it to earn more.";
                     $res = $notificationService->notifyUser([
                         'user_id' => $partnerId,
                         'user_type' => 'partner',
@@ -104,6 +108,23 @@ class BookingAssignmentController extends ResourceController
                 }
 
                 $assignedPartners[] = $partnerId;
+            }
+
+            $existingAssignment = $assignmentModel
+                ->where('booking_service_id', $bookingServiceId)
+                ->first();
+
+            if (!$existingAssignment) {
+                $assignmentModel->insert([
+                    'booking_service_id' => $bookingServiceId,
+                    'partner_id'         => null,
+                    'status'             => 'unclaimed',
+                    'assigned_amount'    => $assignedAmount ?? 0,
+                    'helper_count'      => $helperCount,
+                    'estimated_start_date' => $slotDate ?? null,
+                    'estimated_completion_date' => $estimatedCompletionDate ?? null,
+                    'created_at'         => date('Y-m-d H:i:s')
+                ]);
             }
 
             return $this->respond([
@@ -136,33 +157,43 @@ class BookingAssignmentController extends ResourceController
             $requestModel->claimFirst($bookingServiceId, $partnerId);
 
             // Create final assignment record
-            $assignmentModel->insert([
-                'booking_service_id' => $bookingServiceId,
-                'partner_id' => $partnerId,
-                'assigned_amount' => 0, // update later via admin
-                'status' => 'assigned',
-                'assigned_at' => date('Y-m-d H:i:s')
+            // Find unclaimed assignment
+            $assignment = $assignmentModel
+                ->where('booking_service_id', $bookingServiceId)
+                ->where('status', 'unclaimed')
+                ->first();
+
+            if (!$assignment) {
+                return $this->failNotFound('No unclaimed assignment found');
+            }
+
+            // Update it with partner info
+            $assignmentModel->update($assignment['id'], [
+                'partner_id'     => $partnerId,
+                'status'         => 'assigned',
+                'assigned_at'    => date('Y-m-d H:i:s'),
+                'updated_at'     => date('Y-m-d H:i:s')
             ]);
 
-            $partnerModel = new \App\Models\PartnerModel();
-            $partner = $partnerModel->find($partnerId);
-            if (!empty($partner['fcm_token'])) {
-                $title = "New Assignment";
-                $body = "You’ve been assigned a new booking request.";
-                $fcmToken = $partner['fcm_token'];
+            // $partnerModel = new \App\Models\PartnerModel();
+            // $partner = $partnerModel->find($partnerId);
+            // if (!empty($partner['fcm_token'])) {
+            //     $title = "New Assignment";
+            //     $body = "You’ve been assigned a new booking request.";
+            //     $fcmToken = $partner['fcm_token'];
 
-                // ✅ Call sendNotification
-                $notificationService = new NotificationService();
-                $notificationService->notifyUser([
-                    'user_id' => $partnerId,
-                    'user_type' => 'partner',
-                    'title' => $title,
-                    'message' => $body,
-                    'type' => 'booking_assignment',
-                    'navigation_screen' => 'booking_assignment',
-                    'navigation_id' => $bookingServiceId
-                ]);
-            }
+            //     // ✅ Call sendNotification
+            //     $notificationService = new NotificationService();
+            //     $notificationService->notifyUser([
+            //         'user_id' => $partnerId,
+            //         'user_type' => 'partner',
+            //         'title' => $title,
+            //         'message' => $body,
+            //         'type' => 'booking_assignment',
+            //         'navigation_screen' => 'booking_assignment',
+            //         'navigation_id' => $bookingServiceId
+            //     ]);
+            // }
 
             // 🔥 Optional: notify Firestore
             $this->updateFirestoreOnClaim($bookingServiceId, $partnerId);
@@ -175,7 +206,7 @@ class BookingAssignmentController extends ResourceController
     }
 
     // 🔥 Firestore broadcast per partner (you can call Firebase PHP SDK or use REST API)
-    private function pushToFirestore($bookingServiceId, $partnerId, $assignedAmount, $serviceName, $customerName, $slotDate)
+    private function pushToFirestore($bookingServiceId, $partnerId, $assignedAmount, $serviceName, $customerName, $slotDate, $estimatedCompletionDate)
     {
         $partner = (new \App\Models\PartnerModel())->find($partnerId);
         if (!$partner || empty($partner['firebase_uid'])) {
@@ -192,7 +223,7 @@ class BookingAssignmentController extends ResourceController
 
         $firebaseUid = $partner['firebase_uid'];
         $firestore = new FirestoreService();
-        $firestore->pushAssignmentRequest($bookingServiceId, $firebaseUid, $partnerId, $assignedAmount, $serviceName, $customerName, $slotDate);
+        $firestore->pushAssignmentRequest($bookingServiceId, $firebaseUid, $partnerId, $assignedAmount, $serviceName, $customerName, $slotDate, $estimatedCompletionDate);
 
         return ['success' => 200, 'partner_id' => $partnerId];
     }

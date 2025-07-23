@@ -11,13 +11,13 @@ class CreateBookingAssignmentsTable extends Migration
         $this->forge->addField([
             'id'                        => ['type' => 'INT', 'unsigned' => true, 'auto_increment' => true],
             'booking_service_id'        => ['type' => 'INT', 'unsigned' => true],
-            'partner_id'                => ['type' => 'INT', 'unsigned' => true],
+            'partner_id'                => ['type' => 'INT', 'unsigned' => true, 'null' => true],
             'assigned_amount'           => ['type' => 'DECIMAL', 'constraint' => '10,2'],
             'helper_count'              => ['type' => 'INT', 'default' => 0],
             'status'                    => [
                 'type'       => 'ENUM',
-                'constraint' => ['assigned', 'in_progress', 'completed', 'rejected'],
-                'default'    => 'assigned'
+                'constraint' => ['unclaimed', 'assigned', 'in_progress', 'completed', 'rejected'],
+                'default'    => 'unclaimed',
             ],
             'assigned_at'               => ['type' => 'DATETIME', 'null' => true],
             'accepted_at'               => ['type' => 'DATETIME', 'null' => true],

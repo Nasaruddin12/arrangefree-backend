@@ -77,7 +77,7 @@ class FirestoreService
 
     private function makeFirestoreRequest($documentName, $payload, $method)
     {
-        $fields = ['status', 'updated_at', 'booking_service_id', 'partner_id', 'firebase_uid', 'amount', 'timestamp', 'service_name', 'customer_name', 'slot_date'];
+        $fields = ['status', 'updated_at', 'booking_service_id', 'partner_id', 'firebase_uid', 'amount', 'timestamp', 'service_name', 'customer_name', 'slot_date', 'estimated_completion_date',];
         $maskQuery = implode('&updateMask.fieldPaths=', $fields);
         $url = "https://firestore.googleapis.com/v1/$documentName?updateMask.fieldPaths=" . implode('&updateMask.fieldPaths=', $fields);
 
@@ -108,7 +108,7 @@ class FirestoreService
         return true;
     }
 
-    public function pushAssignmentRequest($bookingServiceId, $firebaseUid, $partnerId, $assignedAmount = null, $serviceName = null, $customerName = null, $slotDate = null)
+    public function pushAssignmentRequest($bookingServiceId, $firebaseUid, $partnerId, $assignedAmount = null, $serviceName = null, $customerName = null, $slotDate = null, $estimatedCompletionDate = null)
     {
         $documentName = "projects/{$this->projectId}/databases/(default)/documents/booking_requests/{$firebaseUid}_{$bookingServiceId}";
 
@@ -118,6 +118,7 @@ class FirestoreService
                 'service_name'       => ['stringValue' => (string) $serviceName],
                 'customer_name'      => ['stringValue' => (string) $customerName],
                 'slot_date'          => ['stringValue' => (string) $slotDate],
+                'estimated_completion_date' => ['stringValue' => (string) $estimatedCompletionDate],
                 'firebase_uid'       => ['stringValue' => (string) $firebaseUid],
                 'partner_id'        => ['stringValue' => (string) $partnerId],
                 'amount'             => $assignedAmount !== null ? ['doubleValue' => (float) $assignedAmount] : ['nullValue' => null],
