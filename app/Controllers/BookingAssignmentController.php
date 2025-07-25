@@ -273,6 +273,136 @@ class BookingAssignmentController extends ResourceController
         }
     }
 
+    public function getAssignmentDetails($assignmentId)
+    {
+        $assignmentModel          = new \App\Models\BookingAssignmentModel();
+        $bookingServiceModel      = new \App\Models\BookingServicesModel();
+        $bookingModel             = new \App\Models\BookingsModel();
+        $customerModel            = new \App\Models\CustomerModel();
+        $serviceModel             = new \App\Models\ServiceModel();
+        $checklistStatusModel     = new \App\Models\BookingChecklistStatusModel();   // booking_assignment_checklist_status
+        $serviceChecklistModel    = new \App\Models\ServiceChecklistModel();         // service_checklists
+        $bookingUpdateModel       = new \App\Models\BookingUpdateModel();
+        $bookingUpdateMediaModel  = new \App\Models\BookingUpdateMediaModel();
+        $partnerPayoutModel       = new \App\Models\PartnerPayoutModel();            // optional
+
+        try {
+            // ----------------------
+            // 1) Main assignment + heavy joins in one query
+            // ----------------------
+            // bookings.final_amount            AS booking_final_amount,
+            // bookings.payment_status          AS booking_payment_status,
+            // bookings.status                  AS booking_status,
+            $assignment = $assignmentModel
+                ->asArray()
+                ->select("
+                booking_assignments.*,
+                booking_services.id              AS booking_service_id,
+                booking_services.service_id      AS service_id,
+                booking_services.booking_id      AS booking_id,
+                services.name                    AS service_name,
+                bookings.slot_date               AS booking_slot_date,
+                customers.id                     AS customer_id,
+                customers.name                   AS customer_name,
+                customers.mobile                 AS customer_mobile,
+                customer_addresses.address_line1 AS address_line1,
+                customer_addresses.address_line2 AS address_line2,
+                customer_addresses.city          AS address_city,
+                customer_addresses.state         AS address_state,
+                customer_addresses.pincode       AS address_pincode
+            ")
+                ->join('booking_services', 'booking_services.id = booking_assignments.booking_service_id')
+                ->join('services', 'services.id = booking_services.service_id')
+                ->join('bookings', 'bookings.id = booking_services.booking_id')
+                ->join('customers', 'customers.id = bookings.user_id')
+                ->join('customer_addresses', 'customer_addresses.id = bookings.address_id', 'left')
+                ->where('booking_assignments.id', $assignmentId)
+                ->first();
+
+            if (!$assignment) {
+                return $this->failNotFound('Assignment not found');
+            }
+
+            $bookingServiceId = (int) $assignment['booking_service_id'];
+
+            // ----------------------
+            // 2) Checklist status + master checklist
+            // ----------------------
+            $checklistStatuses = $checklistStatusModel
+                ->asArray()
+                ->select('booking_assignment_checklist_status.*, service_checklists.title, service_checklists.is_required')
+                ->join('service_checklists', 'service_checklists.id = booking_assignment_checklist_status.checklist_id')
+                ->where('booking_assignment_checklist_status.booking_service_id', $bookingServiceId)
+                ->orderBy('service_checklists.sort_order', 'asc')
+                ->findAll();
+
+            // (Optional) overall completion %
+            $totalItems     = count($checklistStatuses);
+            $doneItems      = array_reduce($checklistStatuses, fn($c, $r) => $c + (int)$r['is_done'], 0);
+            $completionPerc = $totalItems > 0 ? round(($doneItems / $totalItems) * 100, 2) : 0;
+
+            // ----------------------
+            // 3) Booking updates + media
+            // ----------------------
+            $updates = $bookingUpdateModel
+                ->where('booking_service_id', $bookingServiceId)
+                ->orderBy('created_at', 'asc')
+                ->findAll();
+
+            if (!empty($updates)) {
+                $updateIds = array_column($updates, 'id');
+                $medias = [];
+                if (!empty($updateIds)) {
+                    $medias = $bookingUpdateMediaModel
+                        ->whereIn('booking_update_id', $updateIds)
+                        ->findAll();
+                }
+                // Attach media to updates
+                $mediaMap = [];
+                foreach ($medias as $m) {
+                    $mediaMap[$m['booking_update_id']][] = $m;
+                }
+                foreach ($updates as &$u) {
+                    $u['media'] = $mediaMap[$u['id']] ?? [];
+                }
+            }
+
+            // ----------------------
+            // 4) Optional: payout info for this assignment
+            // ----------------------
+            $payouts = $partnerPayoutModel
+                ->where('booking_service_id', $bookingServiceId)
+                ->where('partner_id', $assignment['partner_id'] ?? null)
+                ->orderBy('created_at', 'desc')
+                ->findAll();
+
+            // ----------------------
+            // 5) Final response
+            // ----------------------
+            return $this->respond([
+                'status' => 200,
+                'data' => [
+                    'assignment' => $assignment,
+                    'checklist'  => [
+                        'items'            => $checklistStatuses,
+                        'total_items'      => $totalItems,
+                        'completed_items'  => $doneItems,
+                        'completion_pct'   => $completionPerc
+                    ],
+                    'updates'   => $updates,
+                    'payouts'   => $payouts
+                ]
+            ]);
+        } catch (\Throwable $e) {
+            return $this->fail([
+                'status'  => 500,
+                'message' => 'Failed to fetch assignment details',
+                'error'   => $e->getMessage()
+            ]);
+        }
+    }
+
+
 
     private function sendAssignmentNotification($partnerId, $bookingServiceId)
     {

@@ -798,7 +798,7 @@ $routes->group('partner', function ($routes) {
 
     $routes->post('booking-assignment/accept', 'BookingAssignmentController::acceptAssignment');
     $routes->get('accepted-bookings/(:num)', 'BookingAssignmentController::getAcceptedBookings/$1');
-
+    $routes->get('assignment/details/(:num)', 'BookingAssignmentController::getAssignmentDetails/$1');
 });
 
 $routes->group('cron', function ($routes) {
@@ -830,6 +830,33 @@ $routes->group('notifications', function ($routes) {
 $routes->group('assignment', function ($routes) {
     $routes->post('create-requests', 'BookingAssignmentController::createAssignmentRequests');
 });
+$routes->group('booking-updates', function ($routes) {
+    // POST: Create booking update with optional media
+    $routes->post('/', 'BookingUpdateController::create');
+
+    // GET: Get all updates + media for a booking_service_id
+    $routes->get('(:num)', 'BookingUpdateController::list/$1');
+});
+
+$routes->group('checklists', function ($routes) {
+    $routes->get('service/(:num)', 'ChecklistController::getServiceChecklist/$1'); // Get master checklist for service
+    $routes->get('status/(:num)', 'ChecklistController::getChecklistStatus/$1');   // Get partner's status for booking
+    $routes->post('update', 'ChecklistController::updateChecklistItem');           // Submit checklist update
+});
+$routes->group('payouts', ['namespace' => 'App\Controllers'], function ($routes) {
+    $routes->get('partner/(:num)', 'PartnerPayoutController::listByPartner/$1');
+    $routes->post('create', 'PartnerPayoutController::create');
+    $routes->post('release', 'PartnerPayoutController::release');
+});
+$routes->group('reviews', ['namespace' => 'App\Controllers'], function ($routes) {
+    $routes->post('submit', 'PartnerReviewController::submit');
+    $routes->get('partner/(:num)', 'PartnerReviewController::getByPartner/$1');
+});
+
+$routes->post('checklist/feedback', 'ChecklistFeedbackController::submit');
+$routes->post('checklist/feedback/bulk', 'ChecklistFeedbackController::submitBulk');
+$routes->get('checklist/feedback/assignment/(:num)', 'ChecklistFeedbackController::getByAssignment/$1');
+
 
 /*
  * --------------------------------------------------------------------
