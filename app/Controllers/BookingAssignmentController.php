@@ -305,8 +305,10 @@ class BookingAssignmentController extends ResourceController
                 af_customers.id                     AS customer_id,
                 af_customers.name                   AS customer_name,
                 af_customers.mobile_no              AS customer_mobile,
-                customer_addresses.address_line1 AS address_line1,
-                customer_addresses.address_line2 AS address_line2,
+                customer_addresses.house AS address_line1,
+                customer_addresses.address AS address_line2,
+                customer_addresses.landmark AS landmark,
+                customer_addresses.address_label AS address_label,
                 customer_addresses.city          AS address_city,
                 customer_addresses.state         AS address_state,
                 customer_addresses.pincode       AS address_pincode
