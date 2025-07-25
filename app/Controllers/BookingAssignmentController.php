@@ -305,6 +305,7 @@ class BookingAssignmentController extends ResourceController
             booking_services.booking_id      AS booking_id,
             services.name                    AS service_name,
             bookings.slot_date               AS booking_slot_date,
+            bookings.booking_id               AS booking_number,
             af_customers.id                     AS customer_id,
             af_customers.name                   AS customer_name,
             af_customers.mobile_no              AS customer_mobile,
