@@ -70,4 +70,47 @@ class ChecklistController extends BaseController
 
         return $this->response->setJSON(['status' => true, 'message' => 'Checklist updated']);
     }
+    public function insertServiceChecklists()
+    {
+        $model = new \App\Models\ServiceChecklistModel();
+
+        $rules = [
+            'service_id'           => 'required|integer',
+            'checklists'           => 'required|array',
+            'checklists.*.title'   => 'required|string',
+            'checklists.*.is_required' => 'required|in_list[0,1]',
+            'checklists.*.sort_order'  => 'permit_empty|integer'
+        ];
+
+        if (!$this->validate($rules)) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
+
+        $serviceId  = $this->request->getVar('service_id');
+        $checklists = $this->request->getVar('checklists');
+
+        try {
+            $inserted = [];
+
+            foreach ($checklists as $item) {
+                $data = [
+                    'service_id'  => $serviceId,
+                    'title'       => $item['title'],
+                    'is_required' => (int) $item['is_required'],
+                    'sort_order'  => $item['sort_order'] ?? 0,
+                    'created_at'  => date('Y-m-d H:i:s')
+                ];
+                $model->insert($data);
+                $inserted[] = $data;
+            }
+
+            return $this->respondCreated([
+                'status' => true,
+                'message' => 'Checklists added successfully',
+                'data' => $inserted
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError('Failed to insert checklists: ' . $e->getMessage());
+        }
+    }
 }

@@ -15,66 +15,72 @@ class BookingAssignmentController extends ResourceController
     protected $format = 'json';
 
     // 🔹 Admin creates assignment requests
-    public function createAssignmentRequests()
+    public function createMultipleAssignmentRequests()
     {
-        // Define validation rules
-        $rules = [
-            'booking_service_id'         => 'required|integer',
-            'partner_ids'                => 'required|is_array',
-            'partner_ids.*'              => 'required|integer',
-            'amount'                     => 'permit_empty|decimal',
-            'helper_count'               => 'permit_empty|integer',
-            'estimated_completion_date'  => 'permit_empty|valid_date' // Format: Y-m-d or Y-m-d H:i:s
-        ];
-        // Validate request
-        if (!$this->validate($rules)) {
-            return $this->failValidationErrors($this->validator->getErrors());
+        $data = $this->request->getJSON(true);
+
+        if (!isset($data['assignments']) || !is_array($data['assignments'])) {
+            return $this->failValidationErrors(['assignments' => 'Required array']);
         }
 
-        // Extract validated data
-        $bookingServiceId = $this->request->getVar('booking_service_id');
-        $partnerIds       = $this->request->getVar('partner_ids');
-        $assignedAmount   = $this->request->getVar('amount');
-        $helperCount     = $this->request->getVar('helper_count') ?? 0;
-        $estimatedCompletionDate = $this->request->getVar('estimated_completion_date') ?? null;
-
-        $requestModel     = new BookingAssignmentRequestModel();
-        $assignmentModel  = new BookingAssignmentModel();
-        $bookingModel     = new \App\Models\BookingsModel();
+        $requestModel = new BookingAssignmentRequestModel();
+        $assignmentModel = new BookingAssignmentModel();
+        $bookingModel = new \App\Models\BookingsModel();
         $bookingServiceModel = new \App\Models\BookingServicesModel();
-        $customerModel    = new \App\Models\CustomerModel();
-        $serviceModel     = new \App\Models\ServiceModel();
+        $customerModel = new \App\Models\CustomerModel();
+        $serviceModel = new \App\Models\ServiceModel();
 
-        $bookingService = $bookingServiceModel->find($bookingServiceId);
-        if (!$bookingService) return $this->failNotFound('Booking service not found');
+        $summary = [];
 
-        $booking = $bookingModel->find($bookingService['booking_id']);
-        if (!$booking) return $this->failNotFound('Booking not found');
+        foreach ($data['assignments'] as $item) {
+            if (
+                empty($item['booking_service_id']) ||
+                empty($item['partner_ids']) ||
+                !is_array($item['partner_ids'])
+            ) {
+                $summary[] = ['booking_service_id' => $item['booking_service_id'] ?? null, 'error' => 'Invalid structure'];
+                continue;
+            }
 
-        $customer = $customerModel->find($booking['user_id']);
-        $service = $serviceModel->find($bookingService['service_id']);
+            $bookingServiceId = $item['booking_service_id'];
+            $partnerIds = $item['partner_ids'];
+            $assignedAmount = $item['amount'] ?? 0;
+            $helperCount = $item['helper_count'] ?? 0;
+            $estimatedCompletionDate = $item['estimated_completion_date'] ?? null;
 
-        $serviceName   = $service['name'] ?? '';
-        $customerName  = $customer['name'] ?? '';
-        $slotDate      = $booking['slot_date'] ?? null;
+            $bookingService = $bookingServiceModel->find($bookingServiceId);
+            if (!$bookingService) {
+                $summary[] = ['booking_service_id' => $bookingServiceId, 'error' => 'Booking service not found'];
+                continue;
+            }
 
-        // Skip already assigned partners
-        $existing = $requestModel
-            ->where('booking_service_id', $bookingServiceId)
-            ->whereIn('partner_id', $partnerIds)
-            ->findAll();
+            $booking = $bookingModel->find($bookingService['booking_id']);
+            if (!$booking) {
+                $summary[] = ['booking_service_id' => $bookingServiceId, 'error' => 'Booking not found'];
+                continue;
+            }
 
-        $existingPartnerIds = array_column($existing, 'partner_id');
+            $customer = $customerModel->find($booking['user_id']);
+            $service = $serviceModel->find($bookingService['service_id']);
 
-        $assignedPartners = [];
-        $skipped = [];
-        $notificationsResult = [];
+            $serviceName = $service['name'] ?? '';
+            $customerName = $customer['name'] ?? '';
+            $slotDate = $booking['slot_date'] ?? null;
 
-        try {
+            // Skip existing requests
+            $existing = $requestModel
+                ->where('booking_service_id', $bookingServiceId)
+                ->whereIn('partner_id', $partnerIds)
+                ->findAll();
+
+            $existingPartnerIds = array_column($existing, 'partner_id');
+
+            $assignedPartners = [];
+            $skippedPartners = [];
+
             foreach ($partnerIds as $partnerId) {
                 if (in_array($partnerId, $existingPartnerIds)) continue;
 
-                // Insert assignment request
                 $requestModel->insert([
                     'booking_service_id' => $bookingServiceId,
                     'partner_id'         => $partnerId,
@@ -93,52 +99,48 @@ class BookingAssignmentController extends ResourceController
                 );
 
                 if (!$result['success']) {
-                    $skipped[] = [
+                    $skippedPartners[] = [
                         'partner_id' => $partnerId,
-                        'reason'     => $result['reason'] ?? 'Firestore push failed'
+                        'reason'     => $result['reason'] ?? 'Firestore failed'
                     ];
                     continue;
                 }
 
-                $res = $this->sendAssignmentNotification($partnerId, $bookingServiceId);
-                if ($res) $notificationsResult[] = $res;
-
+                $this->sendAssignmentNotification($partnerId, $bookingServiceId);
                 $assignedPartners[] = $partnerId;
             }
 
-
+            // Insert main assignment if not exists
             $existingAssignment = $assignmentModel
                 ->where('booking_service_id', $bookingServiceId)
                 ->first();
 
             if (!$existingAssignment) {
                 $assignmentModel->insert([
-                    'booking_service_id' => $bookingServiceId,
-                    'partner_id'         => null,
-                    'status'             => 'unclaimed',
-                    'assigned_amount'    => $assignedAmount ?? 0,
-                    'assigned_at'       => date('Y-m-d H:i:s'),
-                    'helper_count'      => $helperCount,
-                    'estimated_start_date' => $slotDate ?? null,
-                    'estimated_completion_date' => $estimatedCompletionDate ?? null,
-                    'created_at'         => date('Y-m-d H:i:s')
+                    'booking_service_id'           => $bookingServiceId,
+                    'partner_id'                   => null,
+                    'status'                       => 'unclaimed',
+                    'assigned_amount'              => $assignedAmount,
+                    'assigned_at'                  => date('Y-m-d H:i:s'),
+                    'helper_count'                 => $helperCount,
+                    'estimated_start_date'         => $slotDate,
+                    'estimated_completion_date'    => $estimatedCompletionDate,
+                    'created_at'                   => date('Y-m-d H:i:s')
                 ]);
             }
 
-            return $this->respond([
-                'status' => 200,
-                'message' => 'Assignment requests created',
-                'data' => [
-                    'booking_service_id' => $bookingServiceId,
-                    'assigned_partners' => array_filter($assignedPartners ?? []),
-                    'skipped_partners' => $skipped ?? []
-                ],
-                'notification_response' => $notificationsResult ?? []
-            ]);
-        } catch (\Throwable $e) {
-            log_message('error', 'Assignment creation failed: ' . $e->getMessage());
-            return $this->fail(['status' => 500, 'message' => $e->getMessage()]);
+            $summary[] = [
+                'booking_service_id'  => $bookingServiceId,
+                'assigned_partners'   => $assignedPartners,
+                'skipped_partners'    => $skippedPartners
+            ];
         }
+
+        return $this->respond([
+            'status' => 200,
+            'message' => 'Processed all assignment requests',
+            'summary' => $summary
+        ]);
     }
 
 
@@ -272,7 +274,7 @@ class BookingAssignmentController extends ResourceController
             ]);
         }
     }
-    
+
     public function getAssignmentDetails($assignmentId)
     {
         $assignmentModel          = new \App\Models\BookingAssignmentModel();
@@ -285,7 +287,7 @@ class BookingAssignmentController extends ResourceController
         $bookingUpdateModel       = new \App\Models\BookingUpdateModel();
         $bookingUpdateMediaModel  = new \App\Models\BookingUpdateMediaModel();
         $partnerPayoutModel       = new \App\Models\PartnerPayoutModel();            // optional
-        
+
         try {
             // ----------------------
             // 1) Main assignment + heavy joins in one query
@@ -297,8 +299,8 @@ class BookingAssignmentController extends ResourceController
             // customer_addresses.state         AS address_state,
             // customer_addresses.pincode       AS address_pincode
             $assignment = $assignmentModel
-            ->asArray()
-            ->select("
+                ->asArray()
+                ->select("
             booking_assignments.*,
             booking_services.id              AS booking_service_id,
             booking_services.service_id      AS service_id,
@@ -314,14 +316,14 @@ class BookingAssignmentController extends ResourceController
             customer_addresses.landmark AS landmark,
             customer_addresses.address_label AS address_label,
             ")
-            ->join('booking_services', 'booking_services.id = booking_assignments.booking_service_id')
-            ->join('services', 'services.id = booking_services.service_id')
-            ->join('bookings', 'bookings.id = booking_services.booking_id')
-            ->join('af_customers', 'af_customers.id = bookings.user_id')
-            ->join('customer_addresses', 'customer_addresses.id = bookings.address_id', 'left')
-            ->where('booking_assignments.id', $assignmentId)
-            ->first();
-            
+                ->join('booking_services', 'booking_services.id = booking_assignments.booking_service_id')
+                ->join('services', 'services.id = booking_services.service_id')
+                ->join('bookings', 'bookings.id = booking_services.booking_id')
+                ->join('af_customers', 'af_customers.id = bookings.user_id')
+                ->join('customer_addresses', 'customer_addresses.id = bookings.address_id', 'left')
+                ->where('booking_assignments.id', $assignmentId)
+                ->first();
+
             if (!$assignment) {
                 return $this->failNotFound('Assignment not found');
             }

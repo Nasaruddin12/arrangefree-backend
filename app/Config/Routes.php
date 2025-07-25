@@ -828,7 +828,7 @@ $routes->group('notifications', function ($routes) {
 });
 
 $routes->group('assignment', function ($routes) {
-    $routes->post('create-requests', 'BookingAssignmentController::createAssignmentRequests');
+    $routes->post('create-requests', 'BookingAssignmentController::createMultipleAssignmentRequests');
 });
 $routes->group('booking-updates', function ($routes) {
     // POST: Create booking update with optional media
@@ -842,6 +842,7 @@ $routes->group('checklists', function ($routes) {
     $routes->get('service/(:num)', 'ChecklistController::getServiceChecklist/$1'); // Get master checklist for service
     $routes->get('status/(:num)', 'ChecklistController::getChecklistStatus/$1');   // Get partner's status for booking
     $routes->post('update', 'ChecklistController::updateChecklistItem');           // Submit checklist update
+    $routes->post('create', 'ServiceChecklistController::insertServiceChecklists');
 });
 $routes->group('payouts', ['namespace' => 'App\Controllers'], function ($routes) {
     $routes->get('partner/(:num)', 'PartnerPayoutController::listByPartner/$1');
