@@ -272,7 +272,7 @@ class BookingAssignmentController extends ResourceController
             ]);
         }
     }
-
+    
     public function getAssignmentDetails($assignmentId)
     {
         $assignmentModel          = new \App\Models\BookingAssignmentModel();
@@ -285,7 +285,7 @@ class BookingAssignmentController extends ResourceController
         $bookingUpdateModel       = new \App\Models\BookingUpdateModel();
         $bookingUpdateMediaModel  = new \App\Models\BookingUpdateMediaModel();
         $partnerPayoutModel       = new \App\Models\PartnerPayoutModel();            // optional
-
+        
         try {
             // ----------------------
             // 1) Main assignment + heavy joins in one query
@@ -293,34 +293,34 @@ class BookingAssignmentController extends ResourceController
             // bookings.final_amount            AS booking_final_amount,
             // bookings.payment_status          AS booking_payment_status,
             // bookings.status                  AS booking_status,
+            // customer_addresses.city          AS address_city,
+            // customer_addresses.state         AS address_state,
             $assignment = $assignmentModel
-                ->asArray()
-                ->select("
-                booking_assignments.*,
-                booking_services.id              AS booking_service_id,
-                booking_services.service_id      AS service_id,
-                booking_services.booking_id      AS booking_id,
-                services.name                    AS service_name,
-                bookings.slot_date               AS booking_slot_date,
-                af_customers.id                     AS customer_id,
-                af_customers.name                   AS customer_name,
-                af_customers.mobile_no              AS customer_mobile,
-                customer_addresses.house AS address_line1,
-                customer_addresses.address AS address_line2,
-                customer_addresses.landmark AS landmark,
-                customer_addresses.address_label AS address_label,
-                customer_addresses.city          AS address_city,
-                customer_addresses.state         AS address_state,
-                customer_addresses.pincode       AS address_pincode
+            ->asArray()
+            ->select("
+            booking_assignments.*,
+            booking_services.id              AS booking_service_id,
+            booking_services.service_id      AS service_id,
+            booking_services.booking_id      AS booking_id,
+            services.name                    AS service_name,
+            bookings.slot_date               AS booking_slot_date,
+            af_customers.id                     AS customer_id,
+            af_customers.name                   AS customer_name,
+            af_customers.mobile_no              AS customer_mobile,
+            customer_addresses.house AS address_line1,
+            customer_addresses.address AS address_line2,
+            customer_addresses.landmark AS landmark,
+            customer_addresses.address_label AS address_label,
+            customer_addresses.pincode       AS address_pincode
             ")
-                ->join('booking_services', 'booking_services.id = booking_assignments.booking_service_id')
-                ->join('services', 'services.id = booking_services.service_id')
-                ->join('bookings', 'bookings.id = booking_services.booking_id')
-                ->join('af_customers', 'af_customers.id = bookings.user_id')
-                ->join('customer_addresses', 'customer_addresses.id = bookings.address_id', 'left')
-                ->where('booking_assignments.id', $assignmentId)
-                ->first();
-
+            ->join('booking_services', 'booking_services.id = booking_assignments.booking_service_id')
+            ->join('services', 'services.id = booking_services.service_id')
+            ->join('bookings', 'bookings.id = booking_services.booking_id')
+            ->join('af_customers', 'af_customers.id = bookings.user_id')
+            ->join('customer_addresses', 'customer_addresses.id = bookings.address_id', 'left')
+            ->where('booking_assignments.id', $assignmentId)
+            ->first();
+            
             if (!$assignment) {
                 return $this->failNotFound('Assignment not found');
             }
