@@ -295,6 +295,7 @@ class BookingAssignmentController extends ResourceController
             // bookings.status                  AS booking_status,
             // customer_addresses.city          AS address_city,
             // customer_addresses.state         AS address_state,
+            // customer_addresses.pincode       AS address_pincode
             $assignment = $assignmentModel
             ->asArray()
             ->select("
@@ -311,7 +312,6 @@ class BookingAssignmentController extends ResourceController
             customer_addresses.address AS address_line2,
             customer_addresses.landmark AS landmark,
             customer_addresses.address_label AS address_label,
-            customer_addresses.pincode       AS address_pincode
             ")
             ->join('booking_services', 'booking_services.id = booking_assignments.booking_service_id')
             ->join('services', 'services.id = booking_services.service_id')
