@@ -314,7 +314,7 @@ class BookingAssignmentController extends ResourceController
                 ->join('booking_services', 'booking_services.id = booking_assignments.booking_service_id')
                 ->join('services', 'services.id = booking_services.service_id')
                 ->join('bookings', 'bookings.id = booking_services.booking_id')
-                ->join('customers', 'customers.id = bookings.user_id')
+                ->join('af_customers', 'customers.id = bookings.user_id')
                 ->join('customer_addresses', 'customer_addresses.id = bookings.address_id', 'left')
                 ->where('booking_assignments.id', $assignmentId)
                 ->first();
