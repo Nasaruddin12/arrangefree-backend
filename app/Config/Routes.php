@@ -799,6 +799,8 @@ $routes->group('partner', function ($routes) {
     $routes->post('booking-assignment/accept', 'BookingAssignmentController::acceptAssignment');
     $routes->get('accepted-bookings/(:num)', 'BookingAssignmentController::getAcceptedBookings/$1');
     $routes->get('assignment/details/(:num)', 'BookingAssignmentController::getAssignmentDetails/$1');
+
+     $routes->get('payouts/(:num)', 'PartnerPayoutController::listByPartner/$1');
 });
 
 $routes->group('cron', function ($routes) {
@@ -844,12 +846,12 @@ $routes->group('checklists', function ($routes) {
     $routes->post('update', 'ChecklistController::updateChecklistItem');           // Submit checklist update
     $routes->post('create', 'ServiceChecklistController::insertServiceChecklists');
 });
-$routes->group('payouts', ['namespace' => 'App\Controllers'], function ($routes) {
+$routes->group('payouts', function ($routes) {
     $routes->get('partner/(:num)', 'PartnerPayoutController::listByPartner/$1');
     $routes->post('create', 'PartnerPayoutController::create');
     $routes->post('release', 'PartnerPayoutController::release');
 });
-$routes->group('reviews', ['namespace' => 'App\Controllers'], function ($routes) {
+$routes->group('reviews', function ($routes) {
     $routes->post('submit', 'PartnerReviewController::submit');
     $routes->get('partner/(:num)', 'PartnerReviewController::getByPartner/$1');
 });
