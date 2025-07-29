@@ -831,7 +831,7 @@ $routes->group('notifications', function ($routes) {
 
 $routes->group('assignment', function ($routes) {
     $routes->post('create-requests', 'BookingAssignmentController::createMultipleAssignmentRequests');
-    $routes->get('booking-requests', 'BookingAssignmentController::getRequestsByBookingServiceId');
+    $routes->get('booking-requests/(:num)', 'BookingAssignmentController::getRequestsByBookingServiceId/$1');
 
 });
 $routes->group('booking-updates', function ($routes) {

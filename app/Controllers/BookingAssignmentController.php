@@ -426,10 +426,8 @@ class BookingAssignmentController extends ResourceController
         ]);
     }
 
-    public function getRequestsByBookingServiceId()
+    public function getRequestsByBookingServiceId($bookingServiceId)
     {
-        $bookingServiceId = $this->request->getVar('booking_service_id');
-
         if (!$bookingServiceId) {
             return $this->failValidationErrors([
                 'booking_service_id' => 'Required'
