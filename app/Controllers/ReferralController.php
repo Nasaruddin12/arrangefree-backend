@@ -70,4 +70,4 @@ class ReferralController extends BaseController
             'referee_id'    => $invite['referee_id'] ?? null
         ]);
     }
-}
+ }
