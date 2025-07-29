@@ -425,4 +425,35 @@ class BookingAssignmentController extends ResourceController
             'navigation_id'     => $bookingServiceId
         ]);
     }
+
+    public function getRequestsByBookingServiceId()
+    {
+        $bookingServiceId = $this->request->getVar('booking_service_id');
+
+        if (!$bookingServiceId) {
+            return $this->failValidationErrors([
+                'booking_service_id' => 'Required'
+            ]);
+        }
+
+        try {
+            $db = \Config\Database::connect();
+
+            $builder = $db->table('booking_assignment_requests r');
+            $builder->select('r.id, r.booking_service_id, r.partner_id, r.status, r.created_at, p.name as partner_name');
+            $builder->join('partners p', 'r.partner_id = p.id', 'left');
+            $builder->where('r.booking_service_id', $bookingServiceId);
+            $builder->orderBy('r.created_at', 'DESC');
+
+            $results = $builder->get()->getResult();
+
+            return $this->respond([
+                'status'  => 200,
+                'message' => 'Requests fetched successfully.',
+                'data'    => $results
+            ]);
+        } catch (\Throwable $e) {
+            return $this->failServerError($e->getMessage());
+        }
+    }
 }

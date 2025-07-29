@@ -47,12 +47,12 @@ class Tickets extends Migration
                 'unsigned'   => true,
                 'null'       => true,
             ],
-            'task_id' => [
+            'booking_assignment_id' => [ // changed from task_id
                 'type'       => 'INT',
                 'constraint' => 11,
                 'unsigned'   => true,
                 'null'       => true,
-                'comment'    => 'Task assigned to partner',
+                'comment'    => 'Booking assignment linked to partner',
             ],
             'subject' => [
                 'type'       => 'VARCHAR',
@@ -112,7 +112,7 @@ class Tickets extends Migration
         $this->forge->addForeignKey('user_id', 'af_customers', 'id', 'CASCADE', 'CASCADE');
         $this->forge->addForeignKey('partner_id', 'partners', 'id', 'SET NULL', 'CASCADE');
         $this->forge->addForeignKey('booking_id', 'bookings', 'id', 'SET NULL', 'CASCADE');
-        $this->forge->addForeignKey('task_id', 'tasks', 'id', 'SET NULL', 'CASCADE');
+        $this->forge->addForeignKey('booking_assignment_id', 'booking_assignment', 'id', 'SET NULL', 'CASCADE'); // updated FK
         $this->forge->createTable('tickets');
     }
 
