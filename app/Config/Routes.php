@@ -805,8 +805,8 @@ $routes->group('partner', function ($routes) {
 
     $routes->get('payouts/(:num)', 'PartnerPayoutController::listByPartner/$1');
 
-    $routes->post('referral/invite', 'ReferralController::invite');
     $routes->get('referral/summary/(:num)', 'PartnerReferralController::summary/$1');
+    $routes->post('referral/invite', 'ReferralController::invite');
     $routes->get('referral/mobile/(:segment)', 'ReferralController::getReferrerByMobile/$1');
 });
 

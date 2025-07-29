@@ -78,8 +78,9 @@ class PartnerReferralController extends BaseController
 
         // ✅ Unregistered Invites
         foreach ($invites as $invite) {
-            // Skip if already registered via referrals table
-            if (in_array($invite['referee_id'], $refereeIds) || $invite['is_registered']) {
+            $refereeId = $invite['referee_id'] ?? null;
+
+            if (($refereeId && in_array($refereeId, $refereeIds)) || $invite['is_registered']) {
                 continue;
             }
 
@@ -94,6 +95,7 @@ class PartnerReferralController extends BaseController
                 'is_registered'  => false,
             ];
         }
+
 
         return $this->response->setJSON([
             'status'               => 200,
