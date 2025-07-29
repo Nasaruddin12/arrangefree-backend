@@ -73,6 +73,8 @@ class PartnerReferralController extends BaseController
                 'bonus_amount'   => $bonusAmount,
                 'bonus_status'   => $status,
                 'is_registered'  => true,
+                'joined_at'      => $referee['created_at'] ? date('Y-m-d', strtotime($referee['created_at'])) : null,
+                'tasks_completed' => (int) $ref['tasks_completed'],
             ];
         }
 
@@ -93,6 +95,7 @@ class PartnerReferralController extends BaseController
                 'bonus_amount'   => 0,
                 'bonus_status'   => 'pending',
                 'is_registered'  => false,
+                'joined_at'      => $invite['created_at'] ? date('Y-m-d', strtotime($invite['created_at'])) : null,
             ];
         }
 
