@@ -143,6 +143,9 @@ $routes->group('admin', static function ($routes) {
     $routes->delete('deleteHomeZoneAppliances/(:num)', 'HomeZoneAppliancesController::deleteHomeZoneAppliances/$1');
     $routes->post('updateHomeZoneCategoryImage', 'HomeZoneAppliancesController::updateHomeZoneCategoryImage');
     $routes->delete('deleteHomeZoneImage', 'HomeZoneAppliancesController::deleteHomeZoneImage');
+
+    $routes->get('partner-referrals', 'PartnerReferralController::adminReferralSummary');
+    $routes->get('partner-referrals/(:num)', 'PartnerReferralController::partnerReferrals/$1');
 });
 
 // Razorpay Payments
@@ -800,7 +803,11 @@ $routes->group('partner', function ($routes) {
     $routes->get('accepted-bookings/(:num)', 'BookingAssignmentController::getAcceptedBookings/$1');
     $routes->get('assignment/details/(:num)', 'BookingAssignmentController::getAssignmentDetails/$1');
 
-     $routes->get('payouts/(:num)', 'PartnerPayoutController::listByPartner/$1');
+    $routes->get('payouts/(:num)', 'PartnerPayoutController::listByPartner/$1');
+
+    $routes->post('referral/invite', 'ReferralController::invite');
+    $routes->post('referral/summary/(:num)', 'PartnerReferralController::summary/$1');
+    $routes->get('referral/mobile/(:segment)', 'ReferralController::getReferrerByMobile/$1');
 });
 
 $routes->group('cron', function ($routes) {
@@ -832,7 +839,6 @@ $routes->group('notifications', function ($routes) {
 $routes->group('assignment', function ($routes) {
     $routes->post('create-requests', 'BookingAssignmentController::createMultipleAssignmentRequests');
     $routes->get('booking-requests/(:num)', 'BookingAssignmentController::getRequestsByBookingServiceId/$1');
-
 });
 $routes->group('booking-updates', function ($routes) {
     // POST: Create booking update with optional media
