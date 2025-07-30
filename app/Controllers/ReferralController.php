@@ -16,6 +16,7 @@ class ReferralController extends BaseController
             'referrer_id'   => 'required|integer',
             'friend_name'   => 'required|string|max_length[100]',
             'friend_mobile' => 'required|regex_match[/^[0-9]{10,15}$/]',
+            'referral_code' => 'permit_empty|string|max_length[20]'
         ];
 
         if (!$this->validate($rules)) {
@@ -33,7 +34,7 @@ class ReferralController extends BaseController
             'referrer_id'    => $data['referrer_id'],
             'friend_name'    => $data['friend_name'],
             'friend_mobile'  => $data['friend_mobile'],
-            'referral_code'  => $code,
+            'referral_code'  => $data['referral_code'] ?? $code,
             'is_registered'  => 0,
         ];
 
@@ -70,4 +71,4 @@ class ReferralController extends BaseController
             'referee_id'    => $invite['referee_id'] ?? null
         ]);
     }
- }
+}

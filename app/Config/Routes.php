@@ -808,6 +808,8 @@ $routes->group('partner', function ($routes) {
     $routes->get('referral/summary/(:num)', 'PartnerReferralController::summary/$1');
     $routes->post('referral/invite', 'ReferralController::invite');
     $routes->get('referral/mobile/(:segment)', 'ReferralController::getReferrerByMobile/$1');
+
+    $routes->get('referral/validate', 'PartnerReferralController::validateCode');
 });
 
 $routes->group('cron', function ($routes) {

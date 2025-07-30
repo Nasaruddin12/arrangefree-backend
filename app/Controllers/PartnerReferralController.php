@@ -6,8 +6,9 @@ use App\Controllers\BaseController;
 use App\Models\PartnerReferralModel;
 use App\Models\PartnerModel;
 use App\Models\PartnerReferralInviteModel;
+use CodeIgniter\RESTful\ResourceController;
 
-class PartnerReferralController extends BaseController
+class PartnerReferralController extends ResourceController
 {
     public function summary($partner_id)
     {
@@ -225,5 +226,37 @@ class PartnerReferralController extends BaseController
             'referrer_name' => $referrer['name'],
             'referrals'     => $response,
         ]);
+    }
+
+    public function validateCode()
+    {
+        try {
+            $referralCode = $this->request->getGet('code');
+
+            if (!$referralCode) {
+                return $this->failValidationErrors(['code' => 'Referral code is required']);
+            }
+
+            $partnerModel = new PartnerModel();
+            $partner = $partnerModel->where('referral_code', $referralCode)->first();
+
+            if (!$partner) {
+                return $this->respond([
+                    'status' => 404,
+                    'valid' => false,
+                    'message' => 'Invalid referral code.'
+                ]);
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'valid' => true,
+                'referrer_id' => $partner['id'],
+                'referrer_name' => $partner['name'],
+                'referrer_mobile' => $partner['mobile'],
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError($e->getMessage());
+        }
     }
 }
