@@ -293,10 +293,10 @@ class PartnerController extends BaseController
             $otpModel = new \App\Models\PartnerOtpModel();
 
             // Block check
-            $lastOtp = $otpModel->where('mobile', $mobile)->orderBy('id', 'desc')->first();
-            if ($lastOtp && $lastOtp['otp_blocked_until'] && strtotime($lastOtp['otp_blocked_until']) > time()) {
-                throw new \Exception('Too many OTP requests. You are temporarily blocked.', 429);
-            }
+            // $lastOtp = $otpModel->where('mobile', $mobile)->orderBy('id', 'desc')->first();
+            // if ($lastOtp && $lastOtp['otp_blocked_until'] && strtotime($lastOtp['otp_blocked_until']) > time()) {
+            //     throw new \Exception('Too many OTP requests. You are temporarily blocked.', 429);
+            // }
 
             // Throttle: max 3 in 2 minutes
             $recentOtpsCount = $otpModel
