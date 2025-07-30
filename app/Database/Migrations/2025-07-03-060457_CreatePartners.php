@@ -12,6 +12,7 @@ class CreatePartners extends Migration
             'id'                 => ['type' => 'INT', 'unsigned' => true, 'auto_increment' => true],
             'name'               => ['type' => 'VARCHAR', 'constraint' => 100],
             'mobile'             => ['type' => 'VARCHAR', 'constraint' => 15],
+            'email'              => ['type' => 'VARCHAR', 'constraint' => 255, 'null' => true],
             'mobile_verified'    => ['type' => 'BOOLEAN', 'default' => false],
             'dob'                => ['type' => 'DATE'],
             'gender'             => ['type' => 'VARCHAR', 'constraint' => 10],

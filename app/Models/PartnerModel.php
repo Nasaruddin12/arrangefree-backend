@@ -13,6 +13,7 @@ class PartnerModel extends Model
     protected $allowedFields = [
         'name',
         'mobile',
+        'email',
         'mobile_verified',
         'dob',
         'gender',
@@ -38,6 +39,7 @@ class PartnerModel extends Model
     protected $validationRules = [
         'name'             => 'required|min_length[3]',
         'mobile'           => 'required|regex_match[/^[0-9]{10}$/]|is_unique[partners.mobile]',
+        'email'            => 'permit_empty|valid_email|is_unique[partners.email]',
         'dob'              => 'required|valid_date|check_age',
         'gender'           => 'required|in_list[male,female,other]',
         'profession'       => 'required',

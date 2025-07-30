@@ -63,6 +63,7 @@ class ReferralController extends BaseController
         $referrer = $partnerModel->find($invite['referrer_id']);
 
         return $this->respond([
+            'status' => 200,
             'referrer_id'   => $invite['referrer_id'],
             'referrer_name' => $referrer['name'] ?? null,
             'referral_code' => $invite['referral_code'],

@@ -473,18 +473,35 @@ class PartnerController extends BaseController
         $db->transStart();
 
         try {
-            $request    = $this->request;
-            $partnerId  = $request->getVar('partner_id');
-            $isUpdate   = !empty($partnerId);
+            $request = $this->request;
 
-            $partnerModel = new \App\Models\PartnerModel();
-            $docModel     = new \App\Models\PartnerDocumentModel();
-            $bankModel    = new \App\Models\PartnerBankDetailModel();
-            $addressModel = new \App\Models\PartnerAddressModel();
+            $partnerModel   = new \App\Models\PartnerModel();
+            $docModel       = new \App\Models\PartnerDocumentModel();
+            $bankModel      = new \App\Models\PartnerBankDetailModel();
+            $addressModel   = new \App\Models\PartnerAddressModel();
+            $referralModel  = new \App\Models\PartnerReferralModel();
 
-            // Step 1: Validate and Save Partner Info
+            do {
+                $generatedCode = 'SEEB' . rand(1000, 9999);
+                $codeExists = $partnerModel->where('referral_code', $generatedCode)->first();
+            } while ($codeExists);
+
+            // Lookup referred_by_partner_id from submitted referral code
+            $submittedReferralCode = $request->getVar('referral_code');
+            $referrerIdRaw = $request->getVar('referrer_id');
+            $referredBy = null;
+
+             if (!empty($submittedReferralCode)) {
+                $referrer = $partnerModel->where('referral_code', $submittedReferralCode)->first();
+                if ($referrer) {
+                    $referredBy = $referrer['id'];
+                }
+            } elseif (!empty($referrerIdRaw)) {
+                $referredBy = $referrerIdRaw;
+            }
+        
+            // Step 1: Validate & Save Partner Info
             $partnerData = [
-                'id'                => $partnerId,
                 'name'              => $request->getVar('name'),
                 'mobile'            => $request->getVar('mobile'),
                 'mobile_verified'   => $request->getVar('mobile_verified') ?? true,
@@ -496,29 +513,38 @@ class PartnerController extends BaseController
                 'service_areas'     => $request->getVar('service_areas'),
                 'aadhaar_no'        => $request->getVar('aadhaar_no'),
                 'pan_no'            => $request->getVar('pan_no'),
-                'fcm_token'        =>  $request->getVar('fcm_token'),
+                'email'             => $request->getVar('email'),
+                'fcm_token'         => $request->getVar('fcm_token'),
+                'referral_code'         => $generatedCode,
+                'referred_by_partner_id' => $referredBy,
             ];
 
-            if ($isUpdate) {
-                $partnerModel->setValidationRules([
-                    'mobile'     => 'required|regex_match[/^[0-9]{10}$/]|is_unique[partners.mobile,id,' . $partnerId . ']',
-                    'aadhaar_no' => 'required|regex_match[/^[0-9]{12}$/]|is_unique[partners.aadhaar_no,id,' . $partnerId . ']',
-                    'pan_no'     => 'required|regex_match[/^[A-Z]{5}[0-9]{4}[A-Z]$/]|is_unique[partners.pan_no,id,' . $partnerId . ']',
-                ]);
-            }
+            $partnerModel->setValidationRules([
+                'mobile'     => 'required|regex_match[/^[0-9]{10}$/]|is_unique[partners.mobile]',
+                'aadhaar_no' => 'required|regex_match[/^[0-9]{12}$/]|is_unique[partners.aadhaar_no]',
+                'pan_no'     => 'required|regex_match[/^[A-Z]{5}[0-9]{4}[A-Z]$/]|is_unique[partners.pan_no]',
+            ]);
 
             if (!$partnerModel->validate($partnerData)) {
                 throw new \Exception(json_encode($partnerModel->errors()), 422);
             }
 
-            if ($isUpdate) {
-                $partnerModel->update($partnerId, $partnerData);
-            } else {
-                $partnerModel->insert($partnerData);
-                $partnerId = $partnerModel->getInsertID();
+            $partnerModel->insert($partnerData);
+            $partnerId = $partnerModel->getInsertID();
+
+            // Step 2: Handle Referral (Optional)
+     
+            if ($referredBy && $referredBy != $partnerId) {
+                $referralModel->insert([
+                    'referrer_id'  => $referredBy,
+                    'referee_id'   => $partnerId,
+                    'bonus_status' => 'pending',
+                    'bonus_amount' => 0,
+                ]);
             }
 
-            // Step 2: Save Address (Primary)
+
+            // Step 3: Save Primary Address
             $addressData = [
                 'partner_id'      => $partnerId,
                 'address_line_1'  => $request->getVar('address_line_1'),
@@ -535,15 +561,9 @@ class PartnerController extends BaseController
                 throw new \Exception(json_encode($addressModel->errors()), 422);
             }
 
-            $existingAddress = $addressModel->where('partner_id', $partnerId)->where('is_primary', 1)->first();
+            $addressModel->insert($addressData);
 
-            if ($existingAddress) {
-                $addressModel->update($existingAddress['id'], $addressData);
-            } else {
-                $addressModel->insert($addressData);
-            }
-
-            // Step 3: Handle Partner Documents
+            // Step 4: Save Partner Documents
             $docTypes = [
                 'aadhar_front'  => 'aadhar_front',
                 'aadhar_back'   => 'aadhar_back',
@@ -555,29 +575,24 @@ class PartnerController extends BaseController
             foreach ($docTypes as $field => $type) {
                 $file = $request->getFile($field);
                 if ($file && $file->isValid() && !$file->hasMoved()) {
-                    $fileName = $file->getRandomName();
-
+                    $fileName   = $file->getRandomName();
                     $uploadPath = 'public/uploads/partner_docs/';
                     $file->move($uploadPath, $fileName);
+
                     $docPath = $uploadPath . $fileName;
 
                     $docData = [
                         'partner_id' => $partnerId,
                         'type'       => $type,
                         'file_path'  => $docPath,
-                        'status'     => 'pending'
+                        'status'     => 'pending',
                     ];
 
-                    $existing = $docModel->where('partner_id', $partnerId)->where('type', $type)->first();
-                    if ($existing) {
-                        $docModel->update($existing['id'], $docData);
-                    } else {
-                        $docModel->insert($docData);
-                    }
+                    $docModel->insert($docData);
                 }
             }
 
-            // Step 4: Validate and Save Bank Details
+            // Step 5: Save Bank Details
             $bankData = [
                 'partner_id'          => $partnerId,
                 'account_holder_name' => $request->getVar('account_holder_name'),
@@ -589,61 +604,52 @@ class PartnerController extends BaseController
             ];
 
             $bankFile = $request->getFile('bank_document');
-            $existingBank = $bankModel->where('partner_id', $partnerId)->first();
-
             if ($bankFile && $bankFile->isValid() && !$bankFile->hasMoved()) {
                 $bankFileName = $bankFile->getRandomName();
-                $uploadPath = 'public/uploads/partner_docs/';
-
+                $uploadPath   = 'public/uploads/partner_docs/';
                 $bankFile->move($uploadPath, $bankFileName);
-                $docPath = $uploadPath . $bankFileName;
-                $bankData['bank_document'] = $docPath;
+
+                $bankData['bank_document'] = $uploadPath . $bankFileName;
             }
 
-            // Skip validation only if no new file or changes
             if (!$bankModel->validate($bankData)) {
                 throw new \Exception(json_encode($bankModel->errors()), 422);
             }
 
-            if ($existingBank) {
-                $bankModel->update($existingBank['id'], $bankData);
-            } else {
-                $bankModel->insert($bankData);
-            }
+            $bankModel->insert($bankData);
 
+            // ✅ Commit All
             $db->transComplete();
 
             if (!$db->transStatus()) {
-                // Get last query error
                 $dbError = $db->error();
-                $errorMessage = !empty($dbError['message']) ? $dbError['message'] : 'Transaction failed';
-
-                throw new \Exception("Transaction failed: " . $errorMessage, 500);
+                throw new \Exception("Transaction failed: " . ($dbError['message'] ?? 'Unknown error'), 500);
             }
 
             return $this->respond([
                 'status'     => 200,
-                'message'    => $isUpdate ? 'Partner updated successfully.' : 'Partner registered successfully.',
-                'partner_id' => $partnerId
-            ], 200);
+                'message'    => 'Partner registered successfully.',
+                'partner_id' => $partnerId,
+            ]);
         } catch (\Exception $e) {
             $db->transRollback();
-            $statusCode = $e->getCode() ?: 500;
-            $message = $e->getMessage();
+            $code     = $e->getCode() ?: 500;
+            $message  = $e->getMessage();
+            $decoded  = json_decode($message, true);
 
-            $decoded = json_decode($message, true);
             $response = [
-                'status'  => $statusCode,
-                'message' => $statusCode === 422 ? 'Validation failed' : $message,
+                'status'  => $code,
+                'message' => $code === 422 ? 'Validation failed' : $message,
             ];
 
             if (is_array($decoded)) {
                 $response['errors'] = $decoded;
             }
 
-            return $this->respond($response, $statusCode);
+            return $this->respond($response, $code);
         }
     }
+
 
     public function onboardingData($id = null)
     {
