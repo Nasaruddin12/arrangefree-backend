@@ -491,7 +491,7 @@ class PartnerController extends BaseController
             $referrerIdRaw = $request->getVar('referrer_id');
             $referredBy = null;
 
-             if (!empty($submittedReferralCode)) {
+            if (!empty($submittedReferralCode)) {
                 $referrer = $partnerModel->where('referral_code', $submittedReferralCode)->first();
                 if ($referrer) {
                     $referredBy = $referrer['id'];
@@ -499,7 +499,7 @@ class PartnerController extends BaseController
             } elseif (!empty($referrerIdRaw)) {
                 $referredBy = $referrerIdRaw;
             }
-        
+
             // Step 1: Validate & Save Partner Info
             $partnerData = [
                 'name'              => $request->getVar('name'),
@@ -533,7 +533,7 @@ class PartnerController extends BaseController
             $partnerId = $partnerModel->getInsertID();
 
             // Step 2: Handle Referral (Optional)
-     
+
             if ($referredBy && $referredBy != $partnerId) {
                 $referralModel->insert([
                     'referrer_id'  => $referredBy,
@@ -973,5 +973,78 @@ class PartnerController extends BaseController
             log_message('error', 'Failed to store Firebase UID: ' . $e->getMessage());
             return $this->failServerError('Something went wrong while saving Firebase UID');
         }
+    }
+    public function getPartnerTaskSummary()
+    {
+        $db = \Config\Database::connect();
+        $builder = $db->table('partners p');
+
+        // Filters
+        $location   = $this->request->getGet('location');
+        $profession = $this->request->getGet('profession');
+
+        $builder->select("
+        p.name,
+        p.service_areas as location,
+        p.profession,
+        p.team_size,
+        (
+            SELECT COUNT(*) FROM booking_assignments ba
+            JOIN booking_services bs ON ba.booking_service_id = bs.id
+            WHERE ba.partner_id = p.id AND ba.status = 'assigned'
+        ) AS assigned,
+
+        (
+            SELECT COUNT(*) FROM booking_assignments ba
+            JOIN booking_services bs ON ba.booking_service_id = bs.id
+            WHERE ba.partner_id = p.id AND ba.status = 'in_progress'
+        ) AS in_progress,
+
+        (
+            SELECT COUNT(*) FROM booking_assignments ba
+            JOIN booking_services bs ON ba.booking_service_id = bs.id
+            WHERE ba.partner_id = p.id AND ba.status = 'completed'
+        ) AS completed,
+
+        (
+            SELECT COUNT(*) FROM booking_assignments ba
+            JOIN booking_services bs ON ba.booking_service_id = bs.id
+            WHERE ba.partner_id = p.id AND ba.status = 'rejected'
+        ) AS rejected,
+
+        (
+            SELECT ca.city FROM booking_assignments ba
+            JOIN booking_services bs ON ba.booking_service_id = bs.id
+            JOIN bookings b ON bs.booking_id = b.id
+            JOIN customer_addresses ca ON b.address_id = ca.id
+            WHERE ba.partner_id = p.id
+            ORDER BY b.slot_date DESC
+            LIMIT 1
+        ) AS assigned_location,
+
+        (
+            SELECT MAX(b.slot_date) FROM booking_assignments ba
+            JOIN booking_services bs ON ba.booking_service_id = bs.id
+            JOIN bookings b ON bs.booking_id = b.id
+            WHERE ba.partner_id = p.id
+        ) AS last_task
+    ");
+
+        if ($location) {
+            $builder->where('p.service_areas', $location);
+        }
+
+        if ($profession) {
+            $builder->where('p.profession', $profession);
+        }
+
+        $builder->orderBy('last_task', 'DESC');
+
+        $result = $builder->get()->getResult();
+
+        return $this->respond([
+            'status' => 200,
+            'data'   => $result
+        ]);
     }
 }

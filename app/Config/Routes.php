@@ -146,6 +146,8 @@ $routes->group('admin', static function ($routes) {
 
     $routes->get('partner-referrals', 'PartnerReferralController::adminReferralSummary');
     $routes->get('partner-referrals/(:num)', 'PartnerReferralController::partnerReferrals/$1');
+    $routes->get('partners/summary', 'PartnerController::getPartnerTaskSummary');
+
 });
 
 // Razorpay Payments
