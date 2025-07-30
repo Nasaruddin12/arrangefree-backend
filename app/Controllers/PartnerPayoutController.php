@@ -40,12 +40,7 @@ class PartnerPayoutController extends BaseController
             return $this->failValidationErrors($this->validator->getErrors());
         }
 
-        $data = $this->request->getPost([
-            'partner_id',
-            'booking_service_id',
-            'amount',
-            'notes'
-        ]);
+        $data = $this->request->getJSON(true);
 
         $data['status'] = 'pending';
 
