@@ -1013,7 +1013,7 @@ class PartnerController extends BaseController
         ) AS rejected,
 
         (
-            SELECT ca.city FROM booking_assignments ba
+            SELECT ca.address FROM booking_assignments ba
             JOIN booking_services bs ON ba.booking_service_id = bs.id
             JOIN bookings b ON bs.booking_id = b.id
             JOIN customer_addresses ca ON b.address_id = ca.id
