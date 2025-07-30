@@ -985,6 +985,8 @@ class PartnerController extends BaseController
 
         $builder->select("
         p.name,
+        p.id,
+        p.mobile,
         p.service_areas as location,
         p.profession,
         p.team_size,
