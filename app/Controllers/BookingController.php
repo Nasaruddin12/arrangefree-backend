@@ -556,6 +556,45 @@ class BookingController extends ResourceController
         }
     }
 
+    public function deleteBooking($booking_id)
+    {
+        try {
+            $booking = $this->bookingsModel->find($booking_id);
+            if (!$booking) {
+                return $this->respond([
+                    'status' => 404,
+                    'message' => 'Booking not found.'
+                ], 404);
+            }
+
+            // Delete related services
+            $this->bookingServicesModel->where('booking_id', $booking_id)->delete();
+
+            // Delete related payments
+            $this->bookingPaymentsModel->where('booking_id', $booking_id)->delete();
+
+            // Delete related payment requests
+            $this->paymentRequestsModel->where('booking_id', $booking_id)->delete();
+
+            // Delete related expenses
+            $this->bookingExpenseModel->where('booking_id', $booking_id)->delete();
+
+            // Finally, delete the booking
+            $this->bookingsModel->delete($booking_id);
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Booking and all related records deleted successfully.'
+            ], 200);
+        } catch (\Exception $e) {
+            log_message('error', 'Error deleting booking: ' . $e->getMessage());
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Something went wrong while deleting the booking.'
+            ], 500);
+        }
+    }   
+
 
     public function verifyPayment()
     {
