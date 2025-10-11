@@ -46,11 +46,12 @@ $routes->group('customer', static function ($routes) {
     $routes->post('getCustomer', 'CustomerController::getCustomer');
     $routes->post('contact-us/query', 'CustomerController::contactUs');
     $routes->put('updateCustomer/(:num)', 'CustomerController::updateCustomer/$1');
+    $routes->delete('delete/(:num)', 'CustomerController::deleteCustomer/$1');
     $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
         $routes->get('getCustomerById/(:num)', 'CustomerController::getCustomerById/$1');
         $routes->get('getRecentView', 'RecentlyViewedController::getRecentView');
         $routes->get('getRecentViewBySlug/(:any)', 'RecentlyViewedController::getRecentViewBySlug/$1');
-        $routes->get('deleteCustomer/(:num)', 'CustomerController::DeleteCustomer/$1');
+        $routes->get('deleteCustomer/(:num)', 'CustomerController::deleteCustomer/$1');
         $routes->post('cancel-order', 'OrderController::cancelOrder');
     });
     $routes->post('getAllContactUs', 'CustomerController::getAllContactUs');

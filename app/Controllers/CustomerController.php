@@ -270,7 +270,7 @@ class CustomerController extends BaseController
         $response['status'] = $statusCode;
         return $this->respond($response, $statusCode);
     }
-    function DeleteCustomer($id)
+    function deleteCustomer($id)
     {
         $customerModel = new CustomerModel();
         $rest = $customerModel->delete($id);
