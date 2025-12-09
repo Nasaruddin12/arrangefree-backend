@@ -670,7 +670,7 @@ $routes->group('ai-api-history', function ($routes) {
     $routes->post('analyze-image', 'AIAPIHistoryController::analyzeImage');
 });
 $routes->group('ai-api', function ($routes) {
-    $routes->post('gpt4o-mini', 'AIAPIHistoryController::gpt4oMini');
+    $routes->post('prompt-generate', 'AIAPIHistoryController::gpt4oMini');
     $routes->post('dalle-image', 'AIAPIHistoryController::dalleImageGenerate');
     $routes->post('gemini-generate', 'AIAPIHistoryController::generateWithGemini');
 });

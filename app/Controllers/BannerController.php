@@ -19,20 +19,34 @@ class BannerController extends BaseController
             $validation = &$Bannersmodel;
             $statusCode = 200;
 
-
             $BannerImage = $this->request->getFile('path');
-            $Banner = "public/uploads/homezone-appliances/category_banner/";
+
+            // Validate uploaded file
+            if (!$BannerImage || !$BannerImage->isValid()) {
+                throw new \Exception('No valid image uploaded.', 400);
+            }
+
+            // Paths
+            $publicRelative = 'public/uploads/banner/';
+            $fullPath = FCPATH . 'uploads/banner/';
+
+            // Ensure folder exists
+            if (!is_dir($fullPath)) {
+                if (!mkdir($fullPath, 0755, true) && !is_dir($fullPath)) {
+                    throw new \Exception('Failed to create upload directory.', 500);
+                }
+            }
+
             $imageName = bin2hex(random_bytes(10)) . time() . '.jpeg';
-            $BannerImagesData = array();
-            // $productID = $this->request->getVar('product_id');
+            // Process and save image to the full path
             $image->withFile($BannerImage)
                 // ->resize(1080, 1620, true)
                 ->resize(1620, 1620, true)
                 ->convert(IMAGETYPE_JPEG)
-                ->save($Banner . $imageName, 90);
+                ->save($fullPath . $imageName, 90);
 
             $data = [
-                'banner_image' => $Banner . $imageName,
+                'banner_image' => $publicRelative . $imageName,
             ];
 
             $response = [
@@ -245,7 +259,7 @@ public function deleteBanner($id)
 }
 
 }
-   
+
 
 
 
