@@ -28,7 +28,7 @@ class BannerController extends BaseController
 
             // Paths
             $publicRelative = 'public/uploads/banner/';
-            $fullPath = FCPATH . 'uploads/banner/';
+            $fullPath = FCPATH . 'public/uploads/banner/';
 
             // Ensure folder exists
             if (!is_dir($fullPath)) {
