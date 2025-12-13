@@ -36,18 +36,32 @@ class PartnerModel extends Model
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
 
+    // protected $validationRules = [
+    //     'name'             => 'required|min_length[3]',
+    //     'mobile'           => 'required|regex_match[/^[0-9]{10}$/]|is_unique[partners.mobile]',
+    //     'email'            => 'permit_empty|valid_email|is_unique[partners.email]',
+    //     'dob'              => 'required|valid_date|check_age',
+    //     'gender'           => 'required|in_list[male,female,other]',
+    //     'profession'       => 'required',
+    //     'team_size'        => 'required',
+    //     'emergency_contact' => 'permit_empty|regex_match[/^[0-9]{10}$/]',
+    //     'service_areas'    => 'required',
+    //     'aadhaar_no'       => 'required|regex_match[/^[0-9]{12}$/]|is_unique[partners.aadhaar_no]',
+    //     'pan_no'           => 'required|regex_match[/^[A-Z]{5}[0-9]{4}[A-Z]$/]|is_unique[partners.pan_no]',
+    //     'status'           => 'permit_empty|in_list[pending,active,blocked,terminated,resigned,rejected]',
+    // ];
     protected $validationRules = [
         'name'             => 'required|min_length[3]',
         'mobile'           => 'required|regex_match[/^[0-9]{10}$/]|is_unique[partners.mobile]',
         'email'            => 'permit_empty|valid_email|is_unique[partners.email]',
-        'dob'              => 'required|valid_date|check_age',
-        'gender'           => 'required|in_list[male,female,other]',
+        'dob'              => 'valid_date|check_age',
+        'gender'           => 'in_list[male,female,other]',
         'profession'       => 'required',
-        'team_size'        => 'required',
+        'team_size'        => 'permit_empty',
         'emergency_contact' => 'permit_empty|regex_match[/^[0-9]{10}$/]',
-        'service_areas'    => 'required',
-        'aadhaar_no'       => 'required|regex_match[/^[0-9]{12}$/]|is_unique[partners.aadhaar_no]',
-        'pan_no'           => 'required|regex_match[/^[A-Z]{5}[0-9]{4}[A-Z]$/]|is_unique[partners.pan_no]',
+        'service_areas'    => 'permit_empty',
+        'aadhaar_no'       => 'permit_empty|regex_match[/^[0-9]{12}$/]|is_unique[partners.aadhaar_no]',
+        'pan_no'           => 'permit_empty|regex_match[/^[A-Z]{5}[0-9]{4}[A-Z]$/]|is_unique[partners.pan_no]',
         'status'           => 'permit_empty|in_list[pending,active,blocked,terminated,resigned,rejected]',
     ];
 
@@ -61,12 +75,12 @@ class PartnerModel extends Model
         ],
 
         'dob' => [
-            'required'  => 'Date of birth is required.',
+            // 'required'  => 'Date of birth is required.',
             'check_age' => 'You must be at least 18 years old.',
         ],
 
         'gender' => [
-            'required' => 'Gender is required.',
+            // 'required' => 'Gender is required.',
             'in_list'  => 'Gender must be male, female, or other.',
         ],
 
