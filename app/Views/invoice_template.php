@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice</title>
+    <title>Quotation</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap');
 
@@ -136,7 +136,7 @@
 
 <body>
     <div class="invoice-box">
-        <div class="title">INVOICE</div>
+        <div class="title">Quotation</div>
         <?php
         $logoPath = 'https://backend.seeb.in/public/logo.webp'; // Absolute or relative server path
         $logoData = base64_encode(file_get_contents($logoPath));
@@ -161,7 +161,7 @@
             <tr>
                 <td width="50%" style="border: 0px;">
                     <div>
-                        <p><strong>Invoice No:</strong> <?= $booking['booking_id'] ?></p>
+                        <p><strong>Quotation No:</strong> <?= $booking['booking_id'] ?></p>
                         <p><strong>Date:</strong> <?= date('d-m-Y', strtotime($booking['created_at'])) ?></p>
                         <p><strong>Due Date:</strong> <?= date('d-m-Y', strtotime($booking['due_date'] ?? '+7 days')) ?></p>
                     </div>

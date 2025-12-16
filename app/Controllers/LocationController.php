@@ -19,24 +19,30 @@ class LocationController extends ResourceController
         }
 
         $apiKey = env('GOOGLE_MAPS_API_KEY');
-
         $url = "https://maps.googleapis.com/maps/api/geocode/json?latlng={$lat},{$lng}&key={$apiKey}";
 
-        $client = \Config\Services::curlrequest();
-        $response = $client->get($url);
+        // ✅ Force IPv4 here
+        $client = \Config\Services::curlrequest([
+            'curl' => [
+                CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4
+            ],
+            'timeout' => 10
+        ]);
 
+        $response = $client->get($url);
         $result = json_decode($response->getBody(), true);
 
         if (!empty($result['results'][0]['formatted_address'])) {
             return $this->respond([
                 'status' => true,
-                'address' => $result['results'][0]['formatted_address']
+                'address' => $result['results'][0]['formatted_address'],
+                'cached' => false
             ]);
         }
 
         return $this->respond([
             'status' => false,
-            'message' => 'Address not found'
+            'message' => $result['status'] ?? 'Address not found'
         ], 404);
     }
 }
