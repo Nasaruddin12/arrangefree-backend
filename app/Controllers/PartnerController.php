@@ -865,7 +865,6 @@ class PartnerController extends BaseController
     }
 
 
-
     public function onboardingData($id = null)
     {
         try {
