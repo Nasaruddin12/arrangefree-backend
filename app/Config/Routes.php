@@ -875,8 +875,9 @@ $routes->group('reviews', function ($routes) {
 $routes->post('checklist/feedback', 'ChecklistFeedbackController::submit');
 $routes->post('checklist/feedback/bulk', 'ChecklistFeedbackController::submitBulk');
 $routes->get('checklist/feedback/assignment/(:num)', 'ChecklistFeedbackController::getByAssignment/$1');
-
-$routes->post('location/reverse-geocode', 'LocationController::reverseGeocode');
+ $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
+    $routes->post('location/reverse-geocode', 'LocationController::reverseGeocode');
+ });
 
 
 
