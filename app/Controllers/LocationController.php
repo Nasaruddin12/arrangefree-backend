@@ -112,6 +112,7 @@ class LocationController extends ResourceController
 
         $response = $client->get($url);
         $result   = json_decode($response->getBody(), true);
+        print_r($result); exit;
 
         if (empty($result['predictions'])) {
             return $this->respond([
