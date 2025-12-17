@@ -42,7 +42,7 @@ class LocationController extends ResourceController
         $url = "https://maps.googleapis.com/maps/api/geocode/json?latlng={$lat},{$lng}&key={$apiKey}";
 
         $client = \Config\Services::curlrequest([
-            'curl' => [
+            'curloptions' => [
                 CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4
             ],
             'timeout' => 10
@@ -104,7 +104,7 @@ class LocationController extends ResourceController
 
         // 🔒 Force IPv4
         $client = \Config\Services::curlrequest([
-            'curl' => [
+            'curloptions' => [
                 CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4
             ],
             'timeout' => 10
@@ -112,7 +112,6 @@ class LocationController extends ResourceController
 
         $response = $client->get($url);
         $result   = json_decode($response->getBody(), true);
-        print_r($result); exit;
 
         if (empty($result['predictions'])) {
             return $this->respond([
