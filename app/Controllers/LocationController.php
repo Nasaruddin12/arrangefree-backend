@@ -76,9 +76,9 @@ class LocationController extends ResourceController
     }
     public function searchPlaces()
     {
-        $query = trim($this->request->getGet('query'));
-        $lat   = $this->request->getGet('lat');
-        $lng   = $this->request->getGet('lng');
+        $query = trim($this->request->getVar('query'));
+        $lat   = $this->request->getVar('lat');
+        $lng   = $this->request->getVar('lng');
 
         if (!$query) {
             return $this->respond([
