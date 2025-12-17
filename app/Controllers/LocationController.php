@@ -10,6 +10,9 @@ class LocationController extends ResourceController
 
     public function reverseGeocode()
     {
+
+
+
         // 🔹 Round to reduce duplicate cache entries (~11m accuracy)
         $lat = round((float) $this->request->getVar('lat'), 4);
         $lng = round((float) $this->request->getVar('lng'), 4);
@@ -47,6 +50,10 @@ class LocationController extends ResourceController
             ],
             'timeout' => 10
         ]);
+
+        $response = $client->get('https://ifconfig.me');
+        echo $response->getBody();
+        exit;
 
         $response = $client->get($url);
         $result = json_decode($response->getBody(), true);
