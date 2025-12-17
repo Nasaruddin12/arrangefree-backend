@@ -878,7 +878,7 @@ $routes->get('checklist/feedback/assignment/(:num)', 'ChecklistFeedbackControlle
 
  $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
     $routes->post('location/reverse-geocode', 'LocationController::reverseGeocode');
-    $routes->get('location/search-places', 'LocationController::searchPlaces');
+    $routes->post('location/search-places', 'LocationController::searchPlaces');
  });
 
 
