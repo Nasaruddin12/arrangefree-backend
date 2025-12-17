@@ -46,9 +46,10 @@ class LocationController extends ResourceController
 
         $client = \Config\Services::curlrequest([
             'curloptions' => [
-                CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4
+                CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             ],
-            'timeout' => 10
+            'timeout' => 10,
         ]);
 
         $response = $client->get('https://ifconfig.me');
