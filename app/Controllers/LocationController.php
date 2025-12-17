@@ -10,9 +10,6 @@ class LocationController extends ResourceController
 
     public function reverseGeocode()
     {
-
-
-
         // 🔹 Round to reduce duplicate cache entries (~11m accuracy)
         $lat = round((float) $this->request->getVar('lat'), 4);
         $lng = round((float) $this->request->getVar('lng'), 4);
@@ -46,15 +43,10 @@ class LocationController extends ResourceController
 
         $client = \Config\Services::curlrequest([
             'curloptions' => [
-                CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4
             ],
-            'timeout' => 10,
+            'timeout' => 10
         ]);
-
-        $response = $client->get('https://ifconfig.me');
-        echo $response->getBody();
-        exit;
 
         $response = $client->get($url);
         $result = json_decode($response->getBody(), true);
