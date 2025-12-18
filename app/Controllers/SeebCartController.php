@@ -24,7 +24,7 @@ class SeebCartController extends ResourceController
                 seeb_cart.*,
                 services.image as service_image,
                 services.name as service_name,
-                rooms.name
+                rooms.name as room_name
             ')
                 ->join('services', 'services.id = seeb_cart.service_id', 'left')
                 ->join('rooms', 'rooms.id = seeb_cart.room_id', 'left')
