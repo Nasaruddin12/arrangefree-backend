@@ -19,12 +19,16 @@ class SeebCartController extends ResourceController
     public function index($userId = null)
     {
         try {
-            // $userId = $this->request->getGet('user_id');
-
             $cartItems = $this->model
-                ->select('seeb_cart.*, services.image as service_image, services.name as service_name')
+                ->select('
+                seeb_cart.*,
+                services.image as service_image,
+                services.name as service_name,
+                rooms.room_name
+            ')
                 ->join('services', 'services.id = seeb_cart.service_id', 'left')
-                ->orderBy('seeb_cart.created_at', 'DESC'); // Order by latest added first
+                ->join('rooms', 'rooms.id = seeb_cart.room_id', 'left')
+                ->orderBy('seeb_cart.created_at', 'DESC');
 
             if (!empty($userId)) {
                 $cartItems->where('seeb_cart.user_id', $userId);
@@ -41,9 +45,9 @@ class SeebCartController extends ResourceController
             }
 
             return $this->respond([
-                'status' => 200,
+                'status'  => 200,
                 'message' => 'Cart items retrieved successfully',
-                'data' => $cartItems
+                'data'    => $cartItems
             ], 200);
         } catch (\Exception $e) {
             return $this->failServerError($e->getMessage());
@@ -172,9 +176,8 @@ class SeebCartController extends ResourceController
             }
 
             $cartItem = $this->model
-                ->select('seeb_cart.*, services.image as service_image, rooms.room_name')
+                ->select('seeb_cart.*, services.image as service_image')
                 ->join('services', 'services.id = seeb_cart.service_id', 'left')
-                ->join('rooms', 'rooms.id = seeb_cart.room_id', 'left')
                 ->where('seeb_cart.id', $id)
                 ->first();
 
@@ -183,9 +186,9 @@ class SeebCartController extends ResourceController
             }
 
             return $this->respond([
-                'status'  => 200,
+                'status' => 200,
                 'message' => 'Cart item retrieved successfully',
-                'data'    => $cartItem
+                'data' => $cartItem
             ], 200);
         } catch (\Exception $e) {
             return $this->failServerError($e->getMessage());
