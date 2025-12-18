@@ -172,8 +172,9 @@ class SeebCartController extends ResourceController
             }
 
             $cartItem = $this->model
-                ->select('seeb_cart.*, services.image as service_image')
+                ->select('seeb_cart.*, services.image as service_image, rooms.room_name')
                 ->join('services', 'services.id = seeb_cart.service_id', 'left')
+                ->join('rooms', 'rooms.id = seeb_cart.room_id', 'left')
                 ->where('seeb_cart.id', $id)
                 ->first();
 
@@ -182,9 +183,9 @@ class SeebCartController extends ResourceController
             }
 
             return $this->respond([
-                'status' => 200,
+                'status'  => 200,
                 'message' => 'Cart item retrieved successfully',
-                'data' => $cartItem
+                'data'    => $cartItem
             ], 200);
         } catch (\Exception $e) {
             return $this->failServerError($e->getMessage());

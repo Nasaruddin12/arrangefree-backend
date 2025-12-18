@@ -16,4 +16,11 @@ class SeebCartModel extends Model
     protected $useTimestamps    = true;
     protected $createdField     = 'created_at';
     protected $updatedField     = 'updated_at';
+
+    public function getCartsWithRoom()
+    {
+        return $this->select('cart.*, rooms.room_name')
+                    ->join('rooms', 'rooms.id = cart.room_id', 'left')
+                    ->findAll();
+    }
 }
