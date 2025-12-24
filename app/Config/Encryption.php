@@ -88,5 +88,5 @@ class Encryption extends BaseConfig
      * Set to 'AES-128-CBC' to decrypt encrypted data that encrypted
      * by CI3 Encryption default configuration.
      */
-    public string $cipher = 'AES-256-CTR';
+    public string $cipher = 'AES-256-CBC';
 }

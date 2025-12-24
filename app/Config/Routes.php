@@ -7,6 +7,8 @@ use CodeIgniter\Router\RouteCollection;
  */
 $routes->get('/', 'Home::index');
 
+$routes->get('test-gcm', 'TestController::testGcm');
+
 $routes->get('test', 'Home::generateThumbnailImages');
 $routes->get('test2', 'FeaturesController::test2');
 
