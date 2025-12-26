@@ -471,10 +471,9 @@ class FreepikApiHistoryController extends ResourceController
                 'status'  => 500,
                 'message' => 'Failed to generate images',
                 'error'   => $e->getMessage()
-            ], 500);
+            ]);
         }
     }
-
 
     private function callFreepikApi(string $prompt): ?array
     {
