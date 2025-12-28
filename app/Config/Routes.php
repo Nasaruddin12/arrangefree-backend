@@ -5,12 +5,38 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
+
+// Home route
 $routes->get('/', 'Home::index');
 
-$routes->get('test-gcm', 'TestController::testGcm');
+// ============================================
+// APP ROUTES (Original URLs - for iOS/Android)
+// ============================================
+require APPPATH . 'Config/SharedRoutes.php';
 
-$routes->get('test', 'Home::generateThumbnailImages');
-$routes->get('test2', 'FeaturesController::test2');
+// ============================================
+// WEB ROUTES (With /web/ prefix - for React website)
+// ============================================
+$routes->group('web', static function ($routes) {
+    require APPPATH . 'Config/SharedRoutes.php';
+});
+
+/*
+ * Additional Routing
+ * --------------------------------------------------------------------
+ *
+ * There will often be times that you need additional routing and you
+ * need it to be able to override any defaults in this file. Environment
+ * based routes is one such time. require() additional route files here
+ * to make that happen.
+ *  
+ * You will have access to the $routes object within that file without
+ * needing to reload it.
+ */
+/* if (is_file(APPPATH . 'Config/' . ENVIRONMENT . '/Routes.php')) {
+    require APPPATH . 'Config/' . ENVIRONMENT . '/Routes.php';
+}
+ */
 
 // Product Dashboard
 $routes->group('dashboard', static function ($routes) {

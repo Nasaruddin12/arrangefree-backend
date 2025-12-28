@@ -500,12 +500,50 @@ class BookingController extends ResourceController
         try {
             // Fetch booking details with user and address
             $booking = $this->bookingsModel
-                ->select('bookings.*, af_customers.name as user_name, af_customers.email as user_email, af_customers.mobile_no as mobile_no,
-              customer_addresses.address as customer_address')
+                ->select("
+        bookings.*,
+        af_customers.name AS user_name,
+        af_customers.email AS user_email,
+        af_customers.mobile_no AS mobile_no,
+
+        customer_addresses.id AS address_id,
+        customer_addresses.house,
+        customer_addresses.address,
+        customer_addresses.landmark,
+        CONCAT_WS(', ',
+            customer_addresses.house,
+            customer_addresses.address,
+            customer_addresses.landmark
+        ) AS customer_address
+    ")
+            //     ->select('bookings.*, af_customers.name as user_name, af_customers.email as user_email, af_customers.mobile_no as mobile_no,
+            //   customer_addresses.address as customer_address')
                 ->join('af_customers', 'af_customers.id = bookings.user_id', 'left')
                 ->join('customer_addresses', 'customer_addresses.id = bookings.address_id', 'left')
                 ->where('bookings.id', $booking_id)
                 ->first();
+
+            if ($booking) {
+                // $booking['customer_addresses'] = [
+                //     'id'           => $booking['address_id'],
+                //     'customer_id'  => $booking['customer_id'],
+                //     'house'        => $booking['house'],
+                //     'address'      => $booking['address'],
+                //     'landmark'     => $booking['landmark'],
+                //     'address_label'         => $booking['address_label'],
+                // ];
+
+                // Remove flat address fields
+                unset(
+                    // $booking['address_id'],
+                    // $booking['customer_id'],
+                    $booking['house'],
+                    $booking['address'],
+                    $booking['landmark'],
+                    // $booking['address_label'],
+                );
+            }
+
 
             if (!$booking) {
                 return $this->respond([
@@ -593,7 +631,7 @@ class BookingController extends ResourceController
                 'message' => 'Something went wrong while deleting the booking.'
             ], 500);
         }
-    }   
+    }
 
 
     public function verifyPayment()

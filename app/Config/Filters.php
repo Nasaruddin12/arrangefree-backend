@@ -41,7 +41,7 @@ class Filters extends BaseConfig
         ],
         'after' => [
             'toolbar',
-            'encrypt',
+            // 'encrypt',  // Applied selectively to web routes only
             // 'honeypot',
             // 'secureheaders',
         ],
@@ -67,5 +67,11 @@ class Filters extends BaseConfig
      * Example:
      * 'isLoggedIn' => ['before' => ['account/*', 'profiles/*']]
      */
-    public array $filters = [];
+    public array $filters = [
+        'encrypt' => [
+            'after' => [
+                'web/*',  // Encryption for web API only
+            ],
+        ],
+    ];
 }
