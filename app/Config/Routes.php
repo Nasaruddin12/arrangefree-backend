@@ -669,8 +669,8 @@ $routes->group('rooms', function ($routes) {
 
 $routes->group('services', function ($routes) {
     $routes->get('/', 'ServiceController::index');
+    $routes->get('(:num)', 'ServiceController::show/$1');
     $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
-        $routes->get('(:num)', 'ServiceController::show/$1');
         $routes->post('upload-image', 'ServiceController::uploadImages'); // Upload image separately
         $routes->post('create', 'ServiceController::create'); // Create work type
         $routes->put('update/(:num)', 'ServiceController::update/$1'); // Update work type
@@ -747,8 +747,8 @@ $routes->group('faqs', function ($routes) {
         $routes->put('(:num)', 'FaqController::update/$1');  // Update FAQ
         $routes->delete('(:num)', 'FaqController::delete/$1');  // Delete FAQ
         $routes->get('category/(:num)', 'FaqController::getFaqsByCategory/$1'); // Get FAQs by category
-        $routes->get('service/(:num)', 'FaqController::listForService/$1');
     });
+    $routes->get('service/(:num)', 'FaqController::listForService/$1');
 });
 
 // FAQ Categories
