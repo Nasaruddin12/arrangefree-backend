@@ -200,12 +200,12 @@ $routes->group('blog', static function ($routes) {
     // Public routes
     $routes->get('get-all-blogs', 'BlogsController::getPublicBlogs');
     $routes->get('single-blog/(:num)', 'BlogsController::singleBlog/$1');
+    $routes->get('get-all', 'BlogsController::getAllBlogs');
 
     // Protected routes
     $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
         $routes->post('createBlog', 'BlogsController::createBlog');
         $routes->post('createBlogImage', 'BlogsController::createBlogImage');
-        $routes->get('get-all', 'BlogsController::getAllBlogs');
         $routes->post('deleteBlogImage', 'BlogsController::deleteBlogImage');
         $routes->post('deleteSectionImage', 'BlogsController::deleteSectionImage');
         $routes->delete('deleteBlog/(:num)', 'BlogsController::deleteBlog/$1');

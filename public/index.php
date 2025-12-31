@@ -12,7 +12,7 @@ if (version_compare(PHP_VERSION, $minPhpVersion, '<')) {
     exit($message);
 }
 
-// $allowed_origins = ['https://dreams.seeb.in', 'https://seeb.in', 'https://demo.seeb.in'];
+// $allowed_origins = ['https://dreams.seeb.in', 'https://seeb.in', 'https://demo.seeb.in', 'https://localhost:3000', 'http://localhost:5173'];
 
 // if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 //     if (isset($_SERVER['HTTP_ORIGIN']) && in_array($_SERVER['HTTP_ORIGIN'], $allowed_origins)) {
