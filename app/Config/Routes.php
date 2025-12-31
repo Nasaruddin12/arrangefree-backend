@@ -647,13 +647,13 @@ $routes->group('freepik-api', static function ($routes) {
 
 $routes->group('services-type', function ($routes) {
     $routes->get('/', 'ServiceTypeController::index'); // Get all services
+    $routes->get('(:num)/rooms', 'ServiceTypeController::getRoomsByServiceType/$1');
     $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
         $routes->get('(:num)', 'ServiceTypeController::show/$1'); // Get service by ID
         $routes->post('upload-image', 'ServiceTypeController::uploadImage');
         $routes->post('create', 'ServiceTypeController::create'); // Create service
         $routes->put('update/(:num)', 'ServiceTypeController::update/$1'); // Update service
         $routes->delete('delete/(:num)', 'ServiceTypeController::delete/$1'); // Delete service
-        $routes->get('(:num)/rooms', 'ServiceTypeController::getRoomsByServiceType/$1');
         $routes->put('change-status/(:num)', 'ServiceTypeController::changeStatus/$1');
     });
 });
