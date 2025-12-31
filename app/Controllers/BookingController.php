@@ -286,7 +286,6 @@ class BookingController extends ResourceController
                 ]);
             }
             $bookingId = $this->bookingsModel->insertID();
-
             // Insert Booking Services
             foreach ($cartItems as $service) {
                 $serviceData = [
@@ -355,6 +354,14 @@ class BookingController extends ResourceController
             if ($paymentType === 'pay_later') {
                 $this->seebCartModel->where('user_id', $userId)->delete();
             }
+
+            // Create version history for new booking
+            (new BookingVersionService())->create(
+                $bookingId,
+                'Booking created',
+                'user'
+            );
+
             // Commit Transaction
             $this->db->transComplete();
             if ($this->db->transStatus() === false) {
@@ -740,6 +747,14 @@ class BookingController extends ResourceController
                 'updated_at'     => date('Y-m-d H:i:s'),
             ]);
 
+            // Create version history
+            $reason = ($paymentStatus === 'completed') ? 'Payment completed' : 'Payment status updated';
+            (new BookingVersionService())->create(
+                $booking['id'],
+                $reason,
+                'user'
+            );
+
             if ($paymentStatus === 'completed') {
                 $this->seebCartModel->where('user_id', $data['user_id'])->delete();
             }
@@ -872,6 +887,14 @@ class BookingController extends ResourceController
                 'amount_due'     => $amountDue,
                 'updated_at'     => date('Y-m-d H:i:s'),
             ]);
+
+            // Create version history
+            $reason = ($amountDue == 0) ? 'Manual payment completed' : 'Manual payment received';
+            (new BookingVersionService())->create(
+                $booking['id'],
+                $reason,
+                'admin'
+            );
 
             // Store Payment Record
             $paymentData = [
@@ -1058,6 +1081,13 @@ class BookingController extends ResourceController
             'status'         => 'confirmed',
             'updated_at'     => date('Y-m-d H:i:s')
         ]);
+
+        // Create version history
+        (new BookingVersionService())->create(
+            $bookingId,
+            'Payment captured and booking confirmed',
+            'user'
+        );
     }
 
     private function handleFailed($bookingId, $payment, $paymentId)
@@ -1074,6 +1104,13 @@ class BookingController extends ResourceController
             'status'         => 'failed_payment',
             'updated_at'     => date('Y-m-d H:i:s')
         ]);
+
+        // Create version history
+        (new BookingVersionService())->create(
+            $bookingId,
+            'Payment failed',
+            'user'
+        );
     }
 
     private function logDispute($bookingId, $payment, $status)
@@ -1262,6 +1299,154 @@ class BookingController extends ResourceController
             $this->db->transRollback();
             log_message('error', 'Add New Service Error: ' . $e->getMessage());
 
+            return $this->failServerError('Something went wrong.');
+        }
+    }
+
+    /**
+     * Get original booked services and newly added services (by coordinator/admin)
+     * Shows initial services first, then services added later by coordinators
+     */
+    public function getNewlyAddedServices()
+    {
+        try {
+            $bookingId = $this->request->getVar('booking_id');
+            $userId = $this->request->getVar('user_id');
+
+            if (!$bookingId && !$userId) {
+                return $this->failValidationErrors('Provide either booking_id or user_id.');
+            }
+
+            // Get booking(s)
+            $bookings = [];
+            if ($bookingId) {
+                $booking = $this->bookingsModel->find($bookingId);
+                if (!$booking) {
+                    return $this->failNotFound('Booking not found.');
+                }
+                $bookings = [$booking];
+            } else {
+                // Get all user's bookings
+                $bookings = $this->bookingsModel
+                    ->where('user_id', $userId)
+                    ->orderBy('created_at', 'DESC')
+                    ->findAll();
+
+                if (empty($bookings)) {
+                    return $this->respond([
+                        'status'  => 404,
+                        'message' => 'No bookings found for this user.',
+                        'data'    => []
+                    ]);
+                }
+            }
+
+            $result = [];
+
+            // Process each booking
+            foreach ($bookings as $booking) {
+                $bookingCreatedAt = strtotime($booking['created_at']);
+                $bookingCreatedAtString = $booking['created_at'];
+
+                // Get all services for this booking
+                $allServices = $this->bookingServicesModel
+                    ->select('booking_services.*, services.name as service_name, services.description as service_description, services.image as service_image')
+                    ->join('services', 'services.id = booking_services.service_id', 'left')
+                    ->where('booking_services.booking_id', $booking['id'])
+                    ->orderBy('booking_services.created_at', 'ASC')
+                    ->findAll();
+
+                if (empty($allServices)) {
+                    continue;
+                }
+
+                // Separate original services and newly added services
+                // Original services = created around the same time as booking (within 5 minutes)
+                $originalServices = [];
+                $addedLaterServices = [];
+
+                foreach ($allServices as $service) {
+                    $serviceCreatedAt = strtotime($service['created_at']);
+                    $timeDifference = abs($serviceCreatedAt - $bookingCreatedAt);
+
+                    // If service created within 5 minutes of booking = original service
+                    if ($timeDifference <= 300) { // 300 seconds = 5 minutes
+                        $originalServices[] = $service;
+                    } else {
+                        $addedLaterServices[] = $service;
+                    }
+                }
+
+                // Format original services
+                $formattedOriginalServices = array_map(function ($service) {
+                    return [
+                        'id'                    => $service['id'],
+                        'booking_id'            => $service['booking_id'],
+                        'service_id'            => $service['service_id'],
+                        'service_name'          => $service['service_name'],
+                        'service_description'   => $service['service_description'],
+                        'service_image'         => $service['service_image'],
+                        'room_id'               => $service['room_id'],
+                        'rate_type'             => $service['rate_type'],
+                        'value'                 => $service['value'],
+                        'rate'                  => $service['rate'],
+                        'amount'                => $service['amount'],
+                        'addons'                => $service['addons'],
+                        'booked_at'             => $service['created_at'],
+                    ];
+                }, $originalServices);
+
+                // Format services added later
+                $formattedAddedLaterServices = array_map(function ($service) {
+                    return [
+                        'id'                    => $service['id'],
+                        'booking_id'            => $service['booking_id'],
+                        'service_id'            => $service['service_id'],
+                        'service_name'          => $service['service_name'],
+                        'service_description'   => $service['service_description'],
+                        'service_image'         => $service['service_image'],
+                        'room_id'               => $service['room_id'],
+                        'rate_type'             => $service['rate_type'],
+                        'value'                 => $service['value'],
+                        'rate'                  => $service['rate'],
+                        'amount'                => $service['amount'],
+                        'addons'                => $service['addons'],
+                        'added_by_coordinator_at' => $service['created_at'],
+                    ];
+                }, $addedLaterServices);
+
+                $result[] = [
+                    'booking_id'             => $booking['id'],
+                    'booking_ref'            => $booking['booking_id'],
+                    'booking_created_at'     => $bookingCreatedAtString,
+                    'total_amount'           => $booking['total_amount'],
+                    'discount'               => $booking['discount'],
+                    'final_amount'           => $booking['final_amount'],
+                    'status'                 => $booking['status'],
+                    'original_services'      => $formattedOriginalServices,
+                    'original_services_count' => count($formattedOriginalServices),
+                    'added_later_services'   => $formattedAddedLaterServices,
+                    'added_later_services_count' => count($formattedAddedLaterServices),
+                ];
+            }
+
+            if (empty($result)) {
+                return $this->respond([
+                    'status'  => 200,
+                    'message' => 'No services found.',
+                    'data'    => []
+                ]);
+            }
+
+            return $this->respond([
+                'status'  => 200,
+                'message' => 'Services retrieved successfully.',
+                'data'    => $result,
+                'total_bookings' => count($result)
+            ]);
+
+        } catch (\Exception $e) {
+            log_message('error', 'Get Newly Added Services Error: ' . $e->getMessage());
             return $this->failServerError('Something went wrong.');
         }
     }

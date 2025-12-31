@@ -731,7 +731,7 @@ $routes->group('booking', function ($routes) {
         $routes->post('payment/manual', 'BookingController::addManualPayment');
         $routes->put('change-status/(:num)', 'BookingController::changeStatus/$1');
         $routes->delete('delete/(:num)', 'BookingController::deleteBooking/$1');
-        $routes->post('add-service/(:num)', 'BookingController::addServicesToBooking/$1');
+        $routes->post('add-services', 'BookingController::addNewServiceToBooking');
     });
 });
 
