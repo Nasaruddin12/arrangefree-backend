@@ -12,6 +12,8 @@ use App\Models\SeebCartModel;
 use App\Models\CouponModel;
 use App\Models\CustomerModel;
 use App\Models\PaymentDisputeModel;
+use App\Services\BookingVersionService;
+use App\Services\ServiceAmountCalculator;
 use CodeIgniter\RESTful\ResourceController;
 
 class BookingController extends ResourceController
@@ -24,6 +26,8 @@ class BookingController extends ResourceController
     protected $paymentRequestsModel;
     protected $bookingExpenseModel;
     protected $customerModel;
+    protected $servicesModel;
+    protected $addonsModel;
     protected $db;
 
     public function __construct()
@@ -36,6 +40,8 @@ class BookingController extends ResourceController
         $this->paymentRequestsModel = new BookingPaymentRequest();
         $this->bookingExpenseModel = new BookingExpenseModel();
         $this->customerModel = new CustomerModel();
+        $this->servicesModel = new \App\Models\ServiceModel();
+        $this->addonsModel = new \App\Models\ServiceAddonModel();
         $this->db = \Config\Database::connect();
     }
 
@@ -516,8 +522,8 @@ class BookingController extends ResourceController
             customer_addresses.landmark
         ) AS customer_address
     ")
-            //     ->select('bookings.*, af_customers.name as user_name, af_customers.email as user_email, af_customers.mobile_no as mobile_no,
-            //   customer_addresses.address as customer_address')
+                //     ->select('bookings.*, af_customers.name as user_name, af_customers.email as user_email, af_customers.mobile_no as mobile_no,
+                //   customer_addresses.address as customer_address')
                 ->join('af_customers', 'af_customers.id = bookings.user_id', 'left')
                 ->join('customer_addresses', 'customer_addresses.id = bookings.address_id', 'left')
                 ->where('bookings.id', $booking_id)
@@ -1083,5 +1089,180 @@ class BookingController extends ResourceController
         ]);
 
         log_message('info', "Dispute $status logged for Booking ID: $bookingId");
+    }
+
+    public function addNewServiceToBooking()
+    {
+        try {
+            $data = $this->request->getJSON(true);
+
+            $bookingId = $data['booking_id'] ?? null;
+            $services  = $data['services'] ?? [];
+
+            if (!$bookingId || empty($services)) {
+                return $this->failValidationErrors('Booking ID and services are required.');
+            }
+
+            /** -----------------------------------------
+             * Fetch Booking
+             * ----------------------------------------*/
+            $booking = $this->bookingsModel->find($bookingId);
+            if (!$booking) {
+                return $this->failNotFound('Booking not found.');
+            }
+
+            if ($booking['status'] === 'cancelled') {
+                return $this->fail('Cannot modify cancelled booking.');
+            }
+
+            $this->db->transStart();
+
+            $newAmount = 0;
+
+            /** -----------------------------------------
+             * ADD ONLY NEW SERVICES
+             * ----------------------------------------*/
+            foreach ($services as $service) {
+
+                /** 1️⃣ Validate service */
+                $serviceMaster = $this->servicesModel->find($service['service_id']);
+                if (!$serviceMaster) {
+                    throw new \RuntimeException('Invalid service selected');
+                }
+
+                $rateType = $serviceMaster['rate_type'];
+                $rate     = (float) $serviceMaster['rate']; // ✅ DB price
+
+                /** 2️⃣ Resolve addons (DB PRICE → SNAPSHOT) */
+                $resolvedAddons = [];
+
+                foreach ($service['addons'] ?? [] as $addonInput) {
+
+                    $addonMaster = $this->addonsModel->find($addonInput['id']);
+                    if (!$addonMaster) {
+                        continue;
+                    }
+
+                    $qty   = (float) $addonInput['qty'];
+                    $price = (float) $addonMaster['price'];
+
+                    $resolvedAddons[] = [
+                        'id'          => (string) $addonMaster['id'],
+                        'name'        => $addonMaster['name'],
+                        'price'       => (string) $price,
+                        'price_type'  => $addonMaster['price_type'],
+                        'qty'         => $qty,
+                        'description' => $addonMaster['description'] ?? null,
+                        'group_name'  => $addonMaster['group_name'] ?? null,
+                        'is_required' => (string) ($addonMaster['is_required'] ?? 0),
+                        'total'       => (string) round($qty * $price, 2),
+                    ];
+                }
+
+                /** 3️⃣ Backend amount calculation */
+                $calc = ServiceAmountCalculator::calculate([
+                    'rate_type' => $rateType,
+                    'value'     => $service['value'],
+                    'rate'      => $rate,
+                    'addons'    => $resolvedAddons,
+                ]);
+
+                /** 4️⃣ Insert booking service (price locked) */
+                $this->bookingServicesModel->insert([
+                    'booking_id'      => $bookingId,
+                    'service_id'      => $service['service_id'],
+                    'service_type_id' => $service['service_type_id'],
+                    'room_id'         => $service['room_id'],
+                    'rate_type'       => $rateType,
+                    'value'           => $service['value'],
+                    'rate'            => $rate,
+                    'amount'          => $calc['total'],
+                    'addons'          => json_encode($resolvedAddons),
+                    'description'     => $service['description'] ?? null,
+                    'reference_image' => $service['reference_image'] ?? null,
+                    'created_at'      => date('Y-m-d H:i:s'),
+                    'updated_at'      => date('Y-m-d H:i:s'),
+                ]);
+
+                $newAmount += $calc['total'];
+            }
+
+            /** -----------------------------------------
+             * RECALCULATE BOOKING TOTAL
+             * ----------------------------------------*/
+            $updatedSubtotal = (float) $booking['total_amount'] + $newAmount;
+
+            /** Coupon recalculation */
+            $discount = 0.00;
+
+            if (!empty($booking['applied_coupon'])) {
+                $coupon = $this->couponsModel
+                    ->where('coupon_code', $booking['applied_coupon'])
+                    ->first();
+
+                if ($coupon) {
+                    if ((int) $coupon['coupon_type'] === 1) {
+                        $discount = round(
+                            ($updatedSubtotal * $coupon['coupon_type_name']) / 100,
+                            2
+                        );
+                    } elseif ((int) $coupon['coupon_type'] === 2) {
+                        $discount = min(
+                            (float) $coupon['coupon_type_name'],
+                            $updatedSubtotal
+                        );
+                    }
+                }
+            }
+
+            $discountedTotal = max(0, $updatedSubtotal - $discount);
+            $cgst = round($discountedTotal * 0.09, 2);
+            $sgst = round($discountedTotal * 0.09, 2);
+            $finalAmount = round($discountedTotal + $cgst + $sgst, 2);
+            $amountDue   = round($finalAmount - (float) $booking['paid_amount'], 2);
+
+            /** Update booking */
+            $this->bookingsModel->update($bookingId, [
+                'total_amount' => $updatedSubtotal,
+                'discount'     => $discount,
+                'cgst'         => $cgst,
+                'sgst'         => $sgst,
+                'final_amount' => $finalAmount,
+                'amount_due'   => $amountDue,
+                'updated_at'   => date('Y-m-d H:i:s'),
+            ]);
+
+            /** -----------------------------------------
+             * CREATE VERSION HISTORY
+             * ----------------------------------------*/
+            (new BookingVersionService())->create(
+                $bookingId,
+                'New service added to booking',
+                'user'
+            );
+
+            $this->db->transComplete();
+
+            if ($this->db->transStatus() === false) {
+                throw new \RuntimeException('Transaction failed');
+            }
+
+            return $this->respond([
+                'status'  => 200,
+                'message' => 'New service added successfully',
+                'data'    => [
+                    'booking_id'   => $bookingId,
+                    'subtotal'     => $updatedSubtotal,
+                    'discount'     => $discount,
+                    'final_amount' => $finalAmount,
+                    'amount_due'   => $amountDue,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            $this->db->transRollback();
+            log_message('error', 'Add New Service Error: ' . $e->getMessage());
+
+            return $this->failServerError('Something went wrong.');
+        }
     }
 }

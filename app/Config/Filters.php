@@ -70,7 +70,7 @@ class Filters extends BaseConfig
     public array $filters = [
         'encrypt' => [
             'after' => [
-                'web/*',  // Encryption for web API only
+                '*',  // Encryption for all routes
             ],
         ],
     ];

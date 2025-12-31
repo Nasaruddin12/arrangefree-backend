@@ -42,8 +42,11 @@ class AuthFilter implements FilterInterface
         // check if token is null or empty
         if (is_null($token) || empty($token)) {
             $response = service('response');
-            $response->setBody('Access denied');
             $response->setStatusCode(401);
+            $response->setBody(json_encode([
+                'success' => false,
+                'message' => 'No token provided'
+            ]));
             return $response;
         }
         
