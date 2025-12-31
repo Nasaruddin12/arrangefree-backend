@@ -354,12 +354,12 @@ $routes->group('task-force', static function ($routes) {
 //Coupon Api
 
 $routes->group('coupon', static function ($routes) {
+    $routes->get('getAllCoupon', 'CouponController::getAllCoupon');
     $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
         $routes->post('couponcreate', 'CouponController::create');
         $routes->get('getById/(:num)', 'CouponController::getById/$1');
         $routes->put('couponupdate/(:num)', 'CouponController::update/$1');
         $routes->delete('coupondelete/(:num)', 'CouponController::delete/$1');
-        $routes->get('getAllCoupon', 'CouponController::getAllCoupon');
         $routes->post('apply-coupon', 'CouponController::applyCoupon');
         $routes->get('active', 'CouponController::getActiveCoupons');
         $routes->post('use-coupon', 'CouponController::applyCouponSeeb');
@@ -402,8 +402,8 @@ $routes->group('banner', static function ($routes) {
         $routes->post('createBannerImage', 'BannerController::createBannerImage');
         $routes->delete('deleteBanner/(:num)', 'BannerController::deleteBanner/$1');
         $routes->post('createMainBanner', 'BannerController::createMainBanner');
-        $routes->get('getMainBanner', 'BannerController::getMainBanner');
     });
+    $routes->get('getMainBanner', 'BannerController::getMainBanner');
 });
 
 
@@ -646,8 +646,8 @@ $routes->group('freepik-api', static function ($routes) {
 });
 
 $routes->group('services-type', function ($routes) {
+    $routes->get('/', 'ServiceTypeController::index'); // Get all services
     $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
-        $routes->get('/', 'ServiceTypeController::index'); // Get all services
         $routes->get('(:num)', 'ServiceTypeController::show/$1'); // Get service by ID
         $routes->post('upload-image', 'ServiceTypeController::uploadImage');
         $routes->post('create', 'ServiceTypeController::create'); // Create service
@@ -658,8 +658,8 @@ $routes->group('services-type', function ($routes) {
     });
 });
 $routes->group('rooms', function ($routes) {
+    $routes->get('/', 'RoomsController::index'); // Get all services
     $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
-        $routes->get('/', 'RoomsController::index'); // Get all services
         $routes->get('(:num)', 'RoomsController::show/$1'); // Get service by ID
         $routes->post('create', 'RoomsController::create'); // Create service
         $routes->put('update/(:num)', 'RoomsController::update/$1'); // Update service
@@ -668,8 +668,8 @@ $routes->group('rooms', function ($routes) {
 });
 
 $routes->group('services', function ($routes) {
+    $routes->get('/', 'ServiceController::index');
     $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
-        $routes->get('/', 'ServiceController::index');
         $routes->get('(:num)', 'ServiceController::show/$1');
         $routes->post('upload-image', 'ServiceController::uploadImages'); // Upload image separately
         $routes->post('create', 'ServiceController::create'); // Create work type
