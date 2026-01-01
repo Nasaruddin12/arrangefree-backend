@@ -308,7 +308,11 @@ class ServiceTypeController extends ResourceController
                 ->findAll();
 
             if (empty($rooms)) {
-                return $this->failNotFound('No rooms found for this serviceType.');
+                return $this->respond([
+                    "status" => 200,
+                    "message" => "No rooms found for this service type",
+                    "data" => []
+                ], 200);
             }
 
             return $this->respond([
