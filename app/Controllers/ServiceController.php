@@ -282,7 +282,7 @@ class ServiceController extends BaseController
 
             // ✅ Addon handling
             $addons = $this->request->getJSON(true)['addons'] ?? [];
-            
+
             $addonModel = new \App\Models\ServiceAddonModel();
 
             $existingAddons = $addonModel->where('service_id', $id)->findAll();
@@ -477,7 +477,11 @@ class ServiceController extends BaseController
             $services = $this->serviceModel->findByServiceTypeAndRoom($serviceTypeId, $roomId);
 
             if (empty($services)) {
-                return $this->failNotFound('No Services found for the given Service and Room.');
+                return $this->respond([
+                    'data' => [],
+                    'status' => 404,
+                    'message' => 'No Services found for the given Service Type and Room.'
+                ], 200);
             }
 
             return $this->respond([
