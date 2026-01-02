@@ -30,7 +30,7 @@ class CouponValidationService
             // 1️⃣ Check if coupon exists and is active
             $coupon = $this->couponModel
                 ->where('coupon_code', $couponCode)
-                ->where('status', 1)
+                ->where('is_active', 1)
                 ->first();
 
             if (!$coupon) {

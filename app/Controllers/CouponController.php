@@ -321,6 +321,7 @@ class CouponController extends BaseController
                 'data'    => $activeCoupons
             ], 200);
         } catch (\Exception $e) {
+            log_message('error', 'Get Active Coupons Error: ' . $e->getMessage());
             return $this->failServerError('Failed to retrieve active coupons.');
         }
     }
