@@ -60,14 +60,14 @@ class AdminController extends BaseController
 
                 $payload = array(
                     "iss" => base_url(),
-                    "aud" => "Customer",
+                    "aud" => "Admin",
                     "sub" => "To verify the User",
                     "iat" => $iat,
                     //Time the JWT issued at
                     "exp" => $exp,
                     // Expiration time of token
                     "mobile_no" => $admin['mobile_no'],
-                    "customer_id" => $admin['id'],
+                    "id" => $admin['id'],
                 );
 
                 $token = JWT::encode($payload, $key, 'HS256');

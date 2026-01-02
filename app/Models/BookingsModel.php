@@ -25,6 +25,10 @@ class BookingsModel extends Model
         'payment_status',
         'status',
         'applied_coupon',
+        'created_by_type',
+        'created_by_id',
+        'created_by_role',
+        'user_confirmed_at',
         'created_at',
         'updated_at',
     ];
@@ -42,7 +46,7 @@ class BookingsModel extends Model
         'total_amount'   => 'required|decimal',
         'discount'       => 'required|decimal',
         'final_amount'   => 'required|decimal',
-        'status'         => 'required|in_list[pending,confirmed,cancelled,completed,in_progress, failed_payment]',
+        'status'         => 'required|in_list[pending,confirmed,cancelled,completed,in_progress, failed_payment, user_confirmation_waiting]',
         'applied_coupon' => 'permit_empty|string|max_length[50]',
     ];
 

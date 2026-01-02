@@ -326,91 +326,56 @@ class CouponController extends BaseController
     }
     public function applyCouponSeeb()
     {
-        $bookingsModel = new BookingsModel();
-
         try {
             $data = $this->request->getJSON(true) ?? $this->request->getVar();
 
-            if (empty($data['user_id']) || empty($data['coupon_code']) || empty($data['cart_total'])) {
+            // Validate required fields with specific messages
+            if (empty($data['user_id'])) {
                 return $this->respond([
                     'status'  => 400,
-                    'message' => 'User ID, Coupon Code, and Cart Total are required.'
+                    'message' => 'User ID is required.'
                 ], 400);
             }
 
-            $coupon = $this->couponModel->where('coupon_code', $data['coupon_code'])
-                ->where('is_active', 1)
-                ->first();
-
-            if (!$coupon) {
-                return $this->respond([
-                    'status'  => 404,
-                    'message' => 'Invalid or expired coupon code.'
-                ], 404);
-            }
-
-            // Check if coupon has expired
-            $currentDate = date('Y-m-d');
-            if ($coupon['coupon_expiry'] < $currentDate) {
+            if (empty($data['coupon_code'])) {
                 return $this->respond([
                     'status'  => 400,
-                    'message' => 'This coupon has expired.'
+                    'message' => 'Please enter a coupon code.'
                 ], 400);
             }
 
-            // Check if cart meets the minimum amount
-            if ($data['cart_total'] < $coupon['cart_minimum_amount']) {
+            if (empty($data['cart_total'])) {
                 return $this->respond([
                     'status'  => 400,
-                    'message' => 'Cart total must be at least ₹' . $coupon['cart_minimum_amount'] . ' to apply this coupon.'
+                    'message' => 'Cart Total is required.'
                 ], 400);
             }
 
-            // Check overall coupon usage limit
-            if ($coupon['coupon_use_limit'] > 0) {
-                $usedCount = $bookingsModel->where('applied_coupon', $coupon['coupon_code'])->countAllResults();
-                if ($usedCount >= $coupon['coupon_use_limit']) {
-                    return $this->respond([
-                        'status'  => 400,
-                        'message' => 'This coupon has reached its maximum usage limit.'
-                    ], 400);
-                }
+            // Use coupon validation service
+            $couponValidator = new \App\Services\CouponValidationService();
+            $result = $couponValidator->validateAndCalculate(
+                $data['coupon_code'],
+                (float) $data['cart_total'],
+                $data['user_id']
+            );
+
+            if (!$result['valid']) {
+                return $this->respond([
+                    'status'  => 400,
+                    'message' => $result['message']
+                ], 400);
             }
 
-            // Check per-user usage limit
-            if ($coupon['coupon_per_user_limit'] > 0) {
-                $userUsedCount = $bookingsModel
-                    ->where('applied_coupon', $coupon['coupon_code'])
-                    ->where('user_id', $data['user_id'])
-                    ->countAllResults();
-
-                if ($userUsedCount >= $coupon['coupon_per_user_limit']) {
-                    return $this->respond([
-                        'status'  => 400,
-                        'message' => 'You have already used this coupon.'
-                    ], 400);
-                }
-            }
-
-            // **Apply discount based on coupon type**
-            $discountAmount = 0;
-            if ($coupon['coupon_type'] == 1) {  // **Percentage discount**
-                $discountAmount = ($data['cart_total'] * $coupon['coupon_type_name']) / 100;
-            } elseif ($coupon['coupon_type'] == 2) {  // **Fixed amount discount**
-                $discountAmount = $coupon['coupon_type_name'];
-            }
-
-            // Ensure discount does not exceed cart total
-            $discountAmount = min($discountAmount, $data['cart_total']);
-            $finalAmount = $data['cart_total'] - $discountAmount;
+            $finalAmount = (float) $data['cart_total'] - $result['discount'];
 
             return $this->respond([
                 'status'       => 200,
                 'message'      => 'Coupon applied successfully!',
-                'coupon_code'  => $coupon['coupon_code'],
-                'discount'     => $discountAmount,
+                'coupon_code'  => $result['coupon']['coupon_code'],
+                'discount'     => $result['discount'],
                 'final_amount' => $finalAmount
             ], 200);
+
         } catch (\Exception $e) {
             log_message('error', 'Coupon Application Error: ' . $e->getMessage());
             return $this->respond([

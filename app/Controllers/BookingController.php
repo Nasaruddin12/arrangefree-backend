@@ -28,6 +28,7 @@ class BookingController extends ResourceController
     protected $customerModel;
     protected $servicesModel;
     protected $addonsModel;
+    protected $bookingPaymentRequestsModel;
     protected $db;
 
     public function __construct()
@@ -42,6 +43,7 @@ class BookingController extends ResourceController
         $this->customerModel = new CustomerModel();
         $this->servicesModel = new \App\Models\ServiceModel();
         $this->addonsModel = new \App\Models\ServiceAddonModel();
+        $this->bookingPaymentRequestsModel = new BookingPaymentRequest();
         $this->db = \Config\Database::connect();
     }
 
@@ -796,6 +798,600 @@ class BookingController extends ResourceController
     }
 
 
+    //New function with support of Payments Requests and Post Booking Payments
+    // public function verifyPayment()
+    // {
+    //     try {
+    //         $data = $this->request->getJSON(true);
+
+    //         /* -------------------------------------------------
+    //      * BASIC VALIDATION
+    //      * -------------------------------------------------*/
+    //         if (
+    //             empty($data['razorpay_payment_id']) ||
+    //             empty($data['booking_id']) ||
+    //             empty($data['user_id'])
+    //         ) {
+    //             return $this->failValidationErrors([
+    //                 'status'  => 400,
+    //                 'message' => 'Missing required payment details.',
+    //             ]);
+    //         }
+
+    //         $context = $data['payment_context'] ?? 'booking';
+    //         $paymentRequestId = $data['payment_request_id'] ?? null;
+
+    //         $allowedContexts = ['booking', 'admin_request', 'post_booking'];
+    //         if (!in_array($context, $allowedContexts)) {
+    //             return $this->failValidationErrors([
+    //                 'status'  => 400,
+    //                 'message' => 'Invalid payment context.',
+    //             ]);
+    //         }
+
+    //         /* -------------------------------------------------
+    //      * INIT RAZORPAY
+    //      * -------------------------------------------------*/
+    //         $config   = new \Config\Razorpay();
+    //         $razorpay = new \Razorpay\Api\Api($config->keyId, $config->keySecret);
+
+    //         /* -------------------------------------------------
+    //      * FETCH PAYMENT
+    //      * -------------------------------------------------*/
+    //         $payment = $razorpay->payment->fetch($data['razorpay_payment_id']);
+    //         if (!$payment) {
+    //             return $this->failNotFound('Payment not found.');
+    //         }
+
+    //         $paymentMethod  = $payment->method ?? 'razorpay';
+    //         $razorpayStatus = $payment->status;
+    //         $paidNow        = $payment->amount / 100; // Razorpay amount is in paise
+
+    //         /* -------------------------------------------------
+    //      * VERIFY PAYMENT
+    //      * -------------------------------------------------*/
+    //         if ($paymentMethod !== 'upi') {
+
+    //             if (empty($data['razorpay_order_id']) || empty($data['razorpay_signature'])) {
+    //                 return $this->failValidationErrors([
+    //                     'status'  => 400,
+    //                     'message' => 'Missing Razorpay signature details.',
+    //                 ]);
+    //             }
+
+    //             try {
+    //                 $razorpay->utility->verifyPaymentSignature([
+    //                     'razorpay_order_id'   => $data['razorpay_order_id'],
+    //                     'razorpay_payment_id' => $data['razorpay_payment_id'],
+    //                     'razorpay_signature'  => $data['razorpay_signature'],
+    //                 ]);
+    //             } catch (\Exception $e) {
+
+    //                 $this->bookingPaymentsModel->insert([
+    //                     'booking_id'      => $data['booking_id'],
+    //                     'user_id'         => $data['user_id'],
+    //                     'transaction_id'  => $data['razorpay_payment_id'],
+    //                     'payment_method'  => $paymentMethod,
+    //                     'amount'          => 0,
+    //                     'payment_status'  => 'failed',
+    //                     'razorpay_status' => 'signature_failed',
+    //                     'payment_context' => $context,
+    //                     'from_json'       => json_encode(['error' => $e->getMessage()]),
+    //                     'created_at'      => date('Y-m-d H:i:s'),
+    //                 ]);
+
+    //                 return $this->failValidationErrors([
+    //                     'status'  => 400,
+    //                     'message' => 'Payment verification failed.',
+    //                 ]);
+    //             }
+
+    //             if ($razorpayStatus === 'authorized') {
+    //                 $payment->capture([
+    //                     'amount'   => $payment->amount,
+    //                     'currency' => $payment->currency,
+    //                 ]);
+    //                 $razorpayStatus = 'captured';
+    //             }
+    //         }
+
+    //         $paymentStatus = ($razorpayStatus === 'captured' || $razorpayStatus === 'authorized')
+    //             ? 'completed'
+    //             : 'pending';
+
+    //         /* -------------------------------------------------
+    //      * FETCH BOOKING
+    //      * -------------------------------------------------*/
+    //         $booking = $this->bookingsModel->find($data['booking_id']);
+    //         if (!$booking) {
+    //             return $this->failNotFound('Booking not found.');
+    //         }
+
+    //         /* -------------------------------------------------
+    //      * CONTEXT-SPECIFIC VALIDATION
+    //      * -------------------------------------------------*/
+    //         if ($context === 'admin_request') {
+    //             if (!$paymentRequestId) {
+    //                 return $this->failValidationErrors([
+    //                     'status'  => 400,
+    //                     'message' => 'Payment request ID required.',
+    //                 ]);
+    //             }
+    //         }
+
+    //         if ($context === 'post_booking' && $booking['amount_due'] <= 0) {
+    //             return $this->failValidationErrors([
+    //                 'status'  => 400,
+    //                 'message' => 'No pending amount for this booking.',
+    //             ]);
+    //         }
+
+    //         /* -------------------------------------------------
+    //      * PREVENT OVERPAYMENT (CRITICAL)
+    //      * -------------------------------------------------*/
+    //         if ($paidNow > $booking['amount_due']) {
+
+    //             // Record payment but do NOT update booking
+    //             $this->bookingPaymentsModel->insert([
+    //                 'booking_id'      => $booking['id'],
+    //                 'user_id'         => $data['user_id'],
+    //                 'transaction_id'  => $data['razorpay_payment_id'],
+    //                 'payment_method'  => $paymentMethod,
+    //                 'amount'          => $paidNow,
+    //                 'currency'        => $payment->currency,
+    //                 'payment_status'  => 'excess',
+    //                 'razorpay_status' => $razorpayStatus,
+    //                 'payment_context' => $context,
+    //                 'from_json'       => json_encode($payment),
+    //                 'created_at'      => date('Y-m-d H:i:s'),
+    //             ]);
+
+    //             return $this->respond([
+    //                 'status'  => 409,
+    //                 'message' => 'Payment exceeds pending amount. Admin review required.',
+    //             ]);
+    //         }
+
+    //         /* -------------------------------------------------
+    //      * CALCULATE & UPDATE BOOKING
+    //      * -------------------------------------------------*/
+    //         $newPaidAmount = $booking['paid_amount'] + $paidNow;
+    //         $newAmountDue  = max($booking['final_amount'] - $newPaidAmount, 0);
+
+    //         $bookingUpdate = [
+    //             'paid_amount' => $newPaidAmount,
+    //             'amount_due'  => $newAmountDue,
+    //             'updated_at'  => date('Y-m-d H:i:s'),
+    //         ];
+
+    //         if ($context === 'booking' && $paymentStatus === 'completed') {
+    //             $bookingUpdate['payment_status'] = 'completed';
+    //             $bookingUpdate['status']         = 'confirmed';
+    //         }
+
+    //         $this->bookingsModel->update($booking['id'], $bookingUpdate);
+
+    //         /* -------------------------------------------------
+    //      * UPDATE ADMIN PAYMENT REQUEST
+    //      * -------------------------------------------------*/
+    //         if ($context === 'admin_request' && $paymentStatus === 'completed') {
+    //             $this->bookingPaymentRequestsModel->update($paymentRequestId, [
+    //                 'status'  => 'paid',
+    //                 'paid_at' => date('Y-m-d H:i:s'),
+    //             ]);
+    //         }
+
+    //         /* -------------------------------------------------
+    //      * VERSION HISTORY
+    //      * -------------------------------------------------*/
+    //         $reasonMap = [
+    //             'booking'       => 'Booking payment completed',
+    //             'admin_request' => 'Admin payment request paid',
+    //             'post_booking'  => 'Post booking payment received',
+    //         ];
+
+    //         (new BookingVersionService())->create(
+    //             $booking['id'],
+    //             $reasonMap[$context],
+    //             'user'
+    //         );
+
+    //         /* -------------------------------------------------
+    //      * CLEAR CART (ONLY BOOKING FLOW)
+    //      * -------------------------------------------------*/
+    //         if ($context === 'booking') {
+    //             $this->seebCartModel->where('user_id', $data['user_id'])->delete();
+    //         }
+
+    //         /* -------------------------------------------------
+    //      * STORE PAYMENT RECORD
+    //      * -------------------------------------------------*/
+    //         $this->bookingPaymentsModel->insert([
+    //             'booking_id'         => $booking['id'],
+    //             'user_id'            => $data['user_id'],
+    //             'transaction_id'     => $data['razorpay_payment_id'],
+    //             'payment_method'     => $paymentMethod,
+    //             'amount'             => $paidNow,
+    //             'currency'           => $payment->currency,
+    //             'payment_status'     => $paymentStatus,
+    //             'razorpay_status'    => $razorpayStatus,
+    //             'payment_context'    => $context,
+    //             'payment_request_id' => $paymentRequestId,
+    //             'from_json'          => json_encode($payment),
+    //             'created_at'         => date('Y-m-d H:i:s'),
+    //         ]);
+
+    //         return $this->respond([
+    //             'status'  => 200,
+    //             'message' => 'Payment verified successfully.',
+    //             'data'    => [
+    //                 'booking_id'   => $booking['booking_id'],
+    //                 'paid_amount'  => $newPaidAmount,
+    //                 'amount_due'   => $newAmountDue,
+    //                 'context'      => $context,
+    //             ],
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         log_message('error', 'Payment Verification Error: ' . $e->getMessage());
+    //         return $this->failServerError('Something went wrong.');
+    //     }
+    // }
+    public function verifyPostBookingPayment()
+    {
+        try {
+            $data = $this->request->getJSON(true);
+
+            if (
+                empty($data['razorpay_payment_id']) ||
+                empty($data['booking_id']) ||
+                empty($data['user_id'])
+            ) {
+                return $this->failValidationErrors([
+                    'status'  => 400,
+                    'message' => 'Missing required payment details.',
+                ]);
+            }
+
+            $booking = $this->bookingsModel->find($data['booking_id']);
+            if (!$booking) {
+                return $this->failNotFound('Booking not found.');
+            }
+
+            $razorpay = $this->verifyRazorpayPayment($data);
+
+            if ($razorpay['amount'] > $booking['amount_due']) {
+                return $this->failValidationErrors([
+                    'message' => 'Payment exceeds pending amount.',
+                ]);
+            }
+
+            $amounts = $this->calculateBookingAmounts(
+                $booking,
+                $razorpay['amount']
+            );
+
+            $this->updateBookingPaymentStatus(
+                $booking['id'],
+                $amounts,
+                'post_booking'
+            );
+
+            $this->createBookingPaymentEntry(
+                $booking,
+                $razorpay,
+                $data,
+                'post_booking'
+            );
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Payment processed successfully',
+                'data' => $amounts,
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', $e->getMessage());
+            return $this->failServerError($e->getMessage());
+        }
+    }
+
+    public function verifyAdminPaymentRequest()
+    {
+        try {
+            $data = $this->request->getJSON(true);
+
+            if (
+                empty($data['razorpay_payment_id']) ||
+                empty($data['booking_id']) ||
+                empty($data['user_id'])
+            ) {
+                return $this->failValidationErrors([
+                    'status'  => 400,
+                    'message' => 'Missing required payment details.',
+                ]);
+            }
+
+            $booking = $this->bookingsModel->find($data['booking_id']);
+            if (!$booking) {
+                return $this->failNotFound('Booking not found.');
+            }
+
+            $razorpay = $this->verifyRazorpayPayment($data);
+
+            if ($razorpay['amount'] > $booking['amount_due']) {
+                return $this->failValidationErrors([
+                    'message' => 'Payment exceeds pending amount.',
+                ]);
+            }
+
+            $amounts = $this->calculateBookingAmounts(
+                $booking,
+                $razorpay['amount']
+            );
+
+            $this->updateBookingPaymentStatus(
+                $booking['id'],
+                $amounts,
+                'admin_request'
+            );
+
+            $this->updatePaymentRequest(
+                'admin_request',
+                $data['payment_request_id'] ?? null
+            );
+
+            $this->createBookingPaymentEntry(
+                $booking,
+                $razorpay,
+                $data,
+                'admin_request'
+            );
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Payment processed successfully',
+                'data' => $amounts,
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', $e->getMessage());
+            return $this->failServerError($e->getMessage());
+        }
+    }
+
+
+    private function verifyRazorpayPayment(array $data)
+    {
+        $config   = new \Config\Razorpay();
+        $razorpay = new \Razorpay\Api\Api($config->keyId, $config->keySecret);
+
+        $payment = $razorpay->payment->fetch($data['razorpay_payment_id']);
+        if (!$payment) {
+            throw new \Exception('Payment not found.');
+        }
+
+        $method = $payment->method ?? 'razorpay';
+        $status = $payment->status;
+
+        if ($method !== 'upi') {
+
+            if (empty($data['razorpay_order_id']) || empty($data['razorpay_signature'])) {
+                throw new \Exception('Missing Razorpay signature.');
+            }
+
+            $razorpay->utility->verifyPaymentSignature([
+                'razorpay_order_id'   => $data['razorpay_order_id'],
+                'razorpay_payment_id' => $data['razorpay_payment_id'],
+                'razorpay_signature'  => $data['razorpay_signature'],
+            ]);
+
+            if ($status === 'authorized') {
+                $payment->capture([
+                    'amount'   => $payment->amount,
+                    'currency' => $payment->currency,
+                ]);
+                $status = 'captured';
+            }
+        }
+
+        if (!in_array($status, ['captured', 'authorized'])) {
+            throw new \Exception('Payment not completed.');
+        }
+
+        return [
+            'payment' => $payment,
+            'method'  => $method,
+            'status'  => $status,
+            'amount'  => $payment->amount / 100,
+        ];
+    }
+
+
+    private function calculateBookingAmounts(array $booking, float $paidNow)
+    {
+        $newPaid = $booking['paid_amount'] + $paidNow;
+        $newPaid = min($newPaid, $booking['final_amount']);
+
+        $due = max($booking['final_amount'] - $newPaid, 0);
+
+        if ($newPaid <= 0) {
+            $status = 'pending';
+        } elseif ($newPaid < $booking['final_amount']) {
+            $status = 'partial';
+        } else {
+            $status = 'completed';
+        }
+
+        return [
+            'paid_amount'    => $newPaid,
+            'amount_due'     => $due,
+            'payment_status' => $status,
+        ];
+    }
+    private function updateBookingPaymentStatus(
+        int $bookingId,
+        array $amounts,
+        string $context
+    ) {
+        $update = [
+            'paid_amount'    => $amounts['paid_amount'],
+            'amount_due'     => $amounts['amount_due'],
+            'payment_status' => $amounts['payment_status'],
+            'updated_at'     => date('Y-m-d H:i:s'),
+        ];
+
+        if (
+            $context === 'booking' &&
+            $amounts['payment_status'] === 'completed'
+        ) {
+            $update['status'] = 'confirmed';
+        }
+
+        $this->bookingsModel->update($bookingId, $update);
+    }
+
+    private function updatePaymentRequest(
+        string $context,
+        ?int $requestId
+    ) {
+        if ($context !== 'admin_request' || !$requestId) {
+            return;
+        }
+
+        $this->bookingPaymentRequestsModel->update($requestId, [
+            'request_status'  => 'completed',
+            // 'paid_at' => date('Y-m-d H:i:s'),
+        ]);
+    }
+
+    private function createBookingPaymentEntry(
+        array $booking,
+        array $razorpay,
+        array $data,
+        string $context
+    ) {
+        $this->bookingPaymentsModel->insert([
+            'booking_id'      => $booking['id'],
+            'user_id'         => $data['user_id'],
+            'transaction_id'  => $data['razorpay_payment_id'],
+            'payment_method'  => $razorpay['method'],
+            'amount'          => $razorpay['amount'],
+            'currency'        => $razorpay['payment']->currency,
+            'payment_status'  => 'completed',
+            'razorpay_status' => $razorpay['status'],
+            // 'payment_context' => $context,
+            'from_json'       => json_encode($razorpay['payment']),
+            'created_at'      => date('Y-m-d H:i:s'),
+        ]);
+    }
+
+    public function initiatePayment()
+    {
+        try {
+            $data = $this->request->getJSON(true);
+
+            /* ---------------------------------------------
+         * BASIC VALIDATION
+         * --------------------------------------------*/
+            if (empty($data['booking_id']) || empty($data['user_id'])) {
+                return $this->failValidationErrors('Booking ID and User ID are required.');
+            }
+
+            $context          = $data['payment_context'] ?? 'post_booking';
+            $paymentRequestId = $data['payment_request_id'] ?? null;
+
+            $allowedContexts = ['booking', 'admin_request', 'post_booking'];
+            if (!in_array($context, $allowedContexts)) {
+                return $this->failValidationErrors('Invalid payment context.');
+            }
+
+            /* ---------------------------------------------
+         * FETCH BOOKING
+         * --------------------------------------------*/
+            $booking = $this->bookingsModel->find($data['booking_id']);
+            if (!$booking) {
+                return $this->failNotFound('Booking not found.');
+            }
+
+            /* ---------------------------------------------
+         * DETERMINE PAYABLE AMOUNT
+         * --------------------------------------------*/
+            if ($context === 'admin_request') {
+
+                if (!$paymentRequestId) {
+                    return $this->failValidationErrors('Payment request ID is required.');
+                }
+
+                $request = $this->bookingPaymentRequestsModel->find($paymentRequestId);
+                if (!$request || $request['request_status'] !== 'pending') {
+                    return $this->failValidationErrors('Invalid or already paid payment request.');
+                }
+
+                $amountDue = $request['amount'];
+            } else {
+                // booking or post_booking
+                if ($booking['amount_due'] <= 0) {
+                    return $this->failValidationErrors('No pending amount for this booking.');
+                }
+
+                $amountDue = $booking['amount_due'];
+            }
+
+            /* ---------------------------------------------
+         * INIT RAZORPAY
+         * --------------------------------------------*/
+            $config   = new \Config\Razorpay();
+            $razorpay = new \Razorpay\Api\Api($config->keyId, $config->keySecret);
+
+            $receipt = $context . '_' . $booking['id'] . '_' . time();
+
+            /* ---------------------------------------------
+         * CREATE RAZORPAY ORDER
+         * --------------------------------------------*/
+            $razorpayOrder = $razorpay->order->create([
+                'amount'          => $amountDue * 100, // paisa
+                'currency'        => $config->displayCurrency,
+                'receipt'         => $receipt,
+                'payment_capture' => 1,
+            ]);
+
+            /* ---------------------------------------------
+         * STORE ORDER LOCALLY
+         * --------------------------------------------*/
+            $razorpayOrdersModel = new RazorpayOrdersModel();
+
+            $razorpayOrdersModel->insert([
+                'user_id'            => $data['user_id'],
+                'booking_id'         => $booking['id'],
+                'order_id'           => $razorpayOrder->id,
+                'amount'             => $razorpayOrder->amount / 100,
+                'currency'           => $razorpayOrder->currency,
+                'status'             => $razorpayOrder->status,
+                'receipt'            => $razorpayOrder->receipt,
+                'payment_context'    => $context,
+                'payment_request_id' => $paymentRequestId,
+                'created_at'         => date('Y-m-d H:i:s'),
+            ]);
+
+            /* ---------------------------------------------
+         * RESPONSE FOR FRONTEND
+         * --------------------------------------------*/
+            return $this->respond([
+                'status'  => 200,
+                'message' => 'Payment initiated successfully.',
+                'data'    => [
+                    'razorpay_order' => $razorpayOrder->id,
+                    'amount'            => $razorpayOrder->amount,
+                    'currency'          => $razorpayOrder->currency,
+                    'receipt'           => $razorpayOrder->receipt,
+                    'payment_context'   => $context,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Razorpay Init Error: ' . $e->getMessage());
+            return $this->failServerError('Payment gateway error.');
+        }
+    }
+
+
     // public function webhookRazorpay()
     // {
     //     try {
@@ -954,13 +1550,14 @@ class BookingController extends ResourceController
             }
 
             $bookingModel->update($id, ['status' => $input['status']]);
-
+            log_message('info', "Booking ID $id status changed to " . $input['status']);
             return $this->respond([
                 'status'  => 200,
                 'message' => 'Booking status updated successfully.',
                 'data'    => ['id' => $id, 'new_status' => $input['status']],
             ], 200);
         } catch (\Exception $e) {
+            log_message('error', 'Change Status Error: ' . $e->getMessage());
             return $this->respond([
                 'status'  => 500,
                 'message' => $e->getMessage(),
@@ -1211,7 +1808,7 @@ class BookingController extends ResourceController
                     'service_type_id' => $service['service_type_id'],
                     'room_id'         => $service['room_id'],
                     'rate_type'       => $rateType,
-                    'value'           => $service['value'],
+                    'value'           => (string) $service['value'],
                     'rate'            => $rate,
                     'amount'          => $calc['total'],
                     'addons'          => json_encode($resolvedAddons),
@@ -1444,10 +2041,177 @@ class BookingController extends ResourceController
                 'data'    => $result,
                 'total_bookings' => count($result)
             ]);
-
         } catch (\Exception $e) {
             log_message('error', 'Get Newly Added Services Error: ' . $e->getMessage());
             return $this->failServerError('Something went wrong.');
+        }
+    }
+
+    public function createBookingByAdmin()
+    {
+        try {
+            $data = $this->request->getJSON(true);
+
+            $userId          = $data['user_id'] ?? null;
+            $addressId       = $data['address_id'] ?? null;
+            $slotDate        = $data['slot_date'] ?? null;
+            $services        = $data['services'] ?? [];
+            $couponCode      = $data['coupon_code'] ?? null;
+            $created_by_id    = $data['created_by_id'] ?? ($this->request->user?->id ?? null);
+            $created_by_role  = $data['created_by_role'] ?? ($this->request->user?->role ?? null);
+            $manualDiscount  = isset($data['discount_amount'])
+                ? (float) $data['discount_amount']
+                : null;
+
+            if (!$userId || !$slotDate || empty($services)) {
+                return $this->failValidationErrors('Required fields missing.');
+            }
+
+            $this->db->transStart();
+
+            /** -----------------------------------------
+             * 1️⃣ CREATE EMPTY BOOKING FIRST
+             * ----------------------------------------*/
+            $bookingId = $this->bookingsModel->insert([
+                'booking_id'        => 'SE' . date('YmdHis'),
+                'user_id'           => $userId,
+                'address_id'        => $addressId,
+                'slot_date'         => $slotDate,
+
+                'total_amount'      => 0,
+                'discount'          => 0,
+                'cgst'              => 0,
+                'sgst'              => 0,
+                'final_amount'      => 0,
+                'paid_amount'       => 0,
+                'amount_due'        => 0,
+
+                'status'            => 'user_confirmation_waiting',
+                'payment_status'    => 'pending',
+
+                'created_by_type'   => 'admin',
+                'created_by_id'     => $created_by_id,
+                'created_by_role'   => $created_by_role,
+
+                'created_at'        => date('Y-m-d H:i:s'),
+                'updated_at'        => date('Y-m-d H:i:s'),
+            ], true);
+
+
+            // Check if booking insertion failed
+            if (!$bookingId) {
+                throw new \RuntimeException('Failed to create booking: ' . json_encode($this->bookingsModel->errors()));
+            }
+
+            $subtotal = 0;
+
+            /** -----------------------------------------
+             * 2️⃣ ADD SERVICES (LOCK PRICES)
+             * ----------------------------------------*/
+            foreach ($services as $service) {
+
+                $serviceMaster = $this->servicesModel->find($service['service_id']);
+                if (!$serviceMaster) {
+                    throw new \RuntimeException('Invalid service');
+                }
+
+                $rateType = $serviceMaster['rate_type'];
+                $rate     = (float) $serviceMaster['rate'];
+
+                $calc = ServiceAmountCalculator::calculate([
+                    'rate_type' => $rateType,
+                    'value'     => $service['value'],
+                    'rate'      => $rate,
+                    'addons'    => $service['addons'] ?? [],
+                ]);
+
+                if (!$this->bookingServicesModel->insert([
+                    'booking_id'  => $bookingId,
+                    'service_id'  => $service['service_id'],
+                    'service_type_id' => $service['service_type_id'],
+                    'room_id'     => $service['room_id'],
+                    'reference_image' => $service['reference_image'] ?? null,
+                    'rate_type'   => $rateType,
+                    'value'       => (string) $service['value'],
+                    'rate'        => $rate,
+                    'amount'      => $calc['total'],
+                    'addons'      => json_encode($service['addons'] ?? []),
+                    'created_at'  => date('Y-m-d H:i:s'),
+                    'updated_at'  => date('Y-m-d H:i:s'),
+                ])) {
+                    throw new \RuntimeException('Failed to insert booking service: ' . json_encode($this->bookingServicesModel->errors()));
+                }
+
+                $subtotal += $calc['total'];
+            }
+
+            /** -----------------------------------------
+             * 3️⃣ DISCOUNT LOGIC (NEW)
+             * ----------------------------------------*/
+            $discount = 0.00;
+            $appliedCoupon = null;
+
+            if ($manualDiscount !== null && $manualDiscount > 0) {
+                $discount = min($manualDiscount, $subtotal);
+            } elseif (!empty($couponCode)) {
+                // Use coupon validation service
+                $couponValidator = new \App\Services\CouponValidationService();
+                $validationResult = $couponValidator->validateAndCalculate(
+                    $couponCode,
+                    $subtotal,
+                    $userId
+                );
+
+                if (!$validationResult['valid']) {
+                    throw new \Exception($validationResult['message'], 409);
+                }
+
+                $discount = $validationResult['discount'];
+                $appliedCoupon = $couponCode;
+            }
+
+            /** -----------------------------------------
+             * 4️⃣ FINAL AMOUNT
+             * ----------------------------------------*/
+            $discounted = max(0, $subtotal - $discount);
+            $cgst = round($discounted * 0.09, 2);
+            $sgst = round($discounted * 0.09, 2);
+            $finalAmount = round($discounted + $cgst + $sgst, 2);
+
+            /** -----------------------------------------
+             * 5️⃣ UPDATE BOOKING TOTALS
+             * ----------------------------------------*/
+            $this->bookingsModel->update($bookingId, [
+                'total_amount'   => $subtotal,
+                'discount'       => $discount,
+                'cgst'           => $cgst,
+                'sgst'           => $sgst,
+                'final_amount'   => $finalAmount,
+                'amount_due'     => $finalAmount,
+                'applied_coupon' => $appliedCoupon,
+            ]);
+
+            /** -----------------------------------------
+             * 6️⃣ CREATE VERSION v1
+             * ----------------------------------------*/
+            (new BookingVersionService())->create(
+                $bookingId,
+                'Booking created by admin',
+                'admin',
+                $created_by_id
+            );
+
+            $this->db->transComplete();
+
+            return $this->respondCreated([
+                'booking_id' => $bookingId,
+                'message'    => 'Booking created. Waiting for user confirmation.',
+                'status'     => 201,
+            ]);
+        } catch (\Exception $e) {
+            $this->db->transRollback();
+            log_message('error', $e->getMessage());
+            return $this->failServerError('Failed to create booking');
         }
     }
 }

@@ -732,6 +732,10 @@ $routes->group('booking', function ($routes) {
         $routes->put('change-status/(:num)', 'BookingController::changeStatus/$1');
         $routes->delete('delete/(:num)', 'BookingController::deleteBooking/$1');
         $routes->post('add-services', 'BookingController::addNewServiceToBooking');
+        $routes->post('create-by-admin', 'BookingController::createBookingByAdmin');
+        $routes->post('initiatePayment', 'BookingController::initiatePayment');
+        $routes->post('verify-admin-payment-request', 'BookingController::verifyAdminPaymentRequest');
+        $routes->post('verify-post-booking-payment', 'BookingController::verifyPostBookingPayment');
     });
 });
 
