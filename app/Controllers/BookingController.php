@@ -1335,6 +1335,20 @@ class BookingController extends ResourceController
                 $amountDue = $booking['amount_due'];
             }
 
+            // Validate Amount from Frontend
+            if (empty($data['amount'])) {
+                return $this->failValidationErrors('Payment amount is required.');
+            }
+
+            $amountFromFrontend = (float) $data['amount'];
+            if ($amountFromFrontend > $amountDue) {
+                return $this->failValidationErrors('Payment amount exceeds pending amount.');
+            }
+
+            if ($amountFromFrontend <= 0) {
+                return $this->failValidationErrors('Payment amount must be greater than zero.');
+            }
+
             /* ---------------------------------------------
          * INIT RAZORPAY
          * --------------------------------------------*/
