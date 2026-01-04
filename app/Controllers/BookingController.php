@@ -1444,6 +1444,9 @@ class BookingController extends ResourceController
     public function addManualPayment()
     {
         try {
+            // Start Database Transaction
+            $this->db->transStart();
+
             $data = $this->request->getJSON(true);
 
             // Validate Required Fields
@@ -1466,6 +1469,7 @@ class BookingController extends ResourceController
             // Fetch Booking
             $booking = $this->bookingsModel->where('id', $data['booking_id'])->first();
             if (!$booking) {
+                $this->db->transRollback();
                 return $this->failNotFound('Booking not found.');
             }
 
@@ -1477,6 +1481,7 @@ class BookingController extends ResourceController
 
             // Update Booking Record
             $this->bookingsModel->update($booking['id'], [
+
                 'payment_status' => $paymentStatus,
                 'status'         => $bookingStatus,
                 'paid_amount'    => $paidAmount,
@@ -1489,7 +1494,8 @@ class BookingController extends ResourceController
             (new BookingVersionService())->create(
                 $booking['id'],
                 $reason,
-                'admin'
+                'admin',    
+                $this->request->getVar('admin_id')
             );
 
             // Store Payment Record
@@ -1507,6 +1513,15 @@ class BookingController extends ResourceController
             ];
             $this->bookingPaymentsModel->insert($paymentData);
 
+            // Complete Transaction
+            $this->db->transComplete();
+
+            // Check Transaction Status
+            if ($this->db->transStatus() === false) {
+                log_message('error', 'Manual Payment Transaction Failed: ' . json_encode($this->db->error()));
+                return $this->failServerError('Transaction failed. Please try again.');
+            }
+
             return $this->respond([
                 'status'    => 200,
                 'message'   => 'Manual payment added successfully.',
@@ -1523,6 +1538,8 @@ class BookingController extends ResourceController
                 ]
             ]);
         } catch (\Exception $e) {
+            // Rollback on Exception
+            $this->db->transRollback();
             log_message('error', 'Manual Payment Error: ' . $e->getMessage());
             return $this->failServerError('Something went wrong. ' . $e->getMessage());
         }
