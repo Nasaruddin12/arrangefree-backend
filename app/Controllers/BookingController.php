@@ -15,6 +15,7 @@ use App\Models\PaymentDisputeModel;
 use App\Services\BookingVersionService;
 use App\Services\ServiceAmountCalculator;
 use CodeIgniter\RESTful\ResourceController;
+use Dompdf\Dompdf;
 
 class BookingController extends ResourceController
 {
@@ -29,6 +30,7 @@ class BookingController extends ResourceController
     protected $servicesModel;
     protected $addonsModel;
     protected $bookingPaymentRequestsModel;
+    protected $razorpayOrdersModel;
     protected $db;
 
     public function __construct()
@@ -1508,7 +1510,7 @@ class BookingController extends ResourceController
             (new BookingVersionService())->create(
                 $booking['id'],
                 $reason,
-                'admin',    
+                'admin',
                 $this->request->getVar('admin_id')
             );
 
@@ -2244,5 +2246,36 @@ class BookingController extends ResourceController
             log_message('error', $e->getMessage());
             return $this->failServerError('Failed to create booking');
         }
+    }
+
+    public function downloadReceipt($paymentId)
+    {
+        $payment = $this->bookingPaymentsModel
+            ->select('booking_payments.*, bookings.booking_id, af_customers.name, af_customers.mobile_no')
+            ->join('bookings', 'bookings.id = booking_payments.booking_id')
+            ->join('af_customers', 'af_customers.id = booking_payments.user_id')
+            ->where('booking_payments.id', $paymentId)
+            ->where('booking_payments.payment_status', 'completed')
+            ->first();
+        if (!$payment) {
+            return $this->failNotFound('Receipt not found');
+        }
+
+        $html = view('receipts/payment_receipt', [
+            'payment' => $payment
+        ]);
+
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        return $this->response
+            ->setHeader('Content-Type', 'application/pdf')
+            ->setHeader(
+                'Content-Disposition',
+                'attachment; filename="receipt_' . $payment['booking_id'] . '.pdf"'
+            )
+            ->setBody($dompdf->output());
     }
 }
