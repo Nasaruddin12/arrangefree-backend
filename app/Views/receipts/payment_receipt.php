@@ -121,6 +121,10 @@ $logoSrc = 'data:image/webp;base64,' . $logoData;
             <td style="border: 1px solid #ddd; padding: 12px; color: #333;"><?= $payment['mobile_no'] ?></td>
         </tr>
         <tr style="background: #fff;">
+            <td style="border: 1px solid #ddd; padding: 12px; font-weight: bold; color: #555;">Transaction ID</td>
+            <td style="border: 1px solid #ddd; padding: 12px; color: #1a73e8; font-weight: 500; word-break: break-all;"><?= $payment['transaction_id'] ?></td>
+        </tr>
+        <tr style="background: #fff;">
             <td style="border: 1px solid #ddd; padding: 12px; font-weight: bold; color: #555;">Amount</td>
             <td style="border: 1px solid #ddd; padding: 12px; color: #333; font-weight: bold;">₹<?= number_format($payment['amount'],2) ?></td>
         </tr>
