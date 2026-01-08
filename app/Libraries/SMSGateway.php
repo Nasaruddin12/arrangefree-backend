@@ -5,8 +5,8 @@ namespace App\Libraries;
 class SMSGateway
 {
     protected $gatewayVariables = array(
-        'sender_id' => 'HAPSIN',
-        // 'sender_id' => 'SEEBDS',
+        // 'sender_id' => 'HAPSIN',
+        'sender_id' => 'SEEBDS',
         'key' => 'addGYdRieeyho068Dp6uwg==',
         'version' => '1.0',
         'encrypt' => '0',
@@ -19,8 +19,8 @@ class SMSGateway
 
     public function sendOTP($destination, $otp)
     {
-        // $text = "Your SEEB verification code is $otp. It is valid for 10 minutes. Do not share this code with anyone. -www.seeb.in";
-        $text = "$otp is your OTP for verification with Seeb \n\n-Team Haps";
+        $text = "Your SEEB verification code is $otp. It is valid for 10 minutes. Do not share this code with anyone. -www.seeb.in";
+        // $text = "$otp is your OTP for verification with Seeb \n\n-Team Haps";
         $text = rawurlencode($text);
         $data = array(
             'ver' => $this->gatewayVariables['version'],
@@ -30,7 +30,7 @@ class SMSGateway
             'send' => $this->gatewayVariables['sender_id'],
             'text' => $text,
         );
-
+        // print_r($data);
         return $this->sendRequest($data);
     }
 

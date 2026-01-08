@@ -13,11 +13,12 @@ class RoomModel extends Model
     protected $useSoftDeletes = false; // No soft deletes for rooms
 
     // Allow the following fields to be used in CRUD operations
-    protected $allowedFields = ['name', 'image', 'type', 'created_at', 'updated_at'];
+    protected $allowedFields = ['name', 'slug', 'image', 'type', 'created_at', 'updated_at'];
 
     // Set up validation rules
     protected $validationRules = [
         'name' => 'required|string|max_length[255]',
+        'slug' => 'string|max_length[255]|is_unique[rooms.slug]',
         'image' => 'required', // Optional image field
         'type' => 'required'
     ];
@@ -28,6 +29,12 @@ class RoomModel extends Model
             'required' => 'Room name is required.',
             'string'   => 'Room name must be a string.',
             'max_length' => 'Room name can be up to 255 characters.',
+        ],
+        'slug' => [
+            'required' => 'Room slug is required.',
+            'string'   => 'Room slug must be a string.',
+            'max_length' => 'Room slug can be up to 255 characters.',
+            'is_unique' => 'This slug already exists. Please choose a different one.',
         ],
         'image' => [
             'required' => 'Please upload a image.',

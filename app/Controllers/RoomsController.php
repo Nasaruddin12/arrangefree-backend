@@ -23,20 +23,22 @@ class RoomsController extends BaseController
         try {
             // Retrieve input values
             $name = $this->request->getVar('name');
+            $slug = $this->request->getVar('slug');
             $image = $this->request->getVar('image');
             $type = $this->request->getVar('type');
     
-            // Check if name and image are provided
-            if (empty($name) || empty($image))  {
+            // Check if name, slug and image are provided
+            if (empty($name) || empty($slug) || empty($image))  {
                 return $this->respond([
                     'status' => 400,
-                    'message' => 'Both name and image are required.'
+                    'message' => 'Name, slug and image are required.'
                 ], 400);
             }
     
             // Prepare data for saving
             $data = [
                 'name' => $name,
+                'slug' => $slug,
                 'image' => $image,
                 'type' => $type,
             ];
@@ -111,19 +113,21 @@ class RoomsController extends BaseController
     
             // Retrieve the input data
             $name = $this->request->getVar('name');
+            $slug = $this->request->getVar('slug');
             $image = $this->request->getVar('image');
             $type = $this->request->getVar('type');
     
-            // Validate that both name and image are provided
-            if (empty($name) || empty($image)) {
+            // Validate that name, slug and image are provided
+            if (empty($name) || empty($slug) || empty($image)) {
                 return $this->respond([
                     'status' => 400,
-                    'message' => 'Both name and image are required.'
+                    'message' => 'Name, slug and image are required.'
                 ], 400);
             }
             // Prepare data for updating
             $data = [
                 'name' => $name,
+                'slug' => $slug,
                 'image' => $image,
                 'type' => $type,
             ];

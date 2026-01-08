@@ -25,15 +25,17 @@ class ServiceTypeController extends ResourceController
             $db = \Config\Database::connect(); // Get database instance
 
             $name = $this->request->getVar('name');
+            $slug = $this->request->getVar('slug');
             $image = $this->request->getVar('image'); // Image path
             $roomIds = $this->request->getVar('room_ids'); // Expected as an array [1, 2, 3]
 
-            if (empty($name) || empty($image)) {
-                return $this->respond(['status' => 400, 'message' => 'Name and Image are required'], 400);
+            if (empty($name) || empty($slug) || empty($image)) {
+                return $this->respond(['status' => 400, 'message' => 'Name, slug and Image are required'], 400);
             }
 
             $data = [
                 'name' => $name,
+                'slug' => $slug,
                 'image' => $image,
             ];
 
@@ -75,6 +77,7 @@ class ServiceTypeController extends ResourceController
                 'data' => [
                     'id' => $serviceTypeId,
                     'name' => $name,
+                    'slug' => $slug,
                     'image' => $image,
                     'room_ids' => $roomIds
                 ]
@@ -173,15 +176,17 @@ class ServiceTypeController extends ResourceController
             }
 
             $name = $this->request->getVar('name');
+            $slug = $this->request->getVar('slug');
             $image = $this->request->getVar('image'); // Image path
             $roomIds = $this->request->getVar('room_ids'); // Expected as an array
 
-            if (empty($name) && empty($image) && empty($roomIds)) {
-                return $this->respond(['status' => 400, 'message' => 'At least one field (Name, Image, or Room IDs) is required to update'], 400);
+            if (empty($name) && empty($slug) && empty($image) && empty($roomIds)) {
+                return $this->respond(['status' => 400, 'message' => 'At least one field (Name, Slug, Image, or Room IDs) is required to update'], 400);
             }
 
             $data = [
                 'name' => $name ?: $serviceType['name'],
+                'slug' => $slug ?: $serviceType['slug'],
                 'image' => $image ?: $serviceType['image'],
             ];
 
