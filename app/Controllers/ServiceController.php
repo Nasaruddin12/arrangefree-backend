@@ -704,4 +704,46 @@ class ServiceController extends BaseController
             ], 500);
         }
     }
+
+    /**
+     * Search services by name or description
+     */
+    public function search()
+    {
+        try {
+            $keyword = $this->request->getVar('search');
+
+            if (!$keyword || strlen(trim($keyword)) < 2) {
+                return $this->failValidationErrors('Search keyword must be at least 2 characters long.');
+            }
+
+            $services = $this->serviceModel
+                ->like('name', $keyword)
+                ->orLike('description', $keyword)
+                ->where('status', 1)
+                // ->orderBy('name', 'ASC')
+                ->findAll();
+
+            if (empty($services)) {
+                return $this->respond([
+                    'status' => 404,
+                    'message' => 'No services found matching your search.',
+                    'data' => []
+                ], 200);
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Services found successfully',
+                'data' => $services
+            ], 200);
+        } catch (Exception $e) {
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Failed to search services',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }
+

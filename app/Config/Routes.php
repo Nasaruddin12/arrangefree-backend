@@ -669,6 +669,9 @@ $routes->group('rooms', function ($routes) {
 
 // $routes->post('update-all-slugs', 'ServiceController::updateAllSlugs'); // Update all service slugs
 $routes->group('services', function ($routes) {
+    // Search endpoint
+    $routes->get('search', 'ServiceController::search');
+    
     // More specific routes MUST come before catch-all routes
     // Old endpoint for iOS and Android apps (using numeric IDs)
     $routes->get('service-type/(:num)/room/(:num)', 'ServiceController::findByServiceTypeAndRoom/$1/$2');
