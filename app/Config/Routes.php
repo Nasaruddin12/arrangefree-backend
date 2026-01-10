@@ -669,8 +669,16 @@ $routes->group('rooms', function ($routes) {
 
 // $routes->post('update-all-slugs', 'ServiceController::updateAllSlugs'); // Update all service slugs
 $routes->group('services', function ($routes) {
+    // More specific routes MUST come before catch-all routes
+    // Old endpoint for iOS and Android apps (using numeric IDs)
+    $routes->get('service-type/(:num)/room/(:num)', 'ServiceController::findByServiceTypeAndRoom/$1/$2');
+    // New endpoint for slug-based lookups
+    $routes->get('by-slug/service-type/(:any)/room/(:any)', 'ServiceController::findByServiceTypeAndRoomSlug/$1/$2');
+    
+    // Less specific/catch-all routes
     $routes->get('/', 'ServiceController::index');
     $routes->get('(:num)', 'ServiceController::show/$1');
+    $routes->get('(:any)', 'ServiceController::showBySlug/$1');
     $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
         $routes->post('upload-image', 'ServiceController::uploadImages'); // Upload image separately
         $routes->post('create', 'ServiceController::create'); // Create work type
@@ -679,7 +687,6 @@ $routes->group('services', function ($routes) {
         $routes->post('delete-image', 'ServiceController::deleteImage');
         $routes->put('change-status/(:num)', 'ServiceController::changeStatus/$1');
     });
-    $routes->get('service-type/(:num)/room/(:num)', 'ServiceController::findByServiceTypeAndRoom/$1/$2');
 });
 $routes->group('selected-design', function ($routes) {
     $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
@@ -756,6 +763,7 @@ $routes->group('faqs', function ($routes) {
         $routes->get('category/(:num)', 'FaqController::getFaqsByCategory/$1'); // Get FAQs by category
     });
     $routes->get('service/(:num)', 'FaqController::listForService/$1');
+    $routes->get('service/(:any)', 'FaqController::listForService/$1');
 });
 
 // FAQ Categories

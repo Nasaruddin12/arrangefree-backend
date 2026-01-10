@@ -160,14 +160,29 @@ class FaqController extends ResourceController
     public function listForService($service_id)
     {
         try {
-            // Basic validation: must be a positive integer
-            if (!is_numeric($service_id) || intval($service_id) <= 0) {
-                return $this->failValidationErrors([
-                    'service_id' => 'Service ID must be a positive number.'
-                ]);
+            // Check if it's a numeric ID or a slug
+            $actualServiceId = $service_id;
+            
+            if (!is_numeric($service_id)) {
+                // It's a slug, convert to ID
+                $serviceModel = new \App\Models\ServiceModel();
+                $service = $serviceModel->where('slug', $service_id)->select('id')->first();
+                
+                if (!$service) {
+                    return $this->failNotFound('Service not found.');
+                }
+                
+                $actualServiceId = $service['id'];
+            } else {
+                // Validate it's a positive integer
+                if (intval($service_id) <= 0) {
+                    return $this->failValidationErrors([
+                        'service_id' => 'Service ID must be a positive number.'
+                    ]);
+                }
             }
 
-            $faqs = $this->faqModel->getFaqsByService($service_id);
+            $faqs = $this->faqModel->getFaqsByService($actualServiceId);
 
             return $this->respond([
                 'status' => 200,

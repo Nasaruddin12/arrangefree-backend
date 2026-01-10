@@ -583,15 +583,105 @@ class ServiceController extends BaseController
         }
     }
 
+    /**
+     * Get service details by slug
+     * @param string $slug Service slug
+     */
+    public function showBySlug($slug = null)
+    {
+        try {
+            if (!$slug) {
+                return $this->failValidationErrors('Slug is required');
+            }
 
+            // Fetch service details by slug
+            $service = $this->serviceModel
+                ->select('services.*, service_types.name as service_name')
+                ->join('service_types', 'service_types.id = services.service_type_id', 'left')
+                ->where('services.slug', $slug)
+                ->first();
+
+            if (!$service) {
+                return $this->failNotFound('Service not found.');
+            }
+
+            // Fetch associated room IDs
+            $roomIds = $this->serviceRoomModel
+                ->where('service_id', $service['id'])
+                ->select('room_id')
+                ->findAll();
+
+            $service['room_ids'] = array_column($roomIds, 'room_id');
+
+            // Fetch all add-ons (flat list)
+            $addonModel = new \App\Models\ServiceAddonModel();
+            $addons = $addonModel
+                ->where('service_id', $service['id'])
+                ->orderBy('group_name', 'asc')
+                ->findAll();
+
+            $service['addons'] = $addons;
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Service details retrieved successfully',
+                'data' => $service
+            ], 200);
+        } catch (\Exception $e) {
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Failed to retrieve service details',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+    /**
+     * Find services by numeric service_type_id and room_id (backward compatible with iOS/Android apps)
+     */
     public function findByServiceTypeAndRoom($serviceTypeId = null, $roomId = null)
     {
         try {
             if (!$serviceTypeId || !$roomId) {
-                return $this->failValidationErrors('Service ID and Room ID are required.');
+                return $this->failValidationErrors('Service Type ID and Room ID are required.');
             }
 
             $services = $this->serviceModel->findByServiceTypeAndRoom($serviceTypeId, $roomId);
+
+            if (empty($services)) {
+                return $this->respond([
+                    'data' => [],
+                    'status' => 404,
+                    'message' => 'No Services found for the given Service Type and Room.'
+                ], 200);
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Data retrieved successfully',
+                'data' => $services
+            ], 200);
+        } catch (Exception $e) {
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Failed to retrieve Services',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Find services by service_type_slug and room_slug (new slug-based endpoint)
+     */
+    public function findByServiceTypeAndRoomSlug($serviceTypeSlug = null, $roomSlug = null)
+    {
+        try {
+            if (!$serviceTypeSlug || !$roomSlug) {
+                return $this->failValidationErrors('Service Type Slug and Room Slug are required.');
+            }
+
+            $services = $this->serviceModel->findByServiceTypeAndRoomSlug($serviceTypeSlug, $roomSlug);
 
             if (empty($services)) {
                 return $this->respond([
