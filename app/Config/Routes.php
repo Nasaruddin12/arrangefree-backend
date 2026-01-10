@@ -61,6 +61,7 @@ $routes->group('customer', static function ($routes) {
     $routes->post('login', 'CustomerController::login');
     $routes->post('register', 'CustomerController::createCustomer');
     $routes->post('contact-us/query', 'CustomerController::contactUs');
+    $routes->put('updateCustomer/(:num)', 'CustomerController::updateCustomer/$1');
 
     // Protected routes (auth required)
     $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
@@ -68,7 +69,6 @@ $routes->group('customer', static function ($routes) {
         $routes->get('getCustomerById/(:num)', 'CustomerController::getCustomerById/$1');
         $routes->get('getRecentView', 'RecentlyViewedController::getRecentView');
         $routes->get('getRecentViewBySlug/(:any)', 'RecentlyViewedController::getRecentViewBySlug/$1');
-        $routes->put('updateCustomer/(:num)', 'CustomerController::updateCustomer/$1');
         $routes->delete('delete/(:num)', 'CustomerController::deleteCustomer/$1');
         $routes->get('deleteCustomer/(:num)', 'CustomerController::deleteCustomer/$1');
         $routes->post('cancel-order', 'OrderController::cancelOrder');
@@ -667,7 +667,7 @@ $routes->group('rooms', function ($routes) {
     });
 });
 
-$routes->post('update-all-slugs', 'ServiceController::updateAllSlugs'); // Update all service slugs
+// $routes->post('update-all-slugs', 'ServiceController::updateAllSlugs'); // Update all service slugs
 $routes->group('services', function ($routes) {
     $routes->get('/', 'ServiceController::index');
     $routes->get('(:num)', 'ServiceController::show/$1');
