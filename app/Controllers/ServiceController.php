@@ -43,6 +43,11 @@ class ServiceController extends BaseController
                 'quality_promise'     => $this->request->getVar('quality_promise'),
                 'status'              => $this->request->getVar('status'),
                 'image'               => $this->request->getVar('image'),
+                'primary_key'         => $this->request->getVar('primary_key'),
+                'secondary_key'       => $this->request->getVar('secondary_key'),
+                'partner_price'       => $this->request->getVar('partner_price'),
+                'with_material'       => $this->request->getVar('with_material') ?? false,
+                'slug'                => $this->request->getVar('slug'),
             ];
 
             if (!$this->serviceModel->save($data)) {
@@ -264,6 +269,11 @@ class ServiceController extends BaseController
                 'quality_promise'    => $this->request->getVar('quality_promise'),
                 'status'             => $this->request->getVar('status'),
                 'image'              => $this->request->getVar('image') ?? $service['image'],
+                'primary_key'        => $this->request->getVar('primary_key'),
+                'secondary_key'      => $this->request->getVar('secondary_key'),
+                'partner_price'      => $this->request->getVar('partner_price'),
+                'with_material'      => $this->request->getVar('with_material') ?? false,
+                'slug'               => $this->request->getVar('slug'),
             ];
 
             $db->transStart();

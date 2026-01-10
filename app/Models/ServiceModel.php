@@ -21,6 +21,11 @@ class ServiceModel extends Model
         'warranty_details',
         'quality_promise',
         'status',
+        'primary_key',
+        'secondary_key',
+        'partner_price',
+        'with_material',
+        'slug',
         'created_at',
         'updated_at'
     ];
