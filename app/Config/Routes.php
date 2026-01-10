@@ -667,6 +667,7 @@ $routes->group('rooms', function ($routes) {
     });
 });
 
+$routes->post('update-all-slugs', 'ServiceController::updateAllSlugs'); // Update all service slugs
 $routes->group('services', function ($routes) {
     $routes->get('/', 'ServiceController::index');
     $routes->get('(:num)', 'ServiceController::show/$1');
