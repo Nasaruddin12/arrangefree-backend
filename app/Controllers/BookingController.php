@@ -223,10 +223,83 @@ class BookingController extends ResourceController
                 return $this->failValidationErrors('Cart is empty. Add services before booking.');
             }
 
-            // Calculate Pricing
-            $subtotal = array_sum(array_column($cartItems, 'amount'));
-            $discount = 0.00;
+            // Calculate Pricing with Current Service Rates
+            $subtotal = 0;
+            $updatedCartItems = [];
 
+            foreach ($cartItems as $cartItem) {
+                // Get current service rate from services table
+                $service = $this->servicesModel->find($cartItem['service_id']);
+                
+                if (!$service) {
+                    return $this->failValidationErrors('Service ID ' . $cartItem['service_id'] . ' not found');
+                }
+
+                // Calculate amount with current rate
+                $currentRate = floatval($service['rate']);
+                $area = 1;
+
+                if ($cartItem['rate_type'] === 'square_feet') {
+                    $value = strtoupper(trim($cartItem['value']));
+                    if (strpos($value, 'X') !== false) {
+                        [$w, $h] = explode('X', $value);
+                        $area = floatval($w) * floatval($h);
+                    } else {
+                        $area = floatval($value);
+                    }
+                }
+
+                // Base amount with current rate
+                $baseAmount = $cartItem['rate_type'] === 'square_feet' 
+                    ? ($area * $currentRate) 
+                    : (floatval($cartItem['value']) * $currentRate);
+
+                // Addon amounts
+                $addonTotal = 0;
+                $addons = is_array($cartItem['addons']) 
+                    ? $cartItem['addons'] 
+                    : json_decode($cartItem['addons'] ?? '[]', true);
+
+                if (!empty($addons)) {
+                    foreach ($addons as &$addon) {
+                        // Get current addon data and recalculate qty
+                        if (!empty($addon['id'])) {
+                            $currentAddon = $this->addonsModel->find($addon['id']);
+                            if ($currentAddon) {
+                                // Start with full current addon data
+                                $addon = $currentAddon;
+                                
+                                // Recalculate qty based on price_type and area
+                                $baseQty = floatval($currentAddon['qty'] ?? 1);
+                                if ($currentAddon['price_type'] === 'square_feet') {
+                                    // Calculate: baseQty per 100 sqft × actual area
+                                    $addon['qty'] = max(1, ceil(($baseQty / 100) * $area));
+                                } else {
+                                    // Unit type - use addon qty as-is
+                                    $addon['qty'] = $baseQty;
+                                }
+                                
+                                // Calculate addon total
+                                $addon['total'] = floatval($addon['qty']) * floatval($addon['price']);
+                                $addonTotal += $addon['total'];
+                            }
+                        }
+                    }
+                }
+
+                $itemAmount = $baseAmount + $addonTotal;
+                $subtotal += $itemAmount;
+
+                // Store updated item for booking_services insert
+                $updatedCartItems[] = [
+                    'original' => $cartItem,
+                    'rate' => $currentRate,
+                    'amount' => $itemAmount,
+                    'addons' => $addons
+                ];
+            }
+
+            $discount = 0.00;
             $coupon = $this->couponsModel->where('coupon_code', $appliedCoupon)->first();
 
             // Apply Coupon Discount
@@ -242,16 +315,16 @@ class BookingController extends ResourceController
             }
 
             // Apply Discount to Subtotal
-            $discountedTotal = max(0, $subtotal - $discount); // Ensure it doesn't go negative
+            $discountedTotal = max(0, $subtotal - $discount);
 
-            // Now Calculate GST on the Discounted Total
-            $cgst = round($discountedTotal * 0.09, 2); // 9% CGST
-            $sgst = round($discountedTotal * 0.09, 2); // 9% SGST
-            $tax = $cgst + $sgst; // Total GST
+            // Calculate GST on Discounted Total
+            $cgst = round($discountedTotal * 0.09, 2);
+            $sgst = round($discountedTotal * 0.09, 2);
+            $tax = $cgst + $sgst;
 
-            // Final Amount Calculation
+            // Final Amount
             $finalAmount = max(0, $discountedTotal + $tax);
-            $paidAmount = ($paymentType === 'pay_later') ? 0.00 : 0.00; // Modify if payment processing happens here
+            $paidAmount = ($paymentType === 'pay_later') ? 0.00 : 0.00;
             $amountDue = $finalAmount - $paidAmount;
 
             // Booking Status Logic
@@ -264,8 +337,8 @@ class BookingController extends ResourceController
                 'user_id'        => $userId,
                 'total_amount'   => $subtotal,
                 'address_id'     => $data['address_id'],
-                'cgst'           => $cgst, // 9% CGST
-                'sgst'           => $sgst, // 9% SGST
+                'cgst'           => $cgst,
+                'sgst'           => $sgst,
                 'discount'       => $discount,
                 'final_amount'   => $finalAmount,
                 'paid_amount'    => $paidAmount,
@@ -290,20 +363,22 @@ class BookingController extends ResourceController
                 ]);
             }
             $bookingId = $this->bookingsModel->insertID();
-            // Insert Booking Services
-            foreach ($cartItems as $service) {
+
+            // Insert Booking Services with current rates
+            foreach ($updatedCartItems as $item) {
+                $cartItem = $item['original'];
                 $serviceData = [
                     'booking_id'      => $bookingId,
-                    'service_id'      => $service['service_id'],
-                    'service_type_id' => $service['service_type_id'],
-                    'room_id'         => $service['room_id'],
-                    'rate_type'       => $service['rate_type'],
-                    'value'           => $service['value'],
-                    'rate'            => $service['rate'],
-                    'amount'          => $service['amount'],
-                    'description'     => $service['description'] ?? null,
-                    'reference_image' => $service['reference_image'] ?? null,
-                    'addons'          => $service['addons'] ?? null,
+                    'service_id'      => $cartItem['service_id'],
+                    'service_type_id' => $cartItem['service_type_id'],
+                    'room_id'         => $cartItem['room_id'],
+                    'rate_type'       => $cartItem['rate_type'],
+                    'value'           => $cartItem['value'],
+                    'rate'            => $item['rate'],
+                    'amount'          => $item['amount'],
+                    'description'     => $cartItem['description'] ?? null,
+                    'reference_image' => $cartItem['reference_image'] ?? null,
+                    'addons'          => is_array($item['addons']) ? json_encode($item['addons']) : ($item['addons'] ?? null),
                 ];
 
                 if (!$this->bookingServicesModel->insert($serviceData)) {
