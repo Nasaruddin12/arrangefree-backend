@@ -919,6 +919,7 @@ $routes->group('partner', function ($routes) {
     $routes->post('verify-otp', 'PartnerController::verifyOtp');
     $routes->post('register', 'PartnerController::registerOrUpdate');
     $routes->get('referral/mobile/(:segment)', 'ReferralController::getReferrerByMobile/$1');
+    $routes->get('photo/(:num)', 'PartnerController::servePhoto/$1');
 
     // Protected routes (auth required)
     $routes->group('/', ['filter' => 'authFilter'], function ($routes) {
@@ -932,7 +933,6 @@ $routes->group('partner', function ($routes) {
         $routes->put('update-bank-details/(:num)', 'PartnerController::updateBankDetails/$1');
         $routes->put('update-address/(:num)', 'PartnerController::updateAddress/$1');
         $routes->post('update-documents', 'PartnerController::updateDocuments');
-        $routes->get('photo/(:num)', 'PartnerController::servePhoto/$1');
         $routes->post('store-firebase-uid', 'PartnerController::storeFirebaseUid');
 
         $routes->post('tickets/create', 'TicketController::createTicket');
