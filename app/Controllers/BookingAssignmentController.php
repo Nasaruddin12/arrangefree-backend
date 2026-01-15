@@ -737,11 +737,18 @@ class BookingAssignmentController extends ResourceController
                     p.name as partner_name,
                     s.name as service_name,
                     s.rate as customer_rate,
-                    bs.amount as customer_amount
+                    bs.amount as customer_amount,
+                    af_customers.name as customer_name,
+                    af_customers.mobile_no as customer_mobile,
+                    af_customers.id as customer_id,
+                    customer_addresses.address as customer_address
                 ')
                 ->join('partners p', 'p.id = ba.partner_id')
                 ->join('booking_services bs', 'bs.id = ba.booking_service_id')
                 ->join('services s', 's.id = bs.service_id')
+                ->join('bookings b', 'b.id = bs.booking_id')
+                ->join('af_customers', 'af_customers.id = b.user_id', 'left')
+                ->join('customer_addresses', 'customer_addresses.id = b.address_id', 'left')
                 ->where('ba.id', $assignmentId)
                 ->first();
 
@@ -749,7 +756,7 @@ class BookingAssignmentController extends ResourceController
                 return $this->failNotFound('Assignment not found');
             }
 
-            // ========== STEP 2: CALCULATE PROFIT ==========
+            // ========== STEP 2: CALCULATE VALUES ==========
             $customerRate = floatval($assignment['customer_rate']);
             $partnerRate = floatval($assignment['rate']);
             $customerAmount = floatval($assignment['customer_amount']);
@@ -761,34 +768,19 @@ class BookingAssignmentController extends ResourceController
                 'status'  => 200,
                 'message' => 'Assignment details',
                 'data'    => [
-                    'assignment_id'   => $assignment['id'],
-                    'partner_name'    => $assignment['partner_name'],
-                    'service_name'    => $assignment['service_name'],
-                    'status'          => $assignment['status'],
-
-                    // CLEAR RATE COMPARISON
-                    'rate_comparison' => [
-                        'rate_type'         => $assignment['rate_type'],
-                        'quantity'          => $quantity,
-                        'with_material'     => $assignment['with_material'] ? 'Yes' : 'No',
-
-                        'customer' => [
-                            'rate_per_unit' => $customerRate,
-                            'quantity'      => $quantity,
-                            'total_amount'  => round($customerAmount, 2),
-                        ],
-
-                        'partner' => [
-                            'rate_per_unit' => $partnerRate,
-                            'quantity'      => $quantity,
-                            'total_amount'  => round($partnerAmount, 2),
-                        ],
-
-                        'profit' => [
-                            'rate_difference_per_unit' => round($customerRate - $partnerRate, 2),
-                            'total_profit'             => round($customerAmount - $partnerAmount, 2),
-                        ]
-                    ]
+                    'assignment_id'        => $assignment['id'],
+                    'partner_name'         => $assignment['partner_name'],
+                    'service_name'         => $assignment['service_name'],
+                    'status'               => $assignment['status'],
+                    'rate_type'            => $assignment['rate_type'],
+                    'quantity'             => $quantity,
+                    'with_material'        => $assignment['with_material'] ? true : false,
+                    'customer_id'               => $assignment['customer_id'],
+                    'customer_name'             => $assignment['customer_name'],
+                    'customer_mobile'           => $assignment['customer_mobile'],
+                    'customer_address'          => $assignment['customer_address'],
+                    'rate'         => $partnerRate,
+                    'amount'       => round($partnerAmount, 2),
                 ]
             ]);
         } catch (\Exception $e) {
@@ -848,19 +840,10 @@ class BookingAssignmentController extends ResourceController
                     'partner_name'   => $a['partner_name'],
                     'service_name'   => $a['service_name'],
                     'rate_type'      => $a['rate_type'],
-                    'with_material'  => $a['with_material'] ? 'Yes' : 'No',
-
-                    'customer' => [
-                        'rate_per_unit' => floatval($a['customer_rate']),
-                        'quantity'      => $quantity,
-                        'amount'        => round($customerAmt, 2),
-                    ],
-
-                    'partner' => [
-                        'rate_per_unit' => floatval($a['rate']),
-                        'quantity'      => $quantity,
-                        'amount'        => round($partnerAmt, 2),
-                    ],
+                    'with_material'  => $a['with_material'] ? true : false,
+                    'rate_per_unit' => floatval($a['rate']),
+                    'quantity'      => $quantity,
+                    'amount'        => round($partnerAmt, 2),
                 ];
             }
 
@@ -870,11 +853,6 @@ class BookingAssignmentController extends ResourceController
                 'message' => 'Booking assignments retrieved',
                 'data'    => [
                     'assignments' => $assignmentDetails,
-                    'summary'     => [
-                        'total_customer_amount' => round($totalCustomer, 2),
-                        'total_partner_amount'  => round($totalPartner, 2),
-                        'total_company_profit'  => round($totalCustomer - $totalPartner, 2),
-                    ]
                 ]
             ]);
         } catch (\Exception $e) {
