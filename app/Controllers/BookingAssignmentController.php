@@ -344,11 +344,15 @@ class BookingAssignmentController extends ResourceController
                 ->select('
                     booking_assignments.*,
                     services.name AS service_name,
-                    services.rate AS customer_rate,
-                    booking_services.amount AS customer_amount
+                    booking_services.amount AS customer_amount,
+                    af_customers.name AS customer_name,
+                    customer_addresses.address AS customer_address
                 ')
                 ->join('booking_services', 'booking_services.id = booking_assignments.booking_service_id')
                 ->join('services', 'services.id = booking_services.service_id')
+                ->join('bookings', 'bookings.id = booking_services.booking_id')
+                ->join('af_customers', 'af_customers.id = bookings.user_id', 'left')
+                ->join('customer_addresses', 'customer_addresses.id = bookings.address_id', 'left')
                 ->where('booking_assignments.partner_id', $partnerId)
                 ->where('booking_assignments.status', 'assigned')
                 ->orderBy('booking_assignments.assigned_at', 'desc')
@@ -370,19 +374,13 @@ class BookingAssignmentController extends ResourceController
                     'service_name'      => $a['service_name'],
                     'status'            => $a['status'],
                     'assigned_at'       => $a['assigned_at'],
-
-                    'partner_details' => [
-                        'rate'          => floatval($a['rate']),
-                        'rate_type'     => $a['rate_type'],
-                        'quantity'      => floatval($a['quantity']),
-                        'amount'        => round(floatval($a['amount']), 2),
-                        'with_material' => $a['with_material'] ? 'Yes' : 'No',
-                    ],
-
-                    'customer_details' => [
-                        'rate'   => floatval($a['customer_rate']),
-                        'amount' => round(floatval($a['customer_amount']), 2),
-                    ]
+                    'rate'              => floatval($a['rate']),
+                    'rate_type'         => $a['rate_type'],
+                    'quantity'          => floatval($a['quantity']),
+                    'amount'            => round(floatval($a['amount']), 2),
+                    'with_material'     => $a['with_material'] ? true : false,
+                    'customer_name'     => $a['customer_name'],
+                    'customer_address'  => $a['customer_address'],
                 ];
             }
 
