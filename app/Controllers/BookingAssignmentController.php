@@ -728,64 +728,62 @@ class BookingAssignmentController extends ResourceController
      */
     public function getAssignmentDetails($assignmentId)
     {
+        $assignmentModel = new BookingAssignmentModel();
+
         try {
-            // ========== STEP 1: FETCH ASSIGNMENT WITH JOINS ==========
-            $assignmentModel = new BookingAssignmentModel();
             $assignment = $assignmentModel
                 ->select('
-                    ba.*,
-                    p.name as partner_name,
-                    s.name as service_name,
-                    s.rate as customer_rate,
-                    bs.amount as customer_amount,
-                    af_customers.name as customer_name,
-                    af_customers.mobile_no as customer_mobile,
-                    af_customers.id as customer_id,
-                    customer_addresses.address as customer_address
+                    booking_assignments.*,
+                    services.name AS service_name,
+                    partners.name AS partner_name,
+                    af_customers.id AS customer_id,
+                    af_customers.name AS customer_name,
+                    af_customers.mobile_no AS customer_mobile,
+                    customer_addresses.address AS customer_address
                 ')
-                ->join('partners p', 'p.id = ba.partner_id')
-                ->join('booking_services bs', 'bs.id = ba.booking_service_id')
-                ->join('services s', 's.id = bs.service_id')
-                ->join('bookings b', 'b.id = bs.booking_id')
-                ->join('af_customers', 'af_customers.id = b.user_id', 'left')
-                ->join('customer_addresses', 'customer_addresses.id = b.address_id', 'left')
-                ->where('ba.id', $assignmentId)
+                ->join('booking_services', 'booking_services.id = booking_assignments.booking_service_id')
+                ->join('services', 'services.id = booking_services.service_id')
+                ->join('bookings', 'bookings.id = booking_services.booking_id')
+                ->join('af_customers', 'af_customers.id = bookings.user_id', 'left')
+                ->join('customer_addresses', 'customer_addresses.id = bookings.address_id', 'left')
+                ->join('partners', 'partners.id = booking_assignments.partner_id', 'left')
+                ->where('booking_assignments.id', $assignmentId)
                 ->first();
 
             if (!$assignment) {
                 return $this->failNotFound('Assignment not found');
             }
 
-            // ========== STEP 2: CALCULATE VALUES ==========
-            $customerRate = floatval($assignment['customer_rate']);
+            // Calculate values
             $partnerRate = floatval($assignment['rate']);
-            $customerAmount = floatval($assignment['customer_amount']);
             $partnerAmount = floatval($assignment['amount']);
             $quantity = floatval($assignment['quantity']);
 
-            // ========== STEP 3: RETURN RESPONSE ==========
+            // ========== RETURN RESPONSE ==========
             return $this->respond([
                 'status'  => 200,
                 'message' => 'Assignment details',
                 'data'    => [
-                    'assignment_id'        => $assignment['id'],
-                    'partner_name'         => $assignment['partner_name'],
-                    'service_name'         => $assignment['service_name'],
-                    'status'               => $assignment['status'],
-                    'rate_type'            => $assignment['rate_type'],
-                    'quantity'             => $quantity,
-                    'with_material'        => $assignment['with_material'] ? true : false,
-                    'customer_id'               => $assignment['customer_id'],
-                    'customer_name'             => $assignment['customer_name'],
-                    'customer_mobile'           => $assignment['customer_mobile'],
-                    'customer_address'          => $assignment['customer_address'],
-                    'rate'         => $partnerRate,
-                    'amount'       => round($partnerAmount, 2),
+                    'id'   => $assignment['id'],
+                    'partner_name'    => $assignment['partner_name'],
+                    'service_name'    => $assignment['service_name'],
+                    'status'          => $assignment['status'],
+                    'rate_type'       => $assignment['rate_type'],
+                    'quantity'        => $quantity,
+                    'with_material'   => $assignment['with_material'] ? true : false,
+                    'customer'        => [
+                        'id'      => $assignment['customer_id'],
+                        'name'    => $assignment['customer_name'],
+                        'mobile'  => $assignment['customer_mobile'],
+                        'address' => $assignment['customer_address'],
+                    ],
+                    'rate'    => $partnerRate,
+                    'amount'  => round($partnerAmount, 2),
                 ]
             ]);
         } catch (\Exception $e) {
             log_message('error', 'Error fetching assignment: ' . $e->getMessage());
-            return $this->failServerError($e->getMessage());
+            return $this->failServerError('Failed to fetch assignment: ' . $e->getMessage());
         }
     }
 
