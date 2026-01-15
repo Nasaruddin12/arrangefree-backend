@@ -982,23 +982,21 @@ class PartnerController extends BaseController
             return $this->failServerError('Unexpected error: ' . $e->getMessage());
         }
     }
-    public function updateBankDetails($id = null)
+    public function updateBankDetails($partnerId = null)
     {
         try {
             $request = $this->request;
-            if (empty($id)) {
-                return $this->failValidationErrors('Bank detail ID is required.');
+            if (empty($partnerId)) {
+                return $this->failValidationErrors('Partner ID is required.');
             }
 
             $bankModel = new \App\Models\PartnerBankDetailModel();
 
-            // Check if record exists
-            $existing = $bankModel->find($id);
-            if (!$existing) {
-                return $this->failNotFound('Bank detail record not found.');
-            }
+            // Find bank details by partner_id
+            $existing = $bankModel->where('partner_id', $partnerId)->first();
 
             $bankData = [
+                'partner_id'          => $partnerId,
                 'account_holder_name' => $request->getVar('account_holder_name'),
                 'bank_name'           => $request->getVar('bank_name'),
                 'bank_branch'         => $request->getVar('bank_branch'),
@@ -1021,12 +1019,18 @@ class PartnerController extends BaseController
                 return $this->failValidationErrors($bankModel->errors());
             }
 
-            // Update record
-            $bankModel->update($id, $bankData);
+            // Update if exists, otherwise insert
+            if ($existing) {
+                $bankModel->update($existing['id'], $bankData);
+                $message = 'Bank details updated successfully.';
+            } else {
+                $bankModel->insert($bankData);
+                $message = 'Bank details created successfully.';
+            }
 
             return $this->respond([
                 'status'  => 200,
-                'message' => 'Bank details updated successfully.'
+                'message' => $message
             ]);
         } catch (\Exception $e) {
             return $this->failServerError($e->getMessage());
