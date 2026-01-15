@@ -13,7 +13,11 @@ class BookingAssignmentModel extends Model
     protected $allowedFields    = [
         'booking_service_id',
         'partner_id',
-        'assigned_amount',
+        'amount',
+        'rate',
+        'rate_type',
+        'quantity',
+        'with_material',
         'helper_count',
         'status',
         'assigned_at',

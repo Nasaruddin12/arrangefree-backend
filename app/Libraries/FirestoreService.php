@@ -77,7 +77,7 @@ class FirestoreService
 
     private function makeFirestoreRequest($documentName, $payload, $method)
     {
-        $fields = ['status', 'updated_at', 'booking_service_id', 'partner_id', 'firebase_uid', 'amount', 'timestamp', 'service_name', 'customer_name', 'slot_date', 'estimated_completion_date',];
+        $fields = ['status', 'updated_at', 'booking_service_id', 'partner_id', 'firebase_uid', 'amount', 'timestamp', 'service_name', 'customer_name', 'slot_date', 'estimated_completion_date', 'address', 'rate', 'rate_type', 'quantity', 'with_material'];
         $maskQuery = implode('&updateMask.fieldPaths=', $fields);
         $url = "https://firestore.googleapis.com/v1/$documentName?updateMask.fieldPaths=" . implode('&updateMask.fieldPaths=', $fields);
 
@@ -108,7 +108,7 @@ class FirestoreService
         return true;
     }
 
-    public function pushAssignmentRequest($bookingServiceId, $firebaseUid, $partnerId, $assignedAmount = null, $serviceName = null, $customerName = null, $slotDate = null, $estimatedCompletionDate = null)
+    public function pushAssignmentRequest($bookingServiceId, $firebaseUid, $partnerId, $assignedAmount = null, $serviceName = null, $customerName = null, $slotDate = null, $estimatedCompletionDate = null, $addressText = null, $rate = null, $rateType = null, $quantity = null, $withMaterial = null)
     {
         $documentName = "projects/{$this->projectId}/databases/(default)/documents/booking_requests/{$firebaseUid}_{$bookingServiceId}";
 
@@ -122,8 +122,13 @@ class FirestoreService
                 'firebase_uid'       => ['stringValue' => (string) $firebaseUid],
                 'partner_id'        => ['stringValue' => (string) $partnerId],
                 'amount'             => $assignedAmount !== null ? ['doubleValue' => (float) $assignedAmount] : ['nullValue' => null],
+                'rate'               => $rate !== null ? ['doubleValue' => (float) $rate] : ['nullValue' => null],
+                'rate_type'          => ['stringValue' => (string) $rateType],
+                'quantity'           => $quantity !== null ? ['doubleValue' => (float) $quantity] : ['nullValue' => null],
+                'with_material'      => $withMaterial !== null ? ['booleanValue' => (bool) $withMaterial] : ['nullValue' => null],
                 'status'             => ['stringValue' => 'pending'],
-                'timestamp'          => ['timestampValue' => date('c')]
+                'timestamp'          => ['timestampValue' => date('c')],
+                'address'            => ['stringValue' => (string) $addressText]
             ]
         ];
 
