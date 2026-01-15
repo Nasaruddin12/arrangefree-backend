@@ -1032,24 +1032,25 @@ class PartnerController extends BaseController
             return $this->failServerError($e->getMessage());
         }
     }
-    public function updateAddress($id = null)
+    public function updateAddress($partnerId = null)
     {
         try {
             $request = $this->request;
 
-            if (empty($id)) {
-                return $this->failValidationErrors('Address ID is required.');
+            if (empty($partnerId)) {
+                return $this->failValidationErrors('Partner ID is required.');
             }
 
             $addressModel = new \App\Models\PartnerAddressModel();
 
-            // Ensure the address exists
-            $existing = $addressModel->find($id);
-            if (!$existing) {
-                return $this->failNotFound('Address record not found.');
-            }
+            // Find address by partner_id (primary address)
+            $existing = $addressModel
+                ->where('partner_id', $partnerId)
+                ->where('is_primary', 1)
+                ->first();
 
             $data = [
+                'partner_id'     => $partnerId,
                 'address_line_1' => $request->getVar('address_line_1'),
                 'address_line_2' => $request->getVar('address_line_2'),
                 'landmark'       => $request->getVar('landmark'),
@@ -1065,12 +1066,18 @@ class PartnerController extends BaseController
                 return $this->failValidationErrors($addressModel->errors());
             }
 
-            // Update address
-            $addressModel->update($id, $data);
+            // Update if exists, otherwise insert
+            if ($existing) {
+                $addressModel->update($existing['id'], $data);
+                $message = 'Address updated successfully.';
+            } else {
+                $addressModel->insert($data);
+                $message = 'Address created successfully.';
+            }
 
             return $this->respond([
                 'status'  => 200,
-                'message' => 'Address updated successfully.'
+                'message' => $message
             ]);
         } catch (\Exception $e) {
             return $this->failServerError($e->getMessage());
