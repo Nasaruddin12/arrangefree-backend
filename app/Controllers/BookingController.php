@@ -1593,7 +1593,7 @@ class BookingController extends ResourceController
             $paymentData = [
                 'booking_id'      => $booking['id'],
                 'user_id'         => $data['user_id'],
-                'transaction_id'  => 'TXN_' . uniqid(), // Unique transaction ID for manual payments
+                'transaction_id'  => $data['transaction_id'], // Unique transaction ID for manual payments
                 'payment_method'  => strtolower($data['payment_method']),
                 'amount'          => $data['amount'],
                 'currency'        => 'INR',

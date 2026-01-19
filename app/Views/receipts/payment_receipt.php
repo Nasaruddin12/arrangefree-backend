@@ -130,7 +130,7 @@ $logoSrc = 'data:image/webp;base64,' . $logoData;
         </tr>
         <tr style="background: #fff;">
             <td style="border: 1px solid #ddd; padding: 12px; font-weight: bold; color: #555;">Payment Mode</td>
-            <td style="border: 1px solid #ddd; padding: 12px; color: #333; font-weight: bold;">Razorpay (Online)</td>
+            <td style="border: 1px solid #ddd; padding: 12px; color: #333; font-weight: bold;"><?= $payment['payment_method'] ?></td>
         </tr>
     </table>
 
