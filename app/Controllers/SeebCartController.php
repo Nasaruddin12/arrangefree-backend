@@ -112,9 +112,11 @@ class SeebCartController extends ResourceController
                 seeb_cart.*,
                 services.image as service_image,
                 services.name as service_name,
-                services.rate as current_rate
+                services.rate as current_rate,
+                rooms.name as room_name
             ')
                 ->join('services', 'services.id = seeb_cart.service_id', 'left')
+                ->join('rooms', 'rooms.id = seeb_cart.room_id', 'left')
                 ->orderBy('seeb_cart.created_at', 'DESC');
 
             if (!empty($userId)) {
@@ -288,8 +290,9 @@ class SeebCartController extends ResourceController
             }
 
             $cartItem = $this->model
-                ->select('seeb_cart.*, services.image as service_image, services.rate as current_rate')
+                ->select('seeb_cart.*, services.image as service_image, services.rate as current_rate, rooms.name as room_name')
                 ->join('services', 'services.id = seeb_cart.service_id', 'left')
+                ->join('rooms', 'rooms.id = seeb_cart.room_id', 'left')
                 ->where('seeb_cart.id', $id)
                 ->first();
 
