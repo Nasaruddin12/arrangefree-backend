@@ -683,24 +683,28 @@ class PartnerJobController extends ResourceController
             }
 
             // Update Firestore for accepted partner and expire others
-            $firestore = new FirestoreService();
-            $partnerModel = new PartnerModel();
+            try {
+                $firestore = new FirestoreService();
+                $partnerModel = new PartnerModel();
 
-            $acceptedPartner = $partnerModel->find($partnerId);
-            if ($acceptedPartner && !empty($acceptedPartner['firebase_uid'])) {
-                $firestore->updatePartnerJobRequestStatus((int) $jobId, $acceptedPartner['firebase_uid'], 'accepted');
-            }
-
-            $otherRequests = $this->partnerJobRequestModel
-                ->where('partner_job_id', (int) $jobId)
-                ->where('partner_id !=', $partnerId)
-                ->findAll();
-
-            foreach ($otherRequests as $request) {
-                $otherPartner = $partnerModel->find((int) ($request['partner_id'] ?? 0));
-                if ($otherPartner && !empty($otherPartner['firebase_uid'])) {
-                    $firestore->updatePartnerJobRequestStatus((int) $jobId, $otherPartner['firebase_uid'], 'expired');
+                $acceptedPartner = $partnerModel->find($partnerId);
+                if ($acceptedPartner && !empty($acceptedPartner['firebase_uid'])) {
+                    $firestore->updatePartnerJobRequestStatus((int) $jobId, $acceptedPartner['firebase_uid'], 'accepted');
                 }
+
+                $otherRequests = $this->partnerJobRequestModel
+                    ->where('partner_job_id', (int) $jobId)
+                    ->where('partner_id !=', $partnerId)
+                    ->findAll();
+
+                foreach ($otherRequests as $request) {
+                    $otherPartner = $partnerModel->find((int) ($request['partner_id'] ?? 0));
+                    if ($otherPartner && !empty($otherPartner['firebase_uid'])) {
+                        $firestore->updatePartnerJobRequestStatus((int) $jobId, $otherPartner['firebase_uid'], 'expired');
+                    }
+                }
+            } catch (\Throwable $e) {
+                log_message('error', 'Partner job Firestore update failed: ' . $e->getMessage());
             }
 
             return $this->respond([
