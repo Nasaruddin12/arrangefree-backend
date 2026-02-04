@@ -1123,6 +1123,22 @@ class PartnerJobController extends ResourceController
             }
         }
 
-        return $roots;
+        return $this->pruneEmptyChildren($roots);
+    }
+
+    private function pruneEmptyChildren(array $items): array
+    {
+        foreach ($items as &$item) {
+            if (!empty($item['children']) && is_array($item['children'])) {
+                $item['children'] = $this->pruneEmptyChildren($item['children']);
+            }
+
+            if (empty($item['children'])) {
+                unset($item['children']);
+            }
+        }
+        unset($item);
+
+        return $items;
     }
 }
