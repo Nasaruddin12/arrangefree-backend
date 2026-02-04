@@ -220,4 +220,20 @@ class FirestoreService
 
         $this->makeFirestoreRequestWithFields($documentName, $payload, 'PATCH', $fields);
     }
+
+    public function updatePartnerJobRequestStatus($partnerJobId, $firebaseUid, $status)
+    {
+        $documentName = "projects/{$this->projectId}/databases/(default)/documents/partner_job_requests/{$firebaseUid}_{$partnerJobId}";
+
+        $payload = [
+            'fields' => [
+                'status' => ['stringValue' => $status],
+                'updated_at' => ['timestampValue' => date('c')],
+            ],
+        ];
+
+        $fields = ['status', 'updated_at'];
+
+        $this->makeFirestoreRequestWithFields($documentName, $payload, 'PATCH', $fields);
+    }
 }

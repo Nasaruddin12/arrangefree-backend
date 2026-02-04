@@ -123,6 +123,79 @@ class PartnerJobController extends ResourceController
         }
     }
 
+    public function details($id = null)
+    {
+        try {
+            $partnerId = (int) ($this->request->getVar('partner_id') ?? 0);
+
+            $job = $this->partnerJobsModel->find((int) $id);
+            if (!$job) {
+                return $this->failNotFound('Partner job not found.');
+            }
+
+            if ($partnerId > 0 && (int) ($job['partner_id'] ?? 0) !== $partnerId) {
+                $request = $this->partnerJobRequestModel
+                    ->where('partner_job_id', (int) $id)
+                    ->where('partner_id', $partnerId)
+                    ->whereIn('status', ['requested', 'accepted'])
+                    ->first();
+
+                if (!$request) {
+                    return $this->failValidationErrors('Job is not available for this partner.');
+                }
+            }
+
+            $items = $this->partnerJobItemModel
+                ->where('partner_job_id', (int) $id)
+                ->findAll();
+
+            $statusLogs = $this->partnerJobStatusLogModel
+                ->where('partner_job_id', (int) $id)
+                ->orderBy('created_at', 'DESC')
+                ->findAll();
+
+            $requests = $this->partnerJobRequestModel
+                ->where('partner_job_id', (int) $id)
+                ->orderBy('created_at', 'DESC')
+                ->findAll();
+
+            $booking = null;
+            $customer = null;
+            $bookingAddress = null;
+
+            if (!empty($job['booking_id'])) {
+                $bookingModel = new BookingsModel();
+                $bookingAddressModel = new BookingAddressModel();
+                $customerModel = new CustomerModel();
+
+                $booking = $bookingModel->find((int) $job['booking_id']);
+                if ($booking) {
+                    $customer = $customerModel->find((int) ($booking['user_id'] ?? 0));
+                    $bookingAddress = $bookingAddressModel
+                        ->where('booking_id', (int) $job['booking_id'])
+                        ->first();
+                }
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Partner job details retrieved successfully.',
+                'data' => [
+                    'job' => $job,
+                    'items' => $items,
+                    'status_logs' => $statusLogs,
+                    'requests' => $requests,
+                    'booking' => $booking,
+                    'customer' => $customer,
+                    'address' => $bookingAddress,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Partner job details error: ' . $e->getMessage());
+            return $this->failServerError('Something went wrong while fetching partner job details.');
+        }
+    }
+
     public function create()
     {
 
@@ -425,6 +498,136 @@ class PartnerJobController extends ResourceController
         }
     }
 
+    public function acceptJob($jobId = null)
+    {
+        try {
+            $data = $this->request->getJSON(true) ?? $this->request->getVar();
+
+            $partnerId = isset($data['partner_id']) ? (int) $data['partner_id'] : 0;
+            if (empty($jobId) || $partnerId <= 0) {
+                return $this->failValidationErrors('job_id and partner_id are required.');
+            }
+
+            $this->db->transException(true);
+            $this->db->transStart();
+
+            $job = $this->db->query('SELECT * FROM partner_jobs WHERE id = ? FOR UPDATE', [(int) $jobId])->getRowArray();
+            if (!$job) {
+                $this->db->transRollback();
+                return $this->failNotFound('Partner job not found.');
+            }
+
+            if (($job['status'] ?? null) === 'accepted' && (int) ($job['partner_id'] ?? 0) === $partnerId) {
+                $this->db->transRollback();
+                return $this->respond([
+                    'status' => 200,
+                    'message' => 'Partner job already accepted.',
+                    'data' => [
+                        'id' => (int) $jobId,
+                        'status' => 'accepted',
+                    ],
+                ]);
+            }
+
+            if (!empty($job['partner_id']) && (int) $job['partner_id'] !== $partnerId) {
+                $this->db->transRollback();
+                return $this->failValidationErrors('Job is assigned to another partner.');
+            }
+
+            if (in_array($job['status'] ?? null, ['completed', 'cancelled'], true)) {
+                $this->db->transRollback();
+                return $this->failValidationErrors('Job cannot be accepted in current status.');
+            }
+
+            if (!in_array($job['status'] ?? null, ['pending', 'assigned'], true)) {
+                $this->db->transRollback();
+                return $this->failValidationErrors('Job can only be accepted when status is pending or assigned.');
+            }
+
+            $request = $this->partnerJobRequestModel
+                ->where('partner_job_id', (int) $jobId)
+                ->where('partner_id', $partnerId)
+                ->first();
+
+            if ($request && ($request['status'] ?? null) !== 'requested') {
+                $this->db->transRollback();
+                return $this->failValidationErrors('Job request is not in requested status.');
+            }
+
+            $oldStatus = $job['status'] ?? null;
+
+            $this->partnerJobsModel->skipValidation(true)->update((int) $jobId, [
+                'partner_id' => $partnerId,
+                'status' => 'accepted',
+                'assigned_at' => $job['assigned_at'] ?? date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+
+            $this->partnerJobRequestModel
+                ->where('partner_job_id', (int) $jobId)
+                ->where('partner_id', $partnerId)
+                ->set([
+                    'status' => 'accepted',
+                    'responded_at' => date('Y-m-d H:i:s'),
+                ])
+                ->update();
+
+            $this->partnerJobRequestModel
+                ->where('partner_job_id', (int) $jobId)
+                ->where('partner_id !=', $partnerId)
+                ->where('status', 'requested')
+                ->set([
+                    'status' => 'expired',
+                    'responded_at' => date('Y-m-d H:i:s'),
+                ])
+                ->update();
+
+            $this->logStatusChange((int) $jobId, $oldStatus, 'accepted', 'partner', $partnerId, $data['note'] ?? null);
+
+            $this->db->transComplete();
+            if ($this->db->transStatus() === false) {
+                $dbError = $this->db->error();
+                $lastQuery = $this->db->getLastQuery();
+                log_message('error', 'Partner job accept transaction failed: ' . json_encode($dbError) . ' | Query: ' . ($lastQuery ? (string) $lastQuery : ''));
+                return $this->failServerError('Transaction failed while accepting job. ' . ($dbError['message'] ?? ''));
+            }
+
+            // Update Firestore for accepted partner and expire others
+            $firestore = new FirestoreService();
+            $partnerModel = new PartnerModel();
+
+            $acceptedPartner = $partnerModel->find($partnerId);
+            if ($acceptedPartner && !empty($acceptedPartner['firebase_uid'])) {
+                $firestore->updatePartnerJobRequestStatus((int) $jobId, $acceptedPartner['firebase_uid'], 'accepted');
+            }
+
+            $otherRequests = $this->partnerJobRequestModel
+                ->where('partner_job_id', (int) $jobId)
+                ->where('partner_id !=', $partnerId)
+                ->findAll();
+
+            foreach ($otherRequests as $request) {
+                $otherPartner = $partnerModel->find((int) ($request['partner_id'] ?? 0));
+                if ($otherPartner && !empty($otherPartner['firebase_uid'])) {
+                    $firestore->updatePartnerJobRequestStatus((int) $jobId, $otherPartner['firebase_uid'], 'expired');
+                }
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Partner job accepted successfully.',
+                'data' => [
+                    'id' => (int) $jobId,
+                    'status' => 'accepted',
+                ],
+            ]);
+        } catch (\Exception $e) {
+            $this->db->transRollback();
+            log_message('error', 'Accept partner job error: ' . $e->getMessage());
+            return $this->failServerError('Something went wrong while accepting job.');
+        }
+    }
+
     public function listByPartner($partnerId = null)
     {
         try {
@@ -441,6 +644,26 @@ class PartnerJobController extends ResourceController
         } catch (\Exception $e) {
             log_message('error', 'List partner jobs error: ' . $e->getMessage());
             return $this->failServerError('Something went wrong while fetching partner jobs.');
+        }
+    }
+
+    public function listActiveByPartner($partnerId = null)
+    {
+        try {
+            $jobs = $this->partnerJobsModel
+                ->where('partner_id', (int) $partnerId)
+                ->whereIn('status', ['accepted', 'in_progress'])
+                ->orderBy('created_at', 'DESC')
+                ->findAll();
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Partner active jobs retrieved successfully.',
+                'data' => $jobs,
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'List partner active jobs error: ' . $e->getMessage());
+            return $this->failServerError('Something went wrong while fetching partner active jobs.');
         }
     }
 

@@ -484,9 +484,14 @@ $routes->group('partner', function ($routes) {
         $routes->post('notifications/user', 'NotificationController::index');
         $routes->post('notifications/clear-all', 'NotificationController::clearAll');
 
-        $routes->post('booking-assignment/accept', 'BookingAssignmentController::acceptAssignment');
-        $routes->get('accepted-bookings/(:num)', 'BookingAssignmentController::getAcceptedBookings/$1');
-        $routes->get('assignment/details/(:num)', 'BookingAssignmentController::getAssignmentDetails/$1');
+        // $routes->post('booking-assignment/accept', 'BookingAssignmentController::acceptAssignment');
+        // $routes->get('accepted-bookings/(:num)', 'BookingAssignmentController::getAcceptedBookings/$1');
+        // $routes->get('assignment/details/(:num)', 'BookingAssignmentController::getAssignmentDetails/$1');
+
+        $routes->post('jobs/accept/(:num)', 'PartnerJobController::acceptJob/$1');
+
+        $routes->get('jobs/active/(:num)', 'PartnerJobController::listActiveByPartner/$1');
+        $routes->get('jobs/details/(:num)', 'PartnerJobController::details/$1');
 
         $routes->get('payouts/(:num)', 'PartnerPayoutController::listByPartner/$1');
 
