@@ -1107,12 +1107,18 @@ class PartnerJobController extends ResourceController
             $byId[(int) $item['id']] = $item;
         }
 
+        foreach ($byId as $id => &$item) {
+            $parentId = (int) ($item['parent_item_id'] ?? 0);
+            if ($parentId > 0 && isset($byId[$parentId])) {
+                $byId[$parentId]['children'][] = &$item;
+            }
+        }
+        unset($item);
+
         $roots = [];
         foreach ($byId as $id => $item) {
             $parentId = (int) ($item['parent_item_id'] ?? 0);
-            if ($parentId > 0 && isset($byId[$parentId])) {
-                $byId[$parentId]['children'][] = $item;
-            } else {
+            if ($parentId <= 0 || !isset($byId[$parentId])) {
                 $roots[] = $item;
             }
         }
