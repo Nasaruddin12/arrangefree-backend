@@ -10,6 +10,8 @@ use App\Models\PartnerJobsModel;
 use App\Models\PartnerJobItemModel;
 use App\Models\PartnerJobStatusLogModel;
 use App\Models\PartnerJobRequestModel;
+use App\Models\PartnerJobAdjustmentsModel;
+use App\Models\PartnerJobAdditionalItemsModel;
 use App\Models\PartnerModel;
 use CodeIgniter\RESTful\ResourceController;
 
@@ -128,26 +130,24 @@ class PartnerJobController extends ResourceController
         try {
             $partnerId = (int) ($this->request->getVar('partner_id') ?? 0);
 
+            if ($partnerId <= 0) {
+                return $this->failValidationErrors('partner_id is required.');
+            }
+
             $job = $this->partnerJobsModel->find((int) $id);
             if (!$job) {
                 return $this->failNotFound('Partner job not found.');
             }
 
-            if ($partnerId > 0 && (int) ($job['partner_id'] ?? 0) !== $partnerId) {
-                $request = $this->partnerJobRequestModel
-                    ->where('partner_job_id', (int) $id)
-                    ->where('partner_id', $partnerId)
-                    ->whereIn('status', ['requested', 'accepted'])
-                    ->first();
-
-                if (!$request) {
-                    return $this->failValidationErrors('Job is not available for this partner.');
-                }
+            if ((int) ($job['partner_id'] ?? 0) !== $partnerId) {
+                return $this->failValidationErrors('Job is not assigned to this partner.');
             }
 
             $items = $this->partnerJobItemModel
                 ->where('partner_job_id', (int) $id)
                 ->findAll();
+
+            $items = $this->buildNestedItems($items);
 
             $statusLogs = $this->partnerJobStatusLogModel
                 ->where('partner_job_id', (int) $id)
@@ -155,6 +155,19 @@ class PartnerJobController extends ResourceController
                 ->findAll();
 
             $requests = $this->partnerJobRequestModel
+                ->where('partner_job_id', (int) $id)
+                ->orderBy('created_at', 'DESC')
+                ->findAll();
+
+            $adjustmentsModel = new PartnerJobAdjustmentsModel();
+            $additionalItemsModel = new PartnerJobAdditionalItemsModel();
+
+            $adjustments = $adjustmentsModel
+                ->where('partner_job_id', (int) $id)
+                ->orderBy('created_at', 'DESC')
+                ->findAll();
+
+            $additionalItems = $additionalItemsModel
                 ->where('partner_job_id', (int) $id)
                 ->orderBy('created_at', 'DESC')
                 ->findAll();
@@ -183,9 +196,11 @@ class PartnerJobController extends ResourceController
                 'data' => [
                     'job' => $job,
                     'items' => $items,
-                    'status_logs' => $statusLogs,
+                    // 'status_logs' => $statusLogs,
                     'requests' => $requests,
-                    'booking' => $booking,
+                    'adjustments' => $adjustments,
+                    'additional_items' => $additionalItems,
+                    // 'booking' => $booking,
                     'customer' => $customer,
                     'address' => $bookingAddress,
                 ],
@@ -196,10 +211,85 @@ class PartnerJobController extends ResourceController
         }
     }
 
+    public function preview($id = null)
+    {
+        try {
+            $partnerId = (int) ($this->request->getVar('partner_id') ?? 0);
+
+            if ($partnerId <= 0) {
+                return $this->failValidationErrors('partner_id is required.');
+            }
+
+            $job = $this->partnerJobsModel->find((int) $id);
+            if (!$job) {
+                return $this->failNotFound('Partner job not found.');
+            }
+
+            if ((int) ($job['partner_id'] ?? 0) !== $partnerId) {
+                $request = $this->partnerJobRequestModel
+                    ->where('partner_job_id', (int) $id)
+                    ->where('partner_id', $partnerId)
+                    ->where('status', 'requested')
+                    ->first();
+
+                if (!$request) {
+                    return $this->failValidationErrors('Job is not available for this partner.');
+                }
+            }
+
+            $items = $this->partnerJobItemModel
+                ->where('partner_job_id', (int) $id)
+                ->findAll();
+
+            $items = $this->buildNestedItems($items);
+
+            $booking = null;
+            $customer = null;
+            $bookingAddress = null;
+
+            if (!empty($job['booking_id'])) {
+                $bookingModel = new BookingsModel();
+                $bookingAddressModel = new BookingAddressModel();
+                $customerModel = new CustomerModel();
+
+                $booking = $bookingModel->find((int) $job['booking_id']);
+                if ($booking) {
+                    $customer = $customerModel->find((int) ($booking['user_id'] ?? 0));
+                    $bookingAddress = $bookingAddressModel
+                        ->where('booking_id', (int) $job['booking_id'])
+                        ->first();
+                }
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Partner job preview retrieved successfully.',
+                'data' => [
+                    'job' => [
+                        'id' => (int) ($job['id'] ?? 0),
+                        'job_id' => $job['job_id'] ?? null,
+                        'title' => $job['title'] ?? null,
+                        'estimated_completion_date' => $job['estimated_completion_date'] ?? null,
+                        'status' => $job['status'] ?? null,
+                    ],
+                    'customer' => $customer ? [
+                        'name' => $customer['name'] ?? null,
+                        'mobile' => $customer['mobile'] ?? null,
+                    ] : null,
+                    'address' => $bookingAddress,
+                    'items' => $items,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Partner job preview error: ' . $e->getMessage());
+            return $this->failServerError('Something went wrong while fetching partner job preview.');
+        }
+    }
+
     public function create()
     {
 
-    // in this i will pass the job details and job services with addons the addon is child of service 
+        // in this i will pass the job details and job services with addons the addon is child of service 
         try {
             $data = $this->request->getJSON(true) ?? $this->request->getVar();
 
@@ -302,7 +392,7 @@ class PartnerJobController extends ResourceController
             if ($this->db->transStatus() === false) {
                 $dbError = $this->db->error();
                 $lastQuery = $this->db->getLastQuery();
-                log_message('error', 'Partner job transaction failed: ' . json_encode($dbError) . ' | Query: ' . ($lastQuery ? (string) $lastQuery : '')); 
+                log_message('error', 'Partner job transaction failed: ' . json_encode($dbError) . ' | Query: ' . ($lastQuery ? (string) $lastQuery : ''));
                 return $this->failServerError('Transaction failed while creating partner job. ' . ($dbError['message'] ?? ''));
             }
 
@@ -455,7 +545,7 @@ class PartnerJobController extends ResourceController
         }
     }
 
-   
+
 
     public function updateStatus($jobId = null)
     {
@@ -1003,5 +1093,30 @@ class PartnerJobController extends ResourceController
             $bookingAddress['address'] ?? null,
             $bookingAddress['landmark'] ?? null,
         ])));
+    }
+
+    private function buildNestedItems(array $items): array
+    {
+        if (empty($items)) {
+            return [];
+        }
+
+        $byId = [];
+        foreach ($items as $item) {
+            $item['children'] = [];
+            $byId[(int) $item['id']] = $item;
+        }
+
+        $roots = [];
+        foreach ($byId as $id => $item) {
+            $parentId = (int) ($item['parent_item_id'] ?? 0);
+            if ($parentId > 0 && isset($byId[$parentId])) {
+                $byId[$parentId]['children'][] = $item;
+            } else {
+                $roots[] = $item;
+            }
+        }
+
+        return $roots;
     }
 }
