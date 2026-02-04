@@ -20,6 +20,12 @@ class CreateFaqCategoriesTable extends Migration
                 'constraint' => 255,
                 'null'       => false,
             ],
+            'status' => [
+                'type'       => 'TINYINT',
+                'constraint' => 1,
+                'default'    => 1,
+                'comment'    => '1 = Active, 0 = Inactive',
+            ],
             'created_at' => [
                 'type' => 'DATETIME',
                 'null' => true,

@@ -8,21 +8,29 @@ class BookingServicesModel extends Model
 {
     protected $table      = 'booking_services';
     protected $primaryKey = 'id';
+    protected $useAutoIncrement = true;
+    protected $returnType = 'array';
 
     protected $allowedFields = [
         'booking_id',
+        'parent_booking_service_id',
         'service_id',
+        'addon_id',
         'service_type_id',
         'room_id',
-        'rate_type',
-        'value',
+        'quantity',
+        'unit',
         'rate',
         'amount',
-        'addons',
+        'room_length',
+        'room_width',
         'description',
         'reference_image',
-        'created_at',
-        'updated_at',
+        'is_job_created',
+        'status',
+        'cancelled_by',
+        'cancelled_at',
+        'cancel_reason'
     ];
 
     protected $useTimestamps = true;
@@ -34,15 +42,19 @@ class BookingServicesModel extends Model
      */
     protected $validationRules = [
         'booking_id'      => 'required|integer',
-        'service_id'      => 'required|integer',
-        'service_type_id' => 'required|integer',
-        'room_id'         => 'required|integer',
-        'rate_type'       => 'required|string|max_length[50]',
-        'value'           => 'required|string',
-        'rate'            => 'required|decimal',
-        'amount'          => 'required|decimal',
+        'service_id'      => 'permit_empty|integer',
+        'service_type_id' => 'permit_empty|integer',
+        'room_id'         => 'permit_empty|integer',
+        'addon_id'        => 'permit_empty|integer',
+        'quantity'        => 'permit_empty|decimal',
+        'unit'            => 'permit_empty|string|max_length[50]',
+        'rate'            => 'permit_empty|decimal',
+        'amount'          => 'permit_empty|decimal',
+        'room_length'     => 'permit_empty|decimal',
+        'room_width'      => 'permit_empty|decimal',
         'description'     => 'permit_empty|string',
         'reference_image' => 'permit_empty|string',
+        'parent_booking_service_id' => 'permit_empty|integer',
     ];
 
     /**
@@ -50,13 +62,17 @@ class BookingServicesModel extends Model
      */
     protected $validationMessages = [
         'booking_id'      => ['required' => 'Booking ID is required.', 'integer' => 'Booking ID must be a number.'],
-        'service_id'      => ['required' => 'Service ID is required.', 'integer' => 'Service ID must be a number.'],
-        'service_type_id' => ['required' => 'Service Type ID is required.', 'integer' => 'Service Type ID must be a number.'],
-        'room_id'         => ['required' => 'Room ID is required.', 'integer' => 'Room ID must be a number.'],
-        'rate_type'       => ['required' => 'Rate Type is required.', 'max_length' => 'Rate Type cannot exceed 50 characters.'],
-        'value'           => ['required' => 'Value is required.'],
-        'rate'            => ['required' => 'Rate is required.', 'decimal' => 'Rate must be a decimal number.'],
-        'amount'          => ['required' => 'Amount is required.', 'decimal' => 'Amount must be a decimal number.'],
+        'service_id'      => ['integer' => 'Service ID must be a number.'],
+        'service_type_id' => ['integer' => 'Service Type ID must be a number.'],
+        'room_id'         => ['integer' => 'Room ID must be a number.'],
+        'addon_id'        => ['integer' => 'Addon ID must be a number.'],
+        'quantity'        => ['decimal' => 'Quantity must be a decimal number.'],
+        'unit'            => ['max_length' => 'Unit cannot exceed 50 characters.'],
+        'rate'            => ['decimal' => 'Rate must be a decimal number.'],
+        'amount'          => ['decimal' => 'Amount must be a decimal number.'],
+        'room_length'     => ['decimal' => 'Room length must be a decimal number.'],
+        'room_width'      => ['decimal' => 'Room width must be a decimal number.'],
+        'parent_booking_service_id' => ['integer' => 'Parent booking service ID must be a number.'],
     ];
 
     /**

@@ -34,9 +34,6 @@ class CustomerController extends BaseController
             $customerData = $customerModel->where('mobile_no', $mobileNo)->first();
             if (!empty($customerData)) {
                 $otp = random_int(1000, 9999);
-                if ($mobileNo == '7823098610')
-                    $otp = 6254;
-                // echo $otp;
                 $smsGateway = new SMSGateway();
                 $response = $smsGateway->sendOTP($mobileNo, $otp);
 
@@ -95,8 +92,9 @@ class CustomerController extends BaseController
             // Generate OTP
             $otp = random_int(1000, 9999);
 
+            // ✅ FOR APP STORE/PLAY STORE TESTING ONLY: Fixed OTP for verification
             if ($mobileNo == '8999125105') {
-                $otp = 4256; // For testing purposes, use a fixed OTP
+                $otp = 4256;
             }
 
             $smsGateway = new SMSGateway();
@@ -128,71 +126,6 @@ class CustomerController extends BaseController
     }
 
 
-
-    // public function sendOTP()
-    // {
-    //     try {
-    //         $mobileNo = $this->request->getVar('mobile_no');
-
-
-    //         $customerModel = new CustomerModel();
-
-    // if ($customerModel->where("mobile_no", $mobileNo)->first()) {
-
-
-    //     $validation = &$customerModel;
-
-
-    //             $otp = random_int(1000, 9999);
-    //             if ($mobileNo == '7823098610')
-    //                 $otp = 1234;
-    //             // echo $otp;
-    //             $smsGateway = new SMSGateway();
-    //             $response = $smsGateway->sendOTP($mobileNo, $otp);
-
-    //             if ($response->statusCode != 200) {
-    //                 throw new Exception('Unable to send OTP.', 500);
-    //             }
-    //             $expTime = new DateTime('now');
-    //             $expTime->add(new DateInterval('PT300S'));
-    //             $otpToken = hash('sha256', $otp);
-    //             $expTime = $expTime->getTimestamp();
-    //             $otpToken .= ".$expTime";
-
-    //             $customerData = $customerModel->where('mobile_no', $mobileNo)->first();
-    //             if (!empty($customerData)) {
-    //                 $customerModel->set(['otp' => $otpToken])->update($customerData['id']);
-    //             } else {
-    //                 $data = [
-    //                     'mobile_no' => $mobileNo,
-    //                     'otp' => $otpToken,
-    //                 ];
-    //                 $customerModel->insert($data);
-    //                 $customerID = $customerModel->db->insertID();
-    //                 // throw new Exception('User not found', 404);
-    //             }
-    //             $statusCode = 200;
-    //             $response = [
-    //                 'message' => 'OTP sent successfully',
-    //             ];
-    //         } else {
-    //             $statusCode = 404;
-    //             $response = [
-    //                 'message' => 'User Not Found',
-    //             ];
-    //         }
-    //     } catch (Exception $e) {
-    //         $statusCode = $e->getCode() === 400 ? 400 : ($e->getCode() === 404 ? 404 : 500);
-    //         $response = [
-    //             'error' => $e->getCode() === 400 ? ['validation' => $validation->errors()] : $e->getMessage(),
-    //             'status' => $statusCode
-    //         ];
-    //     }
-
-    //     $response['status'] = $statusCode;
-    //     return $this->respond($response, $statusCode);
-    // }
-
     public function login()
     {
         try {
@@ -223,11 +156,11 @@ class CustomerController extends BaseController
             $currentTime = new DateTime('now');
             $expTime = new DateTime();
             $expTime->setTimestamp((int) $userOTP[1]);
-            // if ($otp == '1234') {
-            $otp = hash('sha256', $otp);
-            if (($currentTime <= $expTime) && ($userOTP[0] == $otp)) {
+            
+            $otpHash = hash('sha256', $otp);
+            if (($currentTime <= $expTime) && ($userOTP[0] == $otpHash)) {
                 $key = getenv('JWT_SECRET');
-                $iat = time(); // current timestamp value
+                $iat = time();
                 $exp = $iat + 18000000;
 
                 $payload = array(
@@ -235,14 +168,16 @@ class CustomerController extends BaseController
                     "aud" => "Customer",
                     "sub" => "To verify the User",
                     "iat" => $iat,
-                    //Time the JWT issued at
                     "exp" => $exp,
-                    // Expiration time of token
                     "mobile_no" => $user['mobile_no'],
-                    "customer_id" => $user['id'],
+                    "customer_id" => $user['
+                    id'],
                 );
 
                 $token = JWT::encode($payload, $key, 'HS256');
+                
+                // Remove sensitive data
+                unset($user['password'], $user['otp']);
 
                 $statusCode = 200;
                 $response = [
@@ -250,10 +185,7 @@ class CustomerController extends BaseController
                     'message' => 'Login successful',
                     'user' => $user,
                     'token' => $token,
-                    // 'session_id' => $session->session_id
                 ];
-                // print_r($response);die;
-                // return $this->respond($response);
             } else {
                 $statusCode = 401;
                 $response = [
@@ -293,31 +225,40 @@ class CustomerController extends BaseController
     public function createCustomer()
     {
         try {
-            // echo 'dddd';die;
             $customerModel = new CustomerModel();
-            $validation = &$customerModel;
-            // $statusCode = 200;
+            
+            // Validate input
+            $validation = \Config\Services::validation();
+            $validation->setRules([
+                'name' => 'required|string|max_length[255]',
+                'mobile_no' => 'required|string|exact_length[10]|numeric',
+                'is_logged_in' => 'permit_empty|in_list[0,1]',
+                'status' => 'permit_empty|in_list[0,1]',
+                'fcm_token' => 'permit_empty|string',
+            ]);
+
+            if (!$validation->withRequest($this->request)->run()) {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'Validation failed',
+                    'errors' => $validation->getErrors()
+                ], 400);
+            }
 
             $userBackendToFrontendAttrs = [
                 'name' => 'name',
-                // 'email' => 'email',
                 'mobile_no' => 'mobile_no',
-                // 'password' => 'password',
                 'is_logged_in' => 'is_logged_in',
                 'status' => 'status',
                 'fcm_token' => 'fcm_token',
             ];
 
-            $customerData = array();
-            // print_r($userBackendToFrontendAttrs);die;
+            $customerData = [];
             foreach ($userBackendToFrontendAttrs as $backendAttr => $frontendAttr) {
                 $customerData[$backendAttr] = $this->request->getVar($frontendAttr);
             }
 
-
-
             if ($customerModel->insert($customerData)) {
-
                 $insertId = $customerModel->getInsertID();
                 $mobileNo = $this->request->getVar("mobile_no");
                 $otp = random_int(1000, 9999);
@@ -328,48 +269,34 @@ class CustomerController extends BaseController
                 if ($response->statusCode != 200) {
                     throw new Exception('Unable to send OTP.', 500);
                 }
+                
                 $expTime = new DateTime('now');
                 $expTime->add(new DateInterval('PT300S'));
-                $otpToken = hash('sha256', $otp);
-                $expTime = $expTime->getTimestamp();
-                $otpToken .= ".$expTime";
+                $otpToken = hash('sha256', $otp) . '.' . $expTime->getTimestamp();
+                $customerModel->update($insertId, ['otp' => $otpToken]);
 
-                $customerModel->set(['otp' => $otpToken])->update($insertId);
-
-
-                if (!empty($customerModel->errors())) {
-                    throw new Exception('Validation', 400);
-                }
-                if ($customerModel->db->error()['code']) {
-                    throw new Exception($customerModel->db->error()['message'], 500);
-                }
-                if ($customerModel->db->affectedRows() == 1) {
-                    $statusCode = 200;
-                    $response = [
-                        'message' => 'Customer created successfully.',
+                $statusCode = 201;
+                $response = [
+                    'status' => 201,
+                    'message' => 'Customer created successfully.',
+                    'data' => [
                         'customer_id' => $insertId,
                         'customer_name' => $customerData['name'],
-                    ];
-                }
-            } else {
-                $statusCode =  400;
-                $response = [
-                    'error' => $customerModel->errors(),
-                    'status' => $statusCode
+                    ]
                 ];
+            } else {
+                throw new Exception(json_encode($customerModel->errors()), 400);
             }
         } catch (Exception $e) {
-            // $db->transRollback();
             $statusCode = $e->getCode() === 400 ? 400 : 500;
             $response = [
-                'error' => $e->getCode() === 400 ? ['validation' => $validation->errors()] : $e->getMessage(),
-                'status' => $statusCode
+                'status' => $statusCode,
+                'message' => $statusCode === 400 ? 'Validation failed' : 'Failed to create customer',
+                'error' => $e->getMessage()
             ];
         }
 
-        $response['status'] = $statusCode;
-        return $this->respond($response, $statusCode);
-        // $response['status'] = $statusCode;
+        return $this->respond($response, $statusCode ?? 500);
     }
 
     public function getCustomer()
@@ -515,23 +442,15 @@ class CustomerController extends BaseController
     public function getCustomerById($id)
     {
         $customerModel = new CustomerModel();
-        $AfSubcribedUserModel = new AfSubcribedUserModel();
+
 
         try {
             $customerData = $customerModel->where('id', $id)->findAll();
-            $subscribedUserData = $AfSubcribedUserModel->where('user_id', $id)->first();
-
-            // if ($subscribedUserData) {
-            //     $data = $AfSubcribedUserModel->where('user_id',$id)->findAll();
-            // } else {
-            //     $data = "User Has Not Subscribed Yet"; 
-            // }
 
 
             $statusCode = 200;
             $response = [
                 'data' => $customerData,
-                'SubscribedUser' => $subscribedUserData
             ];
         } catch (Exception $e) {
             $statusCode = $e->getCode() === 400 ? 400 : 500;

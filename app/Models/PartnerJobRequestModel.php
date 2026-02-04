@@ -6,36 +6,34 @@ use CodeIgniter\Model;
 
 class PartnerJobRequestModel extends Model
 {
-    protected $DBGroup          = 'default';
-    protected $table            = 'partnerjobrequests';
-    protected $primaryKey       = 'id';
+    protected $table = 'partner_job_requests';
+    protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
-    protected $returnType       = 'array';
-    protected $useSoftDeletes   = false;
-    protected $protectFields    = true;
-    protected $allowedFields    = [];
+    protected $returnType = 'array';
+    protected $useTimestamps = true;
+    protected $createdField = 'created_at';
+    protected $updatedField = null;
+    protected $dateFormat = 'datetime';
+    protected $allowedFields = [
+        'partner_job_id',
+        'partner_id',
+        'status',
+        'requested_by',
+        'requested_by_id',
+        'responded_at',
+        'response_note'
+    ];
 
-    // Dates
-    protected $useTimestamps = false;
-    protected $dateFormat    = 'datetime';
-    protected $createdField  = 'created_at';
-    protected $updatedField  = 'updated_at';
-    protected $deletedField  = 'deleted_at';
+    protected $validationRules = [];
+    protected $validationMessages = [];
+    protected $skipValidation = false;
 
-    // Validation
-    protected $validationRules      = [];
-    protected $validationMessages   = [];
-    protected $skipValidation       = false;
-    protected $cleanValidationRules = true;
-
-    // Callbacks
-    protected $allowCallbacks = true;
-    protected $beforeInsert   = [];
-    protected $afterInsert    = [];
-    protected $beforeUpdate   = [];
-    protected $afterUpdate    = [];
-    protected $beforeFind     = [];
-    protected $afterFind      = [];
-    protected $beforeDelete   = [];
-    protected $afterDelete    = [];
+    protected $callbacks = [
+        'beforeInsert' => [],
+        'afterInsert' => [],
+        'beforeUpdate' => [],
+        'afterUpdate' => [],
+        'beforeDelete' => [],
+        'afterDelete' => [],
+    ];
 }

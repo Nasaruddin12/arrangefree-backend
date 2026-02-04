@@ -6,17 +6,35 @@ use CodeIgniter\Model;
 
 class PartnerPayoutModel extends Model
 {
-    protected $table            = 'partner_payouts';
-    protected $primaryKey       = 'id';
-    protected $allowedFields    = [
+    protected $table = 'partner_payouts';
+    protected $primaryKey = 'id';
+    protected $useAutoIncrement = true;
+    protected $returnType = 'array';
+    protected $useTimestamps = false;
+    protected $dateFormat = 'datetime';
+    protected $allowedFields = [
         'partner_id',
-        'booking_service_id',
         'amount',
+        'payout_mode',
+        'transaction_reference',
         'status',
-        'released_at',
-        'notes',
-        'created_at',
-        'updated_at'
+        'initiated_by',
+        'initiated_by_id',
+        'initiated_at',
+        'completed_at',
+        'note'
     ];
-    protected $useTimestamps = true;
+
+    protected $validationRules = [];
+    protected $validationMessages = [];
+    protected $skipValidation = false;
+
+    protected $callbacks = [
+        'beforeInsert' => [],
+        'afterInsert' => [],
+        'beforeUpdate' => [],
+        'afterUpdate' => [],
+        'beforeDelete' => [],
+        'afterDelete' => [],
+    ];
 }

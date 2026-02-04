@@ -47,6 +47,10 @@ class AfCoupon extends Migration
                 'type' => 'VARCHAR',
                 'constraint' => 255,
             ],
+            'description' => [
+                'type' => 'TEXT',
+                'null' => true,
+            ],
             'coupon_expiry' => [
                 'type' => 'VARCHAR',
                 'constraint' => 101,
@@ -76,6 +80,11 @@ class AfCoupon extends Migration
             ],
             'created_at DATETIME DEFAULT CURRENT_TIMESTAMP',
             'updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
+            'deleted_at' => [
+                'type' => 'DATETIME',
+                'null' => true,
+            ],
+
         ]);
 
         $this->forge->addKey('id', true);

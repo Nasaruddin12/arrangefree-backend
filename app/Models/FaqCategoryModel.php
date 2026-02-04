@@ -9,6 +9,8 @@ class FaqCategoryModel extends Model
     protected $table      = 'faq_categories';
     protected $primaryKey = 'id';
 
-    protected $allowedFields = ['name', 'created_at', 'updated_at'];
+    protected $allowedFields = ['name', 'status'];
     protected $useTimestamps = true;
+    protected $createdField  = 'created_at';
+    protected $updatedField  = 'updated_at';
 }

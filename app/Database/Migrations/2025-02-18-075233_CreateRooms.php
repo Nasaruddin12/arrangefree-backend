@@ -20,10 +20,21 @@ class CreateRooms extends Migration
                 'constraint' => 255,
                 'null'       => false,
             ],
+            'slug' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 255,
+                'null'       => true,
+                'unique'     => true,
+            ],
             'image' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 255,
                 'null'       => true,
+            ],
+            'type' => [
+                'type'       => 'ENUM',
+                'constraint' => ['residential', 'commercial', 'retail'],
+                'default'    => 'residential',
             ],
             'created_at' => [
                 'type' => 'DATETIME',
@@ -32,7 +43,12 @@ class CreateRooms extends Migration
             'updated_at' => [
                 'type' => 'DATETIME',
                 'null' => true,
-            ]
+            ],
+            'deleted_at' => [
+                'type' => 'DATETIME',
+                'null' => true,
+            ],
+
         ]);
 
         $this->forge->addKey('id', true);

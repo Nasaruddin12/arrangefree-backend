@@ -8,47 +8,53 @@ class RazorpayOrdersModel extends Model
 {
     protected $table      = 'razorpay_orders';
     protected $primaryKey = 'id';
+    protected $useAutoIncrement = true;
+    protected $returnType = 'array';
 
     protected $allowedFields = [
-        'user_id',
         'booking_id',
-        'order_id',
+        'user_id',
+        'razorpay_order_id',
         'amount',
         'currency',
         'status',
-        'payment_id',
-        'created_at',
-        'updated_at',
+        'receipt',
+        'attempts',
+        'payment_id'
     ];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
-    protected $updatedField  = 'updated_at';
+    protected $updatedField  = null;
+    protected $dateFormat    = 'datetime';
 
     /**
      * Validation Rules
      */
     protected $validationRules = [
-        'user_id'    => 'required|integer',
-        'booking_id' => 'required|integer', // Nullable if not always associated with a booking
-        'order_id'   => 'required|string|max_length[100]',
-        'amount'     => 'required|decimal',
-        'currency'   => 'required|string|max_length[3]',
-        'status'     => 'required|in_list[created,pending,paid,failed,refunded]',
-        'payment_id' => 'permit_empty|string|max_length[100]',
+        'booking_id'       => 'required|integer',
+        'user_id'          => 'required|integer',
+        'razorpay_order_id' => 'required|string|max_length[100]',
+        'amount'           => 'required|decimal',
+        'currency'         => 'required|string|max_length[10]',
+        'status'           => 'required|in_list[created,paid,failed]',
+        'receipt'          => 'permit_empty|string|max_length[100]',
+        'attempts'         => 'permit_empty|integer',
+        'payment_id'       => 'permit_empty|string|max_length[100]',
     ];
 
     /**
      * Custom Validation Messages
      */
     protected $validationMessages = [
-        'user_id'    => ['required' => 'User ID is required.', 'integer' => 'User ID must be a valid number.'],
-        'booking_id' => ['required' => 'Booking ID is required.', 'integer' => 'Booking ID must be a valid number.'],
-        'order_id'   => ['required' => 'Order ID is required.', 'max_length' => 'Order ID must not exceed 100 characters.'],
-        'amount'     => ['required' => 'Amount is required.', 'decimal' => 'Amount must be a decimal value.'],
-        'currency'   => ['required' => 'Currency is required.', 'max_length' => 'Currency must be 3 characters (e.g., INR, USD).'],
-        'status'     => ['required' => 'Order status is required.', 'in_list' => 'Invalid order status provided.'],
-        'payment_id' => ['max_length' => 'Payment ID must not exceed 100 characters.'],
+        'booking_id'       => ['required' => 'Booking ID is required.', 'integer' => 'Booking ID must be a valid number.'],
+        'user_id'          => ['required' => 'User ID is required.', 'integer' => 'User ID must be a valid number.'],
+        'razorpay_order_id' => ['required' => 'Razorpay Order ID is required.', 'max_length' => 'Razorpay Order ID must not exceed 100 characters.'],
+        'amount'           => ['required' => 'Amount is required.', 'decimal' => 'Amount must be a decimal value.'],
+        'currency'         => ['required' => 'Currency is required.', 'max_length' => 'Currency must not exceed 10 characters.'],
+        'status'           => ['required' => 'Order status is required.', 'in_list' => 'Invalid order status provided.'],
+        'receipt'          => ['max_length' => 'Receipt must not exceed 100 characters.'],
+        'payment_id'       => ['max_length' => 'Payment ID must not exceed 100 characters.'],
     ];
 
     /**
@@ -73,23 +79,21 @@ class RazorpayOrdersModel extends Model
     /**
      * Get order details by Razorpay Order ID
      */
-    public function getOrderByOrderId($order_id)
+    public function getOrderByRazorpayOrderId($razorpay_order_id)
     {
-        return $this->where('order_id', $order_id)->first();
+        return $this->where('razorpay_order_id', $razorpay_order_id)->first();
     }
 
     /**
      * Update order status
      */
-    public function updateOrderStatus($order_id, $status, $payment_id = null)
+    public function updateOrderStatus($razorpay_order_id, $status, $payment_id = null)
     {
-        $data = ['status' => $status];
-
+        $updateData = ['status' => $status];
         if ($payment_id) {
-            $data['payment_id'] = $payment_id;
+            $updateData['payment_id'] = $payment_id;
         }
-
-        return $this->where('order_id', $order_id)->set($data)->update();
+        return $this->where('razorpay_order_id', $razorpay_order_id)->set($updateData)->update();
     }
 
     /**

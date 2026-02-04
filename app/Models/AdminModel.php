@@ -13,7 +13,7 @@ class AdminModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['role_id','name','email','mobile_no','password','is_logged_in','otp','status'];
+    protected $allowedFields    = ['role_id', 'name', 'email', 'mobile_no', 'password', 'is_logged_in', 'otp', 'status'];
 
     // Dates
     protected $useTimestamps = false;
@@ -23,11 +23,19 @@ class AdminModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Validation
-    protected $validationRules      = [
+    // protected $validationRules      = [
         // 'name'=> "required",
         // 'email'=> "required|valid_email|is_unique[af_admins.email,af_admins.id,{id}]",
         // 'password'=> "required|min_length[8]|max_length[21]|alpha_numeric",
         // 'mobile_no'=> "required|exact_length[10]|numeric",
+    // ];
+    protected $validationRules      = [
+        'role_id' => 'required|integer',
+        'name' => 'required|string|max_length[100]',
+        // 'email' => 'required|valid_email|is_unique[af_admins.email,af_admins.id,{id}]',
+        'mobile_no' => 'required|numeric|exact_length[10]',
+        'password' => 'permit_empty|string|min_length[8]',
+        'status' => 'required|in_list[active,inactive]',
     ];
     protected $validationMessages   = [
         // 'name' => [
@@ -38,7 +46,7 @@ class AdminModel extends Model
         //     'valid_email'=> "PLEASE ENTER A VALID EMAIL",
         //     'is_unique'=> "EMIAL IS ALREADY EXISTED",
         // ],
-        
+
         // 'password' => [
         //     'required'=> "EMail IS COMPULSORY",
         //     'min_length'=> "PASSWORD MUST BE GREATER THAN 5 WORDS",

@@ -36,7 +36,7 @@ class AfAdmin extends Migration
                 'type' => 'VARCHAR',
                 'constraint' => 256,
             ],
-            
+
             'is_logged_in' => [
                 'type' => 'boolean',
                 'null' => false,
@@ -53,6 +53,11 @@ class AfAdmin extends Migration
             ],
             'created_at DATETIME DEFAULT CURRENT_TIMESTAMP',
             'updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
+            'deleted_at' => [
+                'type' => 'DATETIME',
+                'null' => true,
+            ],
+
         ]);
         $this->forge->addPrimaryKey('id');
         $this->forge->createTable('af_admins');
@@ -61,6 +66,5 @@ class AfAdmin extends Migration
     public function down()
     {
         $this->forge->dropTable('af_admins');
-
     }
 }

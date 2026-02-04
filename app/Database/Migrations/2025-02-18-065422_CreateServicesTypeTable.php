@@ -19,11 +19,22 @@ class CreateServicesTypeTable extends Migration
                 'type'       => 'VARCHAR',
                 'constraint' => '255',
             ],
+            'slug' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 255,
+                'null'       => true,
+                'unique'     => true,
+            ],
             'image' => [
                 'type'       => 'VARCHAR',
                 'constraint' => '255',
                 'null'       => true,
                 'comment'    => 'URL or file path of the image',
+            ],
+            'status' => [
+                'type'       => 'TINYINT',
+                'constraint' => 1,
+                'default'    => 1,
             ],
             'created_at' => [
                 'type'       => 'DATETIME',
@@ -33,6 +44,11 @@ class CreateServicesTypeTable extends Migration
                 'type'       => 'DATETIME',
                 'null'       => true,
             ],
+            'deleted_at' => [
+                'type' => 'DATETIME',
+                'null' => true,
+            ],
+
         ]);
 
         $this->forge->addKey('id', true);

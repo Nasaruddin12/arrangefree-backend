@@ -1216,43 +1216,37 @@ class PartnerController extends BaseController
         p.profession,
         p.team_size,
         (
-            SELECT COUNT(*) FROM booking_assignments ba
-            JOIN booking_services bs ON ba.booking_service_id = bs.id
+            SELECT COUNT(*) FROM partner_jobs ba
             WHERE ba.partner_id = p.id AND ba.status = 'assigned'
         ) AS assigned,
 
         (
-            SELECT COUNT(*) FROM booking_assignments ba
-            JOIN booking_services bs ON ba.booking_service_id = bs.id
+            SELECT COUNT(*) FROM partner_jobs ba
             WHERE ba.partner_id = p.id AND ba.status = 'in_progress'
         ) AS in_progress,
 
         (
-            SELECT COUNT(*) FROM booking_assignments ba
-            JOIN booking_services bs ON ba.booking_service_id = bs.id
+            SELECT COUNT(*) FROM partner_jobs ba
             WHERE ba.partner_id = p.id AND ba.status = 'completed'
         ) AS completed,
 
         (
-            SELECT COUNT(*) FROM booking_assignments ba
-            JOIN booking_services bs ON ba.booking_service_id = bs.id
-            WHERE ba.partner_id = p.id AND ba.status = 'rejected'
-        ) AS rejected,
+            SELECT COUNT(*) FROM partner_jobs ba
+            WHERE ba.partner_id = p.id AND ba.status = 'cancelled'
+        ) AS cancelled,
 
         (
-            SELECT ca.address FROM booking_assignments ba
-            JOIN booking_services bs ON ba.booking_service_id = bs.id
-            JOIN bookings b ON bs.booking_id = b.id
-            JOIN customer_addresses ca ON b.address_id = ca.id
+            SELECT ba2.address FROM partner_jobs ba
+            JOIN bookings b ON ba.booking_id = b.id
+            JOIN booking_addresses ba2 ON b.id = ba2.booking_id
             WHERE ba.partner_id = p.id
             ORDER BY b.slot_date DESC
             LIMIT 1
         ) AS assigned_location,
 
         (
-            SELECT MAX(b.slot_date) FROM booking_assignments ba
-            JOIN booking_services bs ON ba.booking_service_id = bs.id
-            JOIN bookings b ON bs.booking_id = b.id
+            SELECT MAX(b.slot_date) FROM partner_jobs ba
+            JOIN bookings b ON ba.booking_id = b.id
             WHERE ba.partner_id = p.id
         ) AS last_task
     ");

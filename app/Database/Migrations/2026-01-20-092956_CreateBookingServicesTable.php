@@ -34,18 +34,28 @@ class CreateBookingServicesTable extends Migration
                 'type'       => 'INT',
                 'constraint' => 11,
                 'unsigned'   => true,
+                'null'       => true,
+            ],
+
+            'addon_id' => [
+                'type'       => 'INT',
+                'constraint' => 11,
+                'unsigned'   => true,
+                'null'       => true,
             ],
 
             'service_type_id' => [
                 'type'       => 'INT',
                 'constraint' => 11,
                 'unsigned'   => true,
+                'null'       => true,
             ],
 
             'room_id' => [
                 'type'       => 'INT',
                 'constraint' => 11,
                 'unsigned'   => true,
+                'null'       => true,
             ],
 
             'quantity' => [
@@ -56,7 +66,7 @@ class CreateBookingServicesTable extends Migration
 
             'unit' => [
                 'type'       => 'ENUM',
-                'constraint' => ['sqft', 'running_feet', 'running_meter', 'unit', 'point'],
+                'constraint' => ['unit', 'square_feet', 'running_feet', 'running_meter', 'point', 'sqft'],
             ],
 
             'rate' => [
@@ -102,6 +112,28 @@ class CreateBookingServicesTable extends Migration
                 'comment'    => '0 = not created, 1 = job created',
             ],
 
+            'status' => [
+                'type'       => 'ENUM',
+                'constraint' => ['active', 'cancelled'],
+                'default'    => 'active',
+            ],
+
+            'cancelled_by' => [
+                'type'       => 'ENUM',
+                'constraint' => ['admin', 'customer'],
+                'null'       => true,
+            ],
+
+            'cancelled_at' => [
+                'type' => 'DATETIME',
+                'null' => true,
+            ],
+
+            'cancel_reason' => [
+                'type' => 'TEXT',
+                'null' => true,
+            ],
+
             'created_at' => [
                 'type' => 'DATETIME',
                 'null' => true,
@@ -114,11 +146,6 @@ class CreateBookingServicesTable extends Migration
         ]);
 
         $this->forge->addKey('id', true);
-        $this->forge->addKey('booking_id');
-        $this->forge->addKey('parent_booking_service_id');
-        $this->forge->addKey('service_id');
-        $this->forge->addKey('service_type_id');
-        $this->forge->addKey('room_id');
         $this->forge->addForeignKey(
             'booking_id',
             'bookings',
@@ -131,11 +158,17 @@ class CreateBookingServicesTable extends Migration
             'parent_booking_service_id',
             'booking_services',
             'id',
-            'SET NULL',
+            'CASCADE',
             'CASCADE'
         );
+        $this->forge->addForeignKey('service_id', 'services', 'id', 'SET NULL', 'CASCADE');
+        $this->forge->addForeignKey('service_type_id', 'service_types', 'id', 'SET NULL', 'CASCADE');
+        $this->forge->addForeignKey('room_id', 'rooms', 'id', 'SET NULL', 'CASCADE');
 
-        $this->forge->createTable('booking_services');
+
+        $this->forge->createTable('booking_services', false, [
+            'ENGINE' => 'InnoDB',
+        ]);
     }
 
     public function down()

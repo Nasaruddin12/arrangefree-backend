@@ -53,7 +53,11 @@ class AfCustomers extends Migration
             ],
             'created_at DATETIME DEFAULT CURRENT_TIMESTAMP',
             'updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
-            'deleted_at DATETIME',
+            'deleted_at' => [
+                'type' => 'DATETIME',
+                'null' => true,
+            ],
+
         ]);
         $this->forge->addPrimaryKey('id');
         $this->forge->createTable('af_customers');

@@ -8,6 +8,10 @@ class PartnerReferralModel extends Model
 {
     protected $table            = 'partner_referrals';
     protected $primaryKey       = 'id';
+    protected $useAutoIncrement = true;
+    protected $returnType       = 'array';
+    protected $useSoftDeletes   = true;
+
     protected $allowedFields    = [
         'referrer_id',
         'referee_id',
@@ -18,14 +22,14 @@ class PartnerReferralModel extends Model
         'bonus_amount',
         'bonus_status',
         'paid_at',
-        'paid_txn_id',
-        'created_at',
-        'updated_at'
+        'paid_txn_id'
     ];
 
-    protected $useTimestamps        = false; // using manual timestamps
-    protected $useSoftDeletes       = false;
-    protected $returnType           = 'array'; // or 'object' if preferred
+    protected $useTimestamps = true;
+    protected $createdField  = 'created_at';
+    protected $updatedField  = 'updated_at';
+    protected $deletedField  = 'deleted_at';
+    protected $dateFormat    = 'datetime';
 
     // Optional: Custom methods
 

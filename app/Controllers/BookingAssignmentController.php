@@ -30,7 +30,7 @@ class BookingAssignmentController extends ResourceController
         $customerModel = new \App\Models\CustomerModel();
         $serviceModel = new \App\Models\ServiceModel();
         $partnerModel = new PartnerModel();
-        $customerAddressModel = new \App\Models\AddressModel();
+        $customerAddressModel = new \App\Models\CustomerAddressModel();
 
         $summary = [];
 
@@ -407,8 +407,8 @@ class BookingAssignmentController extends ResourceController
         $serviceModel             = new \App\Models\ServiceModel();
         $checklistStatusModel     = new \App\Models\BookingChecklistStatusModel();   // booking_assignment_checklist_status
         $serviceChecklistModel    = new \App\Models\ServiceChecklistModel();         // service_checklists
-        $bookingUpdateModel       = new \App\Models\BookingUpdateModel();
-        $bookingUpdateMediaModel  = new \App\Models\BookingUpdateMediaModel();
+        // $bookingUpdateModel       = new \App\Models\BookingUpdateModel();
+        // $bookingUpdateMediaModel  = new \App\Models\BookingUpdateMediaModel();
         $partnerPayoutModel       = new \App\Models\PartnerPayoutModel();            // optional
         $assignmentModel = new BookingAssignmentModel();
         try {

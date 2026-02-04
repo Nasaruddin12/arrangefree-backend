@@ -26,12 +26,7 @@ class CreateBookingsTable extends Migration
                 'type'       => 'INT',
                 'constraint' => 11,
                 'unsigned'   => true,
-            ],
-
-            'address_id' => [
-                'type'       => 'INT',
-                'constraint' => 11,
-                'unsigned'   => true,
+                'null'       => true,
             ],
 
             'slot_date' => [
@@ -136,29 +131,26 @@ class CreateBookingsTable extends Migration
                 'type' => 'DATETIME',
                 'null' => true,
             ],
+            'deleted_at' => [
+                'type' => 'DATETIME',
+                'null' => true,
+            ],
+
         ]);
 
         $this->forge->addKey('id', true);
-        $this->forge->addKey('booking_code');
         $this->forge->addKey('user_id');
-        $this->forge->addKey('address_id');
         $this->forge->addForeignKey(
             'user_id',
             'af_customers',
             'id',
-            'CASCADE',
+            'RESTRICT',
             'CASCADE'
         );
 
-        $this->forge->addForeignKey(
-            'address_id',
-            'customer_addresses',
-            'id',
-            'CASCADE',
-            'CASCADE'
-        );
-
-        $this->forge->createTable('bookings');
+        $this->forge->createTable('bookings',  false, [
+            'ENGINE' => 'InnoDB',
+        ]);
     }
 
     public function down()

@@ -58,6 +58,8 @@ class CreateFaqsTable extends Migration
 
     public function down()
     {
+        // $this->forge->dropForeignKey('faqs', 'category_id');
+        // $this->forge->dropForeignKey('faqs', 'service_id');
         $this->forge->dropTable('faqs');
     }
 }

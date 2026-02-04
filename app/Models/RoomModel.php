@@ -10,10 +10,10 @@ class RoomModel extends Model
     protected $primaryKey = 'id';
 
     protected $returnType     = 'array'; // Define return type as an array
-    protected $useSoftDeletes = false; // No soft deletes for rooms
+    protected $useSoftDeletes = true; // Enable soft deletes
 
     // Allow the following fields to be used in CRUD operations
-    protected $allowedFields = ['name', 'slug', 'image', 'type', 'created_at', 'updated_at'];
+    protected $allowedFields = ['name', 'slug', 'image', 'type'];
 
     // Set up validation rules
     protected $validationRules = [
@@ -45,6 +45,7 @@ class RoomModel extends Model
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
+    protected $deletedField  = 'deleted_at';
 
     // Optionally, you can define custom methods if needed for additional logic
 }

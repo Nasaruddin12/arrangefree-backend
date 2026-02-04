@@ -11,7 +11,7 @@ class CouponModel extends Model
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
-    protected $useSoftDeletes   = false;
+    protected $useSoftDeletes   = true;
     protected $protectFields    = true;
     protected $allowedFields    = [
         'coupon_category',
@@ -26,14 +26,14 @@ class CouponModel extends Model
         'coupon_expiry',
         'cart_minimum_amount',
         'coupon_use_limit',
+        'coupon_used_count',
         'coupon_per_user_limit',
         'coupon_code',
-        'terms_and_conditions',
-        'is_active'  
+        'terms_and_conditions'
     ];
 
     // Dates
-    protected $useTimestamps = false;
+    protected $useTimestamps = true;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';

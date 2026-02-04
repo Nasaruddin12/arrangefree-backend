@@ -78,7 +78,6 @@ class FirestoreService
     private function makeFirestoreRequest($documentName, $payload, $method)
     {
         $fields = ['status', 'updated_at', 'booking_service_id', 'partner_id', 'firebase_uid', 'amount', 'timestamp', 'service_name', 'customer_name', 'slot_date', 'estimated_completion_date', 'address', 'rate', 'rate_type', 'quantity', 'with_material'];
-        $maskQuery = implode('&updateMask.fieldPaths=', $fields);
         $url = "https://firestore.googleapis.com/v1/$documentName?updateMask.fieldPaths=" . implode('&updateMask.fieldPaths=', $fields);
 
         $ch = curl_init($url);
@@ -102,6 +101,36 @@ class FirestoreService
             log_message('error', "Firestore request failed: HTTP $httpCode | URL: $url | Response: $response | Curl Error: $error");
 
             // Throw to abort further processing
+            throw new \RuntimeException("Failed to write assignment to Firestore. HTTP $httpCode: $response");
+        }
+
+        return true;
+    }
+
+    private function makeFirestoreRequestWithFields($documentName, $payload, $method, array $fields)
+    {
+        $url = "https://firestore.googleapis.com/v1/$documentName?updateMask.fieldPaths=" . implode('&updateMask.fieldPaths=', $fields);
+
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_CUSTOMREQUEST  => $method,
+            CURLOPT_POSTFIELDS     => json_encode($payload),
+            CURLOPT_HTTPHEADER     => [
+                'Authorization: Bearer ' . $this->getAccessToken(),
+                'Content-Type: application/json'
+            ]
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        print_r($response);
+        die();
+        if ($httpCode < 200 || $httpCode >= 300) {
+            log_message('error', "Firestore request failed: HTTP $httpCode | URL: $url | Response: $response | Curl Error: $error");
             throw new \RuntimeException("Failed to write assignment to Firestore. HTTP $httpCode: $response");
         }
 
@@ -147,5 +176,48 @@ class FirestoreService
         ];
 
         $this->makeFirestoreRequest($documentName, $payload, 'PATCH');
+    }
+
+    public function pushPartnerJobRequest($partnerJobId, $firebaseUid, $partnerId, $jobId = null, $bookingId = null, $title = null, $customerName = null, $slotDate = null, $estimatedCompletionDate = null, $addressText = null, $amount = null)
+    {
+        $documentName = "projects/{$this->projectId}/databases/(default)/documents/partner_job_requests/{$firebaseUid}_{$partnerJobId}";
+
+        $payload = [
+            'fields' => [
+                'partner_job_id' => ['stringValue' => (string) $partnerJobId],
+                'job_id' => ['stringValue' => (string) $jobId],
+                'booking_id' => ['stringValue' => (string) $bookingId],
+                'title' => ['stringValue' => (string) $title],
+                'customer_name' => ['stringValue' => (string) $customerName],
+                'slot_date' => ['stringValue' => (string) $slotDate],
+                'estimated_completion_date' => ['stringValue' => (string) $estimatedCompletionDate],
+                'firebase_uid' => ['stringValue' => (string) $firebaseUid],
+                'partner_id' => ['stringValue' => (string) $partnerId],
+                'amount' => $amount !== null ? ['doubleValue' => (float) $amount] : ['nullValue' => null],
+                'status' => ['stringValue' => 'requested'],
+                'updated_at' => ['timestampValue' => date('c')],
+                'timestamp' => ['timestampValue' => date('c')],
+                'address' => ['stringValue' => (string) $addressText]
+            ]
+        ];
+
+        $fields = [
+            'status',
+            'updated_at',
+            'partner_job_id',
+            'job_id',
+            'booking_id',
+            'title',
+            'customer_name',
+            'slot_date',
+            'estimated_completion_date',
+            'firebase_uid',
+            'partner_id',
+            'amount',
+            'timestamp',
+            'address'
+        ];
+
+        $this->makeFirestoreRequestWithFields($documentName, $payload, 'PATCH', $fields);
     }
 }

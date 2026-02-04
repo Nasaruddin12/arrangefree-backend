@@ -6,20 +6,32 @@ use CodeIgniter\Model;
 
 class PromptModel extends Model
 {
-    protected $table      = 'prompts';
+    protected $table = 'prompts';
     protected $primaryKey = 'id';
-
+    protected $useAutoIncrement = true;
+    protected $returnType = 'array';
     protected $useTimestamps = true;
-
+    protected $createdField = 'created_at';
+    protected $updatedField = 'updated_at';
+    protected $dateFormat = 'datetime';
     protected $allowedFields = [
         'style_id',
         'prompt',
-        'image_path',
-        'created_at',
-        'updated_at',
+        'image_path'
     ];
 
-    protected $returnType = 'array';
+    protected $validationRules = [];
+    protected $validationMessages = [];
+    protected $skipValidation = false;
+
+    protected $callbacks = [
+        'beforeInsert' => [],
+        'afterInsert' => [],
+        'beforeUpdate' => [],
+        'afterUpdate' => [],
+        'beforeDelete' => [],
+        'afterDelete' => [],
+    ];
 
     // Optionally join with styles
     public function withStyle()
