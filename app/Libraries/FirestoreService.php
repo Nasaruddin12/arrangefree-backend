@@ -127,8 +127,6 @@ class FirestoreService
         $error = curl_error($ch);
         curl_close($ch);
 
-        print_r($response);
-        die();
         if ($httpCode < 200 || $httpCode >= 300) {
             log_message('error', "Firestore request failed: HTTP $httpCode | URL: $url | Response: $response | Curl Error: $error");
             throw new \RuntimeException("Failed to write assignment to Firestore. HTTP $httpCode: $response");
