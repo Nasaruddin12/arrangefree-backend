@@ -494,7 +494,7 @@ $routes->group('partner', function ($routes) {
         $routes->get('jobs/active/(:num)', 'PartnerJobController::listActiveByPartner/$1');
         $routes->get('jobs/details/(:num)', 'PartnerJobController::details/$1');
         $routes->get('jobs/preview/(:num)', 'PartnerJobController::preview/$1');
-         $routes->get('jobs/partner/(:num)/all', 'PartnerJobController::listByPartner/$1');
+        $routes->get('jobs/all/(:num)', 'PartnerJobController::listAllByPartner/$1');
 
         $routes->get('payouts/(:num)', 'PartnerPayoutController::listByPartner/$1');
 
