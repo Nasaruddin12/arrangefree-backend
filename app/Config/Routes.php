@@ -495,6 +495,8 @@ $routes->group('partner', function ($routes) {
         $routes->get('jobs/details/(:num)', 'PartnerJobController::details/$1');
         $routes->get('jobs/preview/(:num)', 'PartnerJobController::preview/$1');
         $routes->get('jobs/all/(:num)', 'PartnerJobController::listAllByPartner/$1');
+        $routes->get('jobs/on-site-status', 'PartnerJobController::getOnSiteStatus');
+        $routes->post('jobs/update-on-site-status', 'PartnerJobController::updateOnSiteStatus');
 
         $routes->get('payouts/(:num)', 'PartnerPayoutController::listByPartner/$1');
 

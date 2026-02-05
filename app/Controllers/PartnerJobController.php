@@ -12,6 +12,7 @@ use App\Models\PartnerJobStatusLogModel;
 use App\Models\PartnerJobRequestModel;
 use App\Models\PartnerJobAdjustmentsModel;
 use App\Models\PartnerJobAdditionalItemsModel;
+use App\Models\PartnerJobPresenceLogModel;
 use App\Models\PartnerModel;
 use CodeIgniter\RESTful\ResourceController;
 
@@ -871,6 +872,124 @@ class PartnerJobController extends ResourceController
         } catch (\Exception $e) {
             log_message('error', 'List partner active jobs error: ' . $e->getMessage());
             return $this->failServerError('Something went wrong while fetching partner active jobs.');
+        }
+    }
+
+    public function getOnSiteStatus()
+    {
+        try {
+            $partnerId = (int) ($this->request->getVar('partner_id') ?? 0);
+            $jobId = (int) ($this->request->getVar('job_id') ?? 0);
+
+            if ($partnerId <= 0 || $jobId <= 0) {
+                return $this->failValidationErrors('partner_id and job_id are required.');
+            }
+
+            $job = $this->partnerJobsModel->find($jobId);
+            if (!$job) {
+                return $this->failNotFound('Partner job not found.');
+            }
+
+            if ((int) ($job['partner_id'] ?? 0) !== $partnerId) {
+                return $this->failValidationErrors('Job is not assigned to this partner.');
+            }
+
+            $presenceModel = new PartnerJobPresenceLogModel();
+            $latest = $presenceModel
+                ->where('partner_job_id', $jobId)
+                ->where('partner_id', $partnerId)
+                ->orderBy('event_time', 'DESC')
+                ->orderBy('id', 'DESC')
+                ->first();
+
+            $presenceStatus = $latest['event_type'] ?? 'offsite';
+            $onSite = in_array($presenceStatus, ['onsite', 'resume'], true);
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Partner job on-site status retrieved successfully.',
+                'data' => [
+                    'partner_job_id' => $jobId,
+                    'partner_id' => $partnerId,
+                    'on_site' => $onSite,
+                    'presence_status' => $presenceStatus,
+                    'last_event' => $latest,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Get partner job on-site status error: ' . $e->getMessage());
+            return $this->failServerError('Something went wrong while fetching on-site status.');
+        }
+    }
+
+    public function updateOnSiteStatus()
+    {
+        try {
+            $data = $this->request->getJSON(true) ?? $this->request->getVar();
+            $partnerId = (int) ($data['partner_id'] ?? 0);
+            $jobId = (int) ($data['job_id'] ?? 0);
+
+            if ($partnerId <= 0 || $jobId <= 0) {
+                return $this->failValidationErrors('partner_id and job_id are required.');
+            }
+
+            if (!array_key_exists('on_site', $data)) {
+                return $this->failValidationErrors('on_site is required.');
+            }
+
+            $job = $this->partnerJobsModel->find($jobId);
+            if (!$job) {
+                return $this->failNotFound('Partner job not found.');
+            }
+
+            if ((int) ($job['partner_id'] ?? 0) !== $partnerId) {
+                return $this->failValidationErrors('Job is not assigned to this partner.');
+            }
+
+            $onSite = filter_var($data['on_site'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+            if ($onSite === null) {
+                return $this->failValidationErrors('on_site must be true or false.');
+            }
+
+            $eventType = $onSite ? 'onsite' : 'left';
+            $eventTime = $data['timestamp'] ?? date('Y-m-d H:i:s');
+
+            $presenceModel = new PartnerJobPresenceLogModel();
+            $insertData = [
+                'partner_job_id' => $jobId,
+                'partner_id' => $partnerId,
+                'event_type' => $eventType,
+                'event_time' => $eventTime,
+                'source' => $data['source'] ?? 'app',
+                'lat' => $data['lat'] ?? null,
+                'lng' => $data['lng'] ?? null,
+                'accuracy' => $data['accuracy'] ?? null,
+                'note' => $data['note'] ?? null,
+                'created_at' => date('Y-m-d H:i:s'),
+            ];
+
+            if (!$presenceModel->insert($insertData)) {
+                return $this->failValidationErrors([
+                    'status' => 400,
+                    'message' => 'Validation failed for partner job presence log.',
+                    'errors' => $presenceModel->errors(),
+                ]);
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Partner job on-site status updated successfully.',
+                'data' => [
+                    'partner_job_id' => $jobId,
+                    'partner_id' => $partnerId,
+                    'on_site' => $onSite,
+                    'presence_status' => $eventType,
+                    'event_time' => $eventTime,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Update partner job on-site status error: ' . $e->getMessage());
+            return $this->failServerError('Something went wrong while updating on-site status.');
         }
     }
 
