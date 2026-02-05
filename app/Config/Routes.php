@@ -458,12 +458,12 @@ $routes->group('partner', function ($routes) {
     $routes->post('register', 'PartnerController::registerOrUpdate');
     $routes->get('referral/mobile/(:segment)', 'ReferralController::getReferrerByMobile/$1');
     $routes->get('photo/(:num)', 'PartnerController::servePhoto/$1');
+    $routes->get('onboarding-data/(:num)', 'PartnerController::onboardingData/$1');
 
     // Protected routes (auth required)
     $routes->group('/', ['filter' => 'authFilter'], function ($routes) {
         $routes->get('profile/(:num)', 'PartnerController::profile/$1');
         $routes->get('onboarding-status', 'PartnerController::onboardingStatus');
-        $routes->get('onboarding-data/(:num)', 'PartnerController::onboardingData/$1');
         $routes->post('list', 'PartnerController::index');
         $routes->post('verify-bank', 'PartnerController::verifyBank');
         $routes->post('verify-documents/(:num)', 'PartnerController::verifyDocument/$1');
