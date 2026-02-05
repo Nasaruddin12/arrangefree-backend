@@ -207,13 +207,13 @@ $routes->group('rooms', function ($routes) {
 $routes->group('services', function ($routes) {
     // Search endpoint
     $routes->get('search', 'ServiceController::search');
-    
+
     // More specific routes MUST come before catch-all routes
     // Old endpoint for iOS and Android apps (using numeric IDs)
     $routes->get('service-type/(:num)/room/(:num)', 'ServiceController::findByServiceTypeAndRoom/$1/$2');
     // New endpoint for slug-based lookups
     $routes->get('by-slug/service-type/(:any)/room/(:any)', 'ServiceController::findByServiceTypeAndRoomSlug/$1/$2');
-    
+
     // Less specific/catch-all routes
     $routes->get('/', 'ServiceController::index');
     $routes->get('(:num)', 'ServiceController::show/$1');
@@ -478,7 +478,8 @@ $routes->group('partner', function ($routes) {
         $routes->get('ticket/(:num)', 'TicketController::getTicketById/$1');
         $routes->post('ticket/add-message', 'TicketController::addMessage');
         $routes->post('ticket/mark-as-read', 'TicketController::markTicketAsRead');
-
+        $routes->post('tickets/upload-image', 'TicketController::uploadFile');
+        
         $routes->post('notifications/mark-all-read', 'NotificationController::markAllAsRead');
         $routes->delete('notifications/delete/(:num)', 'NotificationController::delete/$1');
         $routes->post('notifications/user', 'NotificationController::index');
