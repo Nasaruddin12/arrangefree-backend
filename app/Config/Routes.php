@@ -494,6 +494,7 @@ $routes->group('partner', function ($routes) {
         $routes->get('jobs/active/(:num)', 'PartnerJobController::listActiveByPartner/$1');
         $routes->get('jobs/details/(:num)', 'PartnerJobController::details/$1');
         $routes->get('jobs/preview/(:num)', 'PartnerJobController::preview/$1');
+         $routes->get('jobs/partner/(:num)/all', 'PartnerJobController::listByPartner/$1');
 
         $routes->get('payouts/(:num)', 'PartnerPayoutController::listByPartner/$1');
 
@@ -513,6 +514,7 @@ $routes->group('partner-jobs', static function ($routes) {
         $routes->get('(:num)/items', 'PartnerJobController::listItems/$1');
         $routes->post('(:num)/items', 'PartnerJobController::addItems/$1');
         $routes->get('partner/(:num)', 'PartnerJobController::listByPartner/$1');
+        $routes->get('partner/(:num)/all', 'PartnerJobController::listAllByPartner/$1');
         $routes->get('booking/(:num)', 'PartnerJobController::listByBooking/$1');
         $routes->post('assign', 'PartnerJobController::assign');
         $routes->post('(:num)/request', 'PartnerJobController::requestPartner/$1');

@@ -741,6 +741,25 @@ class PartnerJobController extends ResourceController
         }
     }
 
+    public function listAllByPartner($partnerId = null)
+    {
+        try {
+            $jobs = $this->partnerJobsModel
+                ->where('partner_id', (int) $partnerId)
+                ->orderBy('created_at', 'DESC')
+                ->findAll();
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Partner jobs retrieved successfully.',
+                'data' => $jobs,
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'List partner jobs error: ' . $e->getMessage());
+            return $this->failServerError('Something went wrong while fetching partner jobs.');
+        }
+    }
+
     public function listActiveByPartner($partnerId = null)
     {
         try {
