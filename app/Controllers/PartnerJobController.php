@@ -749,6 +749,53 @@ class PartnerJobController extends ResourceController
                 ->orderBy('created_at', 'DESC')
                 ->findAll();
 
+            if (!empty($jobs)) {
+                $bookingIds = array_values(array_filter(array_map(static function ($job) {
+                    return (int) ($job['booking_id'] ?? 0);
+                }, $jobs)));
+
+                if (!empty($bookingIds)) {
+                    $bookingModel = new BookingsModel();
+                    $bookingAddressModel = new BookingAddressModel();
+                    $customerModel = new CustomerModel();
+
+                    $bookings = $bookingModel->whereIn('id', $bookingIds)->findAll();
+                    $bookingsById = [];
+                    foreach ($bookings as $booking) {
+                        $bookingsById[(int) ($booking['id'] ?? 0)] = $booking;
+                    }
+
+                    $userIds = array_values(array_filter(array_unique(array_map(static function ($booking) {
+                        return (int) ($booking['user_id'] ?? 0);
+                    }, $bookings))));
+
+                    $customersById = [];
+                    if (!empty($userIds)) {
+                        $customers = $customerModel->whereIn('id', $userIds)->findAll();
+                        foreach ($customers as $customer) {
+                            $customersById[(int) ($customer['id'] ?? 0)] = $customer;
+                        }
+                    }
+
+                    $addresses = $bookingAddressModel->whereIn('booking_id', $bookingIds)->findAll();
+                    $addressByBookingId = [];
+                    foreach ($addresses as $address) {
+                        $addressByBookingId[(int) ($address['booking_id'] ?? 0)] = $address;
+                    }
+
+                    foreach ($jobs as &$job) {
+                        $bookingId = (int) ($job['booking_id'] ?? 0);
+                        $booking = $bookingsById[$bookingId] ?? null;
+                        $customer = $booking ? ($customersById[(int) ($booking['user_id'] ?? 0)] ?? null) : null;
+                        $address = $addressByBookingId[$bookingId] ?? null;
+
+                        $job['customer_name'] = $customer['name'] ?? null;
+                        $job['customer_address'] = $address ? $this->buildBookingAddressText($address) : null;
+                    }
+                    unset($job);
+                }
+            }
+
             return $this->respond([
                 'status' => 200,
                 'message' => 'Partner jobs retrieved successfully.',
@@ -768,6 +815,53 @@ class PartnerJobController extends ResourceController
                 ->whereIn('status', ['accepted', 'in_progress'])
                 ->orderBy('created_at', 'DESC')
                 ->findAll();
+
+            if (!empty($jobs)) {
+                $bookingIds = array_values(array_filter(array_map(static function ($job) {
+                    return (int) ($job['booking_id'] ?? 0);
+                }, $jobs)));
+
+                if (!empty($bookingIds)) {
+                    $bookingModel = new BookingsModel();
+                    $bookingAddressModel = new BookingAddressModel();
+                    $customerModel = new CustomerModel();
+
+                    $bookings = $bookingModel->whereIn('id', $bookingIds)->findAll();
+                    $bookingsById = [];
+                    foreach ($bookings as $booking) {
+                        $bookingsById[(int) ($booking['id'] ?? 0)] = $booking;
+                    }
+
+                    $userIds = array_values(array_filter(array_unique(array_map(static function ($booking) {
+                        return (int) ($booking['user_id'] ?? 0);
+                    }, $bookings))));
+
+                    $customersById = [];
+                    if (!empty($userIds)) {
+                        $customers = $customerModel->whereIn('id', $userIds)->findAll();
+                        foreach ($customers as $customer) {
+                            $customersById[(int) ($customer['id'] ?? 0)] = $customer;
+                        }
+                    }
+
+                    $addresses = $bookingAddressModel->whereIn('booking_id', $bookingIds)->findAll();
+                    $addressByBookingId = [];
+                    foreach ($addresses as $address) {
+                        $addressByBookingId[(int) ($address['booking_id'] ?? 0)] = $address;
+                    }
+
+                    foreach ($jobs as &$job) {
+                        $bookingId = (int) ($job['booking_id'] ?? 0);
+                        $booking = $bookingsById[$bookingId] ?? null;
+                        $customer = $booking ? ($customersById[(int) ($booking['user_id'] ?? 0)] ?? null) : null;
+                        $address = $addressByBookingId[$bookingId] ?? null;
+
+                        $job['customer_name'] = $customer['name'] ?? null;
+                        $job['customer_address'] = $address ? $this->buildBookingAddressText($address) : null;
+                    }
+                    unset($job);
+                }
+            }
 
             return $this->respond([
                 'status' => 200,
