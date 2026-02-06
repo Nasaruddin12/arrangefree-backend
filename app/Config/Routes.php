@@ -505,6 +505,7 @@ $routes->group('partner', function ($routes) {
         $routes->get('jobs/all/(:num)', 'PartnerJobController::listAllByPartner/$1');
         $routes->get('jobs/on-site-status', 'PartnerJobController::getOnSiteStatus');
         $routes->post('jobs/update-on-site-status', 'PartnerJobController::updateOnSiteStatus');
+        
         $routes->post('jobs/items/(:num)/media', 'PartnerJobController::uploadItemMedia/$1');
         $routes->get('jobs/items/(:num)/media', 'PartnerJobController::listItemMedia/$1');
         $routes->delete('jobs/items/media/(:num)', 'PartnerJobController::deleteItemMedia/$1');

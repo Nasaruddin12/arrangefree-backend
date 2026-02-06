@@ -1214,11 +1214,6 @@ class PartnerJobController extends ResourceController
                     return $this->failValidationErrors('Invalid file type. Allowed types: ' . implode(', ', $allowedExtensions));
                 }
 
-                $fileName = $file->getRandomName();
-                if (!$file->move($fullPath, $fileName)) {
-                    return $this->failServerError('Failed to upload media.');
-                }
-
                 $mime = $file->getMimeType();
                 $mediaType = 'file';
                 if (is_string($mime)) {
@@ -1227,6 +1222,11 @@ class PartnerJobController extends ResourceController
                     } elseif (str_starts_with($mime, 'video/')) {
                         $mediaType = 'video';
                     }
+                }
+
+                $fileName = $file->getRandomName();
+                if (!$file->move($fullPath, $fileName)) {
+                    return $this->failServerError('Failed to upload media.');
                 }
 
                 $mediaData = [
