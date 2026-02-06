@@ -473,6 +473,10 @@ $routes->group('partner', function ($routes) {
         $routes->post('update-documents', 'PartnerController::updateDocuments');
         $routes->post('store-firebase-uid', 'PartnerController::storeFirebaseUid');
 
+        $routes->get('wallet/balance/(:num)', 'PartnerController::walletBalance/$1');
+        $routes->get('wallet/withdraw-requests/(:num)', 'PartnerController::walletWithdrawRequests/$1');
+        $routes->post('wallet/withdraw-requests/(:num)', 'PartnerController::createWalletWithdrawRequest/$1');
+
         $routes->post('tickets/create', 'TicketController::createTicket');
         $routes->get('tickets/partner/(:num)', 'TicketController::getTicketsByPartnerId/$1');
         $routes->get('ticket/(:num)', 'TicketController::getTicketById/$1');

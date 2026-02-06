@@ -7,6 +7,8 @@ use App\Libraries\SMSGateway;
 use App\Models\PartnerBankDetailModel;
 use App\Models\PartnerModel;
 use App\Models\PartnerOtpModel;
+use App\Models\PartnerWalletTransactionModel;
+use App\Models\PartnerWithdrawalRequestModel;
 use CodeIgniter\API\ResponseTrait;
 use Exception;
 
@@ -230,6 +232,135 @@ class PartnerController extends BaseController
                 'status' => 500,
                 'message' => 'Server error: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    public function walletBalance($partnerId = null)
+    {
+        try {
+            $partnerId = (int) $partnerId;
+
+            if ($partnerId <= 0) {
+                return $this->respond(['status' => 422, 'message' => 'Valid partner ID is required'], 422);
+            }
+
+            $partner = $this->partnerModel->find($partnerId);
+            if (!$partner) {
+                return $this->respond(['status' => 404, 'message' => 'Partner not found'], 404);
+            }
+
+            $walletModel = new PartnerWalletTransactionModel();
+
+            $creditRow = $walletModel
+                ->selectSum('amount')
+                ->where('partner_id', $partnerId)
+                ->where('is_credit', 1)
+                ->first();
+
+            $debitRow = $walletModel
+                ->selectSum('amount')
+                ->where('partner_id', $partnerId)
+                ->where('is_credit', 0)
+                ->first();
+
+            $creditTotal = (float) ($creditRow['amount'] ?? 0);
+            $debitTotal = (float) ($debitRow['amount'] ?? 0);
+            $balance = round($creditTotal - $debitTotal, 2);
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Partner wallet balance retrieved successfully',
+                'data' => [
+                    'partner_id' => $partnerId,
+                    'credit_total' => $creditTotal,
+                    'debit_total' => $debitTotal,
+                    'balance' => $balance,
+                ]
+            ], 200);
+        } catch (Exception $e) {
+            return $this->failServerError('Failed to fetch wallet balance: ' . $e->getMessage());
+        }
+    }
+
+    public function walletWithdrawRequests($partnerId = null)
+    {
+        try {
+            $partnerId = (int) $partnerId;
+
+            if ($partnerId <= 0) {
+                return $this->respond(['status' => 422, 'message' => 'Valid partner ID is required'], 422);
+            }
+
+            $partner = $this->partnerModel->find($partnerId);
+            if (!$partner) {
+                return $this->respond(['status' => 404, 'message' => 'Partner not found'], 404);
+            }
+
+            $withdrawModel = new PartnerWithdrawalRequestModel();
+
+            $requests = $withdrawModel
+                ->where('partner_id', $partnerId)
+                ->orderBy('requested_at', 'DESC')
+                ->findAll();
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Partner withdrawal requests retrieved successfully',
+                'data' => $requests,
+            ], 200);
+        } catch (Exception $e) {
+            return $this->failServerError('Failed to fetch withdrawal requests: ' . $e->getMessage());
+        }
+    }
+
+    public function createWalletWithdrawRequest($partnerId = null)
+    {
+        try {
+            $partnerId = (int) $partnerId;
+            $amount = (float) $this->request->getVar('requested_amount');
+            $note = $this->request->getVar('note');
+
+            if ($partnerId <= 0) {
+                return $this->respond(['status' => 422, 'message' => 'Valid partner ID is required'], 422);
+            }
+
+            if ($amount <= 0) {
+                return $this->respond(['status' => 422, 'message' => 'Valid requested_amount is required'], 422);
+            }
+
+            $partner = $this->partnerModel->find($partnerId);
+            if (!$partner) {
+                return $this->respond(['status' => 404, 'message' => 'Partner not found'], 404);
+            }
+
+            $withdrawModel = new PartnerWithdrawalRequestModel();
+
+            $pendingRequest = $withdrawModel
+                ->where('partner_id', $partnerId)
+                ->where('status', 'pending')
+                ->first();
+
+            if ($pendingRequest) {
+                return $this->respond([
+                    'status' => 409,
+                    'message' => 'A withdrawal request is already pending for this partner.',
+                ], 409);
+            }
+
+            $withdrawModel->insert([
+                'partner_id' => $partnerId,
+                'requested_amount' => $amount,
+                'status' => 'pending',
+                'requested_at' => date('Y-m-d H:i:s'),
+                'note' => $note,
+            ]);
+
+            return $this->respond([
+                'status' => 201,
+                'message' => 'Withdrawal request created successfully',
+            ], 201);
+        } catch (Exception $e) {
+            return $this->failServerError('Failed to create withdrawal request: ' . $e->getMessage());
         }
     }
     public function onboardingStatus()
