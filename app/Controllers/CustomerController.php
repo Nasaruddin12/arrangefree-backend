@@ -170,8 +170,7 @@ class CustomerController extends BaseController
                     "iat" => $iat,
                     "exp" => $exp,
                     "mobile_no" => $user['mobile_no'],
-                    "customer_id" => $user['
-                    id'],
+                    "customer_id" => $user['id'],
                 );
 
                 $token = JWT::encode($payload, $key, 'HS256');
