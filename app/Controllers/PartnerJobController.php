@@ -13,6 +13,7 @@ use App\Models\PartnerJobRequestModel;
 use App\Models\PartnerJobAdjustmentsModel;
 use App\Models\PartnerJobAdditionalItemsModel;
 use App\Models\PartnerJobPresenceLogModel;
+use App\Models\PartnerJobItemMediaModel;
 use App\Models\PartnerModel;
 use CodeIgniter\RESTful\ResourceController;
 
@@ -1146,6 +1147,221 @@ class PartnerJobController extends ResourceController
             $this->db->transRollback();
             log_message('error', 'Add partner job items error: ' . $e->getMessage());
             return $this->failServerError('Something went wrong while adding job items. ' . $e->getMessage());
+        }
+    }
+
+    public function uploadItemMedia($itemId = null)
+    {
+        try {
+            $itemId = (int) $itemId;
+            if ($itemId <= 0) {
+                return $this->failValidationErrors('partner_job_item_id is required.');
+            }
+
+            $item = $this->partnerJobItemModel->find($itemId);
+            if (!$item) {
+                return $this->failNotFound('Partner job item not found.');
+            }
+
+            $partnerId = (int) ($this->request->getVar('partner_id') ?? 0);
+            if ($partnerId > 0) {
+                $job = $this->partnerJobsModel->find((int) ($item['partner_job_id'] ?? 0));
+                if (!$job) {
+                    return $this->failNotFound('Partner job not found.');
+                }
+
+                if ((int) ($job['partner_id'] ?? 0) !== $partnerId) {
+                    return $this->failValidationErrors('Job item is not assigned to this partner.');
+                }
+            }
+
+            $files = $this->request->getFiles();
+            $mediaFiles = [];
+
+            if (isset($files['media'])) {
+                $mediaFiles = is_array($files['media']) ? $files['media'] : [$files['media']];
+            } elseif ($this->request->getFile('file')) {
+                $mediaFiles = [$this->request->getFile('file')];
+            }
+
+            if (empty($mediaFiles)) {
+                return $this->failValidationErrors('No media files uploaded.');
+            }
+
+            $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp', 'mp4', 'mov', 'avi', 'mkv', 'webm'];
+
+            $publicRelative = 'public/uploads/job-item-media/';
+            $fullPath = FCPATH . $publicRelative;
+
+            if (!is_dir($fullPath)) {
+                if (!mkdir($fullPath, 0755, true) && !is_dir($fullPath)) {
+                    return $this->failServerError('Failed to create upload directory.');
+                }
+            }
+
+            $mediaModel = new PartnerJobItemMediaModel();
+            $uploadedBy = $this->request->getVar('uploaded_by') ?? 'partner';
+            $uploadedById = $this->request->getVar('uploaded_by_id') ?? ($partnerId > 0 ? $partnerId : null);
+
+            $savedMedia = [];
+            foreach ($mediaFiles as $file) {
+                if (!$file || !$file->isValid() || $file->hasMoved()) {
+                    continue;
+                }
+
+                $extension = strtolower($file->getExtension());
+                if (!in_array($extension, $allowedExtensions, true)) {
+                    return $this->failValidationErrors('Invalid file type. Allowed types: ' . implode(', ', $allowedExtensions));
+                }
+
+                $fileName = $file->getRandomName();
+                if (!$file->move($fullPath, $fileName)) {
+                    return $this->failServerError('Failed to upload media.');
+                }
+
+                $mime = $file->getMimeType();
+                $mediaType = 'file';
+                if (is_string($mime)) {
+                    if (str_starts_with($mime, 'image/')) {
+                        $mediaType = 'image';
+                    } elseif (str_starts_with($mime, 'video/')) {
+                        $mediaType = 'video';
+                    }
+                }
+
+                $mediaData = [
+                    'partner_job_item_id' => $itemId,
+                    'media_type' => $mediaType,
+                    'media_path' => $publicRelative . $fileName,
+                    'uploaded_by' => $uploadedBy,
+                    'uploaded_by_id' => $uploadedById,
+                ];
+
+                if (!$mediaModel->insert($mediaData)) {
+                    return $this->failValidationErrors([
+                        'status' => 400,
+                        'message' => 'Validation failed for job item media.',
+                        'errors' => $mediaModel->errors(),
+                    ]);
+                }
+
+                $savedMedia[] = array_merge(['id' => $mediaModel->insertID()], $mediaData);
+            }
+
+            if (empty($savedMedia)) {
+                return $this->failValidationErrors('No valid media files uploaded.');
+            }
+
+            return $this->respondCreated([
+                'status' => 201,
+                'message' => 'Job item media uploaded successfully.',
+                'data' => [
+                    'partner_job_item_id' => $itemId,
+                    'media' => $savedMedia,
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            log_message('error', 'Job item media upload error: ' . $e->getMessage());
+            return $this->failServerError('Something went wrong while uploading job item media. ' . $e->getMessage());
+        }
+    }
+
+    public function listItemMedia($itemId = null)
+    {
+        try {
+            $itemId = (int) $itemId;
+            if ($itemId <= 0) {
+                return $this->failValidationErrors('partner_job_item_id is required.');
+            }
+
+            $item = $this->partnerJobItemModel->find($itemId);
+            if (!$item) {
+                return $this->failNotFound('Partner job item not found.');
+            }
+
+            $partnerId = (int) ($this->request->getVar('partner_id') ?? 0);
+            if ($partnerId > 0) {
+                $job = $this->partnerJobsModel->find((int) ($item['partner_job_id'] ?? 0));
+                if (!$job) {
+                    return $this->failNotFound('Partner job not found.');
+                }
+
+                if ((int) ($job['partner_id'] ?? 0) !== $partnerId) {
+                    return $this->failValidationErrors('Job item is not assigned to this partner.');
+                }
+            }
+
+            $mediaModel = new PartnerJobItemMediaModel();
+            $media = $mediaModel
+                ->where('partner_job_item_id', $itemId)
+                ->orderBy('created_at', 'DESC')
+                ->findAll();
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Job item media retrieved successfully.',
+                'data' => [
+                    'partner_job_item_id' => $itemId,
+                    'media' => $media,
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            log_message('error', 'Job item media list error: ' . $e->getMessage());
+            return $this->failServerError('Something went wrong while fetching job item media. ' . $e->getMessage());
+        }
+    }
+
+    public function deleteItemMedia($mediaId = null)
+    {
+        try {
+            $mediaId = (int) $mediaId;
+            if ($mediaId <= 0) {
+                return $this->failValidationErrors('media_id is required.');
+            }
+
+            $mediaModel = new PartnerJobItemMediaModel();
+            $media = $mediaModel->find($mediaId);
+            if (!$media) {
+                return $this->failNotFound('Job item media not found.');
+            }
+
+            $item = $this->partnerJobItemModel->find((int) ($media['partner_job_item_id'] ?? 0));
+            if (!$item) {
+                return $this->failNotFound('Partner job item not found.');
+            }
+
+            $partnerId = (int) ($this->request->getVar('partner_id') ?? 0);
+            if ($partnerId > 0) {
+                $job = $this->partnerJobsModel->find((int) ($item['partner_job_id'] ?? 0));
+                if (!$job) {
+                    return $this->failNotFound('Partner job not found.');
+                }
+
+                if ((int) ($job['partner_id'] ?? 0) !== $partnerId) {
+                    return $this->failValidationErrors('Job item is not assigned to this partner.');
+                }
+            }
+
+            $mediaPath = $media['media_path'] ?? null;
+            if ($mediaPath) {
+                $fullPath = FCPATH . ltrim($mediaPath, '/');
+                if (is_file($fullPath)) {
+                    @unlink($fullPath);
+                }
+            }
+
+            $mediaModel->delete($mediaId);
+
+            return $this->respondDeleted([
+                'status' => 200,
+                'message' => 'Job item media deleted successfully.',
+                'data' => [
+                    'id' => $mediaId,
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            log_message('error', 'Job item media delete error: ' . $e->getMessage());
+            return $this->failServerError('Something went wrong while deleting job item media. ' . $e->getMessage());
         }
     }
 

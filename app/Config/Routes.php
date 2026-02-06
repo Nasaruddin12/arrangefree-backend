@@ -281,6 +281,8 @@ $routes->group('booking', function ($routes) {
         $routes->delete('delete/(:num)', 'BookingController::deleteBooking/$1');
         $routes->post('add-additional-services', 'BookingController::addAdditionalServices');
         $routes->post('cancel-service', 'BookingController::cancelService');
+        $routes->post('adjustments/(:num)', 'BookingController::createAdjustment/$1');
+        $routes->get('adjustments/(:num)', 'BookingController::getAdjustments/$1');
         $routes->get('cancellation-details/(:num)', 'BookingController::getCancellationDetails/$1');
         $routes->post('create-by-admin', 'BookingController::createBookingByAdmin');
         $routes->post('initiatePayment', 'BookingController::initiatePayment');
@@ -503,6 +505,9 @@ $routes->group('partner', function ($routes) {
         $routes->get('jobs/all/(:num)', 'PartnerJobController::listAllByPartner/$1');
         $routes->get('jobs/on-site-status', 'PartnerJobController::getOnSiteStatus');
         $routes->post('jobs/update-on-site-status', 'PartnerJobController::updateOnSiteStatus');
+        $routes->post('jobs/items/(:num)/media', 'PartnerJobController::uploadItemMedia/$1');
+        $routes->get('jobs/items/(:num)/media', 'PartnerJobController::listItemMedia/$1');
+        $routes->delete('jobs/items/media/(:num)', 'PartnerJobController::deleteItemMedia/$1');
 
         $routes->get('payouts/(:num)', 'PartnerPayoutController::listByPartner/$1');
 
@@ -521,6 +526,9 @@ $routes->group('partner-jobs', static function ($routes) {
         $routes->put('(:num)/status', 'PartnerJobController::updateStatus/$1');
         $routes->get('(:num)/items', 'PartnerJobController::listItems/$1');
         $routes->post('(:num)/items', 'PartnerJobController::addItems/$1');
+        $routes->post('items/(:num)/media', 'PartnerJobController::uploadItemMedia/$1');
+        $routes->get('items/(:num)/media', 'PartnerJobController::listItemMedia/$1');
+        $routes->delete('items/media/(:num)', 'PartnerJobController::deleteItemMedia/$1');
         $routes->get('partner/(:num)', 'PartnerJobController::listByPartner/$1');
         $routes->get('partner/(:num)/all', 'PartnerJobController::listAllByPartner/$1');
         $routes->get('booking/(:num)', 'PartnerJobController::listByBooking/$1');

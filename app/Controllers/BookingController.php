@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\BookingAdditionalServicesModel;
+use App\Models\BookingAdjustmentModel;
 use App\Models\BookingExpenseModel;
 use App\Models\BookingPaymentRequestModel;
 use App\Models\BookingsModel;
@@ -30,6 +31,7 @@ class BookingController extends ResourceController
     protected $paymentRequestsModel;
     protected $bookingExpenseModel;
     protected $bookingAdditionalServicesModel;
+    protected $bookingAdjustmentModel;
     protected $customerModel;
     protected $servicesModel;
     protected $addonsModel;
@@ -49,6 +51,7 @@ class BookingController extends ResourceController
         $this->paymentRequestsModel = new BookingPaymentRequestModel();
         $this->bookingExpenseModel = new BookingExpenseModel();
         $this->bookingAdditionalServicesModel = new BookingAdditionalServicesModel();
+        $this->bookingAdjustmentModel = new BookingAdjustmentModel();
         $this->customerModel = new CustomerModel();
         $this->servicesModel = new \App\Models\ServiceModel();
         $this->addonsModel = new \App\Models\ServiceAddonModel();
@@ -1879,6 +1882,110 @@ class BookingController extends ResourceController
         } catch (\Exception $e) {
             log_message('error', 'Service cancellation error: ' . $e->getMessage());
             return $this->failServerError('Something went wrong while cancelling the service. ' . $e->getMessage());
+        }
+    }
+
+    public function createAdjustment($bookingId = null)
+    {
+        try {
+            $bookingId = (int) $bookingId;
+
+            if ($bookingId <= 0) {
+                return $this->failValidationErrors('Valid booking ID is required.');
+            }
+
+            $booking = $this->bookingsModel->find($bookingId);
+            if (!$booking) {
+                return $this->failNotFound('Booking not found.');
+            }
+
+            $adjustmentType = $this->request->getVar('adjustment_type');
+            $label = $this->request->getVar('label');
+            $amount = (float) $this->request->getVar('amount');
+            $isAddition = (int) ($this->request->getVar('is_addition') ?? 0);
+            $isTaxable = (int) ($this->request->getVar('is_taxable') ?? 0);
+            $createdBy = $this->request->getVar('created_by') ?? 'admin';
+
+            if (empty($adjustmentType) || empty($label) || $amount <= 0) {
+                return $this->failValidationErrors('adjustment_type, label and valid amount are required.');
+            }
+
+            if (!in_array($createdBy, ['admin', 'system'], true)) {
+                $createdBy = 'admin';
+            }
+
+            $cgstAmount = 0.0;
+            $sgstAmount = 0.0;
+
+            if ($isTaxable === 1) {
+                $cgstRate = (float) ($booking['cgst_rate'] ?? self::CGST_RATE);
+                $sgstRate = (float) ($booking['sgst_rate'] ?? self::SGST_RATE);
+                $cgstAmount = round($amount * ($cgstRate / 100), 2);
+                $sgstAmount = round($amount * ($sgstRate / 100), 2);
+            }
+
+            $adjustmentData = [
+                'booking_id' => $bookingId,
+                'adjustment_type' => $adjustmentType,
+                'label' => $label,
+                'amount' => $amount,
+                'is_addition' => $isAddition ? 1 : 0,
+                'is_taxable' => $isTaxable ? 1 : 0,
+                'cgst_amount' => $cgstAmount,
+                'sgst_amount' => $sgstAmount,
+                'created_by' => $createdBy,
+            ];
+
+            $this->bookingAdjustmentModel->insert($adjustmentData);
+            $adjustmentId = $this->bookingAdjustmentModel->getInsertID();
+
+            return $this->respond([
+                'status' => 201,
+                'message' => 'Booking adjustment created successfully',
+                'data' => [
+                    'id' => $adjustmentId,
+                    'booking_id' => $bookingId,
+                    'adjustment_type' => $adjustmentType,
+                    'label' => $label,
+                    'amount' => $amount,
+                    'is_addition' => $isAddition ? 1 : 0,
+                    'is_taxable' => $isTaxable ? 1 : 0,
+                    'cgst_amount' => $cgstAmount,
+                    'sgst_amount' => $sgstAmount,
+                    'created_by' => $createdBy,
+                ],
+            ], 201);
+        } catch (\Exception $e) {
+            return $this->failServerError('Failed to create booking adjustment: ' . $e->getMessage());
+        }
+    }
+
+    public function getAdjustments($bookingId = null)
+    {
+        try {
+            $bookingId = (int) $bookingId;
+
+            if ($bookingId <= 0) {
+                return $this->failValidationErrors('Valid booking ID is required.');
+            }
+
+            $booking = $this->bookingsModel->find($bookingId);
+            if (!$booking) {
+                return $this->failNotFound('Booking not found.');
+            }
+
+            $adjustments = $this->bookingAdjustmentModel
+                ->where('booking_id', $bookingId)
+                ->orderBy('created_at', 'DESC')
+                ->findAll();
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Booking adjustments retrieved successfully',
+                'data' => $adjustments,
+            ], 200);
+        } catch (\Exception $e) {
+            return $this->failServerError('Failed to fetch booking adjustments: ' . $e->getMessage());
         }
     }
 
