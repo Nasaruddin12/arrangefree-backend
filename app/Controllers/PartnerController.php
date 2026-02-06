@@ -347,6 +347,48 @@ class PartnerController extends BaseController
         }
     }
 
+    public function walletTransactions($partnerId = null)
+    {
+        try {
+            $partnerId = (int) $partnerId;
+            $page = (int) ($this->request->getVar('page') ?? 1);
+            $limit = (int) ($this->request->getVar('limit') ?? 20);
+            $offset = ($page - 1) * $limit;
+
+            if ($partnerId <= 0) {
+                return $this->respond(['status' => 422, 'message' => 'Valid partner ID is required'], 422);
+            }
+
+            $partner = $this->partnerModel->find($partnerId);
+            if (!$partner) {
+                return $this->respond(['status' => 404, 'message' => 'Partner not found'], 404);
+            }
+
+            $walletModel = new PartnerWalletTransactionModel();
+
+            $builder = $walletModel
+                ->where('partner_id', $partnerId)
+                ->orderBy('created_at', 'DESC');
+
+            $total = $builder->countAllResults(false);
+            $transactions = $builder->findAll($limit, $offset);
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Partner wallet transactions retrieved successfully',
+                'data' => $transactions,
+                'pagination' => [
+                    'current_page' => $page,
+                    'per_page' => $limit,
+                    'total_records' => $total,
+                    'total_pages' => $limit > 0 ? (int) ceil($total / $limit) : 0,
+                ],
+            ], 200);
+        } catch (Exception $e) {
+            return $this->failServerError('Failed to fetch wallet transactions: ' . $e->getMessage());
+        }
+    }
+
     public function createWalletWithdrawRequest($partnerId = null)
     {
         try {
@@ -365,6 +407,35 @@ class PartnerController extends BaseController
             $partner = $this->partnerModel->find($partnerId);
             if (!$partner) {
                 return $this->respond(['status' => 404, 'message' => 'Partner not found'], 404);
+            }
+
+            $walletModel = new PartnerWalletTransactionModel();
+
+            $creditRow = $walletModel
+                ->selectSum('amount')
+                ->where('partner_id', $partnerId)
+                ->where('is_credit', 1)
+                ->first();
+
+            $debitRow = $walletModel
+                ->selectSum('amount')
+                ->where('partner_id', $partnerId)
+                ->where('is_credit', 0)
+                ->first();
+
+            $creditTotal = (float) ($creditRow['amount'] ?? 0);
+            $debitTotal = (float) ($debitRow['amount'] ?? 0);
+            $balance = round($creditTotal - $debitTotal, 2);
+
+            if ($balance <= 0 || $amount > $balance) {
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Insufficient wallet balance for this withdrawal request.',
+                    'data' => [
+                        'balance' => $balance,
+                        'requested_amount' => $amount,
+                    ],
+                ], 422);
             }
 
             $withdrawModel = new PartnerWithdrawalRequestModel();
