@@ -476,6 +476,7 @@ $routes->group('partner', function ($routes) {
         $routes->get('wallet/balance/(:num)', 'PartnerController::walletBalance/$1');
         $routes->get('wallet/withdraw-requests/(:num)', 'PartnerController::walletWithdrawRequests/$1');
         $routes->post('wallet/withdraw-requests/(:num)', 'PartnerController::createWalletWithdrawRequest/$1');
+        $routes->get('bank-details/(:num)', 'PartnerController::getBankDetails/$1');
 
         $routes->post('tickets/create', 'TicketController::createTicket');
         $routes->get('tickets/partner/(:num)', 'TicketController::getTicketsByPartnerId/$1');

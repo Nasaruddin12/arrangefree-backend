@@ -313,6 +313,40 @@ class PartnerController extends BaseController
         }
     }
 
+    public function getBankDetails($partnerId = null)
+    {
+        try {
+            $partnerId = (int) $partnerId;
+
+            if ($partnerId <= 0) {
+                return $this->respond(['status' => 422, 'message' => 'Valid partner ID is required'], 422);
+            }
+
+            $partner = $this->partnerModel->find($partnerId);
+            if (!$partner) {
+                return $this->respond(['status' => 404, 'message' => 'Partner not found'], 404);
+            }
+
+            $bankModel = new PartnerBankDetailModel();
+            $bankDetails = $bankModel->where('partner_id', $partnerId)->first();
+
+            if (!$bankDetails) {
+                return $this->respond([
+                    'status' => 404,
+                    'message' => 'Bank details not found',
+                ], 404);
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Partner bank details retrieved successfully',
+                'data' => $bankDetails,
+            ], 200);
+        } catch (Exception $e) {
+            return $this->failServerError('Failed to fetch bank details: ' . $e->getMessage());
+        }
+    }
+
     public function createWalletWithdrawRequest($partnerId = null)
     {
         try {
