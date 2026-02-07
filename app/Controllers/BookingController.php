@@ -543,6 +543,33 @@ class BookingController extends ResourceController
                 }
 
                 $booking['services'] = $parentServices;
+
+                // Fetch additional services (parent only)
+                $additionalParents = $this->bookingAdditionalServicesModel
+                    ->select('booking_additional_services.*, services.name as service_name, services.image as service_image')
+                    ->join('services', 'services.id = booking_additional_services.service_id', 'left')
+                    ->where('booking_additional_services.booking_id', $booking['id'])
+                    ->where('booking_additional_services.parent_booking_service_id', null)
+                    ->findAll();
+
+                foreach ($additionalParents as &$additionalParent) {
+                    $additionalAddons = $this->bookingAdditionalServicesModel
+                        ->select('booking_additional_services.*, service_addons.name as addon_name')
+                        ->join('service_addons', 'service_addons.id = booking_additional_services.addon_id', 'left')
+                        ->where('booking_additional_services.parent_booking_service_id', $additionalParent['id'])
+                        ->findAll();
+
+                    $additionalParent['addons'] = $additionalAddons;
+                }
+                unset($additionalParent);
+
+                $booking['additional_services'] = $additionalParents;
+
+                // Fetch adjustments
+                $booking['adjustments'] = $this->bookingAdjustmentModel
+                    ->where('booking_id', $booking['id'])
+                    ->orderBy('created_at', 'DESC')
+                    ->findAll();
             }
 
             return $this->respond([
