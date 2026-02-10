@@ -545,6 +545,353 @@ class ServiceGalleryController extends BaseController
         return preg_match($pattern, $url);
     }
 
+    // Update Image
+    public function updateImage($id)
+    {
+        try {
+            $data = $this->request->getJSON(true) ?? $this->request->getVar();
+
+            // Check if item exists and is an image
+            $item = $this->serviceGalleryModel->find($id);
+            if (!$item) {
+                return $this->respond([
+                    'status' => 404,
+                    'message' => 'Gallery item not found'
+                ], 404);
+            }
+
+            if ($item['media_type'] !== 'image') {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'This item is not an image'
+                ], 400);
+            }
+
+            // Validate input
+            $validation = \Config\Services::validation();
+            $validation->setRules([
+                'service_id' => 'permit_empty|integer',
+                'title' => 'permit_empty|string|max_length[255]',
+                'description' => 'permit_empty|string',
+                'media_url' => 'permit_empty|string',
+                'thumbnail_url' => 'permit_empty|string',
+                'sort_order' => 'permit_empty|integer',
+                'is_active' => 'permit_empty|in_list[0,1]',
+            ]);
+
+            if (!$validation->withRequest($this->request)->run()) {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'Validation failed',
+                    'errors' => $validation->getErrors()
+                ], 400);
+            }
+
+            // Update data
+            if (!$this->serviceGalleryModel->update($id, $data)) {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'Failed to update image',
+                    'errors' => $this->serviceGalleryModel->errors()
+                ], 400);
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Image updated successfully',
+                'data' => $this->serviceGalleryModel->find($id)
+            ]);
+        } catch (Exception $e) {
+            log_message('error', 'ServiceGallery UpdateImage Error: ' . $e->getMessage());
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Something went wrong'
+            ], 500);
+        }
+    }
+
+    // Update Video
+    public function updateVideo($id)
+    {
+        try {
+            $data = $this->request->getJSON(true) ?? $this->request->getVar();
+
+            // Check if item exists and is a video
+            $item = $this->serviceGalleryModel->find($id);
+            if (!$item) {
+                return $this->respond([
+                    'status' => 404,
+                    'message' => 'Gallery item not found'
+                ], 404);
+            }
+
+            if ($item['media_type'] !== 'video') {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'This item is not a video'
+                ], 400);
+            }
+
+            // Validate YouTube URL if provided
+            if (!empty($data['media_url']) && !$this->isValidYouTubeUrl($data['media_url'])) {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'Invalid YouTube URL format'
+                ], 400);
+            }
+
+            // Validate input
+            $validation = \Config\Services::validation();
+            $validation->setRules([
+                'service_id' => 'permit_empty|integer',
+                'title' => 'permit_empty|string|max_length[255]',
+                'description' => 'permit_empty|string',
+                'media_url' => 'permit_empty|string',
+                'thumbnail_url' => 'permit_empty|string',
+                'sort_order' => 'permit_empty|integer',
+                'is_active' => 'permit_empty|in_list[0,1]',
+            ]);
+
+            if (!$validation->withRequest($this->request)->run()) {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'Validation failed',
+                    'errors' => $validation->getErrors()
+                ], 400);
+            }
+
+            // Update data
+            if (!$this->serviceGalleryModel->update($id, $data)) {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'Failed to update video',
+                    'errors' => $this->serviceGalleryModel->errors()
+                ], 400);
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Video updated successfully',
+                'data' => $this->serviceGalleryModel->find($id)
+            ]);
+        } catch (Exception $e) {
+            log_message('error', 'ServiceGallery UpdateVideo Error: ' . $e->getMessage());
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Something went wrong'
+            ], 500);
+        }
+    }
+
+    // Update Tutorial Video
+    public function updateTutorialVideo($id)
+    {
+        try {
+            $data = $this->request->getJSON(true) ?? $this->request->getVar();
+
+            // Check if item exists and is a tutorial video
+            $item = $this->serviceGalleryModel->find($id);
+            if (!$item) {
+                return $this->respond([
+                    'status' => 404,
+                    'message' => 'Gallery item not found'
+                ], 404);
+            }
+
+            if ($item['media_type'] !== 'tutorial') {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'This item is not a tutorial video'
+                ], 400);
+            }
+
+            // Validate YouTube URL if provided
+            if (!empty($data['media_url']) && !$this->isValidYouTubeUrl($data['media_url'])) {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'Invalid YouTube URL format'
+                ], 400);
+            }
+
+            // Validate input
+            $validation = \Config\Services::validation();
+            $validation->setRules([
+                'service_id' => 'permit_empty|integer',
+                'title' => 'permit_empty|string|max_length[255]',
+                'description' => 'permit_empty|string',
+                'media_url' => 'permit_empty|string',
+                'thumbnail_url' => 'permit_empty|string',
+                'sort_order' => 'permit_empty|integer',
+                'is_active' => 'permit_empty|in_list[0,1]',
+            ]);
+
+            if (!$validation->withRequest($this->request)->run()) {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'Validation failed',
+                    'errors' => $validation->getErrors()
+                ], 400);
+            }
+
+            // Update data
+            if (!$this->serviceGalleryModel->update($id, $data)) {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'Failed to update tutorial video',
+                    'errors' => $this->serviceGalleryModel->errors()
+                ], 400);
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Tutorial video updated successfully',
+                'data' => $this->serviceGalleryModel->find($id)
+            ]);
+        } catch (Exception $e) {
+            log_message('error', 'ServiceGallery UpdateTutorialVideo Error: ' . $e->getMessage());
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Something went wrong'
+            ], 500);
+        }
+    }
+
+    // Delete Image
+    public function deleteImage($id)
+    {
+        try {
+            $item = $this->serviceGalleryModel->find($id);
+            if (!$item) {
+                return $this->respond([
+                    'status' => 404,
+                    'message' => 'Gallery item not found'
+                ], 404);
+            }
+
+            if ($item['media_type'] !== 'image') {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'This item is not an image'
+                ], 400);
+            }
+
+            // Delete physical file if it exists
+            if (!empty($item['media_url']) && file_exists($item['media_url'])) {
+                unlink($item['media_url']);
+            }
+
+            if (!$this->serviceGalleryModel->delete($id)) {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'Failed to delete image'
+                ], 400);
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Image deleted successfully'
+            ]);
+        } catch (Exception $e) {
+            log_message('error', 'ServiceGallery DeleteImage Error: ' . $e->getMessage());
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Something went wrong'
+            ], 500);
+        }
+    }
+
+    // Delete Video
+    public function deleteVideo($id)
+    {
+        try {
+            $item = $this->serviceGalleryModel->find($id);
+            if (!$item) {
+                return $this->respond([
+                    'status' => 404,
+                    'message' => 'Gallery item not found'
+                ], 404);
+            }
+
+            if ($item['media_type'] !== 'video') {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'This item is not a video'
+                ], 400);
+            }
+
+            // Delete physical file if it exists (not YouTube links)
+            if (!empty($item['media_url']) && 
+                !preg_match('/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)/', $item['media_url']) && 
+                file_exists($item['media_url'])) {
+                unlink($item['media_url']);
+            }
+
+            if (!$this->serviceGalleryModel->delete($id)) {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'Failed to delete video'
+                ], 400);
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Video deleted successfully'
+            ]);
+        } catch (Exception $e) {
+            log_message('error', 'ServiceGallery DeleteVideo Error: ' . $e->getMessage());
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Something went wrong'
+            ], 500);
+        }
+    }
+
+    // Delete Tutorial Video
+    public function deleteTutorialVideo($id)
+    {
+        try {
+            $item = $this->serviceGalleryModel->find($id);
+            if (!$item) {
+                return $this->respond([
+                    'status' => 404,
+                    'message' => 'Gallery item not found'
+                ], 404);
+            }
+
+            if ($item['media_type'] !== 'tutorial') {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'This item is not a tutorial video'
+                ], 400);
+            }
+
+            // Delete physical file if it exists (not YouTube links)
+            if (!empty($item['media_url']) && 
+                !preg_match('/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)/', $item['media_url']) && 
+                file_exists($item['media_url'])) {
+                unlink($item['media_url']);
+            }
+
+            if (!$this->serviceGalleryModel->delete($id)) {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'Failed to delete tutorial video'
+                ], 400);
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Tutorial video deleted successfully'
+            ]);
+        } catch (Exception $e) {
+            log_message('error', 'ServiceGallery DeleteTutorialVideo Error: ' . $e->getMessage());
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Something went wrong'
+            ], 500);
+        }
+    }
+
     // Get services with gallery statistics
     public function getServicesWithGalleryStats()
     {

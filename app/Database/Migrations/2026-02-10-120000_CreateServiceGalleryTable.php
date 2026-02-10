@@ -54,13 +54,13 @@ class CreateServiceGalleryTable extends Migration
             ],
             'created_at' => [
                 'type'    => 'DATETIME',
-                'null'    => false,
-                'default' => 'CURRENT_TIMESTAMP',
+                'null'    => true,
+                'default' => null,
             ],
             'updated_at' => [
-                'type'    => 'DATETIME',
-                'null'    => false,
-                'default' => 'CURRENT_TIMESTAMP',
+               'type'    => 'DATETIME',
+                'null'    => true,
+                'default' => null,
             ],
         ]);
 

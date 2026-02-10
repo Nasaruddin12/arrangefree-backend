@@ -238,6 +238,16 @@ $routes->group('service-gallery', function ($routes) {
         $routes->post('upload-images', 'ServiceGalleryController::uploadImages');
         $routes->post('add-video', 'ServiceGalleryController::addVideo');
         $routes->post('add-tutorial-video', 'ServiceGalleryController::addTutorialVideo');
+        
+        // Specific update endpoints for each media type
+        $routes->put('update-image/(:num)', 'ServiceGalleryController::updateImage/$1');
+        $routes->put('update-video/(:num)', 'ServiceGalleryController::updateVideo/$1');
+        $routes->put('update-tutorial-video/(:num)', 'ServiceGalleryController::updateTutorialVideo/$1');
+        
+        // Specific delete endpoints for each media type
+        $routes->delete('delete-image/(:num)', 'ServiceGalleryController::deleteImage/$1');
+        $routes->delete('delete-video/(:num)', 'ServiceGalleryController::deleteVideo/$1');
+        $routes->delete('delete-tutorial-video/(:num)', 'ServiceGalleryController::deleteTutorialVideo/$1');
     });
 });
 $routes->group('selected-design', function ($routes) {
