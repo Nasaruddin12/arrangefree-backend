@@ -541,7 +541,7 @@ class ServiceGalleryController extends BaseController
     // Helper method to validate YouTube URLs
     private function isValidYouTubeUrl($url)
     {
-        $pattern = '/^(https?:\/\/)?(www\.)?(youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i';
+        $pattern = '/^(https?:\/\/)?(www\.)?(youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i';
         return preg_match($pattern, $url);
     }
 
