@@ -2,12 +2,12 @@
 
 namespace App\Controllers;
 
-use App\Models\BookingPaymentRequest;
+use App\Models\BookingPaymentRequestModel;
 use CodeIgniter\RESTful\ResourceController;
 
 class PaymentRequestController extends ResourceController
 {
-    protected $modelName = 'App\Models\BookingPaymentRequest';
+    protected $modelName = 'App\Models\BookingPaymentRequestModel';
     protected $format    = 'json';
 
     // Create Payment Request
@@ -16,7 +16,8 @@ class PaymentRequestController extends ResourceController
         $rules = [
             'booking_id' => 'required|integer',
             'user_id'    => 'required|integer',
-            'amount'     => 'required|decimal'
+            'amount'     => 'required|decimal',
+            'reason'     => 'permit_empty|string'
         ];
 
         if (!$this->validate($rules)) {
@@ -24,10 +25,13 @@ class PaymentRequestController extends ResourceController
         }
 
         $data = [
-            'booking_id'     => $this->request->getVar('booking_id'),
-            'user_id'        => $this->request->getVar('user_id'),
-            'amount'         => $this->request->getVar('amount'),
-            'request_status' => 'pending',
+            'booking_id'      => $this->request->getVar('booking_id'),
+            'user_id'         => $this->request->getVar('user_id'),
+            'requested_amount' => $this->request->getVar('amount'),
+            'currency'        => $this->request->getVar('currency') ?? 'INR',
+            'payment_gateway' => $this->request->getVar('payment_gateway') ?? 'razorpay',
+            'reason'          => $this->request->getVar('reason'),
+            'status'          => 'pending',
         ];
 
         if ($this->model->insert($data)) {

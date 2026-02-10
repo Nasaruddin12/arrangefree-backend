@@ -20,8 +20,8 @@ use Dompdf\Dompdf;
 
 class BookingController extends ResourceController
 {
-    private const CGST_RATE = 9.00;
-    private const SGST_RATE = 9.00;
+    private const CGST_RATE = 0.00;
+    private const SGST_RATE = 0.00;
 
     protected $bookingsModel;
     protected $bookingServicesModel;
@@ -197,7 +197,7 @@ class BookingController extends ResourceController
             $paymentStatus = 'pending';
             $bookingStatus = 'pending';
 
-            $bookingRef = 'SE' . date('YmdHis');
+            $bookingRef = $this->generateBookingCode();
 
             // Prepare booking data
             $bookingData = [
@@ -519,7 +519,7 @@ class BookingController extends ResourceController
                 ], 404);
             }
 
-            $this->appendPaidDueToBookings($bookings);
+            // Paid/due recalculated after dynamic totals
 
             // Fetch booking services for each booking
             foreach ($bookings as &$booking) {
@@ -570,6 +570,18 @@ class BookingController extends ResourceController
                     ->where('booking_id', $booking['id'])
                     ->orderBy('created_at', 'DESC')
                     ->findAll();
+
+                // Recalculate final and due with approved additional services and adjustments
+                $totals = $this->calculateBookingFinalWithExtras(
+                    (int) $booking['id'],
+                    (float) ($booking['final_amount'] ?? 0)
+                );
+                $paidAmount = $this->getTotalPaidAmount((int) $booking['id']);
+                $booking['paid_amount'] = $paidAmount;
+                $booking['calculated_final_amount'] = $totals['final_amount'];
+                $booking['amount_due'] = max($booking['calculated_final_amount'] - $paidAmount, 0);
+                $booking['additional_approved_total'] = $totals['additional_approved_total'];
+                $booking['adjustments_total'] = $totals['adjustments_total'];
             }
 
             return $this->respond([
@@ -615,7 +627,7 @@ class BookingController extends ResourceController
                     $booking['address_details'] = null;
                 }
 
-                $this->appendPaidDueToBooking($booking);
+                // Paid/due recalculated after dynamic totals
             }
 
 
@@ -679,6 +691,24 @@ class BookingController extends ResourceController
                 ->whereIn('status', ['pending'])
                 ->findAll();
 
+            // Fetch adjustments
+            $adjustments = $this->bookingAdjustmentModel
+                ->where('booking_id', $booking_id)
+                ->orderBy('created_at', 'DESC')
+                ->findAll();
+
+            // Recalculate final and due with approved additional services and adjustments
+            $totals = $this->calculateBookingFinalWithExtras(
+                (int) $booking['id'],
+                (float) ($booking['final_amount'] ?? 0)
+            );
+            $paidAmount = $this->getTotalPaidAmount((int) $booking['id']);
+            $booking['paid_amount'] = $paidAmount;
+            $booking['calculated_final_amount'] = $totals['final_amount'];
+            $booking['amount_due'] = max($booking['calculated_final_amount'] - $paidAmount, 0);
+            $booking['additional_approved_total'] = $totals['additional_approved_total'];
+            $booking['adjustments_total'] = $totals['adjustments_total'];
+
             return $this->respond([
                 'status' => 200,
                 'message' => 'Booking retrieved successfully.',
@@ -688,6 +718,7 @@ class BookingController extends ResourceController
                     'additional_services' => $additionalServices,
                     'payments' => $payments,
                     'payment_requests' => $paymentRequests,
+                    'adjustments' => $adjustments,
                 ]
             ], 200);
         } catch (\Exception $e) {
@@ -726,7 +757,7 @@ class BookingController extends ResourceController
                     $booking['address_details'] = null;
                 }
 
-                $this->appendPaidDueToBooking($booking);
+                // Paid/due recalculated after dynamic totals
             }
 
 
@@ -805,6 +836,24 @@ class BookingController extends ResourceController
                 ->where('booking_id', $booking_id)
                 ->findAll();
 
+            // Fetch adjustments
+            $adjustments = $this->bookingAdjustmentModel
+                ->where('booking_id', $booking_id)
+                ->orderBy('created_at', 'DESC')
+                ->findAll();
+
+            // Recalculate final and due with approved additional services and adjustments
+            $totals = $this->calculateBookingFinalWithExtras(
+                (int) $booking['id'],
+                (float) ($booking['final_amount'] ?? 0)
+            );
+            $paidAmount = $this->getTotalPaidAmount((int) $booking['id']);
+            $booking['paid_amount'] = $paidAmount;
+            $booking['calculated_final_amount'] = $totals['final_amount'];
+            $booking['amount_due'] = max($booking['calculated_final_amount'] - $paidAmount, 0);
+            $booking['additional_approved_total'] = $totals['additional_approved_total'];
+            $booking['adjustments_total'] = $totals['adjustments_total'];
+
             return $this->respond([
                 'status' => 200,
                 'message' => 'Booking retrieved successfully.',
@@ -814,7 +863,8 @@ class BookingController extends ResourceController
                     'additional_services' => $additionalServices,
                     'payments' => $payments,
                     'payment_requests' => $paymentRequests,
-                    'expenses' => $expenses // Added expenses here
+                    'expenses' => $expenses, // Added expenses here
+                    'adjustments' => $adjustments,
                 ]
             ], 200);
         } catch (\Exception $e) {
@@ -1438,17 +1488,6 @@ class BookingController extends ResourceController
         return (float) ($row['amount'] ?? 0);
     }
 
-
-    private function appendPaidDueToBooking(array &$booking): void
-    {
-        $paidAmount = $this->getTotalPaidAmount((int) $booking['id']);
-        $finalAmount = (float) ($booking['final_amount'] ?? 0);
-
-        $booking['paid_amount'] = $paidAmount;
-        $booking['amount_due'] = max($finalAmount - $paidAmount, 0);
-    }
-
-
     private function appendPaidDueToBookings(array &$bookings): void
     {
         if (empty($bookings)) {
@@ -1560,6 +1599,40 @@ class BookingController extends ResourceController
         $discount = min($discount, $subtotal);
 
         return ['is_valid' => true, 'discount' => $discount];
+    }
+
+    private function calculateBookingFinalWithExtras(int $bookingId, float $baseFinalAmount): array
+    {
+        $additionalRow = $this->bookingAdditionalServicesModel
+            ->selectSum('total_amount')
+            ->where('booking_id', $bookingId)
+            ->where('status', 'approved')
+            ->first();
+
+        $additionalApprovedTotal = (float) ($additionalRow['total_amount'] ?? 0);
+
+        $adjustments = $this->bookingAdjustmentModel
+            ->where('booking_id', $bookingId)
+            ->findAll();
+
+        $adjustmentsTotal = 0.0;
+        foreach ($adjustments as $adjustment) {
+            $amount = (float) ($adjustment['amount'] ?? 0);
+            $cgstAmount = (float) ($adjustment['cgst_amount'] ?? 0);
+            $sgstAmount = (float) ($adjustment['sgst_amount'] ?? 0);
+            $lineTotal = $amount + $cgstAmount + $sgstAmount;
+
+            $isAddition = (int) ($adjustment['is_addition'] ?? 0) === 1;
+            $adjustmentsTotal += $isAddition ? $lineTotal : (-1 * $lineTotal);
+        }
+
+        $finalAmount = max($baseFinalAmount + $additionalApprovedTotal + $adjustmentsTotal, 0);
+
+        return [
+            'final_amount' => $finalAmount,
+            'additional_approved_total' => $additionalApprovedTotal,
+            'adjustments_total' => $adjustmentsTotal,
+        ];
     }
 
     private function createBookingPaymentEntry(
@@ -2841,6 +2914,110 @@ class BookingController extends ResourceController
         }
     }
 
+    public function approveAdditionalServices()
+    {
+        try {
+            $data = $this->request->getJSON(true) ?? $this->request->getVar();
+
+            $bookingId = (int) ($data['booking_id'] ?? 0);
+            $userId = (int) ($data['user_id'] ?? 0);
+            $action = $data['action'] ?? null; // approve | reject
+            $serviceIds = $data['service_ids'] ?? null;
+
+            if (!$bookingId || !$userId || !in_array($action, ['approve', 'reject'], true)) {
+                return $this->failValidationErrors('booking_id, user_id and action (approve|reject) are required.');
+            }
+
+            if (empty($serviceIds)) {
+                $singleId = $data['service_id'] ?? null;
+                if ($singleId) {
+                    $serviceIds = [(int) $singleId];
+                }
+            }
+
+            if (empty($serviceIds) || !is_array($serviceIds)) {
+                return $this->failValidationErrors('service_id or service_ids is required.');
+            }
+
+            $serviceIds = array_values(array_unique(array_map('intval', $serviceIds)));
+
+            $booking = $this->bookingsModel->find($bookingId);
+            if (!$booking) {
+                return $this->failNotFound('Booking not found.');
+            }
+
+            if ((int) ($booking['user_id'] ?? 0) !== $userId) {
+                return $this->failValidationErrors('Booking does not belong to this user.');
+            }
+
+            if (($booking['status'] ?? null) === 'cancelled') {
+                return $this->failValidationErrors('Cannot approve/reject services for cancelled booking.');
+            }
+
+            $parentServices = $this->bookingAdditionalServicesModel
+                ->where('booking_id', $bookingId)
+                ->whereIn('id', $serviceIds)
+                ->where('parent_booking_service_id', null)
+                ->findAll();
+
+            if (empty($parentServices)) {
+                return $this->failNotFound('Additional services not found.');
+            }
+
+            $pendingOnly = array_filter($parentServices, static function ($row) {
+                return ($row['status'] ?? null) === 'pending';
+            });
+
+            if (count($pendingOnly) !== count($parentServices)) {
+                return $this->failValidationErrors('Only pending services can be approved or rejected.');
+            }
+
+            $status = $action === 'approve' ? 'approved' : 'rejected';
+            $now = date('Y-m-d H:i:s');
+
+            $updateData = [
+                'status' => $status,
+                'approved_at' => $now,
+                'approved_by' => 'customer',
+                'approved_by_id' => $userId,
+                'updated_at' => $now,
+            ];
+
+            $this->db->transStart();
+
+            foreach ($parentServices as $service) {
+                $this->bookingAdditionalServicesModel->update((int) $service['id'], $updateData);
+
+                $this->bookingAdditionalServicesModel
+                    ->where('parent_booking_service_id', (int) $service['id'])
+                    ->set($updateData)
+                    ->update();
+            }
+
+            $this->db->transComplete();
+
+            if ($this->db->transStatus() === false) {
+                return $this->failServerError('Transaction failed. Please try again.');
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => $status === 'approved'
+                    ? 'Additional services approved successfully.'
+                    : 'Additional services rejected successfully.',
+                'data' => [
+                    'booking_id' => $bookingId,
+                    'service_ids' => $serviceIds,
+                    'status' => $status,
+                    'approved_at' => $now,
+                ]
+            ], 200);
+        } catch (\Exception $e) {
+            log_message('error', 'Additional service approval error: ' . $e->getMessage());
+            return $this->failServerError('Something went wrong.');
+        }
+    }
+
     /**
      * Get original booked services and newly added services (by coordinator/admin)
      * Shows initial services first, then services added later by coordinators
@@ -3010,12 +3187,12 @@ class BookingController extends ResourceController
             }
 
             $this->db->transStart();
-
+            $bookingCode = $this->generateBookingCode();
             /** -----------------------------------------
              * 1️⃣ CREATE EMPTY BOOKING FIRST
              * ----------------------------------------*/
             $bookingId = $this->bookingsModel->insert([
-                'booking_code'      => 'SE' . date('YmdHis'),
+                'booking_code'      => $bookingCode,
                 'user_id'           => $userId,
                 'slot_date'         => $slotDate,
 
@@ -3152,7 +3329,7 @@ class BookingController extends ResourceController
     public function downloadReceipt($paymentId)
     {
         $payment = $this->bookingPaymentsModel
-            ->select('booking_payments.*, bookings.booking_id, af_customers.name, af_customers.mobile_no')
+            ->select('booking_payments.*, bookings.booking_code, af_customers.name, af_customers.mobile_no')
             ->join('bookings', 'bookings.id = booking_payments.booking_id')
             ->join('af_customers', 'af_customers.id = booking_payments.user_id')
             ->where('booking_payments.id', $paymentId)
@@ -3178,5 +3355,17 @@ class BookingController extends ResourceController
                 'attachment; filename="receipt_' . $payment['booking_code'] . '.pdf"'
             )
             ->setBody($dompdf->output());
+    }
+    private function generateBookingCode(): string
+    {
+        $prefix = 'SE';
+        $booking_code = $prefix . date('ymdHis');
+
+        $exists = $this->bookingsModel->where('booking_code', $booking_code)->first();
+        if (!$exists) {
+            return $booking_code;
+        }
+
+        return $prefix . date('ymdHis') . rand(10, 99);
     }
 }

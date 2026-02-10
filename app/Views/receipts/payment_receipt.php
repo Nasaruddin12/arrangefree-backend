@@ -106,7 +106,7 @@ $logoSrc = 'data:image/webp;base64,' . $logoData;
         </tr>
         <tr style="background: #fff;">
             <td style="border: 1px solid #ddd; padding: 12px; font-weight: bold; color: #555;">Booking ID</td>
-            <td style="border: 1px solid #ddd; padding: 12px; color: #1a73e8; font-weight: 500;"><?= $payment['booking_id'] ?></td>
+            <td style="border: 1px solid #ddd; padding: 12px; color: #1a73e8; font-weight: 500;"><?= $payment['booking_code'] ?></td>
         </tr>
         <tr style="background: #f9fafb;">
             <td style="border: 1px solid #ddd; padding: 12px; font-weight: bold; color: #555;">Payment Date & Time</td>
@@ -122,7 +122,7 @@ $logoSrc = 'data:image/webp;base64,' . $logoData;
         </tr>
         <tr style="background: #fff;">
             <td style="border: 1px solid #ddd; padding: 12px; font-weight: bold; color: #555;">Transaction ID</td>
-            <td style="border: 1px solid #ddd; padding: 12px; color: #1a73e8; font-weight: 500; word-break: break-all;"><?= $payment['transaction_id'] ?></td>
+            <td style="border: 1px solid #ddd; padding: 12px; color: #1a73e8; font-weight: 500; word-break: break-all;"><?= $payment['gateway_payment_id'] ?></td>
         </tr>
         <tr style="background: #fff;">
             <td style="border: 1px solid #ddd; padding: 12px; font-weight: bold; color: #555;">Amount</td>

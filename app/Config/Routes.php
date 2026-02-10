@@ -227,6 +227,19 @@ $routes->group('services', function ($routes) {
         $routes->put('change-status/(:num)', 'ServiceController::changeStatus/$1');
     });
 });
+$routes->group('service-gallery', function ($routes) {
+    $routes->get('/', 'ServiceGalleryController::list');
+    $routes->get('(:num)', 'ServiceGalleryController::getById/$1');
+    $routes->get('services/stats', 'ServiceGalleryController::getServicesWithGalleryStats');
+    $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
+        $routes->post('create', 'ServiceGalleryController::create');
+        $routes->put('update/(:num)', 'ServiceGalleryController::update/$1');
+        $routes->delete('delete/(:num)', 'ServiceGalleryController::delete/$1');
+        $routes->post('upload-images', 'ServiceGalleryController::uploadImages');
+        $routes->post('add-video', 'ServiceGalleryController::addVideo');
+        $routes->post('add-tutorial-video', 'ServiceGalleryController::addTutorialVideo');
+    });
+});
 $routes->group('selected-design', function ($routes) {
     $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
         $routes->post('save', 'SelectedDesignController::saveSelectedDesign');
@@ -280,6 +293,7 @@ $routes->group('booking', function ($routes) {
         $routes->put('change-status/(:num)', 'BookingController::changeStatus/$1');
         $routes->delete('delete/(:num)', 'BookingController::deleteBooking/$1');
         $routes->post('add-additional-services', 'BookingController::addAdditionalServices');
+        $routes->post('additional-services/approval', 'BookingController::approveAdditionalServices');
         $routes->post('cancel-service', 'BookingController::cancelService');
         $routes->post('adjustments/(:num)', 'BookingController::createAdjustment/$1');
         $routes->get('adjustments/(:num)', 'BookingController::getAdjustments/$1');
