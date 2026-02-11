@@ -634,13 +634,44 @@ class ServiceController extends BaseController
                 return $this->failValidationErrors('Search keyword must be at least 2 characters long.');
             }
 
-            // Group the LIKE conditions so the status filter applies to both
+            // 1) Try name only
+            $services = $this->serviceModel
+                ->where('status', 1)
+                ->like('name', $keyword)
+                ->orderBy('name', 'ASC')
+                ->findAll();
+
+            if (!empty($services)) {
+                return $this->respond([
+                    'status' => 200,
+                    'message' => 'Services found (matched name)',
+                    'data' => $services
+                ], 200);
+            }
+
+            // 2) Try description only
+            $services = $this->serviceModel
+                ->where('status', 1)
+                ->like('description', $keyword)
+                ->orderBy('name', 'ASC')
+                ->findAll();
+
+            if (!empty($services)) {
+                return $this->respond([
+                    'status' => 200,
+                    'message' => 'Services found (matched description)',
+                    'data' => $services
+                ], 200);
+            }
+
+            // 3) Fallback: search both fields (grouped)
             $services = $this->serviceModel
                 ->groupStart()
                     ->like('name', $keyword)
                     ->orLike('description', $keyword)
                 ->groupEnd()
                 ->where('status', 1)
+                ->orderBy('name', 'ASC')
                 ->findAll();
 
             if (empty($services)) {
@@ -653,7 +684,7 @@ class ServiceController extends BaseController
 
             return $this->respond([
                 'status' => 200,
-                'message' => 'Services found successfully',
+                'message' => 'Services found (fallback search)',
                 'data' => $services
             ], 200);
         } catch (Exception $e) {
