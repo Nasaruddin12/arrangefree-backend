@@ -30,7 +30,7 @@ class BookingAssignmentController extends ResourceController
         $customerModel = new \App\Models\CustomerModel();
         $serviceModel = new \App\Models\ServiceModel();
         $partnerModel = new PartnerModel();
-        $customerAddressModel = new \App\Models\AddressModel();
+        $customerAddressModel = new \App\Models\CustomerAddressModel();
 
         $summary = [];
 
@@ -345,13 +345,13 @@ class BookingAssignmentController extends ResourceController
                     booking_assignments.*,
                     services.name AS service_name,
                     booking_services.amount AS customer_amount,
-                    af_customers.name AS customer_name,
+                    customers.name AS customer_name,
                     customer_addresses.address AS customer_address
                 ')
                 ->join('booking_services', 'booking_services.id = booking_assignments.booking_service_id')
                 ->join('services', 'services.id = booking_services.service_id')
                 ->join('bookings', 'bookings.id = booking_services.booking_id')
-                ->join('af_customers', 'af_customers.id = bookings.user_id', 'left')
+                ->join('customers', 'customers.id = bookings.user_id', 'left')
                 ->join('customer_addresses', 'customer_addresses.id = bookings.address_id', 'left')
                 ->where('booking_assignments.partner_id', $partnerId)
                 ->where('booking_assignments.status', 'assigned')
@@ -407,8 +407,8 @@ class BookingAssignmentController extends ResourceController
         $serviceModel             = new \App\Models\ServiceModel();
         $checklistStatusModel     = new \App\Models\BookingChecklistStatusModel();   // booking_assignment_checklist_status
         $serviceChecklistModel    = new \App\Models\ServiceChecklistModel();         // service_checklists
-        $bookingUpdateModel       = new \App\Models\BookingUpdateModel();
-        $bookingUpdateMediaModel  = new \App\Models\BookingUpdateMediaModel();
+        // $bookingUpdateModel       = new \App\Models\BookingUpdateModel();
+        // $bookingUpdateMediaModel  = new \App\Models\BookingUpdateMediaModel();
         $partnerPayoutModel       = new \App\Models\PartnerPayoutModel();            // optional
         $assignmentModel = new BookingAssignmentModel();
         try {
@@ -431,9 +431,9 @@ class BookingAssignmentController extends ResourceController
             services.name                    AS service_name,
             bookings.slot_date               AS booking_slot_date,
             bookings.booking_id               AS booking_number,
-            af_customers.id                     AS customer_id,
-            af_customers.name                   AS customer_name,
-            af_customers.mobile_no              AS customer_mobile,
+            customers.id                     AS customer_id,
+            customers.name                   AS customer_name,
+            customers.mobile_no              AS customer_mobile,
             customer_addresses.house AS address_line1,
             customer_addresses.address AS address_line2,
             customer_addresses.landmark AS landmark,
@@ -442,7 +442,7 @@ class BookingAssignmentController extends ResourceController
                 ->join('booking_services', 'booking_services.id = booking_assignments.booking_service_id')
                 ->join('services', 'services.id = booking_services.service_id')
                 ->join('bookings', 'bookings.id = booking_services.booking_id')
-                ->join('af_customers', 'af_customers.id = bookings.user_id')
+                ->join('customers', 'customers.id = bookings.user_id')
                 ->join('customer_addresses', 'customer_addresses.id = bookings.address_id', 'left')
                 ->where('booking_assignments.id', $assignmentId)
                 ->first();
@@ -736,15 +736,15 @@ class BookingAssignmentController extends ResourceController
                     booking_assignments.*,
                     services.name AS service_name,
                     partners.name AS partner_name,
-                    af_customers.id AS customer_id,
-                    af_customers.name AS customer_name,
-                    af_customers.mobile_no AS customer_mobile,
+                    customers.id AS customer_id,
+                    customers.name AS customer_name,
+                    customers.mobile_no AS customer_mobile,
                     customer_addresses.address AS customer_address
                 ')
                 ->join('booking_services', 'booking_services.id = booking_assignments.booking_service_id')
                 ->join('services', 'services.id = booking_services.service_id')
                 ->join('bookings', 'bookings.id = booking_services.booking_id')
-                ->join('af_customers', 'af_customers.id = bookings.user_id', 'left')
+                ->join('customers', 'customers.id = bookings.user_id', 'left')
                 ->join('customer_addresses', 'customer_addresses.id = bookings.address_id', 'left')
                 ->join('partners', 'partners.id = booking_assignments.partner_id', 'left')
                 ->where('booking_assignments.id', $assignmentId)

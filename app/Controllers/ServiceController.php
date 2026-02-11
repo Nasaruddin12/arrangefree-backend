@@ -15,124 +15,35 @@ class ServiceController extends BaseController
     protected $serviceModel;
     protected $serviceRoomModel;
 
-
     public function __construct()
     {
         $this->serviceModel = new ServiceModel();
         $this->serviceRoomModel  = new ServiceRoomModel();
     }
 
-    /**
-     * Generate slug from service name
-     * @param string $name
-     * @return string
-     */
-    // private function generateSlug($name)
-    // {
-    //     // Convert to lowercase
-    //     $slug = strtolower($name);
-
-    //     // Replace spaces and underscores with hyphens
-    //     $slug = preg_replace('/[\s_]+/', '-', $slug);
-
-    //     // Remove all characters except alphanumerics and hyphens
-    //     $slug = preg_replace('/[^a-z0-9\-]/', '', $slug);
-
-    //     // Replace multiple consecutive hyphens with a single hyphen
-    //     $slug = preg_replace('/-+/', '-', $slug);
-
-    //     // Trim hyphens from start and end
-    //     $slug = trim($slug, '-');
-
-    //     return $slug;
-    // }
-
-    /**
-     * ✅ Update all service slugs in bulk
-     * Generates slug for each service based on their name
-     * Handles duplicates by appending numbers (1, 2, 3...)
-     */
-    // public function updateAllSlugs()
-    // {
-    //     try {
-    //         $db = \Config\Database::connect();
-    //         $db->transStart();
-
-    //         // Get all services
-    //         $services = $this->serviceModel->findAll();
-
-    //         if (empty($services)) {
-    //             return $this->respond(['status' => 200, 'message' => 'No services found to update'], 200);
-    //         }
-
-    //         $updateCount = 0;
-    //         $skippedCount = 0;
-    //         $usedSlugs = []; // Track all slugs being used
-
-    //         // Update each service with generated slug
-    //         foreach ($services as $service) {
-    //             $baseSlug = $this->generateSlug($service['name']);
-    //             $slug = $baseSlug;
-    //             $counter = 1;
-
-    //             // Check if slug already exists in database (for other services) or in current batch
-    //             while ($this->slugExists($slug, $service['id']) || in_array($slug, $usedSlugs)) {
-    //                 $slug = $baseSlug . '-' . $counter;
-    //                 $counter++;
-    //             }
-
-    //             $usedSlugs[] = $slug; // Add to tracking array
-
-    //             // Update only if slug is different from current slug
-    //             if ($slug !== $service['slug']) {
-    //                 if ($this->serviceModel->update($service['id'], ['slug' => $slug])) {
-    //                     $updateCount++;
-    //                 }
-    //             } else {
-    //                 $skippedCount++;
-    //             }
-    //         }
-
-    //         $db->transComplete();
-
-    //         if (!$db->transStatus()) {
-    //             return $this->respond(['status' => 400, 'message' => 'Failed to update slugs'], 400);
-    //         }
-
-    //         return $this->respond([
-    //             'status' => 200,
-    //             'message' => "Successfully updated {$updateCount} service slugs",
-    //             'updated_count' => $updateCount,
-    //             'skipped_count' => $skippedCount,
-    //             'total_services' => count($services)
-    //         ], 200);
-    //     } catch (\Exception $e) {
-    //         return $this->respond([
-    //             'status' => 500,
-    //             'message' => 'Error updating service slugs',
-    //             'error' => $e->getMessage()
-    //         ], 500);
-    //     }
-    // }
-
-    // /**
-    //  * Check if slug already exists (excluding current service)
-    //  * @param string $slug
-    //  * @param int $serviceId
-    //  * @return bool
-    //  */
-    // private function slugExists($slug, $serviceId)
-    // {
-    //     $exists = $this->serviceModel
-    //         ->where('slug', $slug)
-    //         ->where('id !=', $serviceId)
-    //         ->first();
-
-    //     return $exists !== null;
-    // }
     public function create()
     {
         try {
+            // Validate input
+            $validation = \Config\Services::validation();
+            $validation->setRules([
+                'name' => 'required|string|max_length[255]',
+                'service_type_id' => 'required|integer',
+                'rate' => 'required|numeric',
+                'rate_type' => 'required|in_list[unit,square_feet]',
+                'partner_price' => 'permit_empty|numeric',
+                'status' => 'permit_empty|in_list[0,1]',
+                'slug' => 'permit_empty|string|max_length[255]',
+            ]);
+
+            if (!$validation->withRequest($this->request)->run()) {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'Validation failed',
+                    'errors' => $validation->getErrors()
+                ], 400);
+            }
+
             $db = \Config\Database::connect();
             $db->transStart();
 
@@ -192,6 +103,7 @@ class ServiceController extends BaseController
                         'price_type'   => $addon['price_type'], // 'unit' or 'square_feet'
                         'qty'          => $addon['qty'],
                         'price'        => $addon['price'],
+                        'partner_price' => $addon['partner_price'] ?? null,
                         'description'  => $addon['description'] ?? null,
                     ];
                 }
@@ -228,41 +140,22 @@ class ServiceController extends BaseController
     public function uploadImages()
     {
         try {
-            // $validation = \Config\Services::validation();
-            // $validation->setRules([
-            //     'images' => 'uploaded[images]|max_size[images,2048]|mime_in[images,image/png,image/jpeg,image/jpg]',
-            // ]);
-
-            // if (!$validation->withRequest($this->request)->run()) {
-            //     return $this->respond([
-            //         'status' => 400,
-            //         'message' => 'Invalid image files',
-            //         'errors' => $validation->getErrors()
-            //     ], 400);
-            // }
-
             $imageFiles = $this->request->getFiles();
             $imagePaths = [];
 
             if (!empty($imageFiles['images'])) {
                 foreach ($imageFiles['images'] as $imageFile) {
                     if ($imageFile->isValid() && !$imageFile->hasMoved()) {
-
-                        // Validate size (max 2MB)
-                        // if ($imageFile->getSize() > 2 * 1024 * 1024) {
-                        //     continue; // skip this file
-                        // }
-
                         // Validate mime type
                         $allowedTypes = [
                             'image/png',
                             'image/jpeg',
-                            'image/jpg', // Image types
+                            'image/jpg',
                             'video/mp4',
                             'video/avi',
                             'video/mov',
                             'video/quicktime',
-                            'video/x-msvideo', // Video types
+                            'video/x-msvideo',
                         ];
 
                         if (!in_array($imageFile->getMimeType(), $allowedTypes)) {
@@ -357,11 +250,32 @@ class ServiceController extends BaseController
     public function update($id)
     {
         try {
-            $db = \Config\Database::connect();
             $service = $this->serviceModel->find($id);
             if (!$service) {
                 return $this->failNotFound('Service not found.');
             }
+
+            // Validate input
+            $validation = \Config\Services::validation();
+            $validation->setRules([
+                'name' => 'permit_empty|string|max_length[255]',
+                'service_type_id' => 'permit_empty|integer',
+                'rate' => 'permit_empty|numeric',
+                'rate_type' => 'permit_empty|in_list[unit,square_feet]',
+                'partner_price' => 'permit_empty|numeric',
+                'status' => 'permit_empty|in_list[0,1]',
+                'slug' => 'permit_empty|string|max_length[255]',
+            ]);
+
+            if (!$validation->withRequest($this->request)->run()) {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'Validation failed',
+                    'errors' => $validation->getErrors()
+                ], 400);
+            }
+
+            $db = \Config\Database::connect();
 
             $data = [
                 'name'               => $this->request->getVar('name'),
@@ -416,6 +330,7 @@ class ServiceController extends BaseController
                         'price_type'  => $addon['price_type'],
                         'qty'         => $addon['qty'],
                         'price'       => $addon['price'],
+                        'partner_price' => $addon['partner_price'] ?? null,
                         'description' => $addon['description'] ?? null,
                     ];
 

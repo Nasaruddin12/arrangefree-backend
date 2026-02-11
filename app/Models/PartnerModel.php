@@ -9,6 +9,9 @@ class PartnerModel extends Model
     protected $table            = 'partners';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
+    protected $returnType       = 'array';
+    protected $useTimestamps    = true;
+    protected $useSoftDeletes   = true;
 
     protected $allowedFields = [
         'name',
@@ -17,9 +20,9 @@ class PartnerModel extends Model
         'mobile_verified',
         'dob',
         'gender',
+        'emergency_contact',
         'profession',
         'team_size',
-        'emergency_contact',
         'service_areas',
         'aadhaar_no',
         'pan_no',
@@ -28,13 +31,16 @@ class PartnerModel extends Model
         'verified_by',
         'verified_at',
         'status',
+        'referral_code',
+        'referred_by_partner_id',
         'fcm_token',
-        'firebase_uid',
+        'firebase_uid'
     ];
 
-    protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
+    protected $deletedField  = 'deleted_at';
+    protected $dateFormat    = 'datetime';
 
     // protected $validationRules = [
     //     'name'             => 'required|min_length[3]',
@@ -104,12 +110,13 @@ class PartnerModel extends Model
      */
     protected function beforeValidate(array $data): array
     {
-        if (!empty($data['data']['id'])) {
-            $id = $data['data']['id'];
+        if (!empty($data['id'])) {
+            $id = $data['id'];
 
             $this->validationRules['mobile']     = 'required|regex_match[/^[0-9]{10}$/]|is_unique[partners.mobile,id,' . $id . ']';
-            $this->validationRules['aadhaar_no'] = 'required|regex_match[/^[0-9]{12}$/]|is_unique[partners.aadhaar_no,id,' . $id . ']';
-            $this->validationRules['pan_no']     = 'required|regex_match[/^[A-Z]{5}[0-9]{4}[A-Z]$/]|is_unique[partners.pan_no,id,' . $id . ']';
+            $this->validationRules['email']      = 'permit_empty|valid_email|is_unique[partners.email,id,' . $id . ']';
+            $this->validationRules['aadhaar_no'] = 'permit_empty|regex_match[/^[0-9]{12}$/]|is_unique[partners.aadhaar_no,id,' . $id . ']';
+            $this->validationRules['pan_no']     = 'permit_empty|regex_match[/^[A-Z]{5}[0-9]{4}[A-Z]$/]|is_unique[partners.pan_no,id,' . $id . ']';
         }
 
         return $data;

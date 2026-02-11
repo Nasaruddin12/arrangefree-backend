@@ -6,21 +6,34 @@ use CodeIgniter\Model;
 
 class PartnerJobItemModel extends Model
 {
-    protected $DBGroup          = 'default';
-    protected $table            = 'partnerjobitems';
+    protected $table            = 'partner_job_items';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
-    protected $useSoftDeletes   = false;
-    protected $protectFields    = true;
-    protected $allowedFields    = [];
+
+    protected $allowedFields = [
+        'partner_job_id',
+        'parent_item_id',
+        'service_source',
+        'source_id',
+        'room_id',
+        'with_material',
+        'title',
+        'quantity',
+        'unit',
+        'rate',
+        'amount',
+        'status',
+        'checklist_status',
+        'cancelled_by',
+        'cancel_reason'
+    ];
 
     // Dates
-    protected $useTimestamps = false;
-    protected $dateFormat    = 'datetime';
+    protected $useTimestamps = true;
     protected $createdField  = 'created_at';
-    protected $updatedField  = 'updated_at';
-    protected $deletedField  = 'deleted_at';
+    protected $updatedField  = null;
+    protected $dateFormat    = 'datetime';
 
     // Validation
     protected $validationRules      = [];

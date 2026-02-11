@@ -1,5 +1,12 @@
 <?php
-
+// if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+//     header('Access-Control-Allow-Origin: ' . ($_SERVER['HTTP_ORIGIN'] ?? '*'));
+//     header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+//     header('Access-Control-Allow-Headers: Content-Type, Authorization');
+//     header('Access-Control-Allow-Credentials: true');
+//     http_response_code(204);
+//     exit;
+// }
 // Check PHP version.
 $minPhpVersion = '7.4'; // If you update this, don't forget to update `spark`.
 if (version_compare(PHP_VERSION, $minPhpVersion, '<')) {
@@ -12,33 +19,33 @@ if (version_compare(PHP_VERSION, $minPhpVersion, '<')) {
     exit($message);
 }
 
-$allowed_origins = ['https://dreams.seeb.in', 'https://seeb.in', 'https://demo.seeb.in', 'https://localhost:3000', 'http://localhost:5173'];
+// $allowed_origins = ['https://dreams.seeb.in', 'https://seeb.in', 'https://demo.seeb.in', 'http://localhost:3000', 'http://localhost:5173'];
 
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    if (isset($_SERVER['HTTP_ORIGIN']) && in_array($_SERVER['HTTP_ORIGIN'], $allowed_origins)) {
-        header('Access-Control-Allow-Origin: ' . $_SERVER['HTTP_ORIGIN']);
-    } else {
-        header('Access-Control-Allow-Origin: https://dreams.seeb.in'); // default fallback
-    }
+// if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+//     if (isset($_SERVER['HTTP_ORIGIN']) && in_array($_SERVER['HTTP_ORIGIN'], $allowed_origins)) {
+//         header('Access-Control-Allow-Origin: ' . $_SERVER['HTTP_ORIGIN']);
+//     } else {
+//         header('Access-Control-Allow-Origin: https://dreams.seeb.in'); // default fallback
+//     }
 
-    header('Access-Control-Allow-Methods: POST, OPTIONS, PUT, DELETE');
-    header('Access-Control-Allow-Headers: Content-Type, Authorization');
-    header('Access-Control-Allow-Credentials: true');
-    header('Access-Control-Max-Age: 86400');
-    http_response_code(200);
-    exit(); // 🔐 stop further processing
-}
+//     header('Access-Control-Allow-Methods: POST, OPTIONS, PUT, DELETE');
+//     header('Access-Control-Allow-Headers: Content-Type, Authorization');
+//     header('Access-Control-Allow-Credentials: true');
+//     header('Access-Control-Max-Age: 86400');
+//     http_response_code(200);
+//     exit(); // 🔐 stop further processing
+// }
 
-// Normal request handling (GET, POST, etc.)
-if (isset($_SERVER['HTTP_ORIGIN']) && in_array($_SERVER['HTTP_ORIGIN'], $allowed_origins)) {
-    header('Access-Control-Allow-Origin: ' . $_SERVER['HTTP_ORIGIN']);
-} else {
-    header('Access-Control-Allow-Origin: https://dreams.seeb.in');
-}
-header('Access-Control-Allow-Methods: POST, OPTIONS, PUT, DELETE');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-header('Access-Control-Allow-Credentials: true');
-header('Access-Control-Max-Age: 86400');
+// // Normal request handling (GET, POST, etc.)
+// if (isset($_SERVER['HTTP_ORIGIN']) && in_array($_SERVER['HTTP_ORIGIN'], $allowed_origins)) {
+//     header('Access-Control-Allow-Origin: ' . $_SERVER['HTTP_ORIGIN']);
+// } else {
+//     header('Access-Control-Allow-Origin: https://dreams.seeb.in');
+// }
+// header('Access-Control-Allow-Methods: POST, OPTIONS, PUT, DELETE');
+// header('Access-Control-Allow-Headers: Content-Type, Authorization');
+// header('Access-Control-Allow-Credentials: true');
+// header('Access-Control-Max-Age: 86400');
 
 // Path to the front controller (this file)
 define('FCPATH', __DIR__ . DIRECTORY_SEPARATOR);

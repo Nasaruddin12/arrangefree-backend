@@ -48,14 +48,11 @@ class AdminController extends BaseController
             $currentTime = new DateTime('now');
             $expTime = new DateTime();
             $expTime->setTimestamp((int) $userOTP[1]);
-            // if ($otp == '1234') {
 
-
-            $sectionAccessModel = new SectionAccessModel();
-            $otp = hash('sha256', $otp);
-            if (($currentTime <= $expTime) && ($userOTP[0] == $otp)) {
+            $otpHash = hash('sha256', $otp);
+            if (($currentTime <= $expTime) && ($userOTP[0] == $otpHash)) {
                 $key = getenv('JWT_SECRET');
-                $iat = time(); // current timestamp value
+                $iat = time();
                 $exp = $iat + 18000000;
 
                 $payload = array(
@@ -63,19 +60,21 @@ class AdminController extends BaseController
                     "aud" => "Admin",
                     "sub" => "To verify the User",
                     "iat" => $iat,
-                    //Time the JWT issued at
                     "exp" => $exp,
-                    // Expiration time of token
                     "mobile_no" => $admin['mobile_no'],
                     "id" => $admin['id'],
                 );
 
                 $token = JWT::encode($payload, $key, 'HS256');
-                $sectionAccessModel = new SectionAccessModel();
                 $rolePrivilegesModel = new RolePrivilegesModel();
                 $roleData = $rolePrivilegesModel->find($admin['role_id']);
                 $sectionsID = json_decode($roleData['section_access'], true);
+                $sectionAccessModel = new SectionAccessModel();
                 $privileges = $sectionAccessModel->whereIn('id', $sectionsID)->findColumn('access_key');
+                
+                // Remove sensitive data
+                unset($admin['password'], $admin['otp']);
+                
                 $response = [
                     'status' => 200,
                     'message' => 'Login successful',
@@ -111,9 +110,6 @@ class AdminController extends BaseController
             $customerData = $AdminModel->where('mobile_no', $mobileNo)->first();
             if (!empty($customerData)) {
                 $otp = random_int(1000, 9999);
-                if ($mobileNo == '9665113736')
-                    $otp = 6254;
-                // echo $otp;
                 $smsGateway = new SMSGateway();
                 $response = $smsGateway->sendOTP($mobileNo, $otp);
 
@@ -205,18 +201,16 @@ class AdminController extends BaseController
         $adminModel = new AdminModel();
         try {
             $data = $adminModel->select([
-                'af_admins.id AS id',
-                'af_admins.name AS name',
-                'af_admins.email AS email',
-                'af_admins.mobile_no AS mobile_no',
-                'af_admins.password AS password',
-                'af_admins.is_logged_in AS is_logged_in',
-                'af_admins.otp AS otp',
-                'af_admins.status AS status',
-                'af_admins.role_id AS role_id',
-                'af_role_privileges.title AS role_title'
+                'admins.id AS id',
+                'admins.name AS name',
+                'admins.email AS email',
+                'admins.mobile_no AS mobile_no',
+                'admins.is_logged_in AS is_logged_in',
+                'admins.status AS status',
+                'admins.role_id AS role_id',
+                'role_privileges.title AS role_title'
             ])
-                ->join('af_role_privileges', 'af_admins.role_id = af_role_privileges.id')->findAll();
+                ->join('role_privileges', 'admins.role_id = role_privileges.id')->findAll();
 
             if (!empty($adminModel->errors())) {
                 // $validation = &$accountfaqModel;
@@ -246,19 +240,17 @@ class AdminController extends BaseController
         $adminModel = new AdminModel();
         try {
             $data = $adminModel->select([
-                'af_admins.id AS id',
-                'af_admins.name AS name',
-                'af_admins.email AS email',
-                'af_admins.mobile_no AS mobile_no',
-                'af_admins.password AS password',
-                'af_admins.is_logged_in AS is_logged_in',
-                'af_admins.otp AS otp',
-                'af_admins.status AS status',
-                'af_admins.role_id AS role_id',
-                'af_role_privileges.title AS role_title'
+                'admins.id AS id',
+                'admins.name AS name',
+                'admins.email AS email',
+                'admins.mobile_no AS mobile_no',
+                'admins.is_logged_in AS is_logged_in',
+                'admins.status AS status',
+                'admins.role_id AS role_id',
+                'role_privileges.title AS role_title'
             ])
-                ->join('af_role_privileges', 'af_admins.role_id = af_role_privileges.id')
-                ->where('af_admins.id', $id)
+                ->join('role_privileges', 'admins.role_id = role_privileges.id')
+                ->where('admins.id', $id)
                 ->first();
 
 

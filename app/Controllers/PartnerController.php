@@ -7,6 +7,8 @@ use App\Libraries\SMSGateway;
 use App\Models\PartnerBankDetailModel;
 use App\Models\PartnerModel;
 use App\Models\PartnerOtpModel;
+use App\Models\PartnerWalletTransactionModel;
+use App\Models\PartnerWithdrawalRequestModel;
 use CodeIgniter\API\ResponseTrait;
 use Exception;
 
@@ -230,6 +232,240 @@ class PartnerController extends BaseController
                 'status' => 500,
                 'message' => 'Server error: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    public function walletBalance($partnerId = null)
+    {
+        try {
+            $partnerId = (int) $partnerId;
+
+            if ($partnerId <= 0) {
+                return $this->respond(['status' => 422, 'message' => 'Valid partner ID is required'], 422);
+            }
+
+            $partner = $this->partnerModel->find($partnerId);
+            if (!$partner) {
+                return $this->respond(['status' => 404, 'message' => 'Partner not found'], 404);
+            }
+
+            $walletModel = new PartnerWalletTransactionModel();
+
+            $creditRow = $walletModel
+                ->selectSum('amount')
+                ->where('partner_id', $partnerId)
+                ->where('is_credit', 1)
+                ->first();
+
+            $debitRow = $walletModel
+                ->selectSum('amount')
+                ->where('partner_id', $partnerId)
+                ->where('is_credit', 0)
+                ->first();
+
+            $creditTotal = (float) ($creditRow['amount'] ?? 0);
+            $debitTotal = (float) ($debitRow['amount'] ?? 0);
+            $balance = round($creditTotal - $debitTotal, 2);
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Partner wallet balance retrieved successfully',
+                'data' => [
+                    'partner_id' => $partnerId,
+                    'credit_total' => $creditTotal,
+                    'debit_total' => $debitTotal,
+                    'balance' => $balance,
+                ]
+            ], 200);
+        } catch (Exception $e) {
+            return $this->failServerError('Failed to fetch wallet balance: ' . $e->getMessage());
+        }
+    }
+
+    public function walletWithdrawRequests($partnerId = null)
+    {
+        try {
+            $partnerId = (int) $partnerId;
+
+            if ($partnerId <= 0) {
+                return $this->respond(['status' => 422, 'message' => 'Valid partner ID is required'], 422);
+            }
+
+            $partner = $this->partnerModel->find($partnerId);
+            if (!$partner) {
+                return $this->respond(['status' => 404, 'message' => 'Partner not found'], 404);
+            }
+
+            $withdrawModel = new PartnerWithdrawalRequestModel();
+
+            $requests = $withdrawModel
+                ->where('partner_id', $partnerId)
+                ->orderBy('requested_at', 'DESC')
+                ->findAll();
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Partner withdrawal requests retrieved successfully',
+                'data' => $requests,
+            ], 200);
+        } catch (Exception $e) {
+            return $this->failServerError('Failed to fetch withdrawal requests: ' . $e->getMessage());
+        }
+    }
+
+    public function getBankDetails($partnerId = null)
+    {
+        try {
+            $partnerId = (int) $partnerId;
+
+            if ($partnerId <= 0) {
+                return $this->respond(['status' => 422, 'message' => 'Valid partner ID is required'], 422);
+            }
+
+            $partner = $this->partnerModel->find($partnerId);
+            if (!$partner) {
+                return $this->respond(['status' => 404, 'message' => 'Partner not found'], 404);
+            }
+
+            $bankModel = new PartnerBankDetailModel();
+            $bankDetails = $bankModel->where('partner_id', $partnerId)->first();
+
+            if (!$bankDetails) {
+                return $this->respond([
+                    'status' => 404,
+                    'message' => 'Bank details not found',
+                ], 404);
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Partner bank details retrieved successfully',
+                'data' => $bankDetails,
+            ], 200);
+        } catch (Exception $e) {
+            return $this->failServerError('Failed to fetch bank details: ' . $e->getMessage());
+        }
+    }
+
+    public function walletTransactions($partnerId = null)
+    {
+        try {
+            $partnerId = (int) $partnerId;
+            $page = (int) ($this->request->getVar('page') ?? 1);
+            $limit = (int) ($this->request->getVar('limit') ?? 20);
+            $offset = ($page - 1) * $limit;
+
+            if ($partnerId <= 0) {
+                return $this->respond(['status' => 422, 'message' => 'Valid partner ID is required'], 422);
+            }
+
+            $partner = $this->partnerModel->find($partnerId);
+            if (!$partner) {
+                return $this->respond(['status' => 404, 'message' => 'Partner not found'], 404);
+            }
+
+            $walletModel = new PartnerWalletTransactionModel();
+
+            $builder = $walletModel
+                ->where('partner_id', $partnerId)
+                ->orderBy('created_at', 'DESC');
+
+            $total = $builder->countAllResults(false);
+            $transactions = $builder->findAll($limit, $offset);
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Partner wallet transactions retrieved successfully',
+                'data' => $transactions,
+                'pagination' => [
+                    'current_page' => $page,
+                    'per_page' => $limit,
+                    'total_records' => $total,
+                    'total_pages' => $limit > 0 ? (int) ceil($total / $limit) : 0,
+                ],
+            ], 200);
+        } catch (Exception $e) {
+            return $this->failServerError('Failed to fetch wallet transactions: ' . $e->getMessage());
+        }
+    }
+
+    public function createWalletWithdrawRequest($partnerId = null)
+    {
+        try {
+            $partnerId = (int) $partnerId;
+            $amount = (float) $this->request->getVar('requested_amount');
+            $note = $this->request->getVar('note');
+
+            if ($partnerId <= 0) {
+                return $this->respond(['status' => 422, 'message' => 'Valid partner ID is required'], 422);
+            }
+
+            if ($amount <= 0) {
+                return $this->respond(['status' => 422, 'message' => 'Valid requested_amount is required'], 422);
+            }
+
+            $partner = $this->partnerModel->find($partnerId);
+            if (!$partner) {
+                return $this->respond(['status' => 404, 'message' => 'Partner not found'], 404);
+            }
+
+            $walletModel = new PartnerWalletTransactionModel();
+
+            $creditRow = $walletModel
+                ->selectSum('amount')
+                ->where('partner_id', $partnerId)
+                ->where('is_credit', 1)
+                ->first();
+
+            $debitRow = $walletModel
+                ->selectSum('amount')
+                ->where('partner_id', $partnerId)
+                ->where('is_credit', 0)
+                ->first();
+
+            $creditTotal = (float) ($creditRow['amount'] ?? 0);
+            $debitTotal = (float) ($debitRow['amount'] ?? 0);
+            $balance = round($creditTotal - $debitTotal, 2);
+
+            if ($balance <= 0 || $amount > $balance) {
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Insufficient wallet balance for this withdrawal request.',
+                    'data' => [
+                        'balance' => $balance,
+                        'requested_amount' => $amount,
+                    ],
+                ], 422);
+            }
+
+            $withdrawModel = new PartnerWithdrawalRequestModel();
+
+            $pendingRequest = $withdrawModel
+                ->where('partner_id', $partnerId)
+                ->where('status', 'pending')
+                ->first();
+
+            if ($pendingRequest) {
+                return $this->respond([
+                    'status' => 409,
+                    'message' => 'A withdrawal request is already pending for this partner.',
+                ], 409);
+            }
+
+            $withdrawModel->insert([
+                'partner_id' => $partnerId,
+                'requested_amount' => $amount,
+                'status' => 'pending',
+                'requested_at' => date('Y-m-d H:i:s'),
+                'note' => $note,
+            ]);
+
+            return $this->respond([
+                'status' => 201,
+                'message' => 'Withdrawal request created successfully',
+            ], 201);
+        } catch (Exception $e) {
+            return $this->failServerError('Failed to create withdrawal request: ' . $e->getMessage());
         }
     }
     public function onboardingStatus()
@@ -1216,43 +1452,37 @@ class PartnerController extends BaseController
         p.profession,
         p.team_size,
         (
-            SELECT COUNT(*) FROM booking_assignments ba
-            JOIN booking_services bs ON ba.booking_service_id = bs.id
+            SELECT COUNT(*) FROM partner_jobs ba
             WHERE ba.partner_id = p.id AND ba.status = 'assigned'
         ) AS assigned,
 
         (
-            SELECT COUNT(*) FROM booking_assignments ba
-            JOIN booking_services bs ON ba.booking_service_id = bs.id
+            SELECT COUNT(*) FROM partner_jobs ba
             WHERE ba.partner_id = p.id AND ba.status = 'in_progress'
         ) AS in_progress,
 
         (
-            SELECT COUNT(*) FROM booking_assignments ba
-            JOIN booking_services bs ON ba.booking_service_id = bs.id
+            SELECT COUNT(*) FROM partner_jobs ba
             WHERE ba.partner_id = p.id AND ba.status = 'completed'
         ) AS completed,
 
         (
-            SELECT COUNT(*) FROM booking_assignments ba
-            JOIN booking_services bs ON ba.booking_service_id = bs.id
-            WHERE ba.partner_id = p.id AND ba.status = 'rejected'
-        ) AS rejected,
+            SELECT COUNT(*) FROM partner_jobs ba
+            WHERE ba.partner_id = p.id AND ba.status = 'cancelled'
+        ) AS cancelled,
 
         (
-            SELECT ca.address FROM booking_assignments ba
-            JOIN booking_services bs ON ba.booking_service_id = bs.id
-            JOIN bookings b ON bs.booking_id = b.id
-            JOIN customer_addresses ca ON b.address_id = ca.id
+            SELECT ba2.address FROM partner_jobs ba
+            JOIN bookings b ON ba.booking_id = b.id
+            JOIN booking_addresses ba2 ON b.id = ba2.booking_id
             WHERE ba.partner_id = p.id
             ORDER BY b.slot_date DESC
             LIMIT 1
         ) AS assigned_location,
 
         (
-            SELECT MAX(b.slot_date) FROM booking_assignments ba
-            JOIN booking_services bs ON ba.booking_service_id = bs.id
-            JOIN bookings b ON bs.booking_id = b.id
+            SELECT MAX(b.slot_date) FROM partner_jobs ba
+            JOIN bookings b ON ba.booking_id = b.id
             WHERE ba.partner_id = p.id
         ) AS last_task
     ");

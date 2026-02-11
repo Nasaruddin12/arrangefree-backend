@@ -18,10 +18,12 @@ class ServiceAddonModel extends Model
         'price_type',
         'qty',
         'price',
+        'partner_price',
         'description',
     ];
 
     protected $useTimestamps = true;
+    protected $useSoftDeletes = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
     protected $deletedField  = 'deleted_at';
@@ -32,6 +34,7 @@ class ServiceAddonModel extends Model
         'price_type'   => 'in_list[unit,square_feet]',
         'qty'          => 'required|decimal',
         'price'        => 'required|decimal',
+        'partner_price' => 'permit_empty|decimal',
     ];
 
     protected $validationMessages = [

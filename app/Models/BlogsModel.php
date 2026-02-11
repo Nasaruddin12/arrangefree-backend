@@ -7,7 +7,7 @@ use CodeIgniter\Model;
 class BlogsModel extends Model
 {
     protected $DBGroup          = 'default';
-    protected $table            = 'af_blogs';
+    protected $table            = 'blogs';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';

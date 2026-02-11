@@ -9,6 +9,7 @@ class PartnerDocumentModel extends Model
     protected $table            = 'partner_documents';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
+    protected $returnType       = 'array';
 
     protected $allowedFields = [
         'partner_id',
@@ -17,12 +18,13 @@ class PartnerDocumentModel extends Model
         'status',
         'rejection_reason',
         'reviewed_by',
-        'reviewed_at',
+        'reviewed_at'
     ];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
+    protected $dateFormat    = 'datetime';
 
     protected $validationRules = [
         'partner_id' => 'required|is_natural_no_zero',

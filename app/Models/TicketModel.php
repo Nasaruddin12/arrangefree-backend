@@ -9,6 +9,8 @@ class TicketModel extends Model
     protected $table      = 'tickets';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
+    protected $useSoftDeletes = true;
+    protected $deletedField = 'deleted_at';
 
     protected $allowedFields = [
         'ticket_uid',
@@ -16,7 +18,7 @@ class TicketModel extends Model
         'user_id',
         'partner_id',
         'booking_id',
-        'task_id',
+        'partner_job_id',
         'subject',
         'file',
         'status',
@@ -25,8 +27,7 @@ class TicketModel extends Model
         'assigned_admin_id',
         'admin_unread',
         'last_admin_viewed_at',
-        'created_at',
-        'updated_at'
+        'closed_at'
     ];
 
     protected $useTimestamps = true;
@@ -35,14 +36,14 @@ class TicketModel extends Model
 
     protected $validationRules = [
         'user_type' => 'required|in_list[customer,partner]',
-        'user_id' => 'permit_empty|integer', // ✅ Removed "required"
+        'user_id' => 'permit_empty|integer',
         'partner_id' => 'permit_empty|integer',
         'subject' => 'required|string|max_length[255]',
         'priority' => 'required|in_list[low,medium,high]',
         'category' => 'required',
         'status' => 'permit_empty|in_list[open,in_progress,closed]',
         'booking_id' => 'permit_empty|integer',
-        'task_id' => 'permit_empty|integer',
+        'partner_job_id' => 'permit_empty|integer',
         'assigned_admin_id' => 'permit_empty|integer',
         'file' => 'permit_empty'
     ];

@@ -88,9 +88,9 @@ class NotificationService
     private function getDeviceToken($userId, $userType): ?string
     {
         $tableMap = [
-            'customer' => 'af_customers',
+            'customer' => 'customers',
             'partner'  => 'partners',
-            'admin'    => 'af_admins',
+            'admin'    => 'admins',
         ];
 
         if (!isset($tableMap[$userType])) return null;

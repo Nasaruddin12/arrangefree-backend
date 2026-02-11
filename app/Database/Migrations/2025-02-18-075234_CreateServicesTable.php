@@ -19,7 +19,7 @@ class CreateServicesTable extends Migration
                 'type'       => 'INT',
                 'constraint' => 11,
                 'unsigned'   => true,
-                'null'       => false,
+                'null'       => true,   // IMPORTANT
             ],
             'name' => [
                 'type'       => 'VARCHAR',
@@ -37,7 +37,7 @@ class CreateServicesTable extends Migration
             ],
             'rate_type' => [
                 'type'       => 'ENUM',
-                'constraint' => ['unit', 'per_square_feet'],
+                'constraint' => ['unit', 'square_feet','running_feet','running_meter','points', 'sqft'],
                 'default'    => 'unit',
                 'null'       => false,
             ],
@@ -65,6 +65,32 @@ class CreateServicesTable extends Migration
                 'type'       => 'LONGTEXT',
                 'null'       => true,
             ],
+            'primary_key' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 255,
+                'null'       => true,
+            ],
+            'secondary_key' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 255,
+                'null'       => true,
+            ],
+            'partner_price' => [
+                'type'       => 'DECIMAL',
+                'constraint' => '10,2',
+                'null'       => true,
+            ],
+            'with_material' => [
+                'type'       => 'BOOLEAN',
+                'default'    => false,
+                'null'       => false,
+            ],
+            'slug' => [
+                'type'       => 'VARCHAR',
+                'constraint' => 255,
+                'null'       => true,
+                'unique'     => true,
+            ],
             'status' => [
                 'type'       => 'TINYINT',
                 'constraint' => 1,
@@ -78,11 +104,23 @@ class CreateServicesTable extends Migration
             'updated_at' => [
                 'type' => 'DATETIME',
                 'null' => true,
-            ]
+            ],
+            'deleted_at' => [
+                'type' => 'DATETIME',
+                'null' => true,
+            ],
+
         ]);
 
         $this->forge->addKey('id', true);
-        $this->forge->addForeignKey('service_type_id', 'service_types', 'id', 'CASCADE', 'CASCADE'); // Foreign key reference
+        $this->forge->addForeignKey(
+            'service_type_id',
+            'service_types',
+            'id',
+            'SET NULL',   // ON DELETE
+            'CASCADE'    // ON UPDATE
+        );
+        // Foreign key reference
 
         $this->forge->createTable('services');
     }

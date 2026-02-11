@@ -2,12 +2,12 @@
 
 namespace App\Controllers;
 
-use App\Models\AddressModel;
+use App\Models\CustomerAddressModel;
 use CodeIgniter\RESTful\ResourceController;
 
 class AddressController extends ResourceController
 {
-    protected $modelName = AddressModel::class;
+    protected $modelName = CustomerAddressModel::class;
     protected $format    = 'json';
 
     // ✅ Get all addresses (or filter by user_id)

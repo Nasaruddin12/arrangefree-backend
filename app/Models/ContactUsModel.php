@@ -7,7 +7,7 @@ use CodeIgniter\Model;
 class ContactUsModel extends Model
 {
     protected $DBGroup = 'default';
-    protected $table = 'af_contact_us';
+    protected $table = 'contact_us';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
     protected $returnType = 'array';

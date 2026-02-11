@@ -36,10 +36,11 @@ class ProductImages extends Migration
             ],
             'created_at DATETIME DEFAULT CURRENT_TIMESTAMP',
             'updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
+            
         ]);
 
         $this->forge->addPrimaryKey('id');
-        $this->forge->createTable('af_product_images');
+        $this->forge->createTable('af_product_images'); //dsfs
     }
 
     public function down()

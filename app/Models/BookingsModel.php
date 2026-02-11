@@ -8,34 +8,34 @@ class BookingsModel extends Model
 {
     protected $table      = 'bookings';
     protected $primaryKey = 'id';
+    protected $useAutoIncrement = true;
+    protected $useSoftDeletes = true;
 
     protected $allowedFields = [
-        'booking_id',
+        'booking_code',
         'user_id',
-        'address_id',
         'slot_date',
-        'total_amount',
+        'subtotal_amount',
         'discount',
         'cgst',
         'sgst',
+        'cgst_rate',
+        'sgst_rate',
         'final_amount',
-        'paid_amount',
-        'amount_due',
         'payment_type',
         'payment_status',
         'status',
         'applied_coupon',
-        'created_by_type',
-        'created_by_id',
-        'created_by_role',
-        'user_confirmed_at',
-        'created_at',
-        'updated_at',
+        'pricing_locked',
+        'cancelled_by',
+        'cancelled_at',
+        'cancellation_reason'
     ];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
+    protected $deletedField  = 'deleted_at';
 
     /**
      * Validation Rules
@@ -43,10 +43,10 @@ class BookingsModel extends Model
     protected $validationRules = [
         'user_id'        => 'required|integer',
         'slot_date'      => 'required|valid_date[Y-m-d]',  // Ensures slot_date is a valid date
-        'total_amount'   => 'required|decimal',
+        'subtotal_amount'   => 'required|decimal',
         'discount'       => 'required|decimal',
         'final_amount'   => 'required|decimal',
-        'status'         => 'required|in_list[pending,confirmed,cancelled,completed,in_progress, failed_payment, user_confirmation_waiting]',
+        'status'         => 'required|in_list[pending,confirmed,in_progress,completed,cancelled]',
         'applied_coupon' => 'permit_empty|string|max_length[50]',
     ];
 
@@ -56,7 +56,7 @@ class BookingsModel extends Model
     protected $validationMessages = [
         'user_id'        => ['required' => 'User ID is required.', 'integer' => 'User ID must be a number.'],
         'slot_date'      => ['required' => 'Slot Date is required.', 'valid_date' => 'Slot Date must be in YYYY-MM-DD format.'],
-        'total_amount'   => ['required' => 'Total Amount is required.', 'decimal' => 'Total Amount must be a decimal value.'],
+        'subtotal_amount'   => ['required' => 'Subtotal Amount is required.', 'decimal' => 'Subtotal Amount must be a decimal value.'],
         'discount'       => ['required' => 'Discount is required.', 'decimal' => 'Discount must be a decimal value.'],
         'final_amount'   => ['required' => 'Final Amount is required.', 'decimal' => 'Final Amount must be a decimal value.'],
         'status'         => ['required' => 'Status is required.', 'in_list' => 'Invalid status value.'],

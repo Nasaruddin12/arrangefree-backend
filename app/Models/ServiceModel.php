@@ -8,6 +8,8 @@ class ServiceModel extends Model
 {
     protected $table = 'services';
     protected $primaryKey = 'id';
+    protected $useAutoIncrement = true;
+    protected $useSoftDeletes = true; // Enable soft deletes
     protected $allowedFields = [
         'service_type_id',
         'name',
@@ -25,14 +27,17 @@ class ServiceModel extends Model
         'secondary_key',
         'partner_price',
         'with_material',
-        'slug',
-        'created_at',
-        'updated_at'
+        'slug'
     ];
 
     protected $useTimestamps = true;
     protected $createdField = 'created_at';
     protected $updatedField = 'updated_at';
+    protected $deletedField = 'deleted_at';
+
+    protected $validationRules = [
+        'partner_price' => 'permit_empty|decimal',
+    ];
 
     /**
      * Find services by numeric service_type_id and room_id (for backward compatibility with iOS/Android apps)

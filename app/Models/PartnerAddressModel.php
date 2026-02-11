@@ -20,14 +20,13 @@ class PartnerAddressModel extends Model
         'city',
         'state',
         'country',
-        'is_primary',
-        'created_at',
-        'updated_at',
+        'is_primary'
     ];
 
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
+    protected $dateFormat    = 'datetime';
 
     protected $validationRules = [
         'partner_id'      => 'required|integer',

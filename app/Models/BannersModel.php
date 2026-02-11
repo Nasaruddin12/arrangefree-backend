@@ -7,7 +7,7 @@ use CodeIgniter\Model;
 class BannersModel extends Model
 {
     protected $DBGroup          = 'default';
-    protected $table            = 'af_banners';
+    protected $table            = 'banners';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';

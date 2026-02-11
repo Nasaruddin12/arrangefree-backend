@@ -7,16 +7,16 @@ use CodeIgniter\Model;
 class CustomerAddressModel extends Model
 {
     protected $DBGroup          = 'default';
-    protected $table            = 'af_customer_address';
+    protected $table            = 'customer_addresses';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
-    protected $useSoftDeletes   = false;
+    protected $useSoftDeletes   = true;
     protected $protectFields    = true;
-    protected $allowedFields    = ['customer_id','first_name','last_name','email','phone','street_address','city','state','country','pincode','address_label'];
+    protected $allowedFields    = ['user_id', 'house', 'address', 'landmark', 'city', 'state', 'pincode', 'latitude', 'longitude', 'address_label', 'is_default'];
 
     // Dates
-    protected $useTimestamps = false;
+    protected $useTimestamps = true;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';

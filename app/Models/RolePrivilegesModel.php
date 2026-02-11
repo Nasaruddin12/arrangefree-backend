@@ -7,7 +7,7 @@ use CodeIgniter\Model;
 class RolePrivilegesModel extends Model
 {
     protected $DBGroup          = 'default';
-    protected $table            = 'af_role_privileges';
+    protected $table            = 'role_privileges';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';

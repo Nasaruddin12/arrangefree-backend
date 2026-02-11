@@ -51,7 +51,7 @@ class CreateAiApiHistory extends Migration
         ]);
 
         $this->forge->addPrimaryKey('id');
-        $this->forge->addForeignKey('user_id', 'af_customers', 'id', 'CASCADE', 'SET NULL');
+        $this->forge->addForeignKey('user_id', 'customers', 'id', 'CASCADE', 'SET NULL');
         $this->forge->createTable('ai_api_history');
     }
 

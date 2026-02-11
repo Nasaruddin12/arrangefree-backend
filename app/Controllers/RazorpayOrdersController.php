@@ -53,12 +53,11 @@ class RazorpayOrdersController extends ResourceController
             $razorpayModel = new RazorpayOrdersModel();
             $orderRecord = [
                 'user_id'   => $userId,
-                'order_id'  => $razorpayOrder->id,
-                'amount'    => $razorpayOrder->amount, // Convert back to original amount
+                'razorpay_order_id'  => $razorpayOrder->id,
+                'amount'    => $razorpayOrder->amount, // Store in paisa
                 'currency'  => $currency,
                 'status'    => $razorpayOrder->status,
                 'receipt'   => $razorpayOrder->receipt,
-                'offer_id'  => $razorpayOrder->offer_id ?? null,
             ];
             $razorpayModel->insert($orderRecord);
 
@@ -160,7 +159,7 @@ class RazorpayOrdersController extends ResourceController
             $payment_id = $this->request->getVar('payment_id') ?? null;
             $razorpayModel = new RazorpayOrdersModel();
 
-            $order = $razorpayModel->getOrderByOrderId($order_id);
+            $order = $razorpayModel->getOrderByRazorpayOrderId($order_id);
             if (!$order) {
                 return $this->respond([
                     'status'  => 404,

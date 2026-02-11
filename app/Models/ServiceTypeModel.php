@@ -12,6 +12,7 @@ class ServiceTypeModel extends Model
     protected $allowedFields = ['name', 'slug', 'image', 'status']; // Columns that can be modified
 
     protected $useTimestamps = true; // Enables created_at and updated_at auto-fill
+    protected $useSoftDeletes = true; // Enable soft deletes
 
     // Set up validation rules
     protected $validationRules = [
