@@ -626,17 +626,21 @@ class ServiceController extends BaseController
     public function search()
     {
         try {
-            $keyword = $this->request->getVar('search');
+            // Ensure we read from GET explicitly and trim input
+            $keyword = $this->request->getGet('search');
+            $keyword = is_string($keyword) ? trim($keyword) : '';
 
-            if (!$keyword || strlen(trim($keyword)) < 2) {
+            if ($keyword === '' || strlen($keyword) < 2) {
                 return $this->failValidationErrors('Search keyword must be at least 2 characters long.');
             }
 
+            // Group the LIKE conditions so the status filter applies to both
             $services = $this->serviceModel
-                ->like('name', $keyword)
-                ->orLike('description', $keyword)
+                ->groupStart()
+                    ->like('name', $keyword)
+                    ->orLike('description', $keyword)
+                ->groupEnd()
                 ->where('status', 1)
-                // ->orderBy('name', 'ASC')
                 ->findAll();
 
             if (empty($services)) {
