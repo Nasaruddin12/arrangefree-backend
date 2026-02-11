@@ -277,7 +277,7 @@ $routes->group('customer-address', function ($routes) {
         $routes->get('(:num)', 'AddressController::show/$1');       // Get single address by ID
         $routes->post('/', 'AddressController::create');            // Add new address
         $routes->put('(:num)', 'AddressController::update/$1');     // Update address by ID
-        $routes->delete('(:num)', 'AddressController::delete/$1');  // Delete address by ID
+        // $routes->delete('(:num)', 'AddressController::delete/$1');  // Delete address by ID
         $routes->put('change-default/(:num)', 'AddressController::changeDefault/$1');
     });
 });
