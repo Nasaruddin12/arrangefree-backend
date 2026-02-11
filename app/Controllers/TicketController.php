@@ -82,7 +82,7 @@ class TicketController extends ResourceController
                     throw new \Exception(json_encode(['partner_id' => 'Invalid partner_id. Partner not found.']), 400);
                 }
             } elseif ($data['user_type'] === 'customer') {
-                $userExists = $db->table('af_customers')
+                $userExists = $db->table('customers')
                     ->where('id', $data['user_id'] ?? 0)
                     ->countAllResults();
 
@@ -209,14 +209,14 @@ class TicketController extends ResourceController
                     ->join('partners', 'partners.id = tickets.partner_id', 'left');
             } else {
                 // Default to customer
-                $query = $query->select('tickets.*, af_customers.name as user_name')
-                    ->join('af_customers', 'af_customers.id = tickets.user_id', 'left');
+                $query = $query->select('tickets.*, customers.name as user_name')
+                    ->join('customers', 'customers.id = tickets.user_id', 'left');
             }
 
             // Apply search
             if (!empty($searchQuery)) {
                 $query->groupStart()
-                    ->like(($userType === 'partner' ? 'partners.name' : 'af_customers.name'), $searchQuery)
+                    ->like(($userType === 'partner' ? 'partners.name' : 'customers.name'), $searchQuery)
                     ->orLike('tickets.id', $searchQuery)
                     ->groupEnd();
             }
@@ -486,8 +486,8 @@ class TicketController extends ResourceController
     {
         try {
             $ticket = $this->ticketModel
-                ->select('tickets.*, af_customers.name as user_name')
-                ->join('af_customers', 'af_customers.id = tickets.user_id', 'left')
+                ->select('tickets.*, customers.name as user_name')
+                ->join('customers', 'customers.id = tickets.user_id', 'left')
                 ->where('tickets.id', $ticketId)
                 ->first();
 

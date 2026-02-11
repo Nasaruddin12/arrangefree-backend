@@ -111,14 +111,14 @@ class SeebCartController extends ResourceController
             $builder = $this->db->table('seeb_cart')
                 ->select("
                     seeb_cart.user_id, 
-                    af_customers.name AS user_name, 
-                    af_customers.email AS user_email, 
-                    af_customers.mobile_no AS user_phone, 
+                    customers.name AS user_name, 
+                    customers.email AS user_email, 
+                    customers.mobile_no AS user_phone, 
                     COUNT(seeb_cart.id) AS total_items, 
                     SUM(seeb_cart.amount) AS total_amount, 
                     MAX(seeb_cart.created_at) AS latest_cart_date
                 ")
-                ->join('af_customers', 'af_customers.id = seeb_cart.user_id', 'left');
+                ->join('customers', 'customers.id = seeb_cart.user_id', 'left');
 
             $builder->orderBy($sortColumn, $sortDirection);
 
@@ -141,9 +141,9 @@ class SeebCartController extends ResourceController
             // Search
             if ($search) {
                 $builder->groupStart()
-                    ->like('af_customers.name', $search)
-                    ->orLike('af_customers.email', $search)
-                    ->orLike('af_customers.mobile_no', $search)
+                    ->like('customers.name', $search)
+                    ->orLike('customers.email', $search)
+                    ->orLike('customers.mobile_no', $search)
                     ->groupEnd();
             }
 

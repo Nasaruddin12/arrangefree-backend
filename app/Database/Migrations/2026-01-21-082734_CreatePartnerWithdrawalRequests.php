@@ -78,7 +78,7 @@ class CreatePartnerWithdrawalRequests extends Migration
 
         $this->forge->addForeignKey(
             'approved_by_admin_id',
-            'af_admins',
+            'admins',
             'id',
             'SET NULL',
             'CASCADE'

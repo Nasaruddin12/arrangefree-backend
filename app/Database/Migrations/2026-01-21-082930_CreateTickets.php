@@ -126,7 +126,7 @@ class CreateTickets extends Migration
         $this->forge->addKey('assigned_admin_id');
         $this->forge->addKey('created_at');
 
-        $this->forge->addForeignKey('user_id', 'af_customers', 'id', 'SET NULL', 'SET NULL');
+        $this->forge->addForeignKey('user_id', 'customers', 'id', 'SET NULL', 'SET NULL');
         $this->forge->addForeignKey('partner_id', 'partners', 'id', 'RESTRICT', 'CASCADE');
         $this->forge->addForeignKey('booking_id', 'bookings', 'id', 'RESTRICT', 'CASCADE');
         $this->forge->addForeignKey(
@@ -138,7 +138,7 @@ class CreateTickets extends Migration
         );
         $this->forge->addForeignKey(
             'assigned_admin_id',
-            'af_admins',
+            'admins',
             'id',
             'SET NULL',
             'CASCADE'

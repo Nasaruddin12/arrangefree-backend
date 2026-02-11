@@ -35,7 +35,7 @@ class CreateSelectedDesgin extends Migration
         ]);
 
         $this->forge->addKey('id', true);
-        $this->forge->addForeignKey('user_id', 'af_customers', 'id', 'CASCADE', 'CASCADE'); // Ensuring referential integrity
+        $this->forge->addForeignKey('user_id', 'customers', 'id', 'CASCADE', 'CASCADE'); // Ensuring referential integrity
         $this->forge->createTable('selected_designs');
     }
 

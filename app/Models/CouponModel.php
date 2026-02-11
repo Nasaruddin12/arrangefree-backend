@@ -7,7 +7,7 @@ use CodeIgniter\Model;
 class CouponModel extends Model
 {
     protected $DBGroup          = 'default';
-    protected $table            = 'af_coupons';
+    protected $table            = 'coupons';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';

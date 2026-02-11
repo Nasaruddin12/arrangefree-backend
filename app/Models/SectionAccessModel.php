@@ -7,7 +7,7 @@ use CodeIgniter\Model;
 class SectionAccessModel extends Model
 {
     protected $DBGroup          = 'default';
-    protected $table            = 'af_section_access';
+    protected $table            = 'section_access';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';

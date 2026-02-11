@@ -136,7 +136,7 @@ class CreatePartnerJobAdditionalItems extends Migration
 
         $this->forge->addForeignKey(
             'approved_by',
-            'af_admins',
+            'admins',
             'id',
             'SET NULL',
             'CASCADE'

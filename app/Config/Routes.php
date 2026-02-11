@@ -100,6 +100,7 @@ $routes->group('admin', static function ($routes) {
         $routes->get('partners/summary', 'PartnerController::getPartnerTaskSummary');
 
         $routes->post('payouts/create', 'PartnerPayoutController::create');
+        $routes->get('payouts/requests', 'PartnerPayoutController::adminListRequests');
         $routes->get('payouts/partner/(:num)', 'PartnerPayoutController::listByPartner/$1');
     });
 });

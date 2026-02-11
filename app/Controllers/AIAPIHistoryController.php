@@ -164,15 +164,15 @@ class AIAPIHistoryController extends ResourceController
 
             // Main query: Get customers with their latest API usage
             $query = $db->table('ai_api_history')
-                ->select('af_customers.id AS user_id, af_customers.name, recent_usage.latest_usage AS created_at, COUNT(ai_api_history.id) AS usage_count')
+                ->select('customers.id AS user_id, customers.name, recent_usage.latest_usage AS created_at, COUNT(ai_api_history.id) AS usage_count')
                 ->join("($subQuery) AS recent_usage", 'recent_usage.user_id = ai_api_history.user_id', 'inner')
-                ->join('af_customers', 'af_customers.id = ai_api_history.user_id', 'inner')
+                ->join('customers', 'customers.id = ai_api_history.user_id', 'inner')
                 ->groupBy('ai_api_history.user_id')
                 ->orderBy('recent_usage.latest_usage', 'DESC');
 
             // Apply search filter
             if (!empty($search)) {
-                $query->like('af_customers.name', $search);
+                $query->like('customers.name', $search);
             }
 
             // Apply date range filter

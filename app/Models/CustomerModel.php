@@ -7,7 +7,7 @@ use CodeIgniter\Model;
 class CustomerModel extends Model
 {
     protected $DBGroup = 'default';
-    protected $table = 'af_customers';
+    protected $table = 'customers';
     protected $primaryKey = 'id';
     protected $useAutoIncrement = true;
     protected $returnType = 'array';
@@ -26,9 +26,9 @@ class CustomerModel extends Model
     protected $validationRules = [
         'id' => 'if_exist|numeric', 
         // 'name'=> "required",
-        'email'=> "if_exist|valid_email|is_unique[af_customers.email,af_customers.id,{id}]",
+        'email'=> "if_exist|valid_email|is_unique[customers.email,customers.id,{id}]",
         // // 'password'=> "required|min_length[8]|max_length[21]|alpha_numeric",
-        'mobile_no'=> "required|exact_length[10]|is_unique[af_customers.mobile_no,af_customers.id,{id}]|numeric",
+        'mobile_no'=> "required|exact_length[10]|is_unique[customers.mobile_no,customers.id,{id}]|numeric",
     ];
     protected $validationMessages = [
         'name' => [

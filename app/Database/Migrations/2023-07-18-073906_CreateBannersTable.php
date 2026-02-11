@@ -4,7 +4,7 @@ namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class AfPrivileges extends Migration
+class AfBanners extends Migration
 {
     public function up()
     {
@@ -14,22 +14,33 @@ class AfPrivileges extends Migration
                 'unsigned' => true,
                 'auto_increment' => true,
             ],
-            'role_id' => [
+            'home_zone_appliances_id' => [
                 'type' => 'INT',
+                'constraint' => 11,
             ],
-            'section_id' =>
-            [
+            'path' => [
+                'type' => 'VARCHAR',
+                'constraint' => 256
+            ],
+            'device' => [
+                'type' => 'VARCHAR',
+                'constraint' => 256
+            ],
+            'image_index' => [
                 'type' => 'INT',
+                'constraint' => 11
             ],
             'created_at DATETIME DEFAULT CURRENT_TIMESTAMP',
             'updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
         ]);
+
         $this->forge->addPrimaryKey('id');
-        $this->forge->createTable('af_privileges');
+        $this->forge->createTable('banners');
     }
 
     public function down()
     {
-        $this->forge->dropTable('af_privileges');
+        $this->forge->dropTable('banners');
+
     }
 }

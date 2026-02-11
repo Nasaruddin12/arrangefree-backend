@@ -201,16 +201,16 @@ class AdminController extends BaseController
         $adminModel = new AdminModel();
         try {
             $data = $adminModel->select([
-                'af_admins.id AS id',
-                'af_admins.name AS name',
-                'af_admins.email AS email',
-                'af_admins.mobile_no AS mobile_no',
-                'af_admins.is_logged_in AS is_logged_in',
-                'af_admins.status AS status',
-                'af_admins.role_id AS role_id',
-                'af_role_privileges.title AS role_title'
+                'admins.id AS id',
+                'admins.name AS name',
+                'admins.email AS email',
+                'admins.mobile_no AS mobile_no',
+                'admins.is_logged_in AS is_logged_in',
+                'admins.status AS status',
+                'admins.role_id AS role_id',
+                'role_privileges.title AS role_title'
             ])
-                ->join('af_role_privileges', 'af_admins.role_id = af_role_privileges.id')->findAll();
+                ->join('role_privileges', 'admins.role_id = role_privileges.id')->findAll();
 
             if (!empty($adminModel->errors())) {
                 // $validation = &$accountfaqModel;
@@ -240,17 +240,17 @@ class AdminController extends BaseController
         $adminModel = new AdminModel();
         try {
             $data = $adminModel->select([
-                'af_admins.id AS id',
-                'af_admins.name AS name',
-                'af_admins.email AS email',
-                'af_admins.mobile_no AS mobile_no',
-                'af_admins.is_logged_in AS is_logged_in',
-                'af_admins.status AS status',
-                'af_admins.role_id AS role_id',
-                'af_role_privileges.title AS role_title'
+                'admins.id AS id',
+                'admins.name AS name',
+                'admins.email AS email',
+                'admins.mobile_no AS mobile_no',
+                'admins.is_logged_in AS is_logged_in',
+                'admins.status AS status',
+                'admins.role_id AS role_id',
+                'role_privileges.title AS role_title'
             ])
-                ->join('af_role_privileges', 'af_admins.role_id = af_role_privileges.id')
-                ->where('af_admins.id', $id)
+                ->join('role_privileges', 'admins.role_id = role_privileges.id')
+                ->where('admins.id', $id)
                 ->first();
 
 

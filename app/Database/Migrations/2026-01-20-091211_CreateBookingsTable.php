@@ -142,7 +142,7 @@ class CreateBookingsTable extends Migration
         $this->forge->addKey('user_id');
         $this->forge->addForeignKey(
             'user_id',
-            'af_customers',
+            'customers',
             'id',
             'RESTRICT',
             'CASCADE'

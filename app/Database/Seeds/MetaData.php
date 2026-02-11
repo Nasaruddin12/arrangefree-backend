@@ -46,6 +46,6 @@ class MetaData extends Seeder
                 'value' => 10,
             ],
         ];
-        $this->db->table('af_meta_data')->insertBatch($data);
+        $this->db->table('meta_data')->insertBatch($data);
     }
 }

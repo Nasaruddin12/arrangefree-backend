@@ -7,7 +7,7 @@ use CodeIgniter\Model;
 class AdminModel extends Model
 {
     protected $DBGroup          = 'default';
-    protected $table            = 'af_admins';
+    protected $table            = 'admins';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
@@ -25,14 +25,14 @@ class AdminModel extends Model
     // Validation
     // protected $validationRules      = [
         // 'name'=> "required",
-        // 'email'=> "required|valid_email|is_unique[af_admins.email,af_admins.id,{id}]",
+        // 'email'=> "required|valid_email|is_unique[admins.email,admins.id,{id}]",
         // 'password'=> "required|min_length[8]|max_length[21]|alpha_numeric",
         // 'mobile_no'=> "required|exact_length[10]|numeric",
     // ];
     protected $validationRules      = [
         'role_id' => 'required|integer',
         'name' => 'required|string|max_length[100]',
-        // 'email' => 'required|valid_email|is_unique[af_admins.email,af_admins.id,{id}]',
+        // 'email' => 'required|valid_email|is_unique[admins.email,admins.id,{id}]',
         'mobile_no' => 'required|numeric|exact_length[10]',
         'password' => 'permit_empty|string|min_length[8]',
         'status' => 'required|in_list[active,inactive]',

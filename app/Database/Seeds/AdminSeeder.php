@@ -32,6 +32,6 @@ class AdminSeeder extends Seeder
             ],
         ];
 
-        $this->db->table('af_admins')->insertBatch($data);
+        $this->db->table('admins')->insertBatch($data);
     }
 }

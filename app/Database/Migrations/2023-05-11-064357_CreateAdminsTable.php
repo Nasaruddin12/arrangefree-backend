@@ -4,7 +4,7 @@ namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class AfCustomers extends Migration
+class AfAdmin extends Migration
 {
     public function up()
     {
@@ -13,6 +13,11 @@ class AfCustomers extends Migration
                 'type' => 'INT',
                 'unsigned' => true,
                 'auto_increment' => true,
+            ],
+            'role_id' => [
+                'type' => 'INT',
+                'constraint' => 11,
+                'unsigned' => true,
             ],
             'name' => [
                 'type' => 'VARCHAR',
@@ -46,11 +51,6 @@ class AfCustomers extends Migration
                 'null' => false,
                 'default' => -1,
             ],
-            'fcm_token' => [
-                'type' => 'VARCHAR',
-                'null' => true,
-                'constraint' => '500',
-            ],
             'created_at DATETIME DEFAULT CURRENT_TIMESTAMP',
             'updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
             'deleted_at' => [
@@ -60,11 +60,11 @@ class AfCustomers extends Migration
 
         ]);
         $this->forge->addPrimaryKey('id');
-        $this->forge->createTable('af_customers');
+        $this->forge->createTable('admins');
     }
 
     public function down()
     {
-        $this->forge->dropTable('af_customers');
+        $this->forge->dropTable('admins');
     }
 }

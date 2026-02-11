@@ -42,7 +42,7 @@ class MailingController extends Controller
             $db = db_connect();
             $order_details = $db->query("select *,date(created_at) as order_date from af_orders where id=$order_id")->getResultArray()[0];
             $customer_shipping_address = $db->query("select * from af_customer_address where id=$order_details[address_id]")->getResultArray()[0];
-            $customer_details = $db->query("select * from af_customers where id=$order_details[customer_id]")->getResultArray()[0];
+            $customer_details = $db->query("select * from customers where id=$order_details[customer_id]")->getResultArray()[0];
             $invoice_id = $order_details['invoice_id'];
             $order_invoice = $db->query("select * from af_invoices where id=$invoice_id")->getResultArray()[0];
             $invoice_pdf = base_url($order_invoice['invoice_path']);

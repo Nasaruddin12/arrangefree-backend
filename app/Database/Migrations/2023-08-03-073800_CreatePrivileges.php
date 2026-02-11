@@ -4,7 +4,7 @@ namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class AfRolePrivileges extends Migration
+class AfPrivileges extends Migration
 {
     public function up()
     {
@@ -14,24 +14,22 @@ class AfRolePrivileges extends Migration
                 'unsigned' => true,
                 'auto_increment' => true,
             ],
-            'title' => [
-                'type' => 'VARCHAR',
-                'constraint' => '21',
+            'role_id' => [
+                'type' => 'INT',
             ],
-            'section_access' => [
-                'type' => 'VARCHAR',
-                'constraint' => '501',
+            'section_id' =>
+            [
+                'type' => 'INT',
             ],
             'created_at DATETIME DEFAULT CURRENT_TIMESTAMP',
             'updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
         ]);
-
         $this->forge->addPrimaryKey('id');
-        $this->forge->createTable('af_role_privileges');
+        $this->forge->createTable('privileges');
     }
 
     public function down()
     {
-        $this->forge->dropTable('af_role_privileges');
+        $this->forge->dropTable('privileges');
     }
 }

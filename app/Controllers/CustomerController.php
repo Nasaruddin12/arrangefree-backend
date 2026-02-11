@@ -316,7 +316,7 @@ class CustomerController extends BaseController
             $sortColumn = in_array($sortBy, $allowedSorts) ? $sortBy : 'created_at';
             $sortDirection = $sortDir === 'asc' ? 'ASC' : 'DESC';
 
-            $builder = $this->db->table('af_customers')
+            $builder = $this->db->table('customers')
                 ->select('id, name, email, mobile_no, created_at');
 
             // Search

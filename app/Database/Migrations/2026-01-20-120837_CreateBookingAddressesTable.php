@@ -107,7 +107,7 @@ class CreateBookingAddressesTable extends Migration
 
         $this->forge->addForeignKey(
             'user_id',
-            'af_customers',
+            'customers',
             'id',
             'RESTRICT',
             'CASCADE'

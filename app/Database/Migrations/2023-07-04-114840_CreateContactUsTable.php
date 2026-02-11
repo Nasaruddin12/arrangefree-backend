@@ -12,7 +12,7 @@ class AfContactUs extends Migration
         $db = \Config\Database::connect();
 
         // Check if the table exists
-        if (!$db->tableExists('af_contact_us')) {
+        if (!$db->tableExists('contact_us')) {
             $this->forge->addField([
                 'id' => [
                     'type' => 'INT',
@@ -58,9 +58,9 @@ class AfContactUs extends Migration
                 'updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
             ]);
             $this->forge->addPrimaryKey('id');
-            $this->forge->createTable('af_contact_us');
+            $this->forge->createTable('contact_us');
         } else {
-            echo "Table 'af_contact_us' already exists. Skipping creation.\n";
+            echo "Table 'contact_us' already exists. Skipping creation.\n";
         }
     }
 
@@ -68,8 +68,8 @@ class AfContactUs extends Migration
     {
         // Drop the table only if it exists
         $db = \Config\Database::connect();
-        if ($db->tableExists('af_contact_us')) {
-            $this->forge->dropTable('af_contact_us');
+        if ($db->tableExists('contact_us')) {
+            $this->forge->dropTable('contact_us');
         }
     }
 }

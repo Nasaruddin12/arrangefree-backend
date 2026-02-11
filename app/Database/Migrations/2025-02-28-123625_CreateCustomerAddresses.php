@@ -102,7 +102,7 @@ class CreateCustomerAddresses extends Migration
         // FK (SAFE)
         $this->forge->addForeignKey(
             'user_id',
-            'af_customers',
+            'customers',
             'id',
             'RESTRICT',
             'CASCADE'

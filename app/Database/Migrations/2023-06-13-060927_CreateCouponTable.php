@@ -77,6 +77,12 @@ class AfCoupon extends Migration
             ],
             'terms_and_conditions' => [
                 'type' => 'TEXT',
+                'null' => true,
+            ],
+            'is_active'=> [
+                'type' => 'tinyint',
+                'null' => false,
+                'default' => 1,
             ],
             'created_at DATETIME DEFAULT CURRENT_TIMESTAMP',
             'updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
@@ -88,11 +94,11 @@ class AfCoupon extends Migration
         ]);
 
         $this->forge->addKey('id', true);
-        $this->forge->createTable('af_coupons');
+        $this->forge->createTable('coupons');
     }
 
     public function down()
     {
-        $this->forge->dropTable('af_coupons');
+        $this->forge->dropTable('coupons');
     }
 }

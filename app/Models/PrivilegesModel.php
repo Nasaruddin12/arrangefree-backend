@@ -7,7 +7,7 @@ use CodeIgniter\Model;
 class PrivilegesModel extends Model
 {
     protected $DBGroup          = 'default';
-    protected $table            = 'af_privileges';
+    protected $table            = 'privileges';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';

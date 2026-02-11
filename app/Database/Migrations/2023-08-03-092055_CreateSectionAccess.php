@@ -27,11 +27,11 @@ class AfSectionAccess extends Migration
             'updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
         ]);
         $this->forge->addPrimaryKey('id');
-        $this->forge->createTable('af_section_access');
+        $this->forge->createTable('section_access');
     }
 
     public function down()
     {
-        $this->forge->dropTable('af_section_access');
+        $this->forge->dropTable('section_access');
     }
 }

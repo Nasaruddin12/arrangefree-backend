@@ -439,8 +439,8 @@ class BookingController extends ResourceController
             $filter     = $this->request->getVar('filter'); // today, this_week, this_month
 
             $builder = $this->bookingsModel
-                ->select('bookings.*, af_customers.name as user_name')
-                ->join('af_customers', 'af_customers.id = bookings.user_id', 'left');
+                ->select('bookings.*, customers.name as user_name')
+                ->join('customers', 'customers.id = bookings.user_id', 'left');
 
             // ✅ Status filter
             if ($status) {
@@ -468,7 +468,7 @@ class BookingController extends ResourceController
             if ($search) {
                 $builder->groupStart()
                     ->like('bookings.booking_code', $search)
-                    ->orLike('af_customers.name', $search)
+                    ->orLike('customers.name', $search)
                     ->groupEnd();
             }
 
@@ -506,8 +506,8 @@ class BookingController extends ResourceController
     {
         try {
             $bookings = $this->bookingsModel
-                ->select('bookings.*, af_customers.name as user_name')
-                ->join('af_customers', 'af_customers.id = bookings.user_id', 'left')
+                ->select('bookings.*, customers.name as user_name')
+                ->join('customers', 'customers.id = bookings.user_id', 'left')
                 ->where('bookings.user_id', $user_id)
                 ->orderBy('bookings.created_at', 'DESC')
                 ->findAll();
@@ -604,8 +604,8 @@ class BookingController extends ResourceController
         try {
             // Fetch booking details with user
             $booking = $this->bookingsModel
-                ->select('bookings.*, af_customers.name AS user_name, af_customers.email AS user_email, af_customers.mobile_no AS mobile_no')
-                ->join('af_customers', 'af_customers.id = bookings.user_id', 'left')
+                ->select('bookings.*, customers.name AS user_name, customers.email AS user_email, customers.mobile_no AS mobile_no')
+                ->join('customers', 'customers.id = bookings.user_id', 'left')
                 ->where('bookings.id', $booking_id)
                 ->first();
 
@@ -734,8 +734,8 @@ class BookingController extends ResourceController
         try {
             // Fetch booking details with user
             $booking = $this->bookingsModel
-                ->select('bookings.*, af_customers.name AS user_name, af_customers.email AS user_email, af_customers.mobile_no AS mobile_no')
-                ->join('af_customers', 'af_customers.id = bookings.user_id', 'left')
+                ->select('bookings.*, customers.name AS user_name, customers.email AS user_email, customers.mobile_no AS mobile_no')
+                ->join('customers', 'customers.id = bookings.user_id', 'left')
                 ->where('bookings.id', $booking_id)
                 ->first();
 
@@ -3329,9 +3329,9 @@ class BookingController extends ResourceController
     public function downloadReceipt($paymentId)
     {
         $payment = $this->bookingPaymentsModel
-            ->select('booking_payments.*, bookings.booking_code, af_customers.name, af_customers.mobile_no')
+            ->select('booking_payments.*, bookings.booking_code, customers.name, customers.mobile_no')
             ->join('bookings', 'bookings.id = booking_payments.booking_id')
-            ->join('af_customers', 'af_customers.id = booking_payments.user_id')
+            ->join('customers', 'customers.id = booking_payments.user_id')
             ->where('booking_payments.id', $paymentId)
             ->where('booking_payments.status', 'success')
             ->first();

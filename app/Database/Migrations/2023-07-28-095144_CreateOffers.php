@@ -51,12 +51,12 @@ class AfOffers extends Migration
         ]);
 
         $this->forge->addPrimaryKey('id');
-        $this->forge->createTable('af_offers');
+        $this->forge->createTable('offers');
     }
 
     public function down()
     {
-        $this->forge->dropTable('af_offers');
+        $this->forge->dropTable('offers');
 
     }
 }

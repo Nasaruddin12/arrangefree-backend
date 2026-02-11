@@ -36,11 +36,11 @@ class AfBlogs extends Migration
     ]);
 
     $this->forge->addKey('id', true);
-    $this->forge->createTable('af_blogs');
+    $this->forge->createTable('blogs');
     }
 
     public function down()
     {
-        $this->forge->dropTable('af_blogs');
+        $this->forge->dropTable('blogs');
     }
 }

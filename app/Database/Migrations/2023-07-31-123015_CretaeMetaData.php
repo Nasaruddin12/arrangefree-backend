@@ -4,43 +4,41 @@ namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class AfBanners extends Migration
+class AfMetaData extends Migration
 {
     public function up()
     {
         $this->forge->addField([
             'id' => [
                 'type' => 'INT',
+                'constraint' => 11,
                 'unsigned' => true,
                 'auto_increment' => true,
             ],
-            'home_zone_appliances_id' => [
+            'group_id' => [
                 'type' => 'INT',
                 'constraint' => 11,
+                'unsigned' => true,
+                'null' => false,
             ],
-            'path' => [
+            'title' => [
                 'type' => 'VARCHAR',
-                'constraint' => 256
+                'constraint' => 101,
             ],
-            'device' => [
+            'value' => [
                 'type' => 'VARCHAR',
-                'constraint' => 256
-            ],
-            'image_index' => [
-                'type' => 'INT',
-                'constraint' => 11
+                'constraint' => 101,
             ],
             'created_at DATETIME DEFAULT CURRENT_TIMESTAMP',
             'updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
         ]);
-
-        $this->forge->addPrimaryKey('id');
-        $this->forge->createTable('af_banners');
+        $this->forge->addKey('id', true);
+        $this->forge->createTable('meta_data');
     }
 
     public function down()
     {
-        $this->forge->dropTable('af_banners');
+        $this->forge->dropTable('meta_data');
 
     }
 }
