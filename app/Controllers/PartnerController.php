@@ -313,6 +313,50 @@ class PartnerController extends BaseController
         }
     }
 
+    /**
+     * Admin API: List all withdrawal requests (paginated, filterable)
+     */
+    public function walletWithdrawRequestsAll()
+    {
+        try {
+            $page = (int) ($this->request->getVar('page') ?? 1);
+            $limit = (int) ($this->request->getVar('limit') ?? 20);
+            $offset = ($page - 1) * $limit;
+
+            $status = $this->request->getVar('status'); // optional: pending/approved/rejected
+            $partnerId = $this->request->getVar('partner_id'); // optional filter by partner
+
+            $withdrawModel = new PartnerWithdrawalRequestModel();
+
+            $builder = $withdrawModel->orderBy('requested_at', 'DESC');
+
+            if (!empty($status)) {
+                $builder->where('status', $status);
+            }
+
+            if (!empty($partnerId)) {
+                $builder->where('partner_id', (int)$partnerId);
+            }
+
+            $total = $builder->countAllResults(false);
+            $requests = $builder->findAll($limit, $offset);
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Withdrawal requests retrieved successfully',
+                'data' => $requests,
+                'pagination' => [
+                    'current_page' => $page,
+                    'per_page' => $limit,
+                    'total_records' => $total,
+                    'total_pages' => $limit > 0 ? (int) ceil($total / $limit) : 0,
+                ],
+            ], 200);
+        } catch (Exception $e) {
+            return $this->failServerError('Failed to fetch withdrawal requests: ' . $e->getMessage());
+        }
+    }
+
     public function getBankDetails($partnerId = null)
     {
         try {

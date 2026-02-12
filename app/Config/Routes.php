@@ -102,6 +102,8 @@ $routes->group('admin', static function ($routes) {
         $routes->post('payouts/create', 'PartnerPayoutController::create');
         $routes->get('payouts/requests', 'PartnerPayoutController::adminListRequests');
         $routes->get('payouts/partner/(:num)', 'PartnerPayoutController::listByPartner/$1');
+        $routes->get('wallet/withdraw-requests', 'PartnerController::walletWithdrawRequestsAll');
+        $routes->get('wallet/withdraw-requests/(:num)', 'PartnerController::walletWithdrawRequests/$1');
     });
 });
 
@@ -239,12 +241,12 @@ $routes->group('service-gallery', function ($routes) {
         $routes->post('upload-images', 'ServiceGalleryController::uploadImages');
         $routes->post('add-video', 'ServiceGalleryController::addVideo');
         $routes->post('add-tutorial-video', 'ServiceGalleryController::addTutorialVideo');
-        
+
         // Specific update endpoints for each media type
         $routes->put('update-image/(:num)', 'ServiceGalleryController::updateImage/$1');
         $routes->put('update-video/(:num)', 'ServiceGalleryController::updateVideo/$1');
         $routes->put('update-tutorial-video/(:num)', 'ServiceGalleryController::updateTutorialVideo/$1');
-        
+
         // Specific delete endpoints for each media type
         $routes->delete('delete-image/(:num)', 'ServiceGalleryController::deleteImage/$1');
         $routes->delete('delete-video/(:num)', 'ServiceGalleryController::deleteVideo/$1');
@@ -512,7 +514,7 @@ $routes->group('partner', function ($routes) {
         $routes->post('ticket/add-message', 'TicketController::addMessage');
         $routes->post('ticket/mark-as-read', 'TicketController::markTicketAsRead');
         $routes->post('tickets/upload-image', 'TicketController::uploadFile');
-        
+
         $routes->post('notifications/mark-all-read', 'NotificationController::markAllAsRead');
         $routes->delete('notifications/delete/(:num)', 'NotificationController::delete/$1');
         $routes->post('notifications/user', 'NotificationController::index');
@@ -530,7 +532,7 @@ $routes->group('partner', function ($routes) {
         $routes->get('jobs/all/(:num)', 'PartnerJobController::listAllByPartner/$1');
         $routes->get('jobs/on-site-status', 'PartnerJobController::getOnSiteStatus');
         $routes->post('jobs/update-on-site-status', 'PartnerJobController::updateOnSiteStatus');
-        
+
         $routes->post('jobs/items/(:num)/media', 'PartnerJobController::uploadItemMedia/$1');
         $routes->get('jobs/items/(:num)/media', 'PartnerJobController::listItemMedia/$1');
         $routes->delete('jobs/items/media/(:num)', 'PartnerJobController::deleteItemMedia/$1');

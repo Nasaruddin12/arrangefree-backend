@@ -30,7 +30,7 @@ class ServiceController extends BaseController
                 'name' => 'required|string|max_length[255]',
                 'service_type_id' => 'required|integer',
                 'rate' => 'required|numeric',
-                'rate_type' => 'required|in_list[unit,square_feet]',
+                'rate_type' => 'required|in_list[unit, square_feet, running_feet, running_meter, points, sqft]',
                 'partner_price' => 'permit_empty|numeric',
                 'status' => 'permit_empty|in_list[0,1]',
                 'slug' => 'permit_empty|string|max_length[255]',
@@ -215,6 +215,10 @@ class ServiceController extends BaseController
     public function index()
     {
         try {
+            // If a search query is provided on the /services endpoint, delegate to search()
+            if ($this->request->getGet('search') !== null) {
+                return $this->search();
+            }
             $services = $this->serviceModel
                 ->select('services.*, service_types.name as service_name, GROUP_CONCAT(service_rooms.room_id) as room_ids') // Fetch room IDs
                 ->join('service_types', 'service_types.id = services.service_type_id', 'left') // Joining service table
