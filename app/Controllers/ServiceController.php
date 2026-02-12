@@ -32,7 +32,7 @@ class ServiceController extends BaseController
                 'rate' => 'required|numeric',
                 'rate_type' => 'required|in_list[unit, square_feet, running_feet, running_meter, points, sqft]',
                 'partner_price' => 'permit_empty|numeric',
-                'status' => 'permit_empty|in_list[0,1]',
+                'status' => 'permit_empty|in_list[active, inactive]',
                 'slug' => 'permit_empty|string|max_length[255]',
             ]);
 
@@ -66,6 +66,7 @@ class ServiceController extends BaseController
                 'partner_price'       => $this->request->getVar('partner_price'),
                 'with_material'       => $this->request->getVar('with_material') ?? false,
                 'slug'                => $this->request->getVar('slug'),
+                'status'              => $this->request->getVar('status') ?? 'inactive', // Default to inactive if not provided
             ];
 
             if (!$this->serviceModel->save($data)) {
