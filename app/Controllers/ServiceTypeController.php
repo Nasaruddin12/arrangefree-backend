@@ -28,7 +28,7 @@ class ServiceTypeController extends ResourceController
             $slug = $this->request->getVar('slug');
             $image = $this->request->getVar('image'); // Image path
             $roomIds = $this->request->getVar('room_ids'); // Expected as an array [1, 2, 3]
-
+            $status = $this->request->getVar('status') ?? 0; // Get status from request
             if (empty($name) || empty($slug) || empty($image)) {
                 return $this->respond(['status' => 400, 'message' => 'Name, slug and Image are required'], 400);
             }
@@ -37,6 +37,7 @@ class ServiceTypeController extends ResourceController
                 'name' => $name,
                 'slug' => $slug,
                 'image' => $image,
+                'status' => $status
             ];
 
             // Start Transaction
