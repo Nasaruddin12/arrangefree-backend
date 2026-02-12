@@ -4,7 +4,6 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\BannersModel;
-use App\Models\HomeZoneAppliancesModel;
 use CodeIgniter\API\ResponseTrait;
 use Exception;
 
@@ -171,7 +170,7 @@ public function deleteBanner($id)
     public function createMainBanner()
     {
         try {
-            $homeZoneAppliancesModel = new HomeZoneAppliancesModel();
+           
             $statusCode = 200;
             $banner_image = $this->request->getVar('banner_image');
             $banner_image = json_decode($banner_image, true);

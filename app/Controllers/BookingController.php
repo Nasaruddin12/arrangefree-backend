@@ -3356,6 +3356,84 @@ class BookingController extends ResourceController
             )
             ->setBody($dompdf->output());
     }
+    public function downloadInvoice($bookingId)
+    {
+        // Fetch booking with customer info and address snapshot
+        $booking = $this->bookingsModel
+            ->select('bookings.*, customers.name as user_name, ba.address as customer_address, ba.house, ba.landmark, ba.city, ba.state, ba.pincode, ba.address_label')
+            ->join('customers', 'customers.id = bookings.user_id', 'left')
+            ->join('booking_addresses ba', 'ba.booking_id = bookings.id', 'left')
+            ->where('bookings.id', $bookingId)
+            ->first();
+
+        if (!$booking) {
+            return $this->failNotFound('Booking not found');
+        }
+
+        // Fetch booking services
+        $servicesRaw = $this->bookingServicesModel->where('booking_id', $bookingId)->findAll();
+
+        $services = [];
+        foreach ($servicesRaw as $s) {
+            $serviceName = '';
+            if (!empty($s['service_id'])) {
+                $svc = $this->servicesModel->find($s['service_id']);
+                $serviceName = $svc['name'] ?? $svc['service_name'] ?? '';
+            }
+
+            $addons = [];
+            if (!empty($s['addons'])) {
+                if (is_string($s['addons'])) {
+                    $decoded = json_decode($s['addons'], true);
+                    $addons = is_array($decoded) ? $decoded : [];
+                } elseif (is_array($s['addons'])) {
+                    $addons = $s['addons'];
+                } else {
+                    $addons = [];
+                }
+            }
+
+            $services[] = [
+                'service_name' => $serviceName ?: ($s['description'] ?? 'Service'),
+                'addons' => $addons,
+                'rate' => isset($s['rate']) ? (float)$s['rate'] : 0,
+                'value' => $s['quantity'] ?? ($s['value'] ?? 1),
+                'amount' => isset($s['amount']) ? (float)$s['amount'] : 0,
+            ];
+        }
+
+        // Prepare booking array expected by the invoice view
+        $bookingView = [
+            'booking_id' => $booking['booking_code'] ?? $booking['id'],
+            'created_at' => $booking['created_at'] ?? date('Y-m-d H:i:s'),
+            'due_date' => $booking['due_date'] ?? null,
+            'user_name' => $booking['user_name'] ?? '',
+            'customer_address' => $booking['customer_address'] ?? '',
+            'customer_gstin' => $booking['customer_gstin'] ?? null,
+            'total_amount' => (float) ($booking['subtotal_amount'] ?? $booking['total_amount'] ?? 0),
+            'discount' => (float) ($booking['discount'] ?? 0),
+            'cgst' => (float) ($booking['cgst'] ?? 0),
+            'sgst' => (float) ($booking['sgst'] ?? 0),
+            'final_amount' => (float) ($booking['final_amount'] ?? $booking['total_amount'] ?? 0),
+            'payment_type' => $booking['payment_type'] ?? 'pay_later',
+            'paid_amount' => (float) ($booking['paid_amount'] ?? 0),
+        ];
+
+        $html = view('invoice_template', [
+            'booking' => $bookingView,
+            'services' => $services
+        ]);
+
+        $dompdf = new Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
+        return $this->response
+            ->setHeader('Content-Type', 'application/pdf')
+            ->setHeader('Content-Disposition', 'attachment; filename="invoice_' . ($bookingView['booking_id']) . '.pdf"')
+            ->setBody($dompdf->output());
+    }
     private function generateBookingCode(): string
     {
         $prefix = 'SE';

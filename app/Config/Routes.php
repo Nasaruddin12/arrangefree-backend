@@ -321,6 +321,7 @@ $routes->group('booking', function ($routes) {
 $routes->post('razorpay-webhook', 'BookingController::webhookRazorpay');
 
 $routes->get('payments/receipt/(:num)', 'BookingController::downloadReceipt/$1');
+$routes->get('invoice/(:num)', 'BookingController::downloadInvoice/$1');
 
 
 $routes->group('faqs', function ($routes) {
