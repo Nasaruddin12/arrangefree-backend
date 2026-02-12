@@ -30,7 +30,7 @@ class ServiceController extends BaseController
                 'name' => 'required|string|max_length[255]',
                 'service_type_id' => 'required|integer',
                 'rate' => 'required|numeric',
-                'rate_type' => 'required|in_list[unit,square_feet]',
+                'rate_type' => 'required|in_list[unit, square_feet, running_feet, running_meter, points, sqft]',
                 'partner_price' => 'permit_empty|numeric',
                 'status' => 'permit_empty|in_list[0,1]',
                 'slug' => 'permit_empty|string|max_length[255]',
@@ -215,6 +215,10 @@ class ServiceController extends BaseController
     public function index()
     {
         try {
+            // If a search query is provided on the /services endpoint, delegate to search()
+            if ($this->request->getGet('search') !== null) {
+                return $this->search();
+            }
             $services = $this->serviceModel
                 ->select('services.*, service_types.name as service_name, GROUP_CONCAT(service_rooms.room_id) as room_ids') // Fetch room IDs
                 ->join('service_types', 'service_types.id = services.service_type_id', 'left') // Joining service table
@@ -626,17 +630,52 @@ class ServiceController extends BaseController
     public function search()
     {
         try {
-            $keyword = $this->request->getVar('search');
+            // Ensure we read from GET explicitly and trim input
+            $keyword = $this->request->getGet('search');
+            $keyword = is_string($keyword) ? trim($keyword) : '';
 
-            if (!$keyword || strlen(trim($keyword)) < 2) {
+            if ($keyword === '' || strlen($keyword) < 2) {
                 return $this->failValidationErrors('Search keyword must be at least 2 characters long.');
             }
 
+            // 1) Try name only
             $services = $this->serviceModel
-                ->like('name', $keyword)
-                ->orLike('description', $keyword)
                 ->where('status', 1)
-                // ->orderBy('name', 'ASC')
+                ->like('name', $keyword)
+                ->orderBy('name', 'ASC')
+                ->findAll();
+
+            if (!empty($services)) {
+                return $this->respond([
+                    'status' => 200,
+                    'message' => 'Services found (matched name)',
+                    'data' => $services
+                ], 200);
+            }
+
+            // 2) Try description only
+            $services = $this->serviceModel
+                ->where('status', 1)
+                ->like('description', $keyword)
+                ->orderBy('name', 'ASC')
+                ->findAll();
+
+            if (!empty($services)) {
+                return $this->respond([
+                    'status' => 200,
+                    'message' => 'Services found (matched description)',
+                    'data' => $services
+                ], 200);
+            }
+
+            // 3) Fallback: search both fields (grouped)
+            $services = $this->serviceModel
+                ->groupStart()
+                    ->like('name', $keyword)
+                    ->orLike('description', $keyword)
+                ->groupEnd()
+                ->where('status', 1)
+                ->orderBy('name', 'ASC')
                 ->findAll();
 
             if (empty($services)) {
@@ -649,7 +688,7 @@ class ServiceController extends BaseController
 
             return $this->respond([
                 'status' => 200,
-                'message' => 'Services found successfully',
+                'message' => 'Services found (fallback search)',
                 'data' => $services
             ], 200);
         } catch (Exception $e) {
