@@ -45,13 +45,23 @@ class BannerController extends BaseController
                 ->save($fullPath . $imageName, 90);
 
             $data = [
-                'banner_image' => $publicRelative . $imageName,
+                'path' => $publicRelative . $imageName,
                 'link' => $this->request->getVar('link') ?? null,
             ];
-
+            $Bannersmodel->insert($data);
+            if (!empty($Bannersmodel->errors())) {  
+                throw new Exception('Validation', 400);
+            }
+             if ($Bannersmodel->db->error()['code']) {
+                throw new Exception($Bannersmodel->db->error()['message'], 500);
+            }
             $response = [
                 'message' => 'Banner Image created successfully.',
-                'data' => $data,
+                'data' => [
+                    'id' => $Bannersmodel->getInsertID(),
+                    'path' => $data['path'],
+                    'link' => $data['link'],
+                ],
             ];
         } catch (Exception $e) {
             $statusCode = $e->getCode() === 400 ? 400 : 500;
