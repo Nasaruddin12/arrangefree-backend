@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Controllers\BaseController;
 use App\Models\ServiceGalleryModel;
 use CodeIgniter\API\ResponseTrait;
+use Config\Services;
 use Exception;
 
 class ServiceGalleryController extends BaseController
@@ -241,8 +242,9 @@ class ServiceGalleryController extends BaseController
 
             if (!empty($imageFiles['images'])) {
                 foreach ($imageFiles['images'] as $imageFile) {
+
                     if ($imageFile->isValid() && !$imageFile->hasMoved()) {
-                        // Validate mime type for images
+
                         $allowedTypes = [
                             'image/png',
                             'image/jpeg',
@@ -252,15 +254,36 @@ class ServiceGalleryController extends BaseController
                         ];
 
                         if (!in_array($imageFile->getMimeType(), $allowedTypes)) {
-                            continue; // skip this file
+                            continue;
                         }
 
-                        // Move valid image
-                        $newName = $imageFile->getRandomName();
-                        $imageFile->move('public/uploads/service-gallery/', $newName);
-                        $imagePath = 'public/uploads/service-gallery/' . $newName;
+                        // Generate random base name
+                        $newName = pathinfo($imageFile->getRandomName(), PATHINFO_FILENAME);
 
-                        // Create gallery item
+                        $uploadPath = FCPATH . 'uploads/service-gallery/';
+                        $tempPath = $uploadPath . $imageFile->getName();
+
+                        // Move original temporarily
+                        $imageFile->move($uploadPath, $imageFile->getName());
+
+                        $originalFullPath = $uploadPath . $imageFile->getName();
+                        $webpName = $newName . '.webp';
+                        $webpFullPath = $uploadPath . $webpName;
+
+                        // Use CodeIgniter Image Service
+                        $image = Services::image()
+                            ->withFile($originalFullPath)
+                            ->resize(1200, 1200, true, 'width') // maintain ratio
+                            ->convert(IMAGETYPE_WEBP)
+                            ->save($webpFullPath, 80); // 80 = quality
+
+                        // Delete original file
+                        if (file_exists($originalFullPath)) {
+                            unlink($originalFullPath);
+                        }
+
+                        $imagePath = 'uploads/service-gallery/' . $webpName;
+
                         $galleryData = [
                             'service_id' => $serviceId,
                             'media_type' => 'image',
@@ -820,9 +843,11 @@ class ServiceGalleryController extends BaseController
             }
 
             // Delete physical file if it exists (not YouTube links)
-            if (!empty($item['media_url']) && 
-                !preg_match('/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)/', $item['media_url']) && 
-                file_exists($item['media_url'])) {
+            if (
+                !empty($item['media_url']) &&
+                !preg_match('/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)/', $item['media_url']) &&
+                file_exists($item['media_url'])
+            ) {
                 unlink($item['media_url']);
             }
 
@@ -866,9 +891,11 @@ class ServiceGalleryController extends BaseController
             }
 
             // Delete physical file if it exists (not YouTube links)
-            if (!empty($item['media_url']) && 
-                !preg_match('/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)/', $item['media_url']) && 
-                file_exists($item['media_url'])) {
+            if (
+                !empty($item['media_url']) &&
+                !preg_match('/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)/', $item['media_url']) &&
+                file_exists($item['media_url'])
+            ) {
                 unlink($item['media_url']);
             }
 

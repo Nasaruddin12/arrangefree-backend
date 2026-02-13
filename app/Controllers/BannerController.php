@@ -46,6 +46,7 @@ class BannerController extends BaseController
 
             $data = [
                 'banner_image' => $publicRelative . $imageName,
+                'link' => $this->request->getVar('link') ?? null,
             ];
 
             $response = [
