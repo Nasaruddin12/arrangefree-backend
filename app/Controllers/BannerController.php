@@ -53,7 +53,6 @@ class BannerController extends BaseController
                 'message' => 'Banner Image created successfully.',
                 'data' => $data,
             ];
-
         } catch (Exception $e) {
             $statusCode = $e->getCode() === 400 ? 400 : 500;
             $response = [
@@ -63,115 +62,124 @@ class BannerController extends BaseController
 
         $response['status'] = $statusCode;
         return $this->respond($response, $statusCode);
-
     }
 
-public function getBanner($bannerId)
-{
-    try {
-        $bannersModel = new BannersModel();
-        $banner = $bannersModel->find($bannerId);
+    public function getBanner($bannerId)
+    {
+        try {
+            $bannersModel = new BannersModel();
+            $banner = $bannersModel->find($bannerId);
 
-        if ($banner) {
+            if ($banner) {
+                $response = [
+                    'status' => 200,
+                    'data' => $banner,
+                ];
+            } else {
+                throw new Exception('Banner not found.', 404);
+            }
+        } catch (Exception $e) {
             $response = [
-                'status' => 200,
-                'data' => $banner,
+                'status' => $e->getCode(),
+                'error' => $e->getMessage(),
             ];
-        } else {
-            throw new Exception('Banner not found.', 404);
         }
-    } catch (Exception $e) {
-        $response = [
-            'status' => $e->getCode(),
-            'error' => $e->getMessage(),
-        ];
+
+        return $this->respond($response, $response['status']);
     }
 
-    return $this->respond($response, $response['status']);
-}
 
+    public function updateBanner($bannerId)
+    {
+        try {
+            $imagePath = $this->request->getVar('image_path');
 
-public function updateBanner($bannerId)
-{
-    try {
-        $imagePath = $this->request->getVar('image_path');
+            $validation = \Config\Services::validation();
+            $validation->setRules([
+                'image_path' => 'required',
 
-        $validation = \Config\Services::validation();
-        $validation->setRules([
-            'image_path' => 'required',
-        ]);
+            ]);
 
-        if (!$validation->withRequest($this->request)->run()) {
-            throw new Exception('Validation', 400);
-        }
+            if (!$validation->withRequest($this->request)->run()) {
+                throw new Exception('Validation', 400);
+            }
 
-        $bannersModel = new BannersModel();
-        $banner = $bannersModel->find($bannerId);
+            $bannersModel = new BannersModel();
+            $banner = $bannersModel->find($bannerId);
 
-        if (!$banner) {
-            throw new Exception('Banner not found.', 404);
-        }
+            if (!$banner) {
+                throw new Exception('Banner not found.', 404);
+            }
 
-        $data = [
-            'path' => $imagePath,
-        ];
+            $data = [
+                'path' => $imagePath,
+                'link' => $this->request->getVar('link') ?? null,
+            ];
 
-        $updated = $bannersModel->update($bannerId, $data);
+            $updated = $bannersModel->update($bannerId, $data);
 
-        if ($updated) {
+            if ($updated) {
+                $response = [
+                    'status' => 200,
+                    'message' => 'Banner updated successfully.',
+                ];
+            } else {
+                throw new Exception('Failed to update banner.', 500);
+            }
+        } catch (Exception $e) {
+            $statusCode = $e->getCode() === 400 ? 400 : 500;
             $response = [
-                'status' => 200,
-                'message' => 'Banner updated successfully.',
+                'status' => $statusCode,
+                'error' => $e->getCode() === 400 ? ['validation' => $validation->getErrors()] : $e->getMessage(),
             ];
-        } else {
-            throw new Exception('Failed to update banner.', 500);
         }
-    } catch (Exception $e) {
-        $statusCode = $e->getCode() === 400 ? 400 : 500;
-        $response = [
-            'status' => $statusCode,
-            'error' => $e->getCode() === 400 ? ['validation' => $validation->getErrors()] : $e->getMessage(),
-        ];
+
+        return $this->respond($response, $response['status']);
     }
 
-    return $this->respond($response, $response['status']);
-}
 
+    public function deleteBanner($id)
+    {
+        try {
+            $bannersModel = new BannersModel();
+            $banner = $bannersModel->find($id);
 
-public function deleteBanner($id)
-{
-    try {
-        $bannersModel = new BannersModel();
-        $banner = $bannersModel->find($id);
+            if (!$banner) {
+                throw new Exception('Banner not found.', 404);
+            }
 
-        if (!$banner) {
-            throw new Exception('Banner not found.', 404);
-        }
+            // Delete image file if exists
+            if (!empty($banner['path'])) {
+                $imagePath = FCPATH . ltrim($banner['path'], '/');
+                if (file_exists($imagePath)) {
+                    @unlink($imagePath);
+                }
+            }
 
-        $deleted = $bannersModel->delete($id);
+            $deleted = $bannersModel->delete($id);
 
-        if ($deleted) {
+            if ($deleted) {
+                $response = [
+                    'status' => 200,
+                    'message' => 'Banner and image deleted successfully.',
+                ];
+            } else {
+                throw new Exception('Failed to delete banner.', 500);
+            }
+        } catch (Exception $e) {
             $response = [
-                'status' => 200,
-                'message' => 'Banner deleted successfully.',
+                'status' => $e->getCode(),
+                'error' => $e->getMessage(),
             ];
-        } else {
-            throw new Exception('Failed to delete banner.', 500);
         }
-    } catch (Exception $e) {
-        $response = [
-            'status' => $e->getCode(),
-            'error' => $e->getMessage(),
-        ];
-    }
 
-    return $this->respond($response, $response['status']);
-}
+        return $this->respond($response, $response['status']);
+    }
 
     public function createMainBanner()
     {
         try {
-           
+
             $statusCode = 200;
             $banner_image = $this->request->getVar('banner_image');
             $banner_image = json_decode($banner_image, true);
@@ -228,38 +236,32 @@ public function deleteBanner($id)
                 'error' => $e->getMessage()
             ];
         }
-        
+
         $response['status'] = $statusCode;
         return $this->respond($response, $statusCode);
-         
     }
 
     public function getMainBanner()
-{
-    try {
-        $bannersModel = new BannersModel();
-        $banner = $bannersModel->where('home_zone_appliances_id	',0)->findAll();
+    {
+        try {
+            $bannersModel = new BannersModel();
+            $banner = $bannersModel->where('home_zone_appliances_id	', 0)->findAll();
 
-        if ($banner) {
+            if ($banner) {
+                $response = [
+                    'status' => 200,
+                    'data' => $banner,
+                ];
+            } else {
+                throw new Exception('Banner not found.', 404);
+            }
+        } catch (Exception $e) {
             $response = [
-                'status' => 200,
-                'data' => $banner,
+                'status' => $e->getCode(),
+                'error' => $e->getMessage(),
             ];
-        } else {
-            throw new Exception('Banner not found.', 404);
         }
-    } catch (Exception $e) {
-        $response = [
-            'status' => $e->getCode(),
-            'error' => $e->getMessage(),
-        ];
+
+        return $this->respond($response, $response['status']);
     }
-
-    return $this->respond($response, $response['status']);
 }
-
-}
-
-
-
-
