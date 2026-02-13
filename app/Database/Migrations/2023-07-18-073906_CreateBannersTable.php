@@ -30,6 +30,11 @@ class AfBanners extends Migration
                 'type' => 'INT',
                 'constraint' => 11
             ],
+            'link' => [
+                'type' => 'VARCHAR',
+                'constraint' => 512,
+                'null' => true,
+            ],
             'created_at DATETIME DEFAULT CURRENT_TIMESTAMP',
             'updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
         ]);

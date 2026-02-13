@@ -18,6 +18,7 @@ class BannersModel extends Model
         'path',
         'device',
         'image_index',
+        'link',
     ];
 
     // Dates
