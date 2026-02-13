@@ -47,6 +47,7 @@ class BannerController extends BaseController
             $data = [
                 'path' => $publicRelative . $imageName,
                 'link' => $this->request->getVar('link') ?? null,
+                'device' => $this->request->getVar('device') ?? 'mobile',
             ];
             $Bannersmodel->insert($data);
             if (!empty($Bannersmodel->errors())) {  
