@@ -275,7 +275,7 @@ class ServiceGalleryController extends BaseController
                             ->withFile($originalFullPath)
                             ->resize(1200, 1200, true, 'width') // maintain ratio
                             ->convert(IMAGETYPE_WEBP)
-                            ->save($webpFullPath, 80); // 80 = quality
+                            ->save($webpFullPath, 90); // 90 = quality
 
                         // Delete original file
                         if (file_exists($originalFullPath)) {
