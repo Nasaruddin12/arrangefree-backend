@@ -167,19 +167,24 @@ class BookingController extends ResourceController
 
             // Apply coupon discount
             $discount = 0.00;
-
             if (!empty($appliedCoupon)) {
-                $couponValidator = new \App\Services\CouponValidationService();
-                $validationResult = $couponValidator->validateAndCalculate(
-                    $appliedCoupon,
-                    $subtotal,
-                    $userId
-                );
+                try {
+                    $couponValidator = new \App\Services\CouponValidationService();
+                    $validationResult = $couponValidator->validateAndCalculate(
+                        $appliedCoupon,
+                        $subtotal,
+                        $userId
+                    );
 
-                if ($validationResult['is_valid']) {
-                    $discount = $validationResult['discount_amount'];
-                } else {
-                    return $this->failValidationErrors($validationResult['message']);
+
+                    if ($validationResult['valid']) {
+                        $discount = $validationResult['discount'];
+                    } else {
+                        return $this->failValidationErrors($validationResult['message']);
+                    }
+                } catch (\Exception $e) {
+                    log_message('error', 'Coupon validation error: ' . $e->getMessage());
+                    return $this->failValidationErrors('Coupon validation failed: ' . $e->getMessage());
                 }
             }
 
