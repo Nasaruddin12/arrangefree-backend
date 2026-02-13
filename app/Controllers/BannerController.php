@@ -47,7 +47,7 @@ class BannerController extends BaseController
             $data = [
                 'path' => $publicRelative . $imageName,
                 'link' => $this->request->getVar('link') ?? null,
-                'device' => $this->request->getVar('device') ?? 'mobile',
+                'device' => $this->request->getVar('device') ?? 1,
             ];
             $Bannersmodel->insert($data);
             if (!empty($Bannersmodel->errors())) {  
@@ -62,6 +62,7 @@ class BannerController extends BaseController
                     'id' => $Bannersmodel->getInsertID(),
                     'path' => $data['path'],
                     'link' => $data['link'],
+                    'device' => $data['device'],
                 ],
             ];
         } catch (Exception $e) {
