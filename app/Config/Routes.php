@@ -158,6 +158,7 @@ $routes->group('banner', static function ($routes) {
         $routes->post('createBannerImage', 'BannerController::createBannerImage');
         $routes->delete('deleteBanner/(:num)', 'BannerController::deleteBanner/$1');
         $routes->post('createMainBanner', 'BannerController::createMainBanner');
+        $routes->get('by-service/(:num)', 'BannerController::getBannersByServiceId/$1');
     });
     $routes->get('getMainBanner', 'BannerController::getMainBanner');
 });

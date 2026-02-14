@@ -10,6 +10,34 @@ use Exception;
 class BannerController extends BaseController
 {
     use ResponseTrait;
+    /**
+     * Get banners by service_id
+     * @param int $serviceId
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function getBannersByServiceId($serviceId)
+    {
+        try {
+            $bannersModel = new BannersModel();
+            $banners = $bannersModel->where('service_id', $serviceId)->findAll();
+
+            if ($banners) {
+                $response = [
+                    'status' => 200,
+                    'data' => $banners,
+                ];
+            } else {
+                throw new Exception('No banners found for this service.', 404);
+            }
+        } catch (Exception $e) {
+            $response = [
+                'status' => $e->getCode() ?: 500,
+                'error' => $e->getMessage(),
+            ];
+        }
+        return $this->respond($response, $response['status']);
+    }
+    
     public function createBannerImage()
     {
         $image = \Config\Services::image();
@@ -48,12 +76,14 @@ class BannerController extends BaseController
                 'path' => $publicRelative . $imageName,
                 'link' => $this->request->getVar('link') ?? null,
                 'device' => $this->request->getVar('device') ?? "1",
+                'service_id' => $this->request->getVar('service_id') ?? 0,
+                'image_index' => $this->request->getVar('image_index') ?? 0,
             ];
             $Bannersmodel->insert($data);
-            if (!empty($Bannersmodel->errors())) {  
+            if (!empty($Bannersmodel->errors())) {
                 throw new Exception('Validation', 400);
             }
-             if ($Bannersmodel->db->error()['code']) {
+            if ($Bannersmodel->db->error()['code']) {
                 throw new Exception($Bannersmodel->db->error()['message'], 500);
             }
             $response = [
@@ -63,6 +93,8 @@ class BannerController extends BaseController
                     'path' => $data['path'],
                     'link' => $data['link'],
                     'device' => $data['device'],
+                    'service_id' => $data['service_id'],
+                    'image_index' => $data['image_index'],
                 ],
             ];
         } catch (Exception $e) {
@@ -127,6 +159,8 @@ class BannerController extends BaseController
                 'path' => $imagePath,
                 'link' => $this->request->getVar('link') ?? null,
                 'device' => $this->request->getVar('device') ?? 1,
+                'service_id' => $this->request->getVar('service_id') ?? 0,
+                'image_index' => $this->request->getVar('image_index') ?? 0,
             ];
 
             $updated = $bannersModel->update($bannerId, $data);

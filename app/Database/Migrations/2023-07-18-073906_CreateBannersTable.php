@@ -14,7 +14,7 @@ class AfBanners extends Migration
                 'unsigned' => true,
                 'auto_increment' => true,
             ],
-            'home_zone_appliances_id' => [
+            'service_id' => [
                 'type' => 'INT',
                 'constraint' => 11,
             ],
