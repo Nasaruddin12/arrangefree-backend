@@ -360,7 +360,7 @@ class ServiceController extends BaseController
             $db->transComplete();
 
             if (!$db->transStatus()) {
-                return $this->respond(['status' => 400, 'message' => 'Failed to update Services'], 400);
+                return $this->respond(['status' => 400, 'message' => 'Failed to update Services', 'error' => $db->error()], 400);
             }
 
             return $this->respond([
