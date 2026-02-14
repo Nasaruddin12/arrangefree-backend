@@ -20,6 +20,7 @@ class ServiceAddonModel extends Model
         'price',
         'partner_price',
         'description',
+        'image',
     ];
 
     protected $useTimestamps = true;
@@ -35,6 +36,7 @@ class ServiceAddonModel extends Model
         'qty'          => 'required|decimal',
         'price'        => 'required|decimal',
         'partner_price' => 'permit_empty|decimal',
+        'image'        => 'permit_empty|string',
     ];
 
     protected $validationMessages = [

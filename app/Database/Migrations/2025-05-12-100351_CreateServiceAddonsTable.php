@@ -18,6 +18,7 @@ class CreateServiceAddonsTable extends Migration
             'qty'           => ['type' => 'DECIMAL', 'constraint' => '10,2', 'default' => 1],
             'price'         => ['type' => 'DECIMAL', 'constraint' => '10,2'],
             'partner_price'  => ['type' => 'DECIMAL', 'constraint' => '10,2', 'null' => true],
+            'image'         => ['type' => 'VARCHAR', 'constraint' => 512, 'null' => true],
             'description'   => ['type' => 'TEXT', 'null' => true],
             'created_at'    => ['type' => 'DATETIME', 'null' => true],
             'updated_at'    => ['type' => 'DATETIME', 'null' => true],

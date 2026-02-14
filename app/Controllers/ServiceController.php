@@ -106,6 +106,7 @@ class ServiceController extends BaseController
                         'price'        => $addon['price'],
                         'partner_price' => $addon['partner_price'] ?? null,
                         'description'  => $addon['description'] ?? null,
+                        'image'        => $addon['image'] ?? null,
                     ];
                 }
 
@@ -337,6 +338,7 @@ class ServiceController extends BaseController
                         'price'       => $addon['price'],
                         'partner_price' => $addon['partner_price'] ?? null,
                         'description' => $addon['description'] ?? null,
+                        'image'       => $addon['image'] ?? null,
                     ];
 
                     if (!empty($addon['id'])) {
