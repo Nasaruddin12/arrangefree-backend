@@ -233,7 +233,7 @@ class BannerController extends BaseController
             if (!empty($banner_image)) {
 
                 $addhomeZoneAppliancesID = function ($item) {
-                    $item['home_zone_appliances_id'] = 0;
+                    $item['service_id'] = 0;
                     $item['image_index'] = 0;
                     $item['id'] = null; // Add this line to define the 'id' key
                     return $item;
@@ -292,7 +292,7 @@ class BannerController extends BaseController
     {
         try {
             $bannersModel = new BannersModel();
-            $banner = $bannersModel->where('home_zone_appliances_id	', 0)->findAll();
+            $banner = $bannersModel->where('service_id', 0)->findAll();
 
             if ($banner) {
                 $response = [
