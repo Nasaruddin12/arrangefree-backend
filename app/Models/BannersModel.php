@@ -14,7 +14,7 @@ class BannersModel extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'home_zone_appliances_id',
+        'service_id',
         'path',
         'device',
         'image_index',
