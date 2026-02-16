@@ -98,6 +98,7 @@ $routes->group('admin', static function ($routes) {
         $routes->get('partner-referrals', 'PartnerReferralController::adminReferralSummary');
         $routes->get('partner-referrals/(:num)', 'PartnerReferralController::partnerReferrals/$1');
         $routes->get('partners/summary', 'PartnerController::getPartnerTaskSummary');
+        $routes->get('partner/unregistered', 'PartnerController::getUnregisteredPartners');
 
         $routes->post('payouts/create', 'PartnerPayoutController::create');
         $routes->get('payouts/requests', 'PartnerPayoutController::adminListRequests');
