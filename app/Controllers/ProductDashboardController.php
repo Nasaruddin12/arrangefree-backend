@@ -39,11 +39,11 @@ class ProductDashboardController extends BaseController
             }
             $statics['total_counts'] = $totalCount;
             // $vendorsModel = new VendorsModel();
-            $designerModel = new DesignerModel();
-            $VendorsModel = new VendorsModel();
-            $vendorsCount = $VendorsModel->countAllResults();
-            $statics['vendors_count'] = $vendorsCount;
-            $statics['designers_count'] = $designerModel->countAllResults();
+            // $designerModel = new DesignerModel();
+            // $VendorsModel = new VendorsModel();
+            // $vendorsCount = $VendorsModel->countAllResults();
+            // $statics['vendors_count'] = $vendorsCount;
+            // $statics['designers_count'] = $designerModel->countAllResults();
 
             $statusCode = 200;
             $response = [
