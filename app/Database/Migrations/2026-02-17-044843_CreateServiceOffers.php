@@ -70,6 +70,7 @@ class CreateServiceOffers extends Migration
 
             'created_at DATETIME DEFAULT CURRENT_TIMESTAMP',
             'updated_at DATETIME NULL ON UPDATE CURRENT_TIMESTAMP',
+            'deleted_at DATETIME NULL',
         ]);
 
         $this->forge->addKey('id', true);

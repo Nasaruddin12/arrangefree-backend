@@ -105,6 +105,10 @@ $routes->group('admin', static function ($routes) {
         $routes->get('payouts/partner/(:num)', 'PartnerPayoutController::listByPartner/$1');
         $routes->get('wallet/withdraw-requests', 'PartnerController::walletWithdrawRequestsAll');
         $routes->get('wallet/withdraw-requests/(:num)', 'PartnerController::walletWithdrawRequests/$1');
+
+        $routes->post('service-offers/create', 'Admin\ServiceOfferController::create');
+        $routes->post('service-offers/update/(:num)', 'Admin\ServiceOfferController::update/$1');
+        $routes->get('service-offers/list', 'Admin\ServiceOfferController::list');
     });
 });
 
