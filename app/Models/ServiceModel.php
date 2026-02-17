@@ -114,7 +114,7 @@ class ServiceModel extends Model
     public function findByServiceTypeAndRoomSlug($service_type_slug, $room_slug)
     {
         $db = \Config\Database::connect();
-        $today = date('Y-m-d');
+        $today = date('Y-m-d H:i:s');
 
         // 1️⃣ Get Service Type
         $serviceType = $db->table('service_types')
@@ -159,7 +159,7 @@ class ServiceModel extends Model
             $service['addons'] = $addonModel
                 ->where('service_id', $service['id'])
                 ->findAll();
-
+            
             // 5️⃣ Get ALL applicable offers
             $offers = $offerModel
                 ->select('service_offers.*')
@@ -170,7 +170,6 @@ class ServiceModel extends Model
                 ->groupStart()
                 ->where('service_offer_targets.service_id', $service['id'])
                 ->orWhere('service_offer_targets.category_id', $service['service_type_id'])
-                ->orWhere('service_offer_targets.target_type', 'global')
                 ->groupEnd()
                 ->orderBy('service_offers.priority', 'DESC')
                 ->orderBy('service_offers.id', 'DESC')

@@ -15,21 +15,6 @@ class CreateServiceOffers extends Migration
                 'unsigned'       => true,
                 'auto_increment' => true,
             ],
-
-            'service_id' => [
-                'type'     => 'INT',
-                'constraint' => 11,
-                'unsigned' => true,
-                'null'     => true,
-            ],
-
-            'category_id' => [
-                'type'     => 'INT',
-                'constraint' => 11,
-                'unsigned' => true,
-                'null'     => true,
-            ],
-
             'title' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 255,
