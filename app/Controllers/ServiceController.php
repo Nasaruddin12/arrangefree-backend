@@ -66,7 +66,7 @@ class ServiceController extends BaseController
                 'partner_price'       => $this->request->getVar('partner_price'),
                 'with_material'       => $this->request->getVar('with_material') ?? false,
                 'slug'                => $this->request->getVar('slug'),
-                'status'              => $this->request->getVar('status') ?? 'inactive', // Default to inactive if not provided
+                'status'              => $this->request->getVar('status') ?? '0', // Default to inactive if not provided
             ];
 
             if (!$this->serviceModel->save($data)) {
