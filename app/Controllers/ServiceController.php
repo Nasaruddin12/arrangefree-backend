@@ -32,7 +32,7 @@ class ServiceController extends BaseController
                 'rate' => 'required|numeric',
                 'rate_type' => 'required|in_list[unit, square_feet, running_feet, running_meter, points, sqft]',
                 'partner_price' => 'permit_empty|numeric',
-                'status' => 'permit_empty|in_list[active, inactive]',
+                // 'status' => 'permit_empty|in_list[active, inactive]',
                 'slug' => 'permit_empty|string|max_length[255]',
             ]);
 
@@ -59,14 +59,13 @@ class ServiceController extends BaseController
                 'care_instructions'   => $this->request->getVar('care_instructions'),
                 'warranty_details'    => $this->request->getVar('warranty_details'),
                 'quality_promise'     => $this->request->getVar('quality_promise'),
-                'status'              => $this->request->getVar('status'),
                 'image'               => $this->request->getVar('image'),
                 'primary_key'         => $this->request->getVar('primary_key'),
                 'secondary_key'       => $this->request->getVar('secondary_key'),
                 'partner_price'       => $this->request->getVar('partner_price'),
                 'with_material'       => $this->request->getVar('with_material') ?? false,
                 'slug'                => $this->request->getVar('slug'),
-                'status'              => $this->request->getVar('status') ?? 'inactive', // Default to inactive if not provided
+                'status'              => $this->request->getVar('status') ?? '0', // Default to inactive if not provided
             ];
 
             if (!$this->serviceModel->save($data)) {
@@ -107,7 +106,7 @@ class ServiceController extends BaseController
                         'partner_price' => $addon['partner_price'] ?? null,
                         'description'  => $addon['description'] ?? null,
                         'image'        => $addon['image'] ?? null,
-                        'status'       => $addon['status'] ?? '1', // Default to inactive if not provided
+                        'status'       => $addon['status'] ?? '0', // Default to inactive if not provided
                     ];
                 }
 
