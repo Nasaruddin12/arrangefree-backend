@@ -107,6 +107,7 @@ class ServiceController extends BaseController
                         'partner_price' => $addon['partner_price'] ?? null,
                         'description'  => $addon['description'] ?? null,
                         'image'        => $addon['image'] ?? null,
+                        'status'       => $addon['status'] ?? '1', // Default to active if not provided
                     ];
                 }
 
