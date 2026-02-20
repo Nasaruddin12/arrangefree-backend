@@ -63,6 +63,35 @@ class CreateBookingAdditionalServicesTable extends Migration
                 'comment'    => 'Added quantity only',
             ],
 
+            'base_rate' => [
+                'type'       => 'DECIMAL',
+                'constraint' => '10,2',
+                'null'       => true,
+                'comment'    => 'Original rate per unit',
+            ],
+
+            'base_amount' => [
+                'type'       => 'DECIMAL',
+                'constraint' => '12,2',
+                'null'       => true,
+                'comment'    => 'base_rate × quantity',
+            ],
+
+            'offer_id' => [
+                'type'       => 'INT',
+                'constraint' => 11,
+                'unsigned'   => true,
+                'null'       => true,
+                'comment'    => 'Applied offer ID',
+            ],
+
+            'offer_discount' => [
+                'type'       => 'DECIMAL',
+                'constraint' => '12,2',
+                'default'    => 0.00,
+                'comment'    => 'Total offer discount amount',
+            ],
+
             'unit' => [
                 'type'       => 'ENUM',
                 'constraint' => ['unit', 'square_feet', 'running_feet', 'running_meter', 'point', 'sqft'],
@@ -167,7 +196,7 @@ class CreateBookingAdditionalServicesTable extends Migration
             ],
 
             'approved_by_id' => [
-                 'type'       => 'INT',
+                'type'       => 'INT',
                 'constraint' => 11,
                 'unsigned'   => true,
                 'null'       => true,

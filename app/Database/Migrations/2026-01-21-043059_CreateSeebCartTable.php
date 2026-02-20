@@ -69,12 +69,30 @@ class CreateSeebCartTable extends Migration
                 'constraint' => ['sqft', 'running_feet', 'running_meter', 'unit', 'points', 'square_feet'],
             ],
 
-            'rate' => [
+            'base_rate' => [
                 'type'       => 'DECIMAL',
                 'constraint' => '10,2',
             ],
 
-            'amount' => [
+            'selling_rate' => [
+                'type'       => 'DECIMAL',
+                'constraint' => '10,2',
+            ],
+
+            'offer_id' => [
+                'type'       => 'INT',
+                'constraint' => 11,
+                'unsigned'   => true,
+                'null'       => true,
+            ],
+
+            'offer_discount' => [
+                'type'       => 'DECIMAL',
+                'constraint' => '10,2',
+                'null'       => true,
+            ],
+
+            'final_amount' => [
                 'type'       => 'DECIMAL',
                 'constraint' => '10,2',
             ],
@@ -118,6 +136,7 @@ class CreateSeebCartTable extends Migration
         $this->forge->addKey('parent_cart_id');
         $this->forge->addKey('service_id');
         $this->forge->addKey('addon_id');
+        $this->forge->addKey('offer_id');
         $this->forge->addKey('room_id');
 
         // FOREIGN KEYS

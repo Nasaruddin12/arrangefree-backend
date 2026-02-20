@@ -39,10 +39,24 @@ class CreateBookingsTable extends Migration
                 'default'    => 0.00,
             ],
 
-            'discount' => [
+            'total_discount' => [
                 'type'       => 'DECIMAL',
                 'constraint' => '10,2',
                 'default'    => 0.00,
+            ],
+            'total_offer_discount' => [
+                'type'       => 'DECIMAL',
+                'constraint' => '10,2',
+                'default'    => 0.00,
+            ],
+            'total_coupon_discount' => [
+                'type'       => 'DECIMAL',
+                'constraint' => '10,2',
+                'default'    => 0.00,
+            ],
+            'coupon_id' => [
+                'type'       => 'INT',
+                'null'       => true,
             ],
 
             'cgst' => [

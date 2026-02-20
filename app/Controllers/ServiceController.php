@@ -107,6 +107,7 @@ class ServiceController extends BaseController
                         'partner_price' => $addon['partner_price'] ?? null,
                         'description'  => $addon['description'] ?? null,
                         'image'        => $addon['image'] ?? null,
+                        'status'       => $addon['status'] ?? '1', // Default to inactive if not provided
                     ];
                 }
 
@@ -474,20 +475,55 @@ class ServiceController extends BaseController
                 return $this->failNotFound('Service not found.');
             }
 
-            // Fetch associated room IDs
+            $originalPrice = (float) ($service['price'] ?? $service['rate']) ?? 0;
+
+            // 2️⃣ Room IDs
             $roomIds = $this->serviceRoomModel
-                ->where('service_id', $id)
+                ->where('service_id', $service['id'])
                 ->select('room_id')
                 ->findAll();
 
             $service['room_ids'] = array_column($roomIds, 'room_id');
 
-            // Fetch all add-ons (flat list)
+            // 3️⃣ Get Best Active Offer
+            $offerModel = new \App\Models\ServiceOfferModel();
+
+            $bestOffer = $offerModel->getActiveOffer(
+                $service['id'],
+                $service['service_type_id']
+            );
+
+            $discountedServicePrice = $offerModel->applyDiscount(
+                $originalPrice,
+                $bestOffer
+            );
+
+            $service['original_price'] = $originalPrice;
+            $service['discounted_rate'] = round($discountedServicePrice, 2);
+            $service['offer'] = $bestOffer ?? null;
+
+            // 4️⃣ Fetch Addons
             $addonModel = new \App\Models\ServiceAddonModel();
+
             $addons = $addonModel
-                ->where('service_id', $id)
+                ->where('service_id', $service['id'])
                 ->orderBy('group_name', 'asc')
                 ->findAll();
+
+            foreach ($addons as &$addon) {
+
+                $addonOriginal = floatval($addon['price']);
+
+                // Apply SAME service offer to addons
+                $addonDiscounted = $offerModel->applyDiscount(
+                    $addonOriginal,
+                    $bestOffer
+                );
+
+                $addon['original_price'] = $addonOriginal;
+                $addon['discounted_price'] = round($addonDiscounted, 2);
+                $addon['offer'] = $bestOffer ?? null;
+            }
 
             $service['addons'] = $addons;
 
@@ -495,8 +531,9 @@ class ServiceController extends BaseController
                 'status' => 200,
                 'message' => 'Service details retrieved successfully',
                 'data' => $service
-            ], 200);
+            ]);
         } catch (\Exception $e) {
+
             return $this->respond([
                 'status' => 500,
                 'message' => 'Failed to retrieve service details',
@@ -566,9 +603,6 @@ class ServiceController extends BaseController
                 return $this->failValidationErrors('Slug is required');
             }
 
-            $today = date('Y-m-d');
-            $db = \Config\Database::connect();
-
             // 1️⃣ Fetch Service
             $service = $this->serviceModel
                 ->select('services.*, service_types.name as service_name')
@@ -582,7 +616,7 @@ class ServiceController extends BaseController
 
             $originalPrice = (float) ($service['price'] ?? $service['rate']) ?? 0;
 
-            // 2️⃣ Fetch Room IDs
+            // 2️⃣ Room IDs
             $roomIds = $this->serviceRoomModel
                 ->where('service_id', $service['id'])
                 ->select('room_id')
@@ -590,79 +624,55 @@ class ServiceController extends BaseController
 
             $service['room_ids'] = array_column($roomIds, 'room_id');
 
-            // 3️⃣ Fetch Addons
+            // 3️⃣ Get Best Active Offer
+            $offerModel = new \App\Models\ServiceOfferModel();
+
+            $bestOffer = $offerModel->getActiveOffer(
+                $service['id'],
+                $service['service_type_id']
+            );
+
+            $discountedServicePrice = $offerModel->applyDiscount(
+                $originalPrice,
+                $bestOffer
+            );
+
+            $service['original_price'] = $originalPrice;
+            $service['discounted_rate'] = round($discountedServicePrice, 2);
+            $service['offer'] = $bestOffer ?? null;
+
+            // 4️⃣ Fetch Addons
             $addonModel = new \App\Models\ServiceAddonModel();
-            $service['addons'] = $addonModel
+
+            $addons = $addonModel
                 ->where('service_id', $service['id'])
                 ->orderBy('group_name', 'asc')
                 ->findAll();
 
-            // 4️⃣ Fetch ALL applicable offers
-            $offerModel = new \App\Models\ServiceOfferModel();
+            foreach ($addons as &$addon) {
 
-            $offers = $offerModel
-                ->select('service_offers.*')
-                ->join('service_offer_targets', 'service_offer_targets.offer_id = service_offers.id')
-                ->where('service_offers.is_active', 1)
-                ->where('service_offers.start_date <=', $today)
-                ->where('service_offers.end_date >=', $today)
-                ->groupStart()
-                ->where('service_offer_targets.service_id', $service['id'])
-                ->orWhere('service_offer_targets.category_id', $service['service_type_id'])
-                ->orWhere('service_offer_targets.target_type', 'global')
-                ->groupEnd()
-                ->orderBy('service_offers.priority', 'DESC')
-                ->orderBy('service_offers.id', 'DESC')
-                ->findAll();
+                $addonOriginal = floatval($addon['price']);
 
-            $bestOffer = null;
-            $bestDiscountedPrice = $originalPrice;
+                // Apply SAME service offer to addons
+                $addonDiscounted = $offerModel->applyDiscount(
+                    $addonOriginal,
+                    $bestOffer
+                );
 
-            // 5️⃣ Choose Best Offer
-            foreach ($offers as $offer) {
-
-                $discounted = $originalPrice;
-
-                if ($offer['discount_type'] === 'percentage') {
-                    $discounted -= ($originalPrice * $offer['discount_value'] / 100);
-                } else {
-                    $discounted -= $offer['discount_value'];
-                }
-
-                if ($discounted < 0) {
-                    $discounted = 0;
-                }
-
-                if ($discounted < $bestDiscountedPrice) {
-                    $bestDiscountedPrice = $discounted;
-                    $bestOffer = $offer;
-                }
+                $addon['original_price'] = $addonOriginal;
+                $addon['discounted_price'] = round($addonDiscounted, 2);
+                $addon['offer'] = $bestOffer ?? null;
             }
 
-            // 6️⃣ Attach pricing
-            $service['original_price'] = $originalPrice;
-            $service['discounted_rate'] = round($bestDiscountedPrice, 2);
-
-            if ($bestOffer) {
-                $service['offer'] = [
-                    'id' => $bestOffer['id'],
-                    'title' => $bestOffer['title'],
-                    'discount_type' => $bestOffer['discount_type'],
-                    'discount_value' => $bestOffer['discount_value'],
-                    'priority' => $bestOffer['priority'],
-                    'start_date' => $bestOffer['start_date'],
-                    'end_date' => $bestOffer['end_date'],
-                ];
-            } else {
-                $service['offer'] = null;
-            }
+            $service['addons'] = $addons;
 
             return $this->respond([
                 'status' => 200,
                 'message' => 'Service details retrieved successfully',
                 'data' => $service
-            ], 200);
+            ]);
         } catch (\Exception $e) {
+
             return $this->respond([
                 'status' => 500,
                 'message' => 'Failed to retrieve service details',
@@ -670,6 +680,7 @@ class ServiceController extends BaseController
             ], 500);
         }
     }
+
 
 
 

@@ -165,6 +165,7 @@ class ServiceModel extends Model
                 ->select('service_offers.*')
                 ->join('service_offer_targets', 'service_offer_targets.offer_id = service_offers.id')
                 ->where('service_offers.is_active', 1)
+                ->where('service_offers.discount_type', 'percentage')
                 ->where('service_offers.start_date <=', $today)
                 ->where('service_offers.end_date >=', $today)
                 ->groupStart()
@@ -177,17 +178,11 @@ class ServiceModel extends Model
 
             $bestOffer = null;
             $bestDiscountedPrice = $originalPrice;
-
+            
+            // print_r($offers); // Debug: Check applicable offers
             // 6️⃣ Find Best Offer
             foreach ($offers as $offer) {
-
-                $discounted = $originalPrice;
-
-                if ($offer['discount_type'] === 'percentage') {
-                    $discounted -= ($originalPrice * $offer['discount_value'] / 100);
-                } else {
-                    $discounted -= $offer['discount_value'];
-                }
+                $discounted = $originalPrice - ($originalPrice * $offer['discount_value'] / 100);
 
                 if ($discounted < 0) {
                     $discounted = 0;

@@ -28,6 +28,12 @@ class ServiceOfferController extends BaseController
     public function create()
     {
         $data = $this->request->getJSON(true);
+        if (($data['discount_type'] ?? null) !== 'percentage') {
+            return $this->response->setStatusCode(422)->setJSON([
+                'status' => false,
+                'message' => 'Only percentage discount_type is supported.'
+            ]);
+        }
 
         $offerData = [
             'title'          => $data['title'] ?? null,
@@ -66,6 +72,12 @@ class ServiceOfferController extends BaseController
     public function update($id)
     {
         $data = $this->request->getJSON(true);
+        if (($data['discount_type'] ?? null) !== 'percentage') {
+            return $this->response->setStatusCode(422)->setJSON([
+                'status' => false,
+                'message' => 'Only percentage discount_type is supported.'
+            ]);
+        }
 
         $offerData = [
             'title'          => $data['title'] ?? null,

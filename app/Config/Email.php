@@ -40,7 +40,7 @@ class Email extends BaseConfig
     /**
      * SMTP Password
      */
-    public string $SMTPPass = 'szaq bxsl usnz ctvm';
+    public string $SMTPPass = 'lfcl vbri zjnh fhwr';
 
     /**
      * SMTP Port
