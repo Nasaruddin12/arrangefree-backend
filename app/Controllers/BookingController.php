@@ -483,6 +483,7 @@ class BookingController extends ResourceController
             $razorpay = new \Razorpay\Api\Api($config->keyId, $config->keySecret);
             $currency = $config->displayCurrency;
             $razorpayModel = new RazorpayOrdersModel();
+            $razorpayOrder = null;
             $existingOrder = $razorpayModel
                 ->where('booking_id', $bookingId)
                 ->whereIn('status', ['created', 'attempted'])
