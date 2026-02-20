@@ -32,7 +32,7 @@ class ServiceController extends BaseController
                 'rate' => 'required|numeric',
                 'rate_type' => 'required|in_list[unit, square_feet, running_feet, running_meter, points, sqft]',
                 'partner_price' => 'permit_empty|numeric',
-                'status' => 'permit_empty|in_list[active, inactive]',
+                // 'status' => 'permit_empty|in_list[active, inactive]',
                 'slug' => 'permit_empty|string|max_length[255]',
             ]);
 
