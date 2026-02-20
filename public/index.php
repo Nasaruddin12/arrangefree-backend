@@ -1,12 +1,12 @@
 <?php
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    header('Access-Control-Allow-Origin: ' . ($_SERVER['HTTP_ORIGIN'] ?? '*'));
-    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-    header('Access-Control-Allow-Headers: Content-Type, Authorization');
-    header('Access-Control-Allow-Credentials: true');
-    http_response_code(204);
-    exit;
-}
+// if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+//     header('Access-Control-Allow-Origin: ' . ($_SERVER['HTTP_ORIGIN'] ?? '*'));
+//     header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+//     header('Access-Control-Allow-Headers: Content-Type, Authorization');
+//     header('Access-Control-Allow-Credentials: true');
+//     http_response_code(204);
+//     exit;
+// }
 // Check PHP version.
 $minPhpVersion = '7.4'; // If you update this, don't forget to update `spark`.
 if (version_compare(PHP_VERSION, $minPhpVersion, '<')) {
