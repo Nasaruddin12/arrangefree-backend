@@ -1548,4 +1548,28 @@ class PartnerController extends BaseController
             'data'   => $result
         ]);
     }
+        /**
+     * Get list of unregistered partners (present in partner_otps but not in partners table)
+     * GET /admin/partner/unregistered
+     */
+    public function getUnregisteredPartners()
+    {
+        try {
+            $db = \Config\Database::connect();
+            // Get mobiles in partner_otps not present in partners table
+            $builder = $db->table('partner_otps');
+            $builder->select('mobile, otp, expires_at, created_at');
+            $builder->whereNotIn('mobile', function($sub) {
+                $sub->select('mobile')->from('partners')->where('deleted_at', null);
+            });
+            $unregistered = $builder->get()->getResultArray();
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Unregistered partners fetched successfully',
+                'data' => $unregistered
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError('Failed to fetch unregistered partners: ' . $e->getMessage());
+        }
+    }
 }

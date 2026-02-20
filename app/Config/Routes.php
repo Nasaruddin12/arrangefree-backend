@@ -98,12 +98,17 @@ $routes->group('admin', static function ($routes) {
         $routes->get('partner-referrals', 'PartnerReferralController::adminReferralSummary');
         $routes->get('partner-referrals/(:num)', 'PartnerReferralController::partnerReferrals/$1');
         $routes->get('partners/summary', 'PartnerController::getPartnerTaskSummary');
+        $routes->get('partner/unregistered', 'PartnerController::getUnregisteredPartners');
 
         $routes->post('payouts/create', 'PartnerPayoutController::create');
         $routes->get('payouts/requests', 'PartnerPayoutController::adminListRequests');
         $routes->get('payouts/partner/(:num)', 'PartnerPayoutController::listByPartner/$1');
         $routes->get('wallet/withdraw-requests', 'PartnerController::walletWithdrawRequestsAll');
         $routes->get('wallet/withdraw-requests/(:num)', 'PartnerController::walletWithdrawRequests/$1');
+
+        $routes->post('service-offers/create', 'ServiceOfferController::create');
+        $routes->post('service-offers/update/(:num)', 'ServiceOfferController::update/$1');
+        $routes->get('service-offers/list', 'ServiceOfferController::list');
     });
 });
 

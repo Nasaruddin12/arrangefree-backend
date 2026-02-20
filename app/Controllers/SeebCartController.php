@@ -101,7 +101,7 @@ class SeebCartController extends ResourceController
             $sortDir = $this->request->getVar('sort_dir') ?? 'desc';
 
             $sortColumn = match ($sortBy) {
-                'amount'     => 'SUM(seeb_cart.amount)',
+                'amount'     => 'SUM(seeb_cart.final_amount)',
                 'created_at' => 'MAX(seeb_cart.created_at)',
                 default      => 'MAX(seeb_cart.created_at)'
             };
@@ -115,7 +115,7 @@ class SeebCartController extends ResourceController
                     customers.email AS user_email, 
                     customers.mobile_no AS user_phone, 
                     COUNT(seeb_cart.id) AS total_items, 
-                    SUM(seeb_cart.amount) AS total_amount, 
+                    SUM(seeb_cart.final_amount) AS total_amount, 
                     MAX(seeb_cart.created_at) AS latest_cart_date
                 ")
                 ->join('customers', 'customers.id = seeb_cart.user_id', 'left');
@@ -237,67 +237,123 @@ class SeebCartController extends ResourceController
         try {
             $data = $this->request->getJSON(true);
 
-            // Validate required fields
             if (empty($data['user_id']) || empty($data['service_id'])) {
                 return $this->fail('User ID and Service ID are required', 400);
             }
 
-            // Validate quantity
             if (empty($data['quantity']) || floatval($data['quantity']) <= 0) {
                 return $this->fail('Quantity must be greater than 0', 400);
             }
 
-            // Prepare main service cart data
+            $quantity = floatval($data['quantity']);
+
+            // Fetch service
+            $service = $this->db->table('services')
+                ->where('id', $data['service_id'])
+                ->get()
+                ->getRowArray();
+
+            if (!$service) {
+                return $this->fail('Invalid service', 400);
+            }
+
+            $baseRate = floatval($service['rate']);
+            $offerModel = new \App\Models\ServiceOfferModel();
+            $activeOffer = $offerModel->getActiveOffer(
+                $service['id'],
+                $data['service_type_id'] ?? ($service['service_type_id'] ?? null)
+            );
+
+            $sellingRate = round($offerModel->applyDiscount($baseRate, $activeOffer), 2);
+            $offerId = $activeOffer['id'] ?? null;
+            $offerDiscount = round(max(($baseRate - $sellingRate) * $quantity, 0), 2);
+            $finalAmount = round($sellingRate * $quantity, 2);
+
+            // Main service cart insert
             $cartData = [
                 'user_id' => $data['user_id'],
                 'service_id' => $data['service_id'],
-                'addon_id' => null, // Main service has no addon
+                'addon_id' => null,
                 'service_type_id' => $data['service_type_id'] ?? null,
                 'room_id' => $data['room_id'] ?? null,
-                'quantity' => floatval($data['quantity']),
+                'quantity' => $quantity,
                 'unit' => $data['unit'] ?? null,
-                'rate' => floatval($data['rate'] ?? 0),
-                'amount' => floatval($data['amount'] ?? 0),
+
+                // Pricing
+                'base_rate' => $baseRate,
+                // 'base_amount' => $baseAmount,
+                'selling_rate' => $sellingRate,
+                'offer_id' => $offerId,
+                'offer_discount' => $offerDiscount,
+                'final_amount' => $finalAmount,
+                // 'initial_offer_id' => $offerId,
+                // 'initial_selling_rate' => $sellingRate,
+                // 'initial_final_amount' => $finalAmount,
+
                 'room_length' => $data['room_length'] ?? null,
                 'room_width' => $data['room_width'] ?? null,
                 'description' => $data['description'] ?? null,
                 'reference_image' => $data['reference_image'] ?? null,
-                'parent_cart_id' => $data['parent_cart_id'] ?? null
+                'parent_cart_id' => null
             ];
 
-            // Insert main service cart item
             $parentCartId = $this->model->insert($cartData);
+
             $addedItems = [$cartData];
 
-            // Handle addons if provided as array
-            if (isset($data['addons']) && is_array($data['addons']) && !empty($data['addons'])) {
+            // Handle addons
+            if (!empty($data['addons']) && is_array($data['addons'])) {
                 foreach ($data['addons'] as $addon) {
-                    if (!empty($addon['id']) || !empty($addon['addon_id'])) {
-                        $addonCartData = [
-                            'user_id' => $data['user_id'],
-                            'service_id' => $data['service_id'],
-                            'addon_id' => $addon['id'] ?? $addon['addon_id'],
-                            'service_type_id' => $data['service_type_id'] ?? null,
-                            'room_id' => $data['room_id'] ?? null,
-                            'quantity' => floatval($addon['quantity'] ?? $data['quantity']),
-                            'unit' => $addon['unit'] ?? $data['unit'] ?? null,
-                            'rate' => floatval($addon['rate'] ?? 0),
-                            'amount' => floatval($addon['amount'] ?? 0),
-                            'room_length' => $data['room_length'] ?? null,
-                            'room_width' => $data['room_width'] ?? null,
-                            'description' => $addon['description'] ?? null,
-                            'reference_image' => $data['reference_image'] ?? null,
-                            'parent_cart_id' => $parentCartId
-                        ];
+                    $addonData = $this->db->table('service_addons')
+                        ->where('id', $addon['id'])
+                        ->get()
+                        ->getRowArray();
 
-                        $this->model->insert($addonCartData);
-                        $addedItems[] = $addonCartData;
+                    if (!$addonData) {
+                        continue;
                     }
+
+                    $addonQuantity = floatval($addon['quantity'] ?? 1);
+                    $addonBaseRate = floatval($addonData['price']);
+                    $addonBaseAmount = $addonBaseRate * $addonQuantity;
+                    $addonSellingRate = round($offerModel->applyDiscount($addonBaseRate, $activeOffer), 2);
+                    $addonOfferDiscount = round(max(($addonBaseRate - $addonSellingRate) * $addonQuantity, 0), 2);
+                    $addonFinalAmount = round($addonSellingRate * $addonQuantity, 2);
+
+                    $addonCartData = [
+                        'user_id' => $data['user_id'],
+                        'service_id' => $data['service_id'],
+                        'addon_id' => $addonData['id'],
+                        'service_type_id' => $data['service_type_id'] ?? null,
+                        'room_id' => $data['room_id'] ?? null,
+                        'quantity' => $addonQuantity,
+                        'unit' => $addon['unit'] ?? null,
+
+                        // Pricing (addons usually no offer)
+                        'base_rate' => $addonBaseRate,
+                        'base_amount' => $addonBaseAmount,
+                        'selling_rate' => $addonSellingRate,
+                        'offer_id' => $offerId,
+                        'offer_discount' => $addonOfferDiscount,
+                        'final_amount' => $addonFinalAmount,
+                        // 'initial_offer_id' => $offerId,
+                        // 'initial_selling_rate' => $addonSellingRate,
+                        // 'initial_final_amount' => $addonFinalAmount,
+
+                        'room_length' => $data['room_length'] ?? null,
+                        'room_width' => $data['room_width'] ?? null,
+                        'description' => $addon['description'] ?? null,
+                        'reference_image' => $data['reference_image'] ?? null,
+                        'parent_cart_id' => $parentCartId
+                    ];
+
+                    $this->model->insert($addonCartData);
+                    $addedItems[] = $addonCartData;
                 }
             }
 
             return $this->respondCreated([
-                'status' => 201,
+                'status' => 200,
                 'message' => 'Cart item(s) added successfully',
                 'data' => [
                     'parent_cart_id' => $parentCartId,
@@ -309,6 +365,7 @@ class SeebCartController extends ResourceController
             return $this->failServerError($e->getMessage());
         }
     }
+
 
     // ✅ Update a cart item
     public function update($id = null)
@@ -327,7 +384,7 @@ class SeebCartController extends ResourceController
 
             // Prepare data for update
             $updateData = [];
-            
+
             if (isset($data['quantity'])) {
                 if (floatval($data['quantity']) <= 0) {
                     return $this->fail('Quantity must be greater than 0', 400);
@@ -352,11 +409,11 @@ class SeebCartController extends ResourceController
             }
 
             if (isset($data['rate'])) {
-                $updateData['rate'] = floatval($data['rate']);
+                $updateData['selling_rate'] = floatval($data['rate']);
             }
 
             if (isset($data['amount'])) {
-                $updateData['amount'] = floatval($data['amount']);
+                $updateData['final_amount'] = floatval($data['amount']);
             }
 
             if (isset($data['room_length'])) {
@@ -400,8 +457,11 @@ class SeebCartController extends ResourceController
                             'room_id' => $data['room_id'] ?? $cartItem['room_id'],
                             'quantity' => floatval($addon['quantity'] ?? $data['quantity'] ?? $cartItem['quantity']),
                             'unit' => $addon['unit'] ?? $data['unit'] ?? $cartItem['unit'],
-                            'rate' => floatval($addon['rate'] ?? 0),
-                            'amount' => floatval($addon['amount'] ?? 0),
+                            'base_rate' => floatval($addon['rate'] ?? 0),
+                            'selling_rate' => floatval($addon['rate'] ?? 0),
+                            'offer_id' => null,
+                            'offer_discount' => 0,
+                            'final_amount' => floatval($addon['amount'] ?? 0),
                             'room_length' => $data['room_length'] ?? $cartItem['room_length'],
                             'room_width' => $data['room_width'] ?? $cartItem['room_width'],
                             'description' => $addon['description'] ?? null,

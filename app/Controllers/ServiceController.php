@@ -59,7 +59,6 @@ class ServiceController extends BaseController
                 'care_instructions'   => $this->request->getVar('care_instructions'),
                 'warranty_details'    => $this->request->getVar('warranty_details'),
                 'quality_promise'     => $this->request->getVar('quality_promise'),
-                'status'              => $this->request->getVar('status'),
                 'image'               => $this->request->getVar('image'),
                 'primary_key'         => $this->request->getVar('primary_key'),
                 'secondary_key'       => $this->request->getVar('secondary_key'),
@@ -475,20 +474,55 @@ class ServiceController extends BaseController
                 return $this->failNotFound('Service not found.');
             }
 
-            // Fetch associated room IDs
+            $originalPrice = (float) ($service['price'] ?? $service['rate']) ?? 0;
+
+            // 2️⃣ Room IDs
             $roomIds = $this->serviceRoomModel
-                ->where('service_id', $id)
+                ->where('service_id', $service['id'])
                 ->select('room_id')
                 ->findAll();
 
             $service['room_ids'] = array_column($roomIds, 'room_id');
 
-            // Fetch all add-ons (flat list)
+            // 3️⃣ Get Best Active Offer
+            $offerModel = new \App\Models\ServiceOfferModel();
+
+            $bestOffer = $offerModel->getActiveOffer(
+                $service['id'],
+                $service['service_type_id']
+            );
+
+            $discountedServicePrice = $offerModel->applyDiscount(
+                $originalPrice,
+                $bestOffer
+            );
+
+            $service['original_price'] = $originalPrice;
+            $service['discounted_rate'] = round($discountedServicePrice, 2);
+            $service['offer'] = $bestOffer ?? null;
+
+            // 4️⃣ Fetch Addons
             $addonModel = new \App\Models\ServiceAddonModel();
+
             $addons = $addonModel
-                ->where('service_id', $id)
+                ->where('service_id', $service['id'])
                 ->orderBy('group_name', 'asc')
                 ->findAll();
+
+            foreach ($addons as &$addon) {
+
+                $addonOriginal = floatval($addon['price']);
+
+                // Apply SAME service offer to addons
+                $addonDiscounted = $offerModel->applyDiscount(
+                    $addonOriginal,
+                    $bestOffer
+                );
+
+                $addon['original_price'] = $addonOriginal;
+                $addon['discounted_price'] = round($addonDiscounted, 2);
+                $addon['offer'] = $bestOffer ?? null;
+            }
 
             $service['addons'] = $addons;
 
@@ -496,8 +530,9 @@ class ServiceController extends BaseController
                 'status' => 200,
                 'message' => 'Service details retrieved successfully',
                 'data' => $service
-            ], 200);
+            ]);
         } catch (\Exception $e) {
+
             return $this->respond([
                 'status' => 500,
                 'message' => 'Failed to retrieve service details',
@@ -510,14 +545,64 @@ class ServiceController extends BaseController
      * Get service details by slug
      * @param string $slug Service slug
      */
+    // public function showBySlug($slug = null)
+    // {
+    //     try {
+    //         if (!$slug) {
+    //             return $this->failValidationErrors('Slug is required');
+    //         }
+
+    //         // Fetch service details by slug
+    //         $service = $this->serviceModel
+    //             ->select('services.*, service_types.name as service_name')
+    //             ->join('service_types', 'service_types.id = services.service_type_id', 'left')
+    //             ->where('services.slug', $slug)
+    //             ->first();
+
+    //         if (!$service) {
+    //             return $this->failNotFound('Service not found.');
+    //         }
+
+    //         // Fetch associated room IDs
+    //         $roomIds = $this->serviceRoomModel
+    //             ->where('service_id', $service['id'])
+    //             ->select('room_id')
+    //             ->findAll();
+
+    //         $service['room_ids'] = array_column($roomIds, 'room_id');
+
+    //         // Fetch all add-ons (flat list)
+    //         $addonModel = new \App\Models\ServiceAddonModel();
+    //         $addons = $addonModel
+    //             ->where('service_id', $service['id'])
+    //             ->orderBy('group_name', 'asc')
+    //             ->findAll();
+
+    //         $service['addons'] = $addons;
+
+    //         return $this->respond([
+    //             'status' => 200,
+    //             'message' => 'Service details retrieved successfully',
+    //             'data' => $service
+    //         ], 200);
+    //     } catch (\Exception $e) {
+    //         return $this->respond([
+    //             'status' => 500,
+    //             'message' => 'Failed to retrieve service details',
+    //             'error' => $e->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
     public function showBySlug($slug = null)
     {
         try {
+
             if (!$slug) {
                 return $this->failValidationErrors('Slug is required');
             }
 
-            // Fetch service details by slug
+            // 1️⃣ Fetch Service
             $service = $this->serviceModel
                 ->select('services.*, service_types.name as service_name')
                 ->join('service_types', 'service_types.id = services.service_type_id', 'left')
@@ -528,7 +613,9 @@ class ServiceController extends BaseController
                 return $this->failNotFound('Service not found.');
             }
 
-            // Fetch associated room IDs
+            $originalPrice = (float) ($service['price'] ?? $service['rate']) ?? 0;
+
+            // 2️⃣ Room IDs
             $roomIds = $this->serviceRoomModel
                 ->where('service_id', $service['id'])
                 ->select('room_id')
@@ -536,12 +623,45 @@ class ServiceController extends BaseController
 
             $service['room_ids'] = array_column($roomIds, 'room_id');
 
-            // Fetch all add-ons (flat list)
+            // 3️⃣ Get Best Active Offer
+            $offerModel = new \App\Models\ServiceOfferModel();
+
+            $bestOffer = $offerModel->getActiveOffer(
+                $service['id'],
+                $service['service_type_id']
+            );
+
+            $discountedServicePrice = $offerModel->applyDiscount(
+                $originalPrice,
+                $bestOffer
+            );
+
+            $service['original_price'] = $originalPrice;
+            $service['discounted_rate'] = round($discountedServicePrice, 2);
+            $service['offer'] = $bestOffer ?? null;
+
+            // 4️⃣ Fetch Addons
             $addonModel = new \App\Models\ServiceAddonModel();
+
             $addons = $addonModel
                 ->where('service_id', $service['id'])
                 ->orderBy('group_name', 'asc')
                 ->findAll();
+
+            foreach ($addons as &$addon) {
+
+                $addonOriginal = floatval($addon['price']);
+
+                // Apply SAME service offer to addons
+                $addonDiscounted = $offerModel->applyDiscount(
+                    $addonOriginal,
+                    $bestOffer
+                );
+
+                $addon['original_price'] = $addonOriginal;
+                $addon['discounted_price'] = round($addonDiscounted, 2);
+                $addon['offer'] = $bestOffer ?? null;
+            }
 
             $service['addons'] = $addons;
 
@@ -549,8 +669,9 @@ class ServiceController extends BaseController
                 'status' => 200,
                 'message' => 'Service details retrieved successfully',
                 'data' => $service
-            ], 200);
+            ]);
         } catch (\Exception $e) {
+
             return $this->respond([
                 'status' => 500,
                 'message' => 'Failed to retrieve service details',
@@ -558,6 +679,8 @@ class ServiceController extends BaseController
             ], 500);
         }
     }
+
+
 
 
     /**
@@ -675,8 +798,8 @@ class ServiceController extends BaseController
             // 3) Fallback: search both fields (grouped)
             $services = $this->serviceModel
                 ->groupStart()
-                    ->like('name', $keyword)
-                    ->orLike('description', $keyword)
+                ->like('name', $keyword)
+                ->orLike('description', $keyword)
                 ->groupEnd()
                 ->where('status', 1)
                 ->orderBy('name', 'ASC')
@@ -703,5 +826,64 @@ class ServiceController extends BaseController
             ], 500);
         }
     }
-}
 
+
+    // public function findByServiceTypeAndRoom($serviceTypeId, $roomId)
+    // {
+    //     // Fetch the service by type and room
+    //     $service = $this->serviceModel
+    //         ->where('service_type_id', $serviceTypeId)
+    //         ->where('room_id', $roomId)
+    //         ->first();
+
+    //     if (!$service) {
+    //         return $this->response->setJSON([
+    //             'status' => false,
+    //             'message' => 'Service not found'
+    //         ])->setStatusCode(404);
+    //     }
+
+    //     // Fetch active offer for this service, category, or global
+    //     $offerModel = new \App\Models\ServiceOfferModel();
+    //     $targetModel = new \App\Models\ServiceOfferTargetModel();
+
+    //     $today = date('Y-m-d');
+
+    //     $offer = $offerModel
+    //         ->where('is_active', 1)
+    //         ->where('start_date <=', $today)
+    //         ->where('end_date >=', $today)
+    //         ->join('service_offer_targets', 'service_offer_targets.offer_id = service_offers.id')
+    //         ->groupStart()
+    //         ->where('service_offer_targets.service_id', $service['id'])
+    //         ->orWhere('service_offer_targets.category_id', $service['service_type_id'])
+    //         ->orWhere('service_offer_targets.target_type', 'global')
+    //         ->groupEnd()
+    //         ->orderBy('service_offers.priority', 'DESC')
+    //         ->orderBy('service_offers.id', 'DESC')
+    //         ->first();
+
+    //     // Calculate discounted_rate if offer exists
+    //     $discountedRate = null;
+    //     if ($offer) {
+    //         $price = isset($service['price']) ? $service['price'] : (isset($service['rate']) ? $service['rate'] : 0);
+    //         if ($offer['discount_type'] === 'percentage') {
+    //             $discountedRate = $price - ($price * $offer['discount_value'] / 100);
+    //         } elseif ($offer['discount_type'] === 'flat') {
+    //             $discountedRate = $price - $offer['discount_value'];
+    //         }
+    //         // Add more discount types if needed
+    //     }
+
+    //     // Add offer and discounted_rate to response
+    //     $service['offer'] = $offer;
+    //     $service['discounted_rate'] = $discountedRate;
+
+    //     return $this->response->setJSON([
+    //         'status' => true,
+    //         'data' => $service
+    //     ]);
+    // }
+
+    // ...existing code...
+}

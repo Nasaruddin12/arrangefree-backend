@@ -63,6 +63,25 @@ class CreateBookingServicesTable extends Migration
                 'constraint' => '10,2',
                 'default'    => 0.00,
             ],
+            'base_rate' => [
+                'type'       => 'DECIMAL',
+                'constraint' => '10,2',
+                'null'       => true,
+            ],
+            'base_amount' => [
+                'type'       => 'DECIMAL',
+                'constraint' => '12,2',
+                'null'       => true,
+            ],
+            'offer_id' => [
+                'type'       => 'INT',
+                'null'       => true,
+            ],
+            'offer_discount' => [
+                'type'       => 'DECIMAL',
+                'constraint' => '12,2',
+                'default'    => 0,
+            ],
 
             'unit' => [
                 'type'       => 'ENUM',
@@ -80,6 +99,31 @@ class CreateBookingServicesTable extends Migration
                 'constraint' => '10,2',
                 'default'    => 0.00,
                 'comment'    => 'quantity × rate',
+            ],
+            'cgst_rate' => [
+                'type'       => 'DECIMAL',
+                'constraint' => '5,2',
+                'default'    => 0,
+            ],
+            'sgst_rate' => [
+                'type'       => 'DECIMAL',
+                'constraint' => '5,2',
+                'default'    => 0,
+            ],
+            'cgst_amount' => [
+                'type'       => 'DECIMAL',
+                'constraint' => '12,2',
+                'default'    => 0,
+            ],
+            'sgst_amount' => [
+                'type'       => 'DECIMAL',
+                'constraint' => '12,2',
+                'default'    => 0,
+            ],
+            'total_amount' => [
+                'type'       => 'DECIMAL',
+                'constraint' => '12,2',
+                'default'    => 0,
             ],
 
             'room_length' => [

@@ -16,7 +16,10 @@ class BookingsModel extends Model
         'user_id',
         'slot_date',
         'subtotal_amount',
-        'discount',
+        'total_discount',
+        'total_offer_discount',
+        'total_coupon_discount',
+        'coupon_id',
         'cgst',
         'sgst',
         'cgst_rate',
@@ -41,26 +44,32 @@ class BookingsModel extends Model
      * Validation Rules
      */
     protected $validationRules = [
-        'user_id'        => 'required|integer',
-        'slot_date'      => 'required|valid_date[Y-m-d]',  // Ensures slot_date is a valid date
-        'subtotal_amount'   => 'required|decimal',
-        'discount'       => 'required|decimal',
-        'final_amount'   => 'required|decimal',
-        'status'         => 'required|in_list[pending,confirmed,in_progress,completed,cancelled]',
-        'applied_coupon' => 'permit_empty|string|max_length[50]',
+        'user_id'                => 'required|integer',
+        'slot_date'              => 'required|valid_date[Y-m-d]',  // Ensures slot_date is a valid date
+        'subtotal_amount'        => 'required|decimal',
+        'total_discount'         => 'required|decimal',
+        'total_offer_discount'   => 'permit_empty|decimal',
+        'total_coupon_discount'  => 'permit_empty|decimal',
+        'coupon_id'              => 'permit_empty|integer',
+        'final_amount'           => 'required|decimal',
+        'status'                 => 'required|in_list[pending,confirmed,in_progress,completed,cancelled]',
+        'applied_coupon'         => 'permit_empty|string|max_length[50]',
     ];
 
     /**
      * Custom Validation Messages
      */
     protected $validationMessages = [
-        'user_id'        => ['required' => 'User ID is required.', 'integer' => 'User ID must be a number.'],
-        'slot_date'      => ['required' => 'Slot Date is required.', 'valid_date' => 'Slot Date must be in YYYY-MM-DD format.'],
-        'subtotal_amount'   => ['required' => 'Subtotal Amount is required.', 'decimal' => 'Subtotal Amount must be a decimal value.'],
-        'discount'       => ['required' => 'Discount is required.', 'decimal' => 'Discount must be a decimal value.'],
-        'final_amount'   => ['required' => 'Final Amount is required.', 'decimal' => 'Final Amount must be a decimal value.'],
-        'status'         => ['required' => 'Status is required.', 'in_list' => 'Invalid status value.'],
-        'applied_coupon' => ['max_length' => 'Coupon code cannot exceed 50 characters.'],
+        'user_id'                => ['required' => 'User ID is required.', 'integer' => 'User ID must be a number.'],
+        'slot_date'              => ['required' => 'Slot Date is required.', 'valid_date' => 'Slot Date must be in YYYY-MM-DD format.'],
+        'subtotal_amount'        => ['required' => 'Subtotal Amount is required.', 'decimal' => 'Subtotal Amount must be a decimal value.'],
+        'total_discount'         => ['required' => 'Total Discount is required.', 'decimal' => 'Total Discount must be a decimal value.'],
+        'total_offer_discount'   => ['decimal' => 'Total Offer Discount must be a decimal value.'],
+        'total_coupon_discount'  => ['decimal' => 'Total Coupon Discount must be a decimal value.'],
+        'coupon_id'              => ['integer' => 'Coupon ID must be a number.'],
+        'final_amount'           => ['required' => 'Final Amount is required.', 'decimal' => 'Final Amount must be a decimal value.'],
+        'status'                 => ['required' => 'Status is required.', 'in_list' => 'Invalid status value.'],
+        'applied_coupon'         => ['max_length' => 'Coupon code cannot exceed 50 characters.'],
     ];
 
     /**
