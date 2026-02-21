@@ -2715,16 +2715,22 @@ class BookingController extends ResourceController
 
             // Fallback to Razorpay Order if payment not found
             if (!$existingPayment && $orderId) {
-                $orderRow = $this->db->table('razorpay_orders')->where('order_id', $orderId)->get()->getRowArray();
+                $orderRow = $this->db->table('razorpay_orders')->where('razorpay_order_id', $orderId)->get()->getRowArray();
                 $bookingId = $orderRow['booking_id'] ?? null;
 
                 // Update payment_id in razorpay_orders
                 if ($orderRow) {
-                    $this->db->table('razorpay_orders')->where('id', $orderRow['id'])->update([
+                    $updateData = [
                         'payment_id' => $paymentId,
                         'status'     => $status === 'captured' ? 'paid' : 'failed',
-                        'updated_at' => date('Y-m-d H:i:s'),
-                    ]);
+                    ];
+
+                    // Keep compatible with schemas where updated_at may not exist.
+                    if ($this->db->fieldExists('updated_at', 'razorpay_orders')) {
+                        $updateData['updated_at'] = date('Y-m-d H:i:s');
+                    }
+
+                    $this->db->table('razorpay_orders')->where('id', $orderRow['id'])->update($updateData);
                 }
             }
 
