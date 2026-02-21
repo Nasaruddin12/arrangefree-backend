@@ -1122,8 +1122,14 @@ class BookingController extends ResourceController
                 $bookingStatus = ($razorpayStatus === 'captured') ? 'confirmed' : 'pending';
             }
 
-            // Fetch Booking
-            $booking = $this->bookingsModel->where('id', $data['booking_id'])->first();
+            // Fetch booking by numeric ID or booking_code
+            $bookingRef = $data['booking_id'];
+            $booking = $this->bookingsModel
+                ->groupStart()
+                ->where('id', $bookingRef)
+                ->orWhere('booking_code', $bookingRef)
+                ->groupEnd()
+                ->first();
             if (!$booking) {
                 return $this->failNotFound('Booking not found.');
             }
@@ -2585,8 +2591,14 @@ class BookingController extends ResourceController
             //     ]);
             // }
 
-            // Fetch Booking
-            $booking = $this->bookingsModel->where('id', $data['booking_id'])->first();
+            // Fetch booking by numeric ID or booking_code
+            $bookingRef = $data['booking_id'];
+            $booking = $this->bookingsModel
+                ->groupStart()
+                ->where('id', $bookingRef)
+                ->orWhere('booking_code', $bookingRef)
+                ->groupEnd()
+                ->first();
             if (!$booking) {
                 $this->db->transRollback();
                 return $this->failNotFound('Booking not found.');
