@@ -1047,10 +1047,10 @@ class BookingController extends ResourceController
             $data = $this->request->getJSON(true);
 
             // Validate Required Fields
-            if (empty($data['razorpay_payment_id'])) {
+            if (empty($data['razorpay_payment_id']) || empty($data['booking_id'])) {
                 return $this->failValidationErrors([
                     'status'  => 400,
-                    'message' => 'Missing required payment details.',
+                    'message' => 'Missing required payment details (razorpay_payment_id, booking_id).',
                 ]);
             }
 
@@ -1063,6 +1063,20 @@ class BookingController extends ResourceController
             if (!$payment) {
                 return $this->failNotFound('Payment not found.');
             }
+
+            // Resolve booking by numeric ID or booking_code
+            $bookingRef = $data['booking_id'];
+            $booking = $this->bookingsModel
+                ->groupStart()
+                ->where('id', $bookingRef)
+                ->orWhere('booking_code', $bookingRef)
+                ->groupEnd()
+                ->first();
+            if (!$booking) {
+                return $this->failNotFound('Booking not found.');
+            }
+
+            $paymentUserId = !empty($data['user_id']) ? (int) $data['user_id'] : (int) $booking['user_id'];
 
             $paymentMethod = $payment->method ?? 'razorpay';
             $razorpayStatus = $payment->status; // "created", "authorized", "captured", "failed"
@@ -1093,9 +1107,9 @@ class BookingController extends ResourceController
                     log_message('error', 'Payment Signature Verification Failed: ' . $e->getMessage());
 
                     // Store failed payment record
-                    $this->bookingPaymentsModel->insert([
-                        'booking_id'         => $data['booking_id'],
-                        'user_id'            => $data['user_id'],
+                    $failedInsert = $this->bookingPaymentsModel->insert([
+                        'booking_id'         => $booking['id'],
+                        'user_id'            => $paymentUserId,
                         'payment_gateway'    => 'razorpay',
                         'payment_method'     => $paymentMethod,
                         'gateway_payment_id' => $data['razorpay_payment_id'],
@@ -1104,6 +1118,9 @@ class BookingController extends ResourceController
                         'status'             => 'failed',
                         'created_at'         => date('Y-m-d H:i:s'),
                     ]);
+                    if ($failedInsert === false) {
+                        log_message('error', 'Failed payment insert error: ' . json_encode($this->bookingPaymentsModel->errors()));
+                    }
 
                     return $this->failValidationErrors([
                         'status'    => 400,
@@ -1120,18 +1137,6 @@ class BookingController extends ResourceController
 
                 $paymentStatus = ($razorpayStatus === 'captured') ? 'completed' : 'pending';
                 $bookingStatus = ($razorpayStatus === 'captured') ? 'confirmed' : 'pending';
-            }
-
-            // Fetch booking by numeric ID or booking_code
-            $bookingRef = $data['booking_id'];
-            $booking = $this->bookingsModel
-                ->groupStart()
-                ->where('id', $bookingRef)
-                ->orWhere('booking_code', $bookingRef)
-                ->groupEnd()
-                ->first();
-            if (!$booking) {
-                return $this->failNotFound('Booking not found.');
             }
 
             $amounts = $this->calculateBookingAmounts(
@@ -1151,12 +1156,12 @@ class BookingController extends ResourceController
             ]);
 
             if ($amounts['payment_status'] === 'completed') {
-                $this->seebCartModel->where('user_id', $data['user_id'])->delete();
+                $this->seebCartModel->where('user_id', $paymentUserId)->delete();
             }
             // Store Payment Record
             $paymentData = [
                 'booking_id'         => $booking['id'],
-                'user_id'            => $data['user_id'],
+                'user_id'            => $paymentUserId,
                 'payment_gateway'    => 'razorpay',
                 'payment_method'     => $paymentMethod,
                 'gateway_payment_id' => $data['razorpay_payment_id'],
@@ -1166,7 +1171,14 @@ class BookingController extends ResourceController
                 'paid_at'            => $amounts['payment_status'] === 'completed' ? date('Y-m-d H:i:s') : null,
                 'created_at'         => date('Y-m-d H:i:s'),
             ];
-            $this->bookingPaymentsModel->insert($paymentData);
+            $inserted = $this->bookingPaymentsModel->insert($paymentData);
+            if ($inserted === false) {
+                return $this->failValidationErrors([
+                    'status' => 400,
+                    'message' => 'Failed to store payment record.',
+                    'errors' => $this->bookingPaymentsModel->errors(),
+                ]);
+            }
 
             return $this->respond([
                 'status'    => 200,
@@ -2621,7 +2633,7 @@ class BookingController extends ResourceController
             // Store Payment Record
             $paymentData = [
                 'booking_id'         => $booking['id'],
-                'user_id'            => $data['user_id'],
+                'user_id'            => !empty($data['user_id']) ? (int) $data['user_id'] : (int) $booking['user_id'],
                 'payment_gateway'    => 'manual',
                 'payment_method'     => strtolower($data['payment_method']),
                 'gateway_payment_id' => $data['transaction_id'] ?? null,
@@ -2631,7 +2643,15 @@ class BookingController extends ResourceController
                 'paid_at'            => date('Y-m-d H:i:s'),
                 'created_at'         => date('Y-m-d H:i:s'),
             ];
-            $this->bookingPaymentsModel->insert($paymentData);
+            $manualInserted = $this->bookingPaymentsModel->insert($paymentData);
+            if ($manualInserted === false) {
+                $this->db->transRollback();
+                return $this->failValidationErrors([
+                    'status' => 400,
+                    'message' => 'Failed to store manual payment record.',
+                    'errors' => $this->bookingPaymentsModel->errors(),
+                ]);
+            }
 
             // Complete Transaction
             $this->db->transComplete();
