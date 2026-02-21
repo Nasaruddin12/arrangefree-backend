@@ -135,4 +135,28 @@ class FaqCategoryController extends ResourceController
             return $this->failServerError('Something went wrong: ' . $e->getMessage());
         }
     }
+
+    // List all categories with FAQ count
+    public function listWithFaqCount()
+    {
+        try {
+            $db = \Config\Database::connect();
+
+            $categories = $db->table('faq_categories fc')
+                ->select('fc.id, fc.name, fc.status, COUNT(f.id) AS faq_count')
+                ->join('faqs f', 'f.category_id = fc.id AND f.service_id IS NULL AND f.status = 1', 'left')
+                ->groupBy('fc.id')
+                ->orderBy('fc.name', 'ASC')
+                ->get()
+                ->getResultArray();
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'FAQ categories with FAQ count fetched successfully',
+                'data' => $categories
+            ]);
+        } catch (Exception $e) {
+            return $this->failServerError('Something went wrong: ' . $e->getMessage());
+        }
+    }
 }

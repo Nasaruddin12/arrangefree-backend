@@ -1556,12 +1556,13 @@ class PartnerController extends BaseController
     {
         try {
             $db = \Config\Database::connect();
-            // Get mobiles in partner_otps not present in partners table
+            // Get unique mobiles in partner_otps not present in partners table
             $builder = $db->table('partner_otps');
-            $builder->select('mobile, otp, expires_at, created_at');
+            $builder->select('mobile, MAX(otp) as otp, MAX(expires_at) as expires_at, MAX(created_at) as created_at');
             $builder->whereNotIn('mobile', function($sub) {
                 $sub->select('mobile')->from('partners')->where('deleted_at', null);
             });
+            $builder->groupBy('mobile');
             $unregistered = $builder->get()->getResultArray();
             return $this->respond([
                 'status' => 200,

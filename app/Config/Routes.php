@@ -109,6 +109,8 @@ $routes->group('admin', static function ($routes) {
         $routes->post('service-offers/create', 'ServiceOfferController::create');
         $routes->post('service-offers/update/(:num)', 'ServiceOfferController::update/$1');
         $routes->get('service-offers/list', 'ServiceOfferController::list');
+        $routes->delete('service-offers/delete/(:num)', 'ServiceOfferController::delete/$1');
+        $routes->post('service-offers/status/(:num)', 'ServiceOfferController::changeStatus/$1');
     });
 });
 
@@ -338,6 +340,7 @@ $routes->group('faqs', function ($routes) {
         $routes->put('(:num)', 'FaqController::update/$1');  // Update FAQ
         $routes->delete('(:num)', 'FaqController::delete/$1');  // Delete FAQ
         $routes->get('category/(:num)', 'FaqController::getFaqsByCategory/$1'); // Get FAQs by category
+        $routes->get('services-with-count', 'FaqController::listServicesWithFaqCount');
     });
     $routes->get('service/(:num)', 'FaqController::listForService/$1');
     $routes->get('service/(:any)', 'FaqController::listForService/$1');
@@ -346,6 +349,7 @@ $routes->group('faqs', function ($routes) {
 // FAQ Categories
 $routes->group('faqs-category', function ($routes) {
     $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
+        $routes->get('with-count', 'FaqCategoryController::listWithFaqCount');
         $routes->get('/', 'FaqCategoryController::index');  // Get all categories
         $routes->post('/', 'FaqCategoryController::create');  // Create category
         $routes->get('(:num)', 'FaqCategoryController::show/$1'); // Get single category

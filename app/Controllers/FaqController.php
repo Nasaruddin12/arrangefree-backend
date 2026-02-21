@@ -193,4 +193,28 @@ class FaqController extends ResourceController
             return $this->failServerError('Something went wrong: ' . $e->getMessage());
         }
     }
+
+    public function listServicesWithFaqCount()
+    {
+        try {
+            $db = \Config\Database::connect();
+
+            $services = $db->table('services s')
+                ->select('s.id, s.name, s.slug, s.status, COUNT(f.id) AS faq_count')
+                ->join('faqs f', 'f.service_id = s.id AND f.category_id IS NULL AND f.status = 1', 'left')
+                ->where('s.deleted_at', null)
+                ->groupBy('s.id')
+                ->orderBy('s.name', 'ASC')
+                ->get()
+                ->getResultArray();
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Services with FAQ count fetched successfully',
+                'data' => $services
+            ]);
+        } catch (\Exception $e) {
+            return $this->failServerError('Something went wrong: ' . $e->getMessage());
+        }
+    }
 }
