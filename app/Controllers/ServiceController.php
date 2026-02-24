@@ -760,6 +760,7 @@ class ServiceController extends BaseController
             // Ensure we read from GET explicitly and trim input
             $keyword = $this->request->getGet('search');
             $keyword = is_string($keyword) ? trim($keyword) : '';
+            $offerModel = new \App\Models\ServiceOfferModel();
 
             if ($keyword === '' || strlen($keyword) < 2) {
                 return $this->failValidationErrors('Search keyword must be at least 2 characters long.');
@@ -773,6 +774,7 @@ class ServiceController extends BaseController
                 ->findAll();
 
             if (!empty($services)) {
+                $services = $this->attachOfferDataToServices($services, $offerModel);
                 return $this->respond([
                     'status' => 200,
                     'message' => 'Services found (matched name)',
@@ -788,6 +790,7 @@ class ServiceController extends BaseController
                 ->findAll();
 
             if (!empty($services)) {
+                $services = $this->attachOfferDataToServices($services, $offerModel);
                 return $this->respond([
                     'status' => 200,
                     'message' => 'Services found (matched description)',
@@ -813,6 +816,7 @@ class ServiceController extends BaseController
                 ], 200);
             }
 
+            $services = $this->attachOfferDataToServices($services, $offerModel);
             return $this->respond([
                 'status' => 200,
                 'message' => 'Services found (fallback search)',
@@ -825,6 +829,27 @@ class ServiceController extends BaseController
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Attach active offer and discounted price details to each service result.
+     */
+    private function attachOfferDataToServices(array $services, \App\Models\ServiceOfferModel $offerModel): array
+    {
+        foreach ($services as &$service) {
+            $originalPrice = (float) ($service['rate'] ?? $service['price'] ?? 0);
+            $bestOffer = $offerModel->getActiveOffer(
+                $service['id'] ?? null,
+                $service['service_type_id'] ?? null
+            );
+
+            $service['original_price'] = $originalPrice;
+            $service['discounted_rate'] = round($offerModel->applyDiscount($originalPrice, $bestOffer), 2);
+            $service['offer'] = $bestOffer ?? null;
+        }
+        unset($service);
+
+        return $services;
     }
 
 
