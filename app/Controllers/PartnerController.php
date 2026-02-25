@@ -1030,10 +1030,18 @@ class PartnerController extends BaseController
                 $partnerId = $partnerModel->getInsertID();
                 log_message('error', 'Partner insert result: ' . var_export($insertResult, true));
                 log_message('error', 'Partner getInsertID: ' . var_export($partnerId, true));
-                // log_message('error', 'Last query: ' . $partnerModel->getLastQuery());
-                log_message('error', 'DB error: ' . json_encode($db->error()));
-                if (!$partnerId || $partnerId == 0) {
-                    throw new \Exception('Partner insert failed, partner_id is 0', 500);
+                $dbError = $db->error();
+                log_message('error', 'DB error: ' . json_encode($dbError));
+                if ((!$partnerId || $partnerId == 0) && !empty($dbError['message'])) {
+                    // If DB error is about NOT NULL column, return a validation error
+                    if (strpos($dbError['message'], 'cannot be null') !== false) {
+                        preg_match("/Column '([^']+)' cannot be null/", $dbError['message'], $matches);
+                        $column = $matches[1] ?? 'unknown';
+                        throw new \Exception(json_encode([
+                            $column => ucfirst($column) . ' is required and cannot be null.'
+                        ]), 422);
+                    }
+                    throw new \Exception('Partner insert failed: ' . $dbError['message'], 500);
                 }
             }
 
