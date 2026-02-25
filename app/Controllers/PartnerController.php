@@ -1030,7 +1030,8 @@ class PartnerController extends BaseController
                 $partnerId = $partnerModel->getInsertID();
                 log_message('error', 'Partner insert result: ' . var_export($insertResult, true));
                 log_message('error', 'Partner getInsertID: ' . var_export($partnerId, true));
-                log_message('error', 'Last query: ' . $partnerModel->getLastQuery());
+                // log_message('error', 'Last query: ' . $partnerModel->getLastQuery());
+                log_message('error', 'DB error: ' . json_encode($db->error()));
                 if (!$partnerId || $partnerId == 0) {
                     throw new \Exception('Partner insert failed, partner_id is 0', 500);
                 }
