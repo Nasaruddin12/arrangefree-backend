@@ -1016,6 +1016,7 @@ class PartnerController extends BaseController
             $partnerModel->setValidationRules($rules);
 
             if (!$partnerModel->validate($partnerData)) {
+                log_message('error', 'Partner validation errors: ' . json_encode($partnerModel->errors()));
                 throw new \Exception(json_encode($partnerModel->errors()), 422);
             }
 
