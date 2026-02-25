@@ -1025,8 +1025,13 @@ class PartnerController extends BaseController
             if ($isUpdate) {
                 $partnerModel->update($partnerId, $partnerData);
             } else {
-                $partnerModel->insert($partnerData);
+                $insertResult = $partnerModel->insert($partnerData);
                 $partnerId = $partnerModel->getInsertID();
+                log_message('error', 'Partner insert result: ' . var_export($insertResult, true));
+                log_message('error', 'Partner getInsertID: ' . var_export($partnerId, true));
+                if (!$partnerId || $partnerId == 0) {
+                    throw new \Exception('Partner insert failed, partner_id is 0', 500);
+                }
             }
 
             /* ---------------------------------------------------
@@ -1548,7 +1553,7 @@ class PartnerController extends BaseController
             'data'   => $result
         ]);
     }
-        /**
+    /**
      * Get list of unregistered partners (present in partner_otps but not in partners table)
      * GET /admin/partner/unregistered
      */
@@ -1559,7 +1564,7 @@ class PartnerController extends BaseController
             // Get unique mobiles in partner_otps not present in partners table
             $builder = $db->table('partner_otps');
             $builder->select('mobile, MAX(otp) as otp, MAX(expires_at) as expires_at, MAX(created_at) as created_at');
-            $builder->whereNotIn('mobile', function($sub) {
+            $builder->whereNotIn('mobile', function ($sub) {
                 $sub->select('mobile')->from('partners')->where('deleted_at', null);
             });
             $builder->groupBy('mobile');
