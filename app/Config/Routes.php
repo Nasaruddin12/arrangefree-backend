@@ -69,6 +69,8 @@ $routes->group('customer', static function ($routes) {
         $routes->get('deleteCustomer/(:num)', 'CustomerController::deleteCustomer/$1');
         $routes->post('getAllContactUs', 'CustomerController::getAllContactUs');
         $routes->put('updateRemark/(:num)', 'CustomerController::updateRemark/$1');
+        $routes->get('user-access/requests', 'AdminUserAccessController::userAccessRequests');
+        $routes->put('user-access/request/(:num)/(:segment)', 'AdminUserAccessController::userRespondRequest/$1/$2');
     });
 });
 
@@ -111,6 +113,14 @@ $routes->group('admin', static function ($routes) {
         $routes->get('service-offers/list', 'ServiceOfferController::list');
         $routes->delete('service-offers/delete/(:num)', 'ServiceOfferController::delete/$1');
         $routes->post('service-offers/status/(:num)', 'ServiceOfferController::changeStatus/$1');
+
+        $routes->post('user-access/request', 'AdminUserAccessController::createRequest');
+        $routes->get('user-access/requests', 'AdminUserAccessController::listRequests');
+        $routes->put('user-access/request/(:num)/status', 'AdminUserAccessController::updateRequestStatus/$1');
+        $routes->post('user-access/login', 'AdminUserAccessController::impersonationLogin');
+        $routes->post('user-access/logout', 'AdminUserAccessController::impersonationLogout');
+        $routes->get('user-access/session/validate', 'AdminUserAccessController::validateSession');
+        $routes->get('user-access/logs', 'AdminUserAccessController::logs');
     });
 });
 
