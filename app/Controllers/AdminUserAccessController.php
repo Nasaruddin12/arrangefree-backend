@@ -476,6 +476,7 @@ class AdminUserAccessController extends BaseController
             $offset = ($page - 1) * $limit;
 
             $status = (string) ($this->request->getVar('status') ?? '');
+            $allowedStatuses = ['pending', 'approved'];
 
             $builder = $this->requestModel
                 ->select('admin_user_access_requests.*, admins.name as admin_name, admins.mobile_no as admin_mobile')
@@ -483,8 +484,10 @@ class AdminUserAccessController extends BaseController
                 ->where('admin_user_access_requests.user_id', $customerId)
                 ->orderBy('admin_user_access_requests.id', 'DESC');
 
-            if ($status !== '' && in_array($status, ['pending', 'approved', 'rejected', 'expired'], true)) {
+            if ($status !== '' && in_array($status, $allowedStatuses, true)) {
                 $builder->where('admin_user_access_requests.status', $status);
+            } else {
+                $builder->whereIn('admin_user_access_requests.status', $allowedStatuses);
             }
 
             $total = $builder->countAllResults(false);
@@ -520,14 +523,17 @@ class AdminUserAccessController extends BaseController
             }
 
             $decision = strtolower((string) ($decision ?? $this->request->getVar('decision') ?? $this->request->getVar('status')));
-            if (!in_array($decision, ['approve', 'approved', 'reject', 'rejected'], true)) {
+            if (!in_array($decision, ['approve', 'approved', 'reject', 'rejected', 'revoke', 'revoked'], true)) {
                 return $this->respond([
                     'status' => 422,
-                    'message' => 'decision/status must be approve or reject.',
+                    'message' => 'decision/status must be approve, reject, or revoke.',
                 ], 422);
             }
 
-            $targetStatus = in_array($decision, ['approve', 'approved'], true) ? 'approved' : 'rejected';
+            $isApprove = in_array($decision, ['approve', 'approved'], true);
+            $isReject = in_array($decision, ['reject', 'rejected'], true);
+            $isRevoke = in_array($decision, ['revoke', 'revoked'], true);
+            $targetStatus = $isApprove ? 'approved' : ($isReject ? 'rejected' : 'expired');
 
             $requestRow = $this->requestModel
                 ->where('id', $requestId)
@@ -538,10 +544,18 @@ class AdminUserAccessController extends BaseController
                 return $this->respond(['status' => 404, 'message' => 'Access request not found.'], 404);
             }
 
-            if ($requestRow['status'] !== 'pending') {
+            if ($isRevoke) {
+                if ($requestRow['status'] !== 'approved') {
+                    return $this->respond([
+                        'status' => 409,
+                        'message' => 'Only approved requests can be revoked.',
+                        'data' => ['current_status' => $requestRow['status']],
+                    ], 409);
+                }
+            } elseif ($requestRow['status'] !== 'pending') {
                 return $this->respond([
                     'status' => 409,
-                    'message' => 'Only pending requests can be approved.',
+                    'message' => 'Only pending requests can be approved or rejected.',
                     'data' => ['current_status' => $requestRow['status']],
                 ], 409);
             }
@@ -560,16 +574,25 @@ class AdminUserAccessController extends BaseController
                 }
                 $updateData['approved_at'] = date('Y-m-d H:i:s');
                 $updateData['expires_at'] = $expiresAt;
+            } elseif ($isRevoke) {
+                $expiresAt = date('Y-m-d H:i:s');
+                $updateData['expires_at'] = $expiresAt;
             }
 
             $this->requestModel->update($requestId, $updateData);
 
-            $this->logActivity(
-                (int) $requestRow['admin_id'],
-                $customerId,
-                $targetStatus === 'approved' ? 'request_approved_by_user' : 'request_rejected_by_user',
-                'User ' . $targetStatus . ' access request #' . $requestId
-            );
+            if ($isRevoke) {
+                $this->sessionModel
+                    ->where('access_request_id', $requestId)
+                    ->where('admin_id', (int) $requestRow['admin_id'])
+                    ->set(['is_active' => 0])
+                    ->update();
+            }
+
+            $action = $isApprove
+                ? 'request_approved_by_user'
+                : ($isReject ? 'request_rejected_by_user' : 'request_revoked_by_user');
+            $this->logActivity((int) $requestRow['admin_id'], $customerId, $action, 'User ' . $targetStatus . ' access request #' . $requestId);
 
             return $this->respond([
                 'status' => 200,
