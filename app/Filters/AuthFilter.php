@@ -42,12 +42,12 @@ class AuthFilter implements FilterInterface
         // check if token is null or empty
         if (is_null($token) || empty($token)) {
             $response = service('response');
-            $response->setStatusCode(401);
-            $response->setBody(json_encode([
+            return $response
+                ->setStatusCode(401)
+                ->setJSON([
                 'success' => false,
                 'message' => 'No token provided'
-            ]));
-            return $response;
+            ]);
         }
         
         try {
@@ -59,9 +59,13 @@ class AuthFilter implements FilterInterface
             $session->set('auth_user', (array) $decoded);
         } catch (Exception $ex) {
             $response = service('response');
-            $response->setBody('Access denied');
-            $response->setStatusCode(401);
-            return $response;
+            return $response
+                ->setStatusCode(401)
+                ->setJSON([
+                    'success' => false,
+                    'message' => 'Access denied',
+                    'error' => 'Invalid or expired token'
+                ]);
         }
     }
 
