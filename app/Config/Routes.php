@@ -121,6 +121,7 @@ $routes->group('admin', static function ($routes) {
         $routes->post('user-access/logout', 'AdminUserAccessController::impersonationLogout');
         $routes->get('user-access/session/validate', 'AdminUserAccessController::validateSession');
         $routes->get('user-access/logs', 'AdminUserAccessController::logs');
+        $routes->get('user-access/request/(:num)/logs', 'AdminUserAccessController::requestLogs/$1');
     });
 });
 

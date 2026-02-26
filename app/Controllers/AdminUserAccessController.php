@@ -394,6 +394,75 @@ class AdminUserAccessController extends BaseController
         }
     }
 
+    public function requestLogs($id)
+    {
+        try {
+            $adminId = $this->getAdminIdFromToken();
+            if ($adminId <= 0) {
+                return $this->respond(['status' => 401, 'message' => 'Unauthorized admin token.'], 401);
+            }
+
+            $requestId = (int) $id;
+            if ($requestId <= 0) {
+                return $this->respond(['status' => 422, 'message' => 'Valid request id is required.'], 422);
+            }
+
+            $requestRow = $this->requestModel
+                ->where('id', $requestId)
+                // ->where('admin_id', $adminId)
+                ->first();
+
+            if (!$requestRow) {
+                return $this->respond(['status' => 404, 'message' => 'Access request not found.'], 404);
+            }
+
+            $page = max(1, (int) ($this->request->getVar('page') ?? 1));
+            $limit = max(1, (int) ($this->request->getVar('limit') ?? 20));
+            $offset = ($page - 1) * $limit;
+            $action = (string) ($this->request->getVar('action') ?? '');
+            $sessionIds = $this->sessionModel
+                ->select('id')
+                ->where('access_request_id', $requestId)
+                // ->where('admin_id', $adminId)
+                ->findColumn('id') ?? [];
+
+            $builder = $this->activityModel
+                // ->where('admin_id', $adminId)
+                ->where('user_id', (int) $requestRow['user_id'])
+                ->groupStart()
+                ->like('description', '#' . $requestId);
+
+            foreach ($sessionIds as $sessionId) {
+                $builder->orLike('description', 'session #' . (int) $sessionId);
+            }
+
+            $builder->groupEnd()
+                ->orderBy('id', 'DESC');
+
+            if ($action !== '') {
+                $builder->where('action', $action);
+            }
+
+            $total = $builder->countAllResults(false);
+            $rows = $builder->findAll($limit, $offset);
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Request logs fetched successfully.',
+                'request_id' => $requestId,
+                'data' => $rows,
+                'pagination' => [
+                    'current_page' => $page,
+                    'per_page' => $limit,
+                    'total_records' => $total,
+                    'total_pages' => (int) ceil($total / $limit),
+                ],
+            ], 200);
+        } catch (Exception $e) {
+            return $this->respond(['status' => 500, 'message' => $e->getMessage()], 500);
+        }
+    }
+
     public function userAccessRequests()
     {
         try {
