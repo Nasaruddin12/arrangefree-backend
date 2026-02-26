@@ -450,26 +450,47 @@ class AdminUserAccessController extends BaseController
                 return $this->respond(['status' => 401, 'message' => 'Unauthorized admin token.'], 401);
             }
 
-            $sessionToken = (string) ($this->request->getVar('session_token') ?? '');
-            if ($sessionToken === '') {
-                return $this->respond(['status' => 422, 'message' => 'session_token is required.'], 422);
+            $requestId = (int) ($this->request->getVar('request_id') ?? 0);
+            if ($requestId <= 0) {
+                return $this->respond(['status' => 422, 'message' => 'request_id is required.'], 422);
             }
 
-            $session = $this->sessionModel
-                ->where('token', $sessionToken)
+            $requestRow = $this->requestModel
+                ->where('id', $requestId)
                 ->where('admin_id', $adminId)
                 ->first();
 
-            if (!$session) {
-                return $this->respond(['status' => 404, 'message' => 'Session not found.'], 404);
+            if (!$requestRow) {
+                return $this->respond(['status' => 404, 'message' => 'Access request not found.'], 404);
             }
 
-            $this->sessionModel->update((int) $session['id'], ['is_active' => 0]);
-            $this->logActivity($adminId, (int) $session['user_id'], 'impersonation_logout', 'Impersonation ended for session #' . $session['id']);
+            $sessions = $this->sessionModel
+                ->where('admin_id', $adminId)
+                ->where('access_request_id', $requestId)
+                ->where('is_active', 1)
+                ->findAll();
+
+            if (!$sessions) {
+                return $this->respond(['status' => 404, 'message' => 'No active session found for this request.'], 404);
+            }
+
+            foreach ($sessions as $session) {
+                $this->sessionModel->update((int) $session['id'], ['is_active' => 0]);
+                $this->logActivity(
+                    $adminId,
+                    (int) $session['user_id'],
+                    'impersonation_logout',
+                    'Impersonation ended for session #' . $session['id'] . ' request #' . $requestId
+                );
+            }
 
             return $this->respond([
                 'status' => 200,
                 'message' => 'Impersonation session closed successfully.',
+                'data' => [
+                    'request_id' => $requestId,
+                    'closed_sessions' => count($sessions),
+                ],
             ], 200);
         } catch (Exception $e) {
             return $this->respond(['status' => 500, 'message' => $e->getMessage()], 500);
