@@ -11,6 +11,7 @@ use App\Models\CustomerModel;
 use CodeIgniter\API\ResponseTrait;
 use Exception;
 use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 class AdminUserAccessController extends BaseController
 {
@@ -276,6 +277,168 @@ class AdminUserAccessController extends BaseController
             ], 200);
         } catch (Exception $e) {
             return $this->respond(['status' => 500, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function createLoginGrant()
+    {
+        try {
+            $adminId = $this->getAdminIdFromToken();
+            if ($adminId <= 0) {
+                return $this->respond(['status' => 401, 'message' => 'Unauthorized admin token.'], 401);
+            }
+
+            $requestId = (int) ($this->request->getVar('request_id') ?? 0);
+            if ($requestId <= 0) {
+                return $this->respond(['status' => 422, 'message' => 'Valid request_id is required.'], 422);
+            }
+
+            $requestRow = $this->requestModel
+                ->where('id', $requestId)
+                ->where('admin_id', $adminId)
+                ->where('status', 'approved')
+                ->first();
+
+            if (!$requestRow) {
+                return $this->respond(['status' => 404, 'message' => 'Approved access request not found.'], 404);
+            }
+
+            if (!empty($requestRow['expires_at']) && strtotime($requestRow['expires_at']) < time()) {
+                $this->requestModel->update($requestId, ['status' => 'expired']);
+                return $this->respond(['status' => 410, 'message' => 'Access request has expired.'], 410);
+            }
+
+            $key = getenv('JWT_SECRET');
+            $iat = time();
+            $exp = $iat + 300;
+            $grantPayload = [
+                'iss' => base_url(),
+                'aud' => 'AdminImpersonationGrant',
+                'sub' => 'Grant for frontend login exchange',
+                'iat' => $iat,
+                'exp' => $exp,
+                'type' => 'impersonation_grant',
+                'admin_id' => $adminId,
+                'request_id' => $requestId,
+            ];
+
+            $grantToken = JWT::encode($grantPayload, $key, 'HS256');
+            $frontendUrl = (string) ($this->request->getVar('redirect_url') ?? '');
+
+            $redirectWithToken = '';
+            if ($frontendUrl !== '') {
+                $separator = str_contains($frontendUrl, '?') ? '&' : '?';
+                $redirectWithToken = $frontendUrl . $separator . 'grant_token=' . urlencode($grantToken);
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Login grant created successfully.',
+                'data' => [
+                    'grant_token' => $grantToken,
+                    'expires_in_seconds' => 300,
+                    'request_id' => $requestId,
+                    'redirect_url' => $redirectWithToken,
+                ],
+            ], 200);
+        } catch (Exception $e) {
+            return $this->respond(['status' => 500, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function loginWithGrant()
+    {
+        try {
+            $grantToken = (string) ($this->request->getVar('grant_token') ?? '');
+            if ($grantToken === '') {
+                return $this->respond(['status' => 422, 'message' => 'grant_token is required.'], 422);
+            }
+
+            $key = getenv('JWT_SECRET');
+            $decoded = JWT::decode($grantToken, new Key($key, 'HS256'));
+            $grant = (array) $decoded;
+
+            if (($grant['aud'] ?? '') !== 'AdminImpersonationGrant' || ($grant['type'] ?? '') !== 'impersonation_grant') {
+                return $this->respond(['status' => 401, 'message' => 'Invalid grant token.'], 401);
+            }
+
+            $adminId = (int) ($grant['admin_id'] ?? 0);
+            $requestId = (int) ($grant['request_id'] ?? 0);
+            if ($adminId <= 0 || $requestId <= 0) {
+                return $this->respond(['status' => 401, 'message' => 'Invalid grant payload.'], 401);
+            }
+
+            $requestRow = $this->requestModel
+                ->where('id', $requestId)
+                ->where('admin_id', $adminId)
+                ->where('status', 'approved')
+                ->first();
+
+            if (!$requestRow) {
+                return $this->respond(['status' => 404, 'message' => 'Approved access request not found.'], 404);
+            }
+
+            if (!empty($requestRow['expires_at']) && strtotime($requestRow['expires_at']) < time()) {
+                $this->requestModel->update($requestId, ['status' => 'expired']);
+                return $this->respond(['status' => 410, 'message' => 'Access request has expired.'], 410);
+            }
+
+            $customer = $this->customerModel->find((int) $requestRow['user_id']);
+            if (!$customer) {
+                return $this->respond(['status' => 404, 'message' => 'User not found.'], 404);
+            }
+
+            $sessionToken = bin2hex(random_bytes(32));
+            $sessionExpiry = !empty($requestRow['expires_at'])
+                ? $requestRow['expires_at']
+                : date('Y-m-d H:i:s', strtotime('+30 minutes'));
+
+            $this->sessionModel->insert([
+                'admin_id' => $adminId,
+                'user_id' => (int) $requestRow['user_id'],
+                'access_request_id' => $requestId,
+                'token' => $sessionToken,
+                'expires_at' => $sessionExpiry,
+                'is_active' => 1,
+            ]);
+
+            $iat = time();
+            $exp = strtotime($sessionExpiry);
+            if ($exp <= $iat) {
+                $exp = $iat + 1800;
+            }
+
+            $payload = [
+                'iss' => base_url(),
+                'aud' => 'AdminImpersonation',
+                'sub' => 'Admin login as user',
+                'iat' => $iat,
+                'exp' => $exp,
+                'admin_id' => $adminId,
+                'customer_id' => (int) $requestRow['user_id'],
+                'request_id' => $requestId,
+                'session_token' => $sessionToken,
+            ];
+
+            $jwtToken = JWT::encode($payload, $key, 'HS256');
+            $this->logActivity($adminId, (int) $requestRow['user_id'], 'impersonation_login', 'Impersonation started for request #' . $requestId);
+
+            unset($customer['password'], $customer['otp']);
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Frontend login successful.',
+                'data' => [
+                    'token' => $jwtToken,
+                    'session_token' => $sessionToken,
+                    'expires_at' => $sessionExpiry,
+                    'request_id' => $requestId,
+                    'access_type' => $requestRow['access_type'],
+                    'user' => $customer,
+                ],
+            ], 200);
+        } catch (Exception $e) {
+            return $this->respond(['status' => 401, 'message' => 'Invalid or expired grant token.'], 401);
         }
     }
 

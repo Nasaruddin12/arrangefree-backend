@@ -86,6 +86,7 @@ $routes->group('admin', static function ($routes) {
     $routes->post('adminSendOTP', 'AdminController::adminSendOTP');
     $routes->post('adminLogin', 'AdminController::adminLogin');
     $routes->post('register', 'AdminController::createAdmin');
+    $routes->post('user-access/login-with-grant', 'AdminUserAccessController::loginWithGrant');
 
     // Protected routes (auth required)
     $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
@@ -117,6 +118,7 @@ $routes->group('admin', static function ($routes) {
         $routes->post('user-access/request', 'AdminUserAccessController::createRequest');
         $routes->get('user-access/requests', 'AdminUserAccessController::listRequests');
         $routes->put('user-access/request/(:num)/status', 'AdminUserAccessController::updateRequestStatus/$1');
+        $routes->post('user-access/create-login-grant', 'AdminUserAccessController::createLoginGrant');
         $routes->post('user-access/login', 'AdminUserAccessController::impersonationLogin');
         $routes->post('user-access/logout', 'AdminUserAccessController::impersonationLogout');
         $routes->get('user-access/session/validate', 'AdminUserAccessController::validateSession');
