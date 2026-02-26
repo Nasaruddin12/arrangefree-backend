@@ -484,6 +484,11 @@ class AdminUserAccessController extends BaseController
                 );
             }
 
+            $this->requestModel->update($requestId, [
+                'status' => 'expired',
+                'expires_at' => date('Y-m-d H:i:s'),
+            ]);
+
             return $this->respond([
                 'status' => 200,
                 'message' => 'Impersonation session closed successfully.',

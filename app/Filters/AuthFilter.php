@@ -2,6 +2,8 @@
 
 namespace App\Filters;
 
+use App\Models\AdminUserAccessRequestModel;
+use App\Models\AdminUserImpersonationSessionModel;
 use CodeIgniter\Filters\FilterInterface;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
@@ -54,9 +56,73 @@ class AuthFilter implements FilterInterface
             // $decoded = JWT::decode($token, $key, array("HS256"));
             // die(var_dump($token));
             $decoded = JWT::decode($token, new Key($key, 'HS256'));
+            $decodedData = (array) $decoded;
+
+            // For impersonation JWT, enforce DB-backed validity by request/session state.
+            if (($decodedData['aud'] ?? '') === 'AdminImpersonation') {
+                $adminId = (int) ($decodedData['admin_id'] ?? 0);
+                $customerId = (int) ($decodedData['customer_id'] ?? 0);
+                $requestId = (int) ($decodedData['request_id'] ?? 0);
+
+                if ($adminId <= 0 || $customerId <= 0 || $requestId <= 0) {
+                    $response = service('response');
+                    return $response
+                        ->setStatusCode(401)
+                        ->setJSON([
+                            'success' => false,
+                            'message' => 'Access denied',
+                            'error' => 'Invalid impersonation token payload'
+                        ]);
+                }
+
+                $requestModel = new AdminUserAccessRequestModel();
+                $sessionModel = new AdminUserImpersonationSessionModel();
+
+                $requestRow = $requestModel
+                    ->where('id', $requestId)
+                    ->where('admin_id', $adminId)
+                    ->where('user_id', $customerId)
+                    ->where('status', 'approved')
+                    ->first();
+
+                $now = date('Y-m-d H:i:s');
+                if (
+                    !$requestRow
+                    || (!empty($requestRow['expires_at']) && strtotime((string) $requestRow['expires_at']) < time())
+                ) {
+                    $response = service('response');
+                    return $response
+                        ->setStatusCode(401)
+                        ->setJSON([
+                            'success' => false,
+                            'message' => 'Access denied',
+                            'error' => 'Impersonation access is expired or revoked'
+                        ]);
+                }
+
+                $activeSession = $sessionModel
+                    ->where('admin_id', $adminId)
+                    ->where('user_id', $customerId)
+                    ->where('access_request_id', $requestId)
+                    ->where('is_active', 1)
+                    ->where('expires_at >=', $now)
+                    ->first();
+
+                if (!$activeSession) {
+                    $response = service('response');
+                    return $response
+                        ->setStatusCode(401)
+                        ->setJSON([
+                            'success' => false,
+                            'message' => 'Access denied',
+                            'error' => 'Impersonation session is inactive'
+                        ]);
+                }
+            }
+
             // Store decoded token in session for access in controllers
             $session = session();
-            $session->set('auth_user', (array) $decoded);
+            $session->set('auth_user', $decodedData);
         } catch (Exception $ex) {
             $response = service('response');
             return $response
