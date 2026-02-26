@@ -160,6 +160,7 @@ $routes->group('blog', static function ($routes) {
 //Coupon Api
 
 $routes->group('coupon', static function ($routes) {
+    $routes->get('active', 'CouponController::getActiveCoupons');
     $routes->get('getAllCoupon', 'CouponController::getAllCoupon');
     $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
         $routes->post('couponcreate', 'CouponController::create');
@@ -167,7 +168,6 @@ $routes->group('coupon', static function ($routes) {
         $routes->put('couponupdate/(:num)', 'CouponController::update/$1');
         $routes->delete('coupondelete/(:num)', 'CouponController::delete/$1');
         $routes->post('apply-coupon', 'CouponController::applyCoupon');
-        $routes->get('active', 'CouponController::getActiveCoupons');
         $routes->post('use-coupon', 'CouponController::applyCouponSeeb');
     });
 });
