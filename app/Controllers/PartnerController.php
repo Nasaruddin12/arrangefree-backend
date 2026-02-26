@@ -1016,6 +1016,7 @@ class PartnerController extends BaseController
             $partnerModel->setValidationRules($rules);
 
             if (!$partnerModel->validate($partnerData)) {
+                log_message('error', 'Partner validation errors: ' . json_encode($partnerModel->errors()));
                 throw new \Exception(json_encode($partnerModel->errors()), 422);
             }
 
@@ -1025,8 +1026,23 @@ class PartnerController extends BaseController
             if ($isUpdate) {
                 $partnerModel->update($partnerId, $partnerData);
             } else {
-                $partnerModel->insert($partnerData);
+                $insertResult = $partnerModel->insert($partnerData);
                 $partnerId = $partnerModel->getInsertID();
+                log_message('error', 'Partner insert result: ' . var_export($insertResult, true));
+                log_message('error', 'Partner getInsertID: ' . var_export($partnerId, true));
+                $dbError = $db->error();
+                log_message('error', 'DB error: ' . json_encode($dbError));
+                if ((!$partnerId || $partnerId == 0) && !empty($dbError['message'])) {
+                    // If DB error is about NOT NULL column, return a validation error
+                    if (strpos($dbError['message'], 'cannot be null') !== false) {
+                        preg_match("/Column '([^']+)' cannot be null/", $dbError['message'], $matches);
+                        $column = $matches[1] ?? 'unknown';
+                        throw new \Exception(json_encode([
+                            $column => ucfirst($column) . ' is required and cannot be null.'
+                        ]), 422);
+                    }
+                    throw new \Exception('Partner insert failed: ' . $dbError['message'], 500);
+                }
             }
 
             /* ---------------------------------------------------
@@ -1548,7 +1564,7 @@ class PartnerController extends BaseController
             'data'   => $result
         ]);
     }
-        /**
+    /**
      * Get list of unregistered partners (present in partner_otps but not in partners table)
      * GET /admin/partner/unregistered
      */
@@ -1559,7 +1575,7 @@ class PartnerController extends BaseController
             // Get unique mobiles in partner_otps not present in partners table
             $builder = $db->table('partner_otps');
             $builder->select('mobile, MAX(otp) as otp, MAX(expires_at) as expires_at, MAX(created_at) as created_at');
-            $builder->whereNotIn('mobile', function($sub) {
+            $builder->whereNotIn('mobile', function ($sub) {
                 $sub->select('mobile')->from('partners')->where('deleted_at', null);
             });
             $builder->groupBy('mobile');
