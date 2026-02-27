@@ -752,6 +752,40 @@ class ServiceController extends BaseController
     }
 
     /**
+     * Find services by service type slug.
+     */
+    public function findByServiceTypeSlug($serviceTypeSlug = null)
+    {
+        try {
+            if (!$serviceTypeSlug) {
+                return $this->failValidationErrors('Service Type Slug is required.');
+            }
+
+            $services = $this->serviceModel->findByServiceTypeSlug($serviceTypeSlug);
+
+            if (empty($services)) {
+                return $this->respond([
+                    'data' => [],
+                    'status' => 404,
+                    'message' => 'No Services found for the given Service Type Slug.'
+                ], 200);
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Data retrieved successfully',
+                'data' => $services
+            ], 200);
+        } catch (Exception $e) {
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Failed to retrieve Services',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Search services by name or description
      */
     public function search()

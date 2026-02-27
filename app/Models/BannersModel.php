@@ -15,6 +15,7 @@ class BannersModel extends Model
     protected $protectFields    = true;
     protected $allowedFields    = [
         'service_id',
+        'service_type_id',
         'path',
         'device',
         'image_index',

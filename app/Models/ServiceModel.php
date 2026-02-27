@@ -233,4 +233,93 @@ class ServiceModel extends Model
 
         return $services;
     }
+
+    /**
+     * Find active services by service_type_slug.
+     */
+    public function findByServiceTypeSlug($service_type_slug)
+    {
+        $db = \Config\Database::connect();
+        $today = date('Y-m-d H:i:s');
+
+        $serviceType = $db->table('service_types')
+            ->where('slug', $service_type_slug)
+            ->get()
+            ->getRow();
+
+        if (!$serviceType) {
+            return [];
+        }
+
+        $services = $this->select('services.*')
+            ->where('services.service_type_id', $serviceType->id)
+            ->where('services.status', 1)
+            ->findAll();
+
+        if (empty($services)) {
+            return [];
+        }
+
+        $addonModel = new \App\Models\ServiceAddonModel();
+        $offerModel = new \App\Models\ServiceOfferModel();
+
+        foreach ($services as &$service) {
+            $originalPrice = (float) ($service['rate'] ?? $service['price'] ?? 0);
+
+            $service['addons'] = $addonModel
+                ->where('service_id', $service['id'])
+                ->findAll();
+
+            $offers = $offerModel
+                ->select('service_offers.*')
+                ->join('service_offer_targets', 'service_offer_targets.offer_id = service_offers.id')
+                ->where('service_offers.is_active', 1)
+                ->where('service_offers.discount_type', 'percentage')
+                ->where('service_offers.start_date <=', $today)
+                ->where('service_offers.end_date >=', $today)
+                ->groupStart()
+                ->where('service_offer_targets.service_id', $service['id'])
+                ->orWhere('service_offer_targets.category_id', $service['service_type_id'])
+                ->groupEnd()
+                ->orderBy('service_offers.priority', 'DESC')
+                ->orderBy('service_offers.id', 'DESC')
+                ->findAll();
+
+            $bestOffer = null;
+            $bestDiscountedPrice = $originalPrice;
+
+            foreach ($offers as $offer) {
+                $discounted = $originalPrice - ($originalPrice * $offer['discount_value'] / 100);
+
+                if ($discounted < 0) {
+                    $discounted = 0;
+                }
+
+                if ($discounted < $bestDiscountedPrice) {
+                    $bestDiscountedPrice = $discounted;
+                    $bestOffer = $offer;
+                }
+            }
+
+            $service['original_price'] = $originalPrice;
+            $service['discounted_rate'] = round($bestDiscountedPrice, 2);
+
+            if ($bestOffer) {
+                $service['offer'] = [
+                    'id' => $bestOffer['id'],
+                    'title' => $bestOffer['title'],
+                    'discount_type' => $bestOffer['discount_type'],
+                    'discount_value' => $bestOffer['discount_value'],
+                    'priority' => $bestOffer['priority'],
+                    'start_date' => $bestOffer['start_date'],
+                    'end_date' => $bestOffer['end_date'],
+                ];
+            } else {
+                $service['offer'] = null;
+            }
+        }
+        unset($service);
+
+        return $services;
+    }
 }
