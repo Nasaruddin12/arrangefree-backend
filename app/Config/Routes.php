@@ -178,7 +178,9 @@ $routes->group('banner', static function ($routes) {
         $routes->post('createBannerImage', 'BannerController::createBannerImage');
         $routes->delete('deleteBanner/(:num)', 'BannerController::deleteBanner/$1');
         $routes->post('createMainBanner', 'BannerController::createMainBanner');
+        $routes->get('get-all', 'BannerController::getAllBanners');
         $routes->get('by-service/(:num)', 'BannerController::getBannersByServiceId/$1');
+        $routes->get('by-service/(:num)', 'BannerController::getBanner');
     });
     $routes->get('getMainBanner', 'BannerController::getMainBanner');
 });
@@ -237,6 +239,8 @@ $routes->group('services', function ($routes) {
     $routes->get('service-type/(:num)/room/(:num)', 'ServiceController::findByServiceTypeAndRoom/$1/$2');
     // New endpoint for slug-based lookups
     $routes->get('by-slug/service-type/(:any)/room/(:any)', 'ServiceController::findByServiceTypeAndRoomSlug/$1/$2');
+    // Service type slug only
+    $routes->get('service-type-slug/(:any)', 'ServiceController::findByServiceTypeSlug/$1');
 
     // Less specific/catch-all routes
     $routes->get('/', 'ServiceController::index');
@@ -246,7 +250,7 @@ $routes->group('services', function ($routes) {
         $routes->post('upload-image', 'ServiceController::uploadImages'); // Upload image separately
         $routes->post('create', 'ServiceController::create'); // Create work type
         $routes->put('update/(:num)', 'ServiceController::update/$1'); // Update work type
-        // $routes->delete('delete/(:num)', 'ServiceController::delete/$1'); // Delete work type
+        $routes->delete('delete/(:num)', 'ServiceController::delete/$1'); // Delete work type
         $routes->post('delete-image', 'ServiceController::deleteImage');
         $routes->put('change-status/(:num)', 'ServiceController::changeStatus/$1');
     });

@@ -10,6 +10,29 @@ use Exception;
 class BannerController extends BaseController
 {
     use ResponseTrait;
+    public function getAllBanners()
+    {
+        try {
+            $bannersModel = new BannersModel();
+            $banners = $bannersModel
+                ->select('banners.*, service_types.name as service_type_name')
+                ->join('service_types', 'service_types.id = banners.service_type_id', 'left')
+                ->findAll();
+
+            $response = [
+                'status' => 200,
+                'data' => $banners,
+            ];
+        } catch (Exception $e) {
+            $response = [
+                'status' => $e->getCode() ?: 500,
+                'error' => $e->getMessage(),
+            ];
+        }
+
+        return $this->respond($response, $response['status']);
+    }
+
     /**
      * Get banners by service_id
      * @param int $serviceId
@@ -19,7 +42,11 @@ class BannerController extends BaseController
     {
         try {
             $bannersModel = new BannersModel();
-            $banners = $bannersModel->where('service_id', $serviceId)->findAll();
+            $banners = $bannersModel
+                ->select('banners.*, service_types.name as service_type_name')
+                ->join('service_types', 'service_types.id = banners.service_type_id', 'left')
+                ->where('banners.service_id', $serviceId)
+                ->findAll();
 
             if ($banners) {
                 $response = [
@@ -77,6 +104,7 @@ class BannerController extends BaseController
                 'link' => $this->request->getVar('link') ?? null,
                 'device' => $this->request->getVar('device') ?? "1",
                 'service_id' => $this->request->getVar('service_id') ?? 0,
+                'service_type_id' => $this->request->getVar('service_type_id') ?? 0,
                 'image_index' => $this->request->getVar('image_index') ?? 0,
             ];
             $Bannersmodel->insert($data);
@@ -94,6 +122,7 @@ class BannerController extends BaseController
                     'link' => $data['link'],
                     'device' => $data['device'],
                     'service_id' => $data['service_id'],
+                    'service_type_id' => $data['service_type_id'],
                     'image_index' => $data['image_index'],
                 ],
             ];
@@ -112,7 +141,11 @@ class BannerController extends BaseController
     {
         try {
             $bannersModel = new BannersModel();
-            $banner = $bannersModel->find($bannerId);
+            $banner = $bannersModel
+                ->select('banners.*, service_types.name as service_type_name')
+                ->join('service_types', 'service_types.id = banners.service_type_id', 'left')
+                ->where('banners.id', $bannerId)
+                ->first();
 
             if ($banner) {
                 $response = [
@@ -160,6 +193,7 @@ class BannerController extends BaseController
                 'link' => $this->request->getVar('link') ?? null,
                 'device' => $this->request->getVar('device') ?? 1,
                 'service_id' => $this->request->getVar('service_id') ?? 0,
+                'service_type_id' => $this->request->getVar('service_type_id') ?? 0,
                 'image_index' => $this->request->getVar('image_index') ?? 0,
             ];
 
@@ -234,6 +268,7 @@ class BannerController extends BaseController
 
                 $addhomeZoneAppliancesID = function ($item) {
                     $item['service_id'] = 0;
+                    $item['service_type_id'] = 0;
                     $item['image_index'] = 0;
                     $item['id'] = null; // Add this line to define the 'id' key
                     return $item;
@@ -292,7 +327,11 @@ class BannerController extends BaseController
     {
         try {
             $bannersModel = new BannersModel();
-            $banner = $bannersModel->where('service_id', 0)->findAll();
+            // Only main banners: service_id = 0, service_type_id = 0, image_index = 0
+            $banner = $bannersModel
+                ->where('service_id', 0)
+                ->where('service_type_id', 0)
+                ->findAll();
 
             if ($banner) {
                 $response = [
@@ -300,11 +339,11 @@ class BannerController extends BaseController
                     'data' => $banner,
                 ];
             } else {
-                throw new Exception('Banner not found.', 404);
+                throw new Exception('Main banner not found.', 404);
             }
         } catch (Exception $e) {
             $response = [
-                'status' => $e->getCode(),
+                'status' => $e->getCode() ?: 500,
                 'error' => $e->getMessage(),
             ];
         }
