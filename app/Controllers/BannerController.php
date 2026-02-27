@@ -10,6 +10,29 @@ use Exception;
 class BannerController extends BaseController
 {
     use ResponseTrait;
+    public function getAllBanners()
+    {
+        try {
+            $bannersModel = new BannersModel();
+            $banners = $bannersModel
+                ->select('banners.*, service_types.name as service_type_name')
+                ->join('service_types', 'service_types.id = banners.service_type_id', 'left')
+                ->findAll();
+
+            $response = [
+                'status' => 200,
+                'data' => $banners,
+            ];
+        } catch (Exception $e) {
+            $response = [
+                'status' => $e->getCode() ?: 500,
+                'error' => $e->getMessage(),
+            ];
+        }
+
+        return $this->respond($response, $response['status']);
+    }
+
     /**
      * Get banners by service_id
      * @param int $serviceId
