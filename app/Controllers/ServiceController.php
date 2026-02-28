@@ -267,7 +267,7 @@ class ServiceController extends BaseController
                 'name' => 'permit_empty|string|max_length[255]',
                 'service_type_id' => 'permit_empty|integer',
                 'rate' => 'permit_empty|numeric',
-                'rate_type' => 'permit_empty|in_list[unit,square_feet]',
+                'rate_type' => 'required|in_list[unit, square_feet, running_feet, running_meter, points, sqft]',
                 'partner_price' => 'permit_empty|numeric',
                 'status' => 'permit_empty|in_list[0,1]',
                 'slug' => 'permit_empty|string|max_length[255]',
