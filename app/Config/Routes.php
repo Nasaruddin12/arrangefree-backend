@@ -558,6 +558,7 @@ $routes->group('partner', function ($routes) {
         $routes->get('jobs/details/(:num)', 'PartnerJobController::details/$1');
         $routes->get('jobs/preview/(:num)', 'PartnerJobController::preview/$1');
         $routes->get('jobs/all/(:num)', 'PartnerJobController::listAllByPartner/$1');
+        $routes->get('jobs/pending/(:num)', 'PartnerJobController::listPendingRequestsByPartner/$1');
         $routes->get('jobs/on-site-status', 'PartnerJobController::getOnSiteStatus');
         $routes->post('jobs/update-on-site-status', 'PartnerJobController::updateOnSiteStatus');
 
@@ -587,6 +588,7 @@ $routes->group('partner-jobs', static function ($routes) {
         $routes->delete('items/media/(:num)', 'PartnerJobController::deleteItemMedia/$1');
         $routes->get('partner/(:num)', 'PartnerJobController::listByPartner/$1');
         $routes->get('partner/(:num)/all', 'PartnerJobController::listAllByPartner/$1');
+        $routes->get('partner/(:num)/pending', 'PartnerJobController::listPendingRequestsByPartner/$1');
         $routes->get('booking/(:num)', 'PartnerJobController::listByBooking/$1');
         $routes->post('assign', 'PartnerJobController::assign');
         $routes->post('(:num)/request', 'PartnerJobController::requestPartner/$1');
