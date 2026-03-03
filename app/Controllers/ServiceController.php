@@ -117,7 +117,10 @@ class ServiceController extends BaseController
                 foreach ($roomIds as $roomId) {
                     $roomData[] = [
                         'service_id' => $serviceId,
-                        'room_id'    => $roomId
+                        'room_id'    => $roomId,
+                        'custom_price' => null,
+                        'experience_years' => null,
+                        'status' => 'active'
                     ];
                 }
                 $this->serviceRoomModel->insertBatch($roomData);
