@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 
 use App\Controllers\BaseController;
+use App\Models\PartnerModel;
+use App\Models\PartnerServiceModel;
 use App\Models\ServiceModel;
 use App\Models\ServiceRoomModel;
 use CodeIgniter\API\ResponseTrait;
@@ -14,11 +16,13 @@ class ServiceController extends BaseController
     use ResponseTrait;
     protected $serviceModel;
     protected $serviceRoomModel;
+    protected $partnerServiceModel;
 
     public function __construct()
     {
         $this->serviceModel = new ServiceModel();
         $this->serviceRoomModel  = new ServiceRoomModel();
+        $this->partnerServiceModel = new PartnerServiceModel();
     }
 
     public function create()
@@ -32,6 +36,7 @@ class ServiceController extends BaseController
                 'rate' => 'required|numeric',
                 'rate_type' => 'required|in_list[unit, square_feet, running_feet, running_meter, points, sqft]',
                 'partner_price' => 'permit_empty|numeric',
+                'partner_id' => 'permit_empty|integer',
                 // 'status' => 'permit_empty|in_list[active, inactive]',
                 'slug' => 'permit_empty|string|max_length[255]',
             ]);
@@ -42,6 +47,18 @@ class ServiceController extends BaseController
                     'message' => 'Validation failed',
                     'errors' => $validation->getErrors()
                 ], 400);
+            }
+
+            $partnerId = (int) ($this->request->getVar('partner_id') ?? 0);
+            if ($partnerId > 0) {
+                $partner = (new PartnerModel())->find($partnerId);
+                if (!$partner) {
+                    return $this->respond([
+                        'status' => 400,
+                        'message' => 'Validation failed',
+                        'errors' => ['partner_id' => 'Partner not found.']
+                    ], 400);
+                }
             }
 
             $db = \Config\Database::connect();
@@ -73,6 +90,25 @@ class ServiceController extends BaseController
             }
 
             $serviceId = $this->serviceModel->getInsertID();
+
+            if ($partnerId > 0) {
+                $partnerServiceData = [
+                    'partner_id' => $partnerId,
+                    'service_id' => $serviceId,
+                    'custom_price' => $this->request->getVar('custom_price') ?? $this->request->getVar('partner_price'),
+                    'experience_years' => $this->request->getVar('experience_years'),
+                    'status' => $this->request->getVar('partner_service_status') ?? 'active',
+                ];
+
+                if (!$this->partnerServiceModel->insert($partnerServiceData)) {
+                    $db->transRollback();
+                    return $this->respond([
+                        'status' => 400,
+                        'message' => 'Failed to map service to partner',
+                        'errors' => $this->partnerServiceModel->errors(),
+                    ], 400);
+                }
+            }
 
             // Step 2: Insert Service-Room Relations
             $roomIds = $this->request->getVar('room_ids'); // array
@@ -251,6 +287,46 @@ class ServiceController extends BaseController
         }
     }
 
+    public function getByPartner($partnerId = null)
+    {
+        try {
+            $partnerId = (int) $partnerId;
+
+            if ($partnerId <= 0) {
+                return $this->failValidationErrors('Valid partner_id is required.');
+            }
+
+            $services = $this->partnerServiceModel
+                ->select('
+                    partner_services.id as partner_service_id,
+                    partner_services.partner_id,
+                    partner_services.service_id,
+                    // partner_services.custom_price,
+                    // partner_services.experience_years,
+                    partner_services.status as partner_service_status,
+                    services.*
+                ')
+                ->join('services', 'services.id = partner_services.service_id', 'inner')
+                ->where('partner_services.partner_id', $partnerId)
+                ->where('partner_services.status', 'active')
+                ->where('services.deleted_at', null)
+                ->orderBy('services.name', 'ASC')
+                ->findAll();
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Partner services retrieved successfully',
+                'data' => $services,
+            ], 200);
+        } catch (Exception $e) {
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Failed to retrieve partner services',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
 
     // ✅ Update Services
     public function update($id)
@@ -269,6 +345,7 @@ class ServiceController extends BaseController
                 'rate' => 'permit_empty|numeric',
                 'rate_type' => 'required|in_list[unit, square_feet, running_feet, running_meter, points, sqft]',
                 'partner_price' => 'permit_empty|numeric',
+                'partner_id' => 'permit_empty|integer',
                 'status' => 'permit_empty|in_list[0,1]',
                 'slug' => 'permit_empty|string|max_length[255]',
             ]);
@@ -282,6 +359,23 @@ class ServiceController extends BaseController
             }
 
             $db = \Config\Database::connect();
+            $partnerId = (int) ($this->request->getVar('partner_id') ?? 0);
+            $partnerService = null;
+
+            if ($partnerId > 0) {
+                $partnerService = $this->partnerServiceModel
+                    ->where('partner_id', $partnerId)
+                    ->where('service_id', (int) $id)
+                    ->first();
+
+                if (!$partnerService) {
+                    return $this->respond([
+                        'status' => 400,
+                        'message' => 'Validation failed',
+                        'errors' => ['partner_id' => 'This service does not belong to the provided partner.'],
+                    ], 400);
+                }
+            }
 
             $data = [
                 'name'               => $this->request->getVar('name'),
@@ -307,6 +401,28 @@ class ServiceController extends BaseController
 
             // Update service
             $this->serviceModel->update($id, $data);
+
+            // if ($partnerId > 0 && $partnerService) {
+            //     $partnerServiceUpdateData = [];
+
+            //     if ($this->request->getVar('custom_price') !== null) {
+            //         $partnerServiceUpdateData['custom_price'] = $this->request->getVar('custom_price');
+            //     } elseif ($this->request->getVar('partner_price') !== null) {
+            //         $partnerServiceUpdateData['custom_price'] = $this->request->getVar('partner_price');
+            //     }
+
+            //     if ($this->request->getVar('experience_years') !== null) {
+            //         $partnerServiceUpdateData['experience_years'] = $this->request->getVar('experience_years');
+            //     }
+
+            //     if ($this->request->getVar('partner_service_status') !== null) {
+            //         $partnerServiceUpdateData['status'] = $this->request->getVar('partner_service_status');
+            //     }
+
+            //     if (!empty($partnerServiceUpdateData)) {
+            //         $this->partnerServiceModel->update((int) $partnerService['id'], $partnerServiceUpdateData);
+            //     }
+            // }
 
             // ✅ Update rooms
             $roomIds = $this->request->getVar('room_ids');

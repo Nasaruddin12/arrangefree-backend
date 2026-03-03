@@ -234,6 +234,7 @@ $routes->group('services', function ($routes) {
     // Search endpoint
     $routes->get('search', 'ServiceController::search');
 
+
     // More specific routes MUST come before catch-all routes
     // Old endpoint for iOS and Android apps (using numeric IDs)
     $routes->get('service-type/(:num)/room/(:num)', 'ServiceController::findByServiceTypeAndRoom/$1/$2');
@@ -519,6 +520,11 @@ $routes->group('partner', function ($routes) {
 
     // Protected routes (auth required)
     $routes->group('/', ['filter' => 'authFilter'], function ($routes) {
+
+        $routes->get('services/(:num)', 'ServiceController::getByPartner/$1');
+        $routes->post('service/create', 'ServiceController::create');
+        $routes->put('service/update/(:num)', 'ServiceController::update/$1');
+
         $routes->get('profile/(:num)', 'PartnerController::profile/$1');
         $routes->get('onboarding-status', 'PartnerController::onboardingStatus');
         $routes->post('list', 'PartnerController::index');
