@@ -304,8 +304,6 @@ class ServiceController extends BaseController
                     partner_services.id as partner_service_id,
                     partner_services.partner_id,
                     partner_services.service_id,
-                    // partner_services.custom_price,
-                    // partner_services.experience_years,
                     partner_services.status as partner_service_status,
                     services.*
                 ')
