@@ -4,18 +4,20 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\ServiceGalleryModel;
+use App\Services\ImageProcessingService;
 use CodeIgniter\API\ResponseTrait;
-use Config\Services;
 use Exception;
 
 class ServiceGalleryController extends BaseController
 {
     use ResponseTrait;
     protected $serviceGalleryModel;
+    protected $imageProcessingService;
 
     public function __construct()
     {
         $this->serviceGalleryModel = new ServiceGalleryModel();
+        $this->imageProcessingService = new ImageProcessingService();
     }
 
     public function create()
@@ -261,26 +263,14 @@ class ServiceGalleryController extends BaseController
                         $newName = pathinfo($imageFile->getRandomName(), PATHINFO_FILENAME);
 
                         $uploadPath = FCPATH . 'uploads/service-gallery/';
-                        $tempPath = $uploadPath . $imageFile->getName();
-
-                        // Move original temporarily
-                        $imageFile->move($uploadPath, $imageFile->getName());
-
-                        $originalFullPath = $uploadPath . $imageFile->getName();
-                        $webpName = $newName . '.webp';
-                        $webpFullPath = $uploadPath . $webpName;
-
-                        // Use CodeIgniter Image Service
-                        $image = Services::image()
-                            ->withFile($originalFullPath)
-                            ->resize(1200, 1200, true, 'width') // maintain ratio
-                            ->convert(IMAGETYPE_WEBP)
-                            ->save($webpFullPath, 90); // 90 = quality
-
-                        // Delete original file
-                        if (file_exists($originalFullPath)) {
-                            unlink($originalFullPath);
-                        }
+                        $webpName = $this->imageProcessingService->uploadAndConvertToWebp(
+                            $imageFile,
+                            $uploadPath,
+                            $newName,
+                            1200,
+                            1200,
+                            90
+                        );
 
                         $imagePath = 'uploads/service-gallery/' . $webpName;
 

@@ -8,6 +8,7 @@ use App\Models\PartnerModel;
 use App\Models\PartnerServiceModel;
 use App\Models\ServiceModel;
 use App\Models\ServiceRoomModel;
+use App\Services\ImageProcessingService;
 use CodeIgniter\API\ResponseTrait;
 use Exception;
 
@@ -17,12 +18,14 @@ class ServiceController extends BaseController
     protected $serviceModel;
     protected $serviceRoomModel;
     protected $partnerServiceModel;
+    protected $imageProcessingService;
 
     public function __construct()
     {
         $this->serviceModel = new ServiceModel();
         $this->serviceRoomModel  = new ServiceRoomModel();
         $this->partnerServiceModel = new PartnerServiceModel();
+        $this->imageProcessingService = new ImageProcessingService();
     }
 
     public function create()
@@ -192,21 +195,24 @@ class ServiceController extends BaseController
                             'image/png',
                             'image/jpeg',
                             'image/jpg',
-                            'video/mp4',
-                            'video/avi',
-                            'video/mov',
-                            'video/quicktime',
-                            'video/x-msvideo',
+                            'image/webp',
                         ];
 
                         if (!in_array($imageFile->getMimeType(), $allowedTypes)) {
                             continue; // skip this file
                         }
+                
+                        $baseName = pathinfo($imageFile->getRandomName(), PATHINFO_FILENAME);
+                        $webpName = $this->imageProcessingService->uploadAndConvertToWebp(
+                            $imageFile,
+                            FCPATH . 'public/uploads/services/',
+                            $baseName,
+                            1200,
+                            1200,
+                            90
+                        );
 
-                        // Move valid image
-                        $newName = $imageFile->getRandomName();
-                        $imageFile->move('public/uploads/services/', $newName);
-                        $imagePaths[] = 'public/uploads/services/' . $newName;
+                        $imagePaths[] = 'public/uploads/services/' . $webpName;
                     }
                 }
             }
@@ -304,7 +310,7 @@ class ServiceController extends BaseController
                     partner_services.id as partner_service_id,
                     partner_services.partner_id,
                     partner_services.service_id,
-                    partner_services.status as partner_service_status,
+-                    partner_services.status as partner_service_status,
                     services.*
                 ')
                 ->join('services', 'services.id = partner_services.service_id', 'inner')

@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\SeebCartModel;
+use App\Services\ImageProcessingService;
 use CodeIgniter\RESTful\ResourceController;
 
 class SeebCartController extends ResourceController
@@ -10,10 +11,12 @@ class SeebCartController extends ResourceController
     protected $modelName = SeebCartModel::class;
     protected $format    = 'json';
     protected $db;
+    protected $imageProcessingService;
 
     public function __construct()
     {
         $this->db = \Config\Database::connect();
+        $this->imageProcessingService = new ImageProcessingService();
     }
 
     // ✅ Get all cart items (or filter by user_id)
@@ -544,10 +547,29 @@ class SeebCartController extends ResourceController
 
             foreach ($images['images'] as $file) {
                 if ($file->isValid() && !$file->hasMoved()) {
-                    $fileName = $file->getRandomName();
-                    if ($file->move($uploadDirectory, $fileName)) {
-                        $imagePaths[] = $uploadDirectory . $fileName;
+                    $allowedTypes = [
+                        'image/png',
+                        'image/jpeg',
+                        'image/jpg',
+                        'image/webp',
+                    ];
+
+                    if (!in_array($file->getMimeType(), $allowedTypes)) {
+                        continue;
                     }
+
+                    $baseName = pathinfo($file->getRandomName(), PATHINFO_FILENAME);
+                    $webpName = $this->imageProcessingService->uploadAndConvertToWebp(
+                        $file,
+                        FCPATH . 'public/uploads/reference-image/',
+                        $baseName,
+                        1200,
+                        1200,
+                        90
+                    );
+
+                    // Keep existing response/storage path format unchanged.
+                    $imagePaths[] = $uploadDirectory . $webpName;
                 }
             }
 
