@@ -1107,9 +1107,13 @@ class PartnerController extends BaseController
             $existingBank = $bankModel->where('partner_id', $partnerId)->first();
 
             if ($existingBank) {
-                $bankModel->update($existingBank['id'], $bankData);
+                $ok = $bankModel->update($existingBank['id'], $bankData);
             } else {
-                $bankModel->insert($bankData);
+                $ok = $bankModel->insert($bankData);
+            }
+
+            if (!$ok) {
+                throw new \Exception(json_encode($bankModel->errors()), 422);
             }
 
             /* ---------------------------------------------------
