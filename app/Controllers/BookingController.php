@@ -1763,10 +1763,6 @@ class BookingController extends ResourceController
 
         $adjustmentsTotal = 0.0;
         foreach ($adjustments as $adjustment) {
-            if (($adjustment['adjustment_type'] ?? '') === 'refund') {
-                continue;
-            }
-
             $amount = (float) ($adjustment['amount'] ?? 0);
             $cgstAmount = (float) ($adjustment['cgst_amount'] ?? 0);
             $sgstAmount = (float) ($adjustment['sgst_amount'] ?? 0);
@@ -1965,28 +1961,7 @@ class BookingController extends ResourceController
             throw new \RuntimeException('Booking not found.');
         }
 
-        $activeBookingSubtotal = (float) ($this->bookingServicesModel
-            ->selectSum('amount')
-            ->where('booking_id', $bookingId)
-            ->where('status !=', 'cancelled')
-            ->first()['amount'] ?? 0);
-
-        $couponCode = $booking['applied_coupon'] ?? null;
-        $coupon = $couponCode
-            ? $this->couponsModel->where('coupon_code', $couponCode)->first()
-            : null;
-
-        $couponResult = $this->evaluateCouponForSubtotal($coupon, $activeBookingSubtotal);
-        $discountAfter = (float) ($couponResult['discount'] ?? 0);
-        $discountedTotal = max($activeBookingSubtotal - $discountAfter, 0);
-
-        $bookingCgstRate = (float) ($booking['cgst_rate'] ?? self::CGST_RATE);
-        $bookingSgstRate = (float) ($booking['sgst_rate'] ?? self::SGST_RATE);
-        $bookingCgst = round($discountedTotal * ($bookingCgstRate / 100), 2);
-        $bookingSgst = round($discountedTotal * ($bookingSgstRate / 100), 2);
-        $baseFinalAmount = round($discountedTotal + $bookingCgst + $bookingSgst, 2);
-
-        $totals = $this->calculateBookingFinalWithExtras($bookingId, $baseFinalAmount);
+        $totals = $this->calculateBookingFinalWithExtras($bookingId, (float) ($booking['final_amount'] ?? 0));
         $paidSoFar = $this->getTotalPaidAmount($bookingId);
 
         $activeServices = $this->bookingServicesModel
@@ -2005,12 +1980,6 @@ class BookingController extends ResourceController
         }
 
         $updateData = [
-            'subtotal_amount' => $activeBookingSubtotal,
-            'total_discount' => $discountAfter,
-            'total_coupon_discount' => $discountAfter,
-            'cgst' => $bookingCgst,
-            'sgst' => $bookingSgst,
-            'final_amount' => $totals['final_amount'],
             'payment_status' => $this->determinePaymentStatusForAmount($paidSoFar, (float) $totals['final_amount']),
             'status' => $status,
             'updated_at' => date('Y-m-d H:i:s'),
@@ -2025,12 +1994,15 @@ class BookingController extends ResourceController
 
         return [
             'booking_id' => $bookingId,
-            'subtotal_amount' => $activeBookingSubtotal,
-            'total_discount' => $discountAfter,
+            'subtotal_amount' => (float) ($booking['subtotal_amount'] ?? 0),
+            'total_discount' => $this->getBookingDiscountAmount($booking),
             'final_amount' => (float) $totals['final_amount'],
             'payment_status' => $updateData['payment_status'],
             'status' => $status,
             'paid_amount' => $paidSoFar,
+            'original_final_amount' => (float) ($booking['final_amount'] ?? 0),
+            'additional_approved_total' => (float) ($totals['additional_approved_total'] ?? 0),
+            'adjustments_total' => (float) ($totals['adjustments_total'] ?? 0),
         ];
     }
 
