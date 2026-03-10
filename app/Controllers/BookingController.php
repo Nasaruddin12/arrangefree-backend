@@ -1787,8 +1787,15 @@ class BookingController extends ResourceController
 
     private function getBookingDiscountAmount(array $booking): float
     {
-        if (array_key_exists('total_discount', $booking)) {
-            return (float) ($booking['total_discount'] ?? 0);
+        if (array_key_exists('total_coupon_discount', $booking)) {
+            return (float) ($booking['total_coupon_discount'] ?? 0);
+        }
+
+        if (array_key_exists('total_discount', $booking) && array_key_exists('total_offer_discount', $booking)) {
+            return max(
+                (float) ($booking['total_discount'] ?? 0) - (float) ($booking['total_offer_discount'] ?? 0),
+                0
+            );
         }
 
         return (float) ($booking['discount'] ?? 0);
@@ -1936,11 +1943,8 @@ class BookingController extends ResourceController
     {
         $bookingId = (int) $booking['id'];
         $paidAmount = $this->getTotalPaidAmount($bookingId);
-        $currentOfferDiscount = (float) ($booking['total_offer_discount'] ?? 0);
-        $currentCouponDiscount = array_key_exists('total_coupon_discount', $booking)
-            ? (float) ($booking['total_coupon_discount'] ?? 0)
-            : max($this->getBookingDiscountAmount($booking) - $currentOfferDiscount, 0);
-        $currentDiscount = $currentOfferDiscount + $currentCouponDiscount;
+        $currentCouponDiscount = $this->getBookingDiscountAmount($booking);
+        $currentDiscount = $currentCouponDiscount;
         $currentFinalAmount = (float) ($booking['final_amount'] ?? 0);
         $currentSubtotal = (float) ($booking['subtotal_amount'] ?? 0);
         $currentDueAmount = max($currentFinalAmount - $paidAmount, 0);
@@ -1956,7 +1960,6 @@ class BookingController extends ResourceController
 
         $cancelledSubtotal = 0.0;
         $cancelledDiscount = 0.0;
-        $cancelledOfferDiscount = 0.0;
         $cancelledAdditionalApprovedTotal = 0.0;
         $cancelledCgst = 0.0;
         $cancelledSgst = 0.0;
@@ -1999,7 +2002,6 @@ class BookingController extends ResourceController
                 if ($serviceSource === 'booking_service') {
                     $cancelledSubtotal += (float) ($serviceDetails['subtotal_before_gst'] ?? 0);
                     $cancelledDiscount += (float) ($serviceDetails['proportional_discount'] ?? 0);
-                    $cancelledOfferDiscount += (float) ($serviceDetails['offer_discount_total'] ?? 0);
                 } else {
                     $cancelledAdditionalApprovedTotal += (float) ($serviceDetails['final_refund_amount'] ?? 0);
                 }
@@ -2024,7 +2026,6 @@ class BookingController extends ResourceController
             if (($selection['service_source'] ?? '') === 'booking_service') {
                 $cancelledSubtotal = (float) ($serviceDetails['subtotal_before_gst'] ?? 0);
                 $cancelledDiscount = (float) ($serviceDetails['proportional_discount'] ?? 0);
-                $cancelledOfferDiscount = (float) ($serviceDetails['offer_discount_total'] ?? 0);
             } else {
                 $cancelledAdditionalApprovedTotal = (float) ($serviceDetails['final_refund_amount'] ?? 0);
             }
@@ -2039,7 +2040,6 @@ class BookingController extends ResourceController
         } else {
             $cancelledSubtotal = $currentSubtotal;
             $cancelledDiscount = $currentDiscount;
-            $cancelledOfferDiscount = $currentOfferDiscount;
             $cancelledAdditionalApprovedTotal = $currentAdditionalApprovedTotal;
             $cancelledCgst = (float) ($booking['cgst'] ?? 0);
             $cancelledSgst = (float) ($booking['sgst'] ?? 0);
@@ -2048,9 +2048,8 @@ class BookingController extends ResourceController
 
         $remainingSubtotal = max($currentSubtotal - $cancelledSubtotal, 0);
         $couponResult = $this->evaluateCouponForSubtotal($coupon, $remainingSubtotal);
-        $offerDiscountAfter = max($currentOfferDiscount - $cancelledOfferDiscount, 0);
         $couponDiscountAfter = (float) ($couponResult['discount'] ?? 0);
-        $discountAfter = $offerDiscountAfter + $couponDiscountAfter;
+        $discountAfter = $couponDiscountAfter;
         $couponStillValid = !empty($coupon) && (bool) ($couponResult['is_valid'] ?? false);
         $discountRemoved = max($currentDiscount - $discountAfter, 0);
 
@@ -2092,7 +2091,6 @@ class BookingController extends ResourceController
                 'payment_status' => $booking['payment_status'] ?? null,
                 'subtotal_amount' => $currentSubtotal,
                 'discount_amount' => $currentDiscount,
-                'offer_discount_amount' => $currentOfferDiscount,
                 'coupon_discount_amount' => $currentCouponDiscount,
                 'coupon_code' => $couponCode,
                 'coupon_valid' => !empty($coupon),
@@ -2106,7 +2104,6 @@ class BookingController extends ResourceController
             'impact' => [
                 'cancelled_subtotal' => $cancelledSubtotal,
                 'cancelled_discount' => $cancelledDiscount,
-                'cancelled_offer_discount' => $cancelledOfferDiscount,
                 'cancelled_additional_approved_total' => $cancelledAdditionalApprovedTotal,
                 'cancelled_cgst' => $cancelledCgst,
                 'cancelled_sgst' => $cancelledSgst,
@@ -2119,7 +2116,6 @@ class BookingController extends ResourceController
                 'payment_status' => $this->determinePaymentStatusForAmount($paidAmount, $newFinalAmount),
                 'subtotal_amount' => $remainingSubtotal,
                 'discount_amount' => $discountAfter,
-                'offer_discount_amount' => $offerDiscountAfter,
                 'coupon_discount_amount' => $couponDiscountAfter,
                 'coupon_code' => $couponCode,
                 'coupon_valid' => $couponStillValid,
@@ -3060,13 +3056,10 @@ class BookingController extends ResourceController
             ->findAll();
 
         $addonsTotal = 0.0;
-        $addonsOfferDiscountTotal = 0.0;
         $addonBreakdown = [];
         foreach ($addons as $addon) {
             $addonAmount = (float) ($addon['amount'] ?? 0);
             $addonsTotal += $addonAmount;
-            $addonOfferDiscount = (float) ($addon['offer_discount'] ?? 0);
-            $addonsOfferDiscountTotal += $addonOfferDiscount;
             $addonBreakdown[] = [
                 'id' => $addon['id'],
                 'addon_id' => $addon['addon_id'] ?? null,
@@ -3075,14 +3068,11 @@ class BookingController extends ResourceController
                 'unit' => $addon['unit'] ?? null,
                 'rate' => (float) ($addon['rate'] ?? 0),
                 'base_amount' => $addonAmount,
-                'offer_discount' => $addonOfferDiscount,
             ];
         }
 
         $serviceBaseAmount = (float) ($service['amount'] ?? 0);
         $serviceTotal = $serviceBaseAmount + $addonsTotal;
-        $serviceOfferDiscount = (float) ($service['offer_discount'] ?? 0);
-        $offerDiscountTotal = $serviceOfferDiscount + $addonsOfferDiscountTotal;
 
         $bookingDiscount = $this->getBookingDiscountAmount($booking);
         $cgstRateBooking = (float) ($booking['cgst_rate'] ?? self::CGST_RATE);
@@ -3134,11 +3124,8 @@ class BookingController extends ResourceController
             'unit' => $service['unit'] ?? null,
             'rate' => (float) ($service['rate'] ?? 0),
             'service_base_amount' => $serviceBaseAmount,
-            'service_offer_discount' => $serviceOfferDiscount,
             'addons' => $addonBreakdown,
             'addons_total' => $addonsTotal,
-            'addons_offer_discount_total' => $addonsOfferDiscountTotal,
-            'offer_discount_total' => $offerDiscountTotal,
             'subtotal_before_gst' => $serviceTotal,
             'cgst_rate' => $cgstRate,
             'sgst_rate' => $sgstRate,
