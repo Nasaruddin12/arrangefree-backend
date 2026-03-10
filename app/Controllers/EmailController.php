@@ -266,6 +266,8 @@ class EmailController extends BaseController
     return $results;
   }
 
+  // <p>You can view/download your invoice here:</p>
+  //       <p><a href='$invoiceLink' style='padding:10px 15px; background:#007bff; color:#fff; text-decoration:none; border-radius:5px;'>View Invoice</a></p>
 
   public function sendBookingSuccessEmail($to, $userName, $bookingId, $id)
   {
@@ -281,8 +283,6 @@ class EmailController extends BaseController
             <li><strong>Booking ID:</strong> $bookingId</li>
             <li><strong>Status:</strong> Confirmed ✅</li>
         </ul>
-        <p>You can view/download your invoice here:</p>
-        <p><a href='$invoiceLink' style='padding:10px 15px; background:#007bff; color:#fff; text-decoration:none; border-radius:5px;'>View Invoice</a></p>
         <br>
         <p>Warm regards,<br>Team Seeb</p>
     ";
