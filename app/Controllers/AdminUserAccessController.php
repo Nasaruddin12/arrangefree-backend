@@ -64,7 +64,7 @@ class AdminUserAccessController extends BaseController
             }
 
             if (empty($expiresAt)) {
-                $expiresAt = date('Y-m-d H:i:s', strtotime('+30 minutes'));
+                $expiresAt = date('Y-m-d H:i:s', strtotime('+1 day'));
             }
 
             $this->requestModel->insert([
@@ -72,7 +72,7 @@ class AdminUserAccessController extends BaseController
                 'user_id' => $userId,
                 'access_type' => $accessType,
                 'reason' => $reason,
-                'status' => 'pending',
+                'status' => 'approved',
                 'expires_at' => $expiresAt,
             ]);
 
@@ -87,7 +87,7 @@ class AdminUserAccessController extends BaseController
                     'admin_id' => $adminId,
                     'user_id' => $userId,
                     'access_type' => $accessType,
-                    'status' => 'pending',
+                    'status' => 'approved',
                     'expires_at' => $expiresAt,
                 ],
             ], 201);
@@ -114,7 +114,7 @@ class AdminUserAccessController extends BaseController
             $builder = $this->requestModel
                 ->select('admin_user_access_requests.*, customers.name as user_name, customers.mobile_no as user_mobile')
                 ->join('customers', 'customers.id = admin_user_access_requests.user_id', 'left')
-                ->where('admin_user_access_requests.admin_id', $adminId)
+                // ->where('admin_user_access_requests.admin_id', $adminId)
                 ->orderBy('admin_user_access_requests.id', 'DESC');
 
             if (!empty($status) && in_array($status, ['pending', 'approved', 'rejected', 'expired'], true)) {
@@ -172,7 +172,7 @@ class AdminUserAccessController extends BaseController
             if ($status === 'approved') {
                 $updateData['approved_at'] = date('Y-m-d H:i:s');
                 if (empty($requestRow['expires_at'])) {
-                    $updateData['expires_at'] = date('Y-m-d H:i:s', strtotime('+30 minutes'));
+                    $updateData['expires_at'] = date('Y-m-d H:i:s', strtotime('+1 day'));
                 }
             }
 
@@ -228,7 +228,7 @@ class AdminUserAccessController extends BaseController
             $sessionToken = bin2hex(random_bytes(32));
             $sessionExpiry = !empty($requestRow['expires_at'])
                 ? $requestRow['expires_at']
-                : date('Y-m-d H:i:s', strtotime('+30 minutes'));
+                : date('Y-m-d H:i:s', strtotime('+1 day'));
 
             $this->sessionModel->insert([
                 'admin_id' => $adminId,
@@ -391,7 +391,7 @@ class AdminUserAccessController extends BaseController
             $sessionToken = bin2hex(random_bytes(32));
             $sessionExpiry = !empty($requestRow['expires_at'])
                 ? $requestRow['expires_at']
-                : date('Y-m-d H:i:s', strtotime('+30 minutes'));
+                : date('Y-m-d H:i:s', strtotime('+1 day'));
 
             $this->sessionModel->insert([
                 'admin_id' => $adminId,
@@ -759,7 +759,7 @@ class AdminUserAccessController extends BaseController
 
             if ($targetStatus === 'approved') {
                 if (empty($expiresAt)) {
-                    $expiresAt = date('Y-m-d H:i:s', strtotime('+30 minutes'));
+                    $expiresAt = date('Y-m-d H:i:s', strtotime('+1 day'));
                 }
                 $updateData['approved_at'] = date('Y-m-d H:i:s');
                 $updateData['expires_at'] = $expiresAt;
