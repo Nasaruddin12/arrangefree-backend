@@ -873,6 +873,46 @@ class ServiceController extends BaseController
         }
     }
 
+    public function getRoomsByServiceId($serviceId = null)
+    {
+        try {
+            $serviceId = (int) $serviceId;
+            if ($serviceId <= 0) {
+                return $this->failValidationErrors('Valid service_id is required.');
+            }
+
+            $service = $this->serviceModel
+                ->where('id', $serviceId)
+                ->where('deleted_at', null)
+                ->first();
+
+            if (!$service) {
+                return $this->failNotFound('Service not found.');
+            }
+
+            $rooms = $this->serviceRoomModel
+                ->select('rooms.*')
+                ->join('rooms', 'rooms.id = service_rooms.room_id', 'inner')
+                ->where('service_rooms.service_id', $serviceId)
+                ->orderBy('rooms.name', 'ASC')
+                ->findAll();
+
+            return $this->respond([
+                'status' => 200,
+                'message' => empty($rooms)
+                    ? 'No rooms found for this service.'
+                    : 'Rooms retrieved successfully.',
+                'data' => $rooms,
+            ], 200);
+        } catch (Exception $e) {
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Failed to retrieve rooms for service.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     /**
      * Find services by service type slug.
      */

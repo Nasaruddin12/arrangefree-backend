@@ -246,6 +246,7 @@ $routes->group('services', function ($routes) {
     // More specific routes MUST come before catch-all routes
     // Old endpoint for iOS and Android apps (using numeric IDs)
     $routes->get('service-type/(:num)/room/(:num)', 'ServiceController::findByServiceTypeAndRoom/$1/$2');
+    $routes->get('(:num)/rooms', 'ServiceController::getRoomsByServiceId/$1');
     // New endpoint for slug-based lookups
     $routes->get('by-slug/service-type/(:any)/room/(:any)', 'ServiceController::findByServiceTypeAndRoomSlug/$1/$2');
     // Service type slug only
