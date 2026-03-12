@@ -125,11 +125,8 @@ $routes->group('admin', static function ($routes) {
         $routes->get('user-access/logs', 'AdminUserAccessController::logs');
         $routes->get('user-access/request/(:num)/logs', 'AdminUserAccessController::requestLogs/$1');
 
-        $routes->post('booking/cancellation/full', 'BookingController::fullCancelBooking');
-        $routes->post('booking/cancellation/partial', 'BookingController::partialCancelBooking');
-        $routes->post('booking/cancellation/partial-bulk', 'BookingController::partialBulkCancelBooking');
+        $routes->post('booking/cancellation', 'BookingController::cancelBooking');
         $routes->match(['get', 'post'], 'booking/cancellation/preview', 'BookingController::cancellationPreview');
-        $routes->match(['get', 'post'], 'booking/cancellation/preview/(:num)', 'BookingController::cancellationPreview/$1');
         $routes->get('booking/refunds', 'BookingController::getBookingRefunds');
         $routes->put('booking/refunds/(:num)/status', 'BookingController::updateBookingRefundStatus/$1');
     });
@@ -344,11 +341,8 @@ $routes->group('booking', function ($routes) {
         $routes->post('additional-services/approval', 'BookingController::approveAdditionalServices');
         $routes->post('adjustments/(:num)', 'BookingController::createAdjustment/$1');
         $routes->get('adjustments/(:num)', 'BookingController::getAdjustments/$1');
-        $routes->post('cancellation/full', 'BookingController::fullCancelBooking');
-        $routes->post('cancellation/partial', 'BookingController::partialCancelBooking');
-        $routes->post('cancellation/partial-bulk', 'BookingController::partialBulkCancelBooking');
+        $routes->post('cancellation', 'BookingController::cancelBooking');
         $routes->match(['get', 'post'], 'cancellation/preview', 'BookingController::cancellationPreview');
-        $routes->match(['get', 'post'], 'cancellation/preview/(:num)', 'BookingController::cancellationPreview/$1');
         $routes->get('refunds', 'BookingController::getBookingRefunds');
         $routes->put('refunds/(:num)/status', 'BookingController::updateBookingRefundStatus/$1');
 
