@@ -652,75 +652,61 @@ class BookingController extends ResourceController
 
             if (empty($bookings)) {
                 return $this->respond([
-                    'status' => 404,
-                    'message' => 'No bookings found for this user.'
-                ], 404);
+                    'status' => 200,
+                    'message' => 'User bookings retrieved successfully.',
+                    'data' => [
+                        'summary' => [
+                            'total_bookings' => 0,
+                            'pending_bookings' => 0,
+                            'confirmed_bookings' => 0,
+                            'cancelled_bookings' => 0,
+                        ],
+                        'items' => [],
+                    ],
+                ], 200);
             }
 
-            // Paid/due recalculated after dynamic totals
-
-            // Fetch booking services for each booking
+            $items = [];
             foreach ($bookings as &$booking) {
-                // Fetch parent services
                 $parentServices = $this->bookingServicesModel
-                    ->select('booking_services.*, services.name, services.image as service_image')
+                    ->select('booking_services.id, booking_services.quantity, booking_services.unit, booking_services.status, services.name, services.image as service_image')
                     ->join('services', 'services.id = booking_services.service_id', 'left')
                     ->where('booking_services.booking_id', $booking['id'])
                     ->where('booking_services.parent_booking_service_id', null)
                     ->findAll();
 
-                // Fetch addons for each parent service
+                $addonsCount = 0;
                 foreach ($parentServices as &$parentService) {
                     $addonServices = $this->bookingServicesModel
-                        ->select('booking_services.*, service_addons.name as addon_name')
-                        ->join('service_addons', 'service_addons.id = booking_services.addon_id', 'left')
+                        ->select('booking_services.id')
                         ->where('booking_services.parent_booking_service_id', $parentService['id'])
                         ->findAll();
 
-                    $parentService['addons'] = $addonServices;
+                    $addonsCount += count($addonServices);
                 }
-
-                $booking['services'] = $parentServices;
-
-                // Fetch additional services (parent only)
-                $additionalParents = $this->bookingAdditionalServicesModel
-                    ->select('booking_additional_services.*, services.name as service_name, services.image as service_image')
-                    ->join('services', 'services.id = booking_additional_services.service_id', 'left')
-                    ->where('booking_additional_services.booking_id', $booking['id'])
-                    ->where('booking_additional_services.parent_booking_service_id', null)
-                    ->findAll();
-
-                foreach ($additionalParents as &$additionalParent) {
-                    $additionalAddons = $this->bookingAdditionalServicesModel
-                        ->select('booking_additional_services.*, service_addons.name as addon_name')
-                        ->join('service_addons', 'service_addons.id = booking_additional_services.addon_id', 'left')
-                        ->where('booking_additional_services.parent_booking_service_id', $additionalParent['id'])
-                        ->findAll();
-
-                    $additionalParent['addons'] = $additionalAddons;
-                }
-                unset($additionalParent);
-
-                $booking['additional_services'] = $additionalParents;
-
-                // Fetch adjustments
-                $booking['adjustments'] = $this->bookingAdjustmentModel
-                    ->where('booking_id', $booking['id'])
-                    ->orderBy('created_at', 'DESC')
-                    ->findAll();
 
                 $summary = $this->bookingFinancialSummaryService->summarize($booking);
-                $booking['paid_amount'] = $summary['paid_amount'];
-                $booking['calculated_final_amount'] = $summary['calculated_final_amount'];
-                $booking['amount_due'] = $summary['amount_due'];
-                $booking['additional_approved_total'] = $summary['additional_approved_total'];
-                $booking['adjustments_total'] = $summary['adjustments_total'];
+                $items[] = $this->formatBookingListItem($booking, $parentServices, $addonsCount, $summary);
             }
+            unset($booking, $parentService);
+
+            $statusCounts = array_count_values(array_map(
+                static fn(array $booking): string => (string) ($booking['status'] ?? 'pending'),
+                $bookings
+            ));
 
             return $this->respond([
                 'status' => 200,
                 'message' => 'User bookings retrieved successfully.',
-                'data' => $bookings
+                'data' => [
+                    'summary' => [
+                        'total_bookings' => count($bookings),
+                        'pending_bookings' => (int) ($statusCounts['pending'] ?? 0),
+                        'confirmed_bookings' => (int) ($statusCounts['confirmed'] ?? 0),
+                        'cancelled_bookings' => (int) ($statusCounts['cancelled'] ?? 0),
+                    ],
+                    'items' => $items,
+                ]
             ], 200);
         } catch (\Exception $e) {
             log_message('error', 'Error fetching user bookings: ' . $e->getMessage());
@@ -734,128 +720,7 @@ class BookingController extends ResourceController
 
     public function getBookingById($booking_id)
     {
-        try {
-            // Fetch booking details with user
-            $booking = $this->bookingsModel
-                ->select('bookings.*, customers.name AS user_name, customers.email AS user_email, customers.mobile_no AS mobile_no')
-                ->join('customers', 'customers.id = bookings.user_id', 'left')
-                ->where('bookings.id', $booking_id)
-                ->first();
-
-            if ($booking) {
-                // Fetch address snapshot from booking_addresses
-                $bookingAddress = $this->bookingAddressModel
-                    ->where('booking_id', $booking_id)
-                    ->first();
-
-                if ($bookingAddress) {
-                    $booking['customer_address'] = trim(implode(', ', array_filter([
-                        $bookingAddress['house'],
-                        $bookingAddress['address'],
-                        $bookingAddress['landmark']
-                    ])));
-                    $booking['address_details'] = $bookingAddress;
-                } else {
-                    $booking['customer_address'] = null;
-                    $booking['address_details'] = null;
-                }
-
-                // Paid/due recalculated after dynamic totals
-            }
-
-
-            if (!$booking) {
-                return $this->respond([
-                    'status' => 404,
-                    'message' => 'Booking not found.'
-                ], 404);
-            }
-
-            // Fetch booking services (only parent services)
-            $parentServices = $this->bookingServicesModel
-                ->select('booking_services.*, services.name as service_name, services.description as service_description, services.image as service_image')
-                ->join('services', 'services.id = booking_services.service_id', 'left')
-                ->where('booking_services.booking_id', $booking_id)
-                ->where('booking_services.parent_booking_service_id', null)
-                ->findAll();
-
-            // Fetch addons for each parent service
-            foreach ($parentServices as &$parentService) {
-                $addonServices = $this->bookingServicesModel
-                    ->select('booking_services.*, service_addons.name as addon_name, service_addons.description as addon_description')
-                    ->join('service_addons', 'service_addons.id = booking_services.addon_id', 'left')
-                    ->where('booking_services.parent_booking_service_id', $parentService['id'])
-                    ->findAll();
-
-                $parentService['addons'] = $addonServices;
-            }
-
-            $services = $parentServices;
-
-            // Fetch additional services (only parent services)
-            $additionalParentServices = $this->bookingAdditionalServicesModel
-                ->select('booking_additional_services.*, services.name as service_name, services.description as service_description, services.image as service_image')
-                ->join('services', 'services.id = booking_additional_services.service_id', 'left')
-                ->where('booking_additional_services.booking_id', $booking_id)
-                ->where('booking_additional_services.parent_booking_service_id', null)
-                ->findAll();
-
-            // Fetch addons for each additional parent service
-            foreach ($additionalParentServices as &$additionalParent) {
-                $additionalAddons = $this->bookingAdditionalServicesModel
-                    ->select('booking_additional_services.*, service_addons.name as addon_name, service_addons.description as addon_description')
-                    ->join('service_addons', 'service_addons.id = booking_additional_services.addon_id', 'left')
-                    ->where('booking_additional_services.parent_booking_service_id', $additionalParent['id'])
-                    ->findAll();
-
-                $additionalParent['addons'] = $additionalAddons;
-            }
-
-            $additionalServices = $additionalParentServices;
-
-            // Fetch payment details
-            $payments = $this->bookingPaymentsModel
-                ->where('booking_id', $booking_id)
-                ->findAll();
-
-            // Fetch payment requests
-            $paymentRequests = $this->paymentRequestsModel
-                ->where('booking_id', $booking_id)
-                ->whereIn('status', ['pending'])
-                ->findAll();
-
-            // Fetch adjustments
-            $adjustments = $this->bookingAdjustmentModel
-                ->where('booking_id', $booking_id)
-                ->orderBy('created_at', 'DESC')
-                ->findAll();
-
-            $summary = $this->bookingFinancialSummaryService->summarize($booking);
-            $booking['paid_amount'] = $summary['paid_amount'];
-            $booking['calculated_final_amount'] = $summary['calculated_final_amount'];
-            $booking['amount_due'] = $summary['amount_due'];
-            $booking['additional_approved_total'] = $summary['additional_approved_total'];
-            $booking['adjustments_total'] = $summary['adjustments_total'];
-
-            return $this->respond([
-                'status' => 200,
-                'message' => 'Booking retrieved successfully.',
-                'data' => [
-                    'booking' => $booking,
-                    'services' => $services,
-                    'additional_services' => $additionalServices,
-                    'payments' => $payments,
-                    'payment_requests' => $paymentRequests,
-                    'adjustments' => $adjustments,
-                ]
-            ], 200);
-        } catch (\Exception $e) {
-            log_message('error', 'Error fetching booking by ID: ' . $e->getMessage());
-            return $this->respond([
-                'status' => 500,
-                'message' => 'Something went wrong while fetching the booking.'
-            ], 500);
-        }
+        return $this->getBookingDetails($booking_id);
     }
     public function getBookingDetails($booking_id)
     {
@@ -1017,6 +882,7 @@ class BookingController extends ResourceController
                     ],
                     'services' => $formattedServices,
                     'additional_services' => $formattedAdditionalServices,
+                    'refunds' => $this->formatRefundRows($refunds, $refundMap),
                     'payments' => $this->formatPaymentRows($payments),
                     'payment_requests' => $this->formatPaymentRequestRows($paymentRequests),
                     'adjustments' => [
@@ -1120,6 +986,64 @@ class BookingController extends ResourceController
         ];
     }
 
+    private function formatRefundRows(array $refunds, array $refundMap = []): array
+    {
+        $serviceNames = [];
+
+        foreach (($refundMap['booking_service'] ?? []) as $serviceId => $refund) {
+            $service = $this->bookingServicesModel
+                ->select('booking_services.id, services.name as service_name')
+                ->join('services', 'services.id = booking_services.service_id', 'left')
+                ->where('booking_services.id', $serviceId)
+                ->first();
+
+            $serviceNames['booking_service:' . (int) $serviceId] = $service['service_name'] ?? null;
+        }
+
+        foreach (($refundMap['additional_service'] ?? []) as $serviceId => $refund) {
+            $service = $this->bookingAdditionalServicesModel
+                ->select('booking_additional_services.id, services.name as service_name')
+                ->join('services', 'services.id = booking_additional_services.service_id', 'left')
+                ->where('booking_additional_services.id', $serviceId)
+                ->first();
+
+            $serviceNames['additional_service:' . (int) $serviceId] = $service['service_name'] ?? null;
+        }
+
+        return array_map(function (array $refund) use ($serviceNames): array {
+            $scope = (string) ($refund['refund_scope'] ?? '');
+            $serviceId = 0;
+
+            if ($scope === 'booking_service') {
+                $serviceId = (int) ($refund['booking_service_id'] ?? 0);
+            } elseif ($scope === 'additional_service') {
+                $serviceId = (int) ($refund['booking_additional_service_id'] ?? 0);
+            }
+
+            return [
+                'id' => (int) ($refund['id'] ?? 0),
+                'scope' => $scope,
+                'status' => $refund['status'] ?? null,
+                'refund_type' => $refund['refund_type'] ?? null,
+                'service_id' => $serviceId > 0 ? $serviceId : null,
+                'service_name' => $serviceId > 0 ? ($serviceNames[$scope . ':' . $serviceId] ?? null) : null,
+                'booking_adjustment_id' => !empty($refund['booking_adjustment_id']) ? (int) $refund['booking_adjustment_id'] : null,
+                'payment_id' => !empty($refund['payment_id']) ? (int) $refund['payment_id'] : null,
+                'original_price' => (float) ($refund['base_amount'] ?? 0),
+                'discount' => (float) ($refund['discount_amount'] ?? 0),
+                'taxable_amount' => (float) ($refund['taxable_amount'] ?? 0),
+                'cgst_amount' => (float) ($refund['cgst_amount'] ?? 0),
+                'sgst_amount' => (float) ($refund['sgst_amount'] ?? 0),
+                'refund_amount' => (float) ($refund['total_refund_amount'] ?? 0),
+                'refund_method' => $refund['refund_method'] ?? null,
+                'reason' => $refund['reason'] ?? null,
+                'notes' => $refund['notes'] ?? null,
+                'created_at' => $refund['created_at'] ?? null,
+                'processed_at' => $refund['processed_at'] ?? null,
+            ];
+        }, $refunds);
+    }
+
     private function formatAdjustmentRows(array $adjustments): array
     {
         return array_map(function (array $adjustment): array {
@@ -1205,6 +1129,42 @@ class BookingController extends ResourceController
                 'created_at' => $request['created_at'] ?? null,
             ];
         }, $paymentRequests);
+    }
+
+    private function formatBookingListItem(array $booking, array $parentServices, int $addonsCount, array $summary): array
+    {
+        $servicePreview = [];
+        foreach (array_slice($parentServices, 0, 3) as $service) {
+            $servicePreview[] = [
+                'id' => (int) ($service['id'] ?? 0),
+                'name' => $service['name'] ?? null,
+                'quantity' => (float) ($service['quantity'] ?? 0),
+                'unit' => $service['unit'] ?? null,
+                'status' => $service['status'] ?? null,
+            ];
+        }
+
+        $primaryService = $parentServices[0] ?? [];
+
+        return [
+            'id' => (int) ($booking['id'] ?? 0),
+            'booking_code' => $booking['booking_code'] ?? null,
+            'status' => $booking['status'] ?? null,
+            'payment_status' => $summary['payment_status'] ?? null,
+            'payment_method' => $booking['payment_method'] ?? null,
+            'created_at' => $booking['created_at'] ?? null,
+            'slot_date' => $booking['slot_date'] ?? null,
+            'title' => $primaryService['name'] ?? null,
+            'image' => $primaryService['service_image'] ?? null,
+            'services_count' => count($parentServices),
+            'addons_count' => $addonsCount,
+            'service_preview' => $servicePreview,
+            'financials' => [
+                'current_total' => (float) ($summary['calculated_final_amount'] ?? 0),
+                'paid_amount' => (float) ($summary['paid_amount'] ?? 0),
+                'amount_due' => (float) ($summary['amount_due'] ?? 0),
+            ],
+        ];
     }
 
     public function deleteBooking($booking_id)
