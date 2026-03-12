@@ -129,6 +129,7 @@ $routes->group('admin', static function ($routes) {
         $routes->match(['get', 'post'], 'booking/cancellation/preview', 'BookingController::cancellationPreview');
         $routes->get('booking/refunds', 'BookingController::getBookingRefunds');
         $routes->put('booking/refunds/(:num)/status', 'BookingController::updateBookingRefundStatus/$1');
+        
     });
 });
 

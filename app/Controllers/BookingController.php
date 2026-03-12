@@ -1977,9 +1977,93 @@ class BookingController extends ResourceController
         return (float) ($row['offer_discount'] ?? 0);
     }
 
+    private function getActiveBookingServicesSubtotal(int $bookingId): float
+    {
+        $row = $this->bookingServicesModel
+            ->selectSum('amount')
+            ->where('booking_id', $bookingId)
+            ->where('status !=', 'cancelled')
+            ->first();
+
+        return (float) ($row['amount'] ?? 0);
+    }
+
+    private function getApprovedAdditionalServicesTotal(int $bookingId): float
+    {
+        $row = $this->bookingAdditionalServicesModel
+            ->selectSum('total_amount')
+            ->where('booking_id', $bookingId)
+            ->where('status', 'approved')
+            ->first();
+
+        return (float) ($row['total_amount'] ?? 0);
+    }
+
+    private function getCurrentCouponState(array $booking): array
+    {
+        $bookingId = (int) ($booking['id'] ?? 0);
+        $currentSubtotal = $this->getActiveBookingServicesSubtotal($bookingId);
+        $couponCode = $booking['applied_coupon'] ?? null;
+        $coupon = $couponCode
+            ? $this->couponsModel->where('coupon_code', $couponCode)->first()
+            : null;
+        $couponResult = $this->evaluateCouponForSubtotal($coupon, $currentSubtotal);
+
+        return [
+            'subtotal' => $currentSubtotal,
+            'coupon' => $coupon,
+            'coupon_discount' => (float) ($couponResult['discount'] ?? 0),
+            'coupon_valid' => !empty($coupon) && (bool) ($couponResult['is_valid'] ?? false),
+        ];
+    }
+
+    private function getCurrentBookingServiceFinancialState(array $booking): array
+    {
+        $couponState = $this->getCurrentCouponState($booking);
+        $subtotal = (float) ($couponState['subtotal'] ?? 0);
+        $couponDiscount = (float) ($couponState['coupon_discount'] ?? 0);
+        $taxableAmount = max($subtotal - $couponDiscount, 0);
+        $cgstRate = (float) ($booking['cgst_rate'] ?? self::CGST_RATE);
+        $sgstRate = (float) ($booking['sgst_rate'] ?? self::SGST_RATE);
+        $taxBreakdown = $this->calculateRefundTaxBreakdown($taxableAmount, $cgstRate, $sgstRate);
+
+        return [
+            'subtotal' => $subtotal,
+            'coupon_discount' => $couponDiscount,
+            'coupon_valid' => (bool) ($couponState['coupon_valid'] ?? false),
+            'cgst_rate' => $cgstRate,
+            'sgst_rate' => $sgstRate,
+            'taxable_amount' => $taxBreakdown['taxable_amount'],
+            'cgst_amount' => $taxBreakdown['cgst_amount'],
+            'sgst_amount' => $taxBreakdown['sgst_amount'],
+            'total_amount' => $taxBreakdown['total_refund_amount'],
+        ];
+    }
+
+    private function getExistingRefundLiability(int $bookingId): float
+    {
+        $row = $this->bookingRefundModel
+            ->selectSum('total_refund_amount')
+            ->where('booking_id', $bookingId)
+            ->whereIn('status', ['pending', 'approved', 'processed'])
+            ->first();
+
+        return (float) ($row['total_refund_amount'] ?? 0);
+    }
+
+    private function calculateIncrementalRefundAmount(int $bookingId, float $newFinalAmount): float
+    {
+        $paidSoFar = $this->getTotalPaidAmount($bookingId);
+        $existingRefundLiability = $this->getExistingRefundLiability($bookingId);
+        $overpaidAfterCancellation = max($paidSoFar - $newFinalAmount, 0);
+
+        return max($overpaidAfterCancellation - $existingRefundLiability, 0);
+    }
+
     private function calculateCouponRemovalForSelections(array $booking, array $selectedServiceDetails): array
     {
-        $currentCouponDiscount = $this->getBookingDiscountAmount($booking);
+        $currentCouponState = $this->getCurrentCouponState($booking);
+        $currentCouponDiscount = (float) ($currentCouponState['coupon_discount'] ?? 0);
         if ($currentCouponDiscount <= 0) {
             return [
                 'current_coupon_discount' => 0.0,
@@ -1996,31 +2080,23 @@ class BookingController extends ResourceController
         ));
 
         if (empty($bookingServiceSelections)) {
-            $couponCode = $booking['applied_coupon'] ?? null;
-            $coupon = $couponCode
-                ? $this->couponsModel->where('coupon_code', $couponCode)->first()
-                : null;
-
             return [
                 'current_coupon_discount' => $currentCouponDiscount,
                 'coupon_discount_after' => $currentCouponDiscount,
                 'removed_coupon_discount' => 0.0,
-                'coupon_after_valid' => !empty($coupon),
+                'coupon_after_valid' => (bool) ($currentCouponState['coupon_valid'] ?? false),
                 'allocations' => [],
             ];
         }
 
-        $currentSubtotal = (float) ($booking['subtotal_amount'] ?? 0);
+        $currentSubtotal = (float) ($currentCouponState['subtotal'] ?? 0);
         $selectedSubtotal = array_sum(array_map(
             static fn(array $item): float => (float) ($item['subtotal_before_gst'] ?? 0),
             $bookingServiceSelections
         ));
 
         $remainingSubtotal = max($currentSubtotal - $selectedSubtotal, 0);
-        $couponCode = $booking['applied_coupon'] ?? null;
-        $coupon = $couponCode
-            ? $this->couponsModel->where('coupon_code', $couponCode)->first()
-            : null;
+        $coupon = $currentCouponState['coupon'] ?? null;
         $couponResult = $this->evaluateCouponForSubtotal($coupon, $remainingSubtotal);
         $couponDiscountAfter = (float) ($couponResult['discount'] ?? 0);
         $removedCouponDiscount = max($currentCouponDiscount - $couponDiscountAfter, 0);
@@ -2313,12 +2389,19 @@ class BookingController extends ResourceController
             }
 
             $requestedBy = $this->resolveRequestedBy();
-            $paidSoFar = $this->getTotalPaidAmount($bookingId);
-            $discountAmount = $this->getBookingDiscountAmount($booking);
+            $currentSummary = $this->bookingFinancialSummaryService->summarize($booking);
+            $serviceFinancialState = $this->getCurrentBookingServiceFinancialState($booking);
+            $additionalApprovedTotal = $this->getApprovedAdditionalServicesTotal($bookingId);
+            $discountAmount = (float) ($serviceFinancialState['coupon_discount'] ?? 0);
             $offerDiscountAmount = $this->getActiveBookingServiceOfferDiscount($bookingId);
-            $finalAmount = (float) ($booking['final_amount'] ?? 0);
-            $baseAmount = (float) ($booking['subtotal_amount'] ?? 0);
-            $taxableAmount = max($baseAmount - $discountAmount, 0);
+            $baseAmount = (float) ($serviceFinancialState['subtotal'] ?? 0);
+            $taxableAmount = (float) ($serviceFinancialState['taxable_amount'] ?? 0);
+            $cgstAmount = (float) ($serviceFinancialState['cgst_amount'] ?? 0);
+            $sgstAmount = (float) ($serviceFinancialState['sgst_amount'] ?? 0);
+            $bookingServiceDelta = (float) ($serviceFinancialState['total_amount'] ?? 0);
+            $currentFinalAmount = (float) ($currentSummary['final_amount'] ?? 0);
+            $newFinalAmount = max($currentFinalAmount - $bookingServiceDelta - $additionalApprovedTotal, 0);
+            $actualRefundableAmount = $this->calculateIncrementalRefundAmount($bookingId, $newFinalAmount);
 
             $this->db->transBegin();
 
@@ -2343,22 +2426,25 @@ class BookingController extends ResourceController
                 ])
                 ->update();
 
-            $adjustmentId = $this->createRefundAdjustment(
-                $bookingId,
-                'Full booking cancellation refund',
-                $taxableAmount,
-                (float) ($booking['cgst'] ?? 0),
-                (float) ($booking['sgst'] ?? 0),
-                $requestedBy['type'] === 'admin' ? 'admin' : 'system'
-            );
+            $adjustmentId = 0;
+            if ($bookingServiceDelta > 0) {
+                $adjustmentId = $this->createRefundAdjustment(
+                    $bookingId,
+                    'Full booking cancellation refund',
+                    $taxableAmount,
+                    $cgstAmount,
+                    $sgstAmount,
+                    $requestedBy['type'] === 'admin' ? 'admin' : 'system'
+                );
+            }
 
             $this->bookingRefundModel->insert([
                 'booking_id' => $bookingId,
-                'booking_adjustment_id' => $adjustmentId,
+                'booking_adjustment_id' => $adjustmentId > 0 ? $adjustmentId : null,
                 'payment_id' => $this->getLatestSuccessfulPaymentId($bookingId),
                 'refund_scope' => 'booking',
                 'refund_type' => 'full',
-                'status' => 'pending',
+                'status' => $actualRefundableAmount > 0 ? 'pending' : 'processed',
                 'reason' => $reason,
                 'notes' => $notes,
                 'base_amount' => $baseAmount,
@@ -2366,11 +2452,12 @@ class BookingController extends ResourceController
                 'taxable_amount' => $taxableAmount,
                 'cgst_rate' => (float) ($booking['cgst_rate'] ?? self::CGST_RATE),
                 'sgst_rate' => (float) ($booking['sgst_rate'] ?? self::SGST_RATE),
-                'cgst_amount' => (float) ($booking['cgst'] ?? 0),
-                'sgst_amount' => (float) ($booking['sgst'] ?? 0),
-                'total_refund_amount' => min($paidSoFar, $finalAmount),
+                'cgst_amount' => $cgstAmount,
+                'sgst_amount' => $sgstAmount,
+                'total_refund_amount' => $actualRefundableAmount,
                 'requested_by_type' => $requestedBy['type'],
                 'requested_by_id' => $requestedBy['id'],
+                'processed_at' => $actualRefundableAmount > 0 ? null : date('Y-m-d H:i:s'),
             ]);
 
             $refundId = (int) $this->bookingRefundModel->getInsertID();
@@ -2389,9 +2476,11 @@ class BookingController extends ResourceController
                 'data' => [
                     'booking_id' => $bookingId,
                     'refund_id' => $refundId,
-                    'adjustment_id' => $adjustmentId,
+                    'adjustment_id' => $adjustmentId > 0 ? $adjustmentId : null,
                     'removed_coupon_discount' => $discountAmount,
                     'removed_offer_discount' => $offerDiscountAmount,
+                    'booking_total_reduction' => round($bookingServiceDelta + $additionalApprovedTotal, 2),
+                    'refund_amount' => $actualRefundableAmount,
                     'booking' => $bookingTotals,
                 ],
             ], 200);
@@ -2482,6 +2571,7 @@ class BookingController extends ResourceController
                 ],
             ]);
             $removedCouponDiscount = (float) (($couponImpact['allocations'][$selectionKey] ?? 0));
+            $currentSummary = $this->bookingFinancialSummaryService->summarize($booking);
 
             $this->db->transBegin();
 
@@ -2534,15 +2624,23 @@ class BookingController extends ResourceController
             $removedOfferDiscount = $serviceSource === 'booking_service'
                 ? (float) ($serviceDetails['offer_discount_total'] ?? 0)
                 : 0.0;
+            $bookingTotalReduction = $serviceSource === 'booking_service'
+                ? (float) ($refundBreakdown['total_refund_amount'] ?? 0)
+                : (float) ($serviceDetails['subtotal_with_gst'] ?? $refundBreakdown['total_refund_amount'] ?? 0);
+            $newFinalAmount = max((float) ($currentSummary['final_amount'] ?? 0) - $bookingTotalReduction, 0);
+            $actualRefundableAmount = $this->calculateIncrementalRefundAmount($bookingId, $newFinalAmount);
 
-            $adjustmentId = $this->createRefundAdjustment(
-                $bookingId,
-                'Partial cancellation refund',
-                $refundBreakdown['taxable_amount'],
-                $refundBreakdown['cgst_amount'],
-                $refundBreakdown['sgst_amount'],
-                $requestedBy['type'] === 'admin' ? 'admin' : 'system'
-            );
+            $adjustmentId = null;
+            if ($serviceSource === 'booking_service' && $bookingTotalReduction > 0) {
+                $adjustmentId = $this->createRefundAdjustment(
+                    $bookingId,
+                    'Partial cancellation refund',
+                    $refundBreakdown['taxable_amount'],
+                    $refundBreakdown['cgst_amount'],
+                    $refundBreakdown['sgst_amount'],
+                    $requestedBy['type'] === 'admin' ? 'admin' : 'system'
+                );
+            }
 
             $refundData = [
                 'booking_id' => $bookingId,
@@ -2550,7 +2648,7 @@ class BookingController extends ResourceController
                 'payment_id' => $this->getLatestSuccessfulPaymentId($bookingId),
                 'refund_scope' => $serviceSource === 'booking_service' ? 'booking_service' : 'additional_service',
                 'refund_type' => 'partial',
-                'status' => 'pending',
+                'status' => $actualRefundableAmount > 0 ? 'pending' : 'processed',
                 'reason' => $reason,
                 'notes' => $notes,
                 'base_amount' => (float) ($serviceDetails['subtotal_before_gst'] ?? 0),
@@ -2560,9 +2658,10 @@ class BookingController extends ResourceController
                 'sgst_rate' => (float) ($serviceDetails['sgst_rate'] ?? 0),
                 'cgst_amount' => $refundBreakdown['cgst_amount'],
                 'sgst_amount' => $refundBreakdown['sgst_amount'],
-                'total_refund_amount' => $refundBreakdown['total_refund_amount'],
+                'total_refund_amount' => $actualRefundableAmount,
                 'requested_by_type' => $requestedBy['type'],
                 'requested_by_id' => $requestedBy['id'],
+                'processed_at' => $actualRefundableAmount > 0 ? null : date('Y-m-d H:i:s'),
             ];
 
             if ($serviceSource === 'booking_service') {
@@ -2595,6 +2694,8 @@ class BookingController extends ResourceController
                     'adjustment_id' => $adjustmentId,
                     'removed_coupon_discount' => $removedCouponDiscount,
                     'removed_offer_discount' => $removedOfferDiscount,
+                    'booking_total_reduction' => $bookingTotalReduction,
+                    'refund_amount' => $actualRefundableAmount,
                     'booking' => $bookingTotals,
                 ],
             ], 200);
@@ -2713,6 +2814,30 @@ class BookingController extends ResourceController
                 ];
             }
             $couponImpact = $this->calculateCouponRemovalForSelections($booking, $couponSelections);
+            $currentSummary = $this->bookingFinancialSummaryService->summarize($booking);
+            $totalBookingReduction = 0.0;
+
+            foreach ($preparedItems as $preparedItem) {
+                $serviceSource = $preparedItem['service_source'];
+                $serviceDetails = $preparedItem['service_details'];
+                $selectionKey = $preparedItem['selection_key'];
+                $removedCouponDiscount = (float) ($couponImpact['allocations'][$selectionKey] ?? 0);
+
+                if ($serviceSource === 'booking_service') {
+                    $taxableAmount = max((float) ($serviceDetails['subtotal_before_gst'] ?? 0) - $removedCouponDiscount, 0);
+                    $refundBreakdown = $this->calculateRefundTaxBreakdown(
+                        $taxableAmount,
+                        (float) ($serviceDetails['cgst_rate'] ?? 0),
+                        (float) ($serviceDetails['sgst_rate'] ?? 0)
+                    );
+                    $totalBookingReduction += (float) ($refundBreakdown['total_refund_amount'] ?? 0);
+                } else {
+                    $totalBookingReduction += (float) ($serviceDetails['subtotal_with_gst'] ?? 0);
+                }
+            }
+
+            $newFinalAmount = max((float) ($currentSummary['final_amount'] ?? 0) - $totalBookingReduction, 0);
+            $remainingRefundableAmount = $this->calculateIncrementalRefundAmount($bookingId, $newFinalAmount);
 
             $this->db->transBegin();
 
@@ -2775,15 +2900,23 @@ class BookingController extends ResourceController
                 $removedOfferDiscount = $serviceSource === 'booking_service'
                     ? (float) ($serviceDetails['offer_discount_total'] ?? 0)
                     : 0.0;
+                $bookingTotalReduction = $serviceSource === 'booking_service'
+                    ? (float) ($refundBreakdown['total_refund_amount'] ?? 0)
+                    : (float) ($serviceDetails['subtotal_with_gst'] ?? 0);
+                $actualRefundableAmount = min($remainingRefundableAmount, $bookingTotalReduction);
+                $remainingRefundableAmount = max($remainingRefundableAmount - $actualRefundableAmount, 0);
 
-                $adjustmentId = $this->createRefundAdjustment(
-                    $bookingId,
-                    'Partial cancellation refund',
-                    $refundBreakdown['taxable_amount'],
-                    $refundBreakdown['cgst_amount'],
-                    $refundBreakdown['sgst_amount'],
-                    $requestedBy['type'] === 'admin' ? 'admin' : 'system'
-                );
+                $adjustmentId = null;
+                if ($serviceSource === 'booking_service' && $bookingTotalReduction > 0) {
+                    $adjustmentId = $this->createRefundAdjustment(
+                        $bookingId,
+                        'Partial cancellation refund',
+                        $refundBreakdown['taxable_amount'],
+                        $refundBreakdown['cgst_amount'],
+                        $refundBreakdown['sgst_amount'],
+                        $requestedBy['type'] === 'admin' ? 'admin' : 'system'
+                    );
+                }
 
                 $refundData = [
                     'booking_id' => $bookingId,
@@ -2791,7 +2924,7 @@ class BookingController extends ResourceController
                     'payment_id' => $this->getLatestSuccessfulPaymentId($bookingId),
                     'refund_scope' => $serviceSource === 'booking_service' ? 'booking_service' : 'additional_service',
                     'refund_type' => 'partial',
-                    'status' => 'pending',
+                    'status' => $actualRefundableAmount > 0 ? 'pending' : 'processed',
                     'reason' => $reason,
                     'notes' => $notes,
                     'base_amount' => (float) ($serviceDetails['subtotal_before_gst'] ?? 0),
@@ -2801,9 +2934,10 @@ class BookingController extends ResourceController
                     'sgst_rate' => (float) ($serviceDetails['sgst_rate'] ?? 0),
                     'cgst_amount' => $refundBreakdown['cgst_amount'],
                     'sgst_amount' => $refundBreakdown['sgst_amount'],
-                    'total_refund_amount' => $refundBreakdown['total_refund_amount'],
+                    'total_refund_amount' => $actualRefundableAmount,
                     'requested_by_type' => $requestedBy['type'],
                     'requested_by_id' => $requestedBy['id'],
+                    'processed_at' => $actualRefundableAmount > 0 ? null : date('Y-m-d H:i:s'),
                 ];
 
                 if ($serviceSource === 'booking_service') {
@@ -2823,7 +2957,8 @@ class BookingController extends ResourceController
                     'adjustment_id' => $adjustmentId,
                     'removed_coupon_discount' => $removedCouponDiscount,
                     'removed_offer_discount' => $removedOfferDiscount,
-                    'refund_amount' => $refundBreakdown['total_refund_amount'],
+                    'booking_total_reduction' => $bookingTotalReduction,
+                    'refund_amount' => $actualRefundableAmount,
                 ];
             }
 
