@@ -683,12 +683,14 @@ $routes->group('reviews', function ($routes) {
         $routes->get('partner/(:num)', 'ReviewController::getByPartner/$1');
         $routes->post('customer/submit', 'ReviewController::customerSubmit');
         $routes->get('customer/my', 'ReviewController::customerMyReviews');
+        $routes->get('booking/(:num)', 'ReviewController::getByBooking/$1');
         $routes->get('customer/service/(:num)', 'ReviewController::customerServiceReviews/$1');
         $routes->post('customer/(:num)/vote', 'ReviewController::customerVote/$1');
         $routes->match(['get', 'post'], 'admin/list', 'ReviewController::adminList');
         $routes->get('admin/(:num)', 'ReviewController::adminShow/$1');
         $routes->put('admin/(:num)/status', 'ReviewController::adminUpdateStatus/$1');
         $routes->get('admin/service-summary/(:num)', 'ReviewController::adminServiceSummary/$1');
+        $routes->get('admin/partner', 'ReviewController::getAllPartnerReviews');
         $routes->get('admin/partner/(:num)', 'ReviewController::adminPartnerReviews/$1');
     });
 });

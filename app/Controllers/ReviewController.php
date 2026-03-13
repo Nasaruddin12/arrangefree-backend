@@ -133,6 +133,23 @@ class ReviewController extends BaseController
         ], 200);
     }
 
+    public function getByBooking($bookingId)
+    {
+        $reviews = $this->reviewsModel
+            ->select('reviews.*, customers.name as customer_name')
+            ->join('customers', 'customers.id = reviews.user_id', 'left')
+            ->where('reviews.booking_id', (int) $bookingId)
+            ->orderBy('reviews.id', 'DESC')
+            ->findAll();
+
+        return $this->respond([
+            'status'     => 200,
+            'booking_id' => (int) $bookingId,
+            'reviewed'   => !empty($reviews),
+            'data'       => $this->appendReviewRelations($reviews),
+        ], 200);
+    }
+
     public function customerServiceReviews($serviceId)
     {
         $reviews = $this->reviewsModel
@@ -163,6 +180,26 @@ class ReviewController extends BaseController
             ->join('customers', 'customers.id = reviews.user_id', 'left')
             ->where('reviews.review_type', 'partner')
             ->where('reviews.partner_id', (int) $partnerId)
+            ->where('reviews.status', 'approved')
+            ->orderBy('reviews.id', 'DESC')
+            ->findAll();
+
+        return $this->respond([
+            'status' => 200,
+            'data'   => $this->appendReviewRelations($reviews),
+        ], 200);
+    }
+
+    public function getAllPartnerReviews()
+    {
+        if (!$this->isAdminSession()) {
+            return $this->respond(['status' => 401, 'message' => 'Unauthorized admin token.'], 401);
+        }
+
+        $reviews = $this->reviewsModel
+            ->select('reviews.*, customers.name as customer_name')
+            ->join('customers', 'customers.id = reviews.user_id', 'left')
+            ->where('reviews.review_type', 'partner')
             ->where('reviews.status', 'approved')
             ->orderBy('reviews.id', 'DESC')
             ->findAll();
