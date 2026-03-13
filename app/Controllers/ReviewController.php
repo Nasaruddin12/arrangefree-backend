@@ -347,6 +347,23 @@ class ReviewController extends BaseController
         ], 200);
     }
 
+    public function getAllServicesReviewSummary()
+    {
+        if (!$this->isAdminSession()) {
+            return $this->respond(['status' => 401, 'message' => 'Unauthorized admin token.'], 401);
+        }
+        $summaries = $this->serviceReviewSummaryModel
+            ->select('service_review_summary.*, services.name as service_name, services.image as service_image, services.slug as service_slug')
+            ->join('services', 'services.id = service_review_summary.service_id', 'left')
+            ->orderBy('service_review_summary.avg_rating', 'DESC')
+            ->findAll();
+
+        return $this->respond([
+            'status' => 200,
+            'data'   => $summaries,
+        ], 200);
+    }
+
     public function adminPartnerReviews($partnerId)
     {
         if (!$this->isAdminSession()) {
