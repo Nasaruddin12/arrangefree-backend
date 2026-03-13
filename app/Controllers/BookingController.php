@@ -831,7 +831,6 @@ class BookingController extends ResourceController
             $formattedServices = $this->formatBookingServiceList($services, 'booking_service', $refundMap);
             $formattedAdditionalServices = $this->formatBookingServiceList($additionalServices, 'additional_service', $refundMap);
             $formattedAdjustments = $this->formatAdjustmentRows($adjustments);
-            $adjustmentSummary = $this->buildAdjustmentSummary($adjustments);
 
             return $this->respond([
                 'status' => 200,
@@ -885,10 +884,7 @@ class BookingController extends ResourceController
                     'refunds' => $this->formatRefundRows($refunds, $refundMap),
                     'payments' => $this->formatPaymentRows($payments),
                     'payment_requests' => $this->formatPaymentRequestRows($paymentRequests),
-                    'adjustments' => [
-                        'summary' => $adjustmentSummary,
-                        'items' => $formattedAdjustments,
-                    ],
+                    'adjustments' => $formattedAdjustments,
                 ]
             ], 200);
         } catch (\Exception $e) {

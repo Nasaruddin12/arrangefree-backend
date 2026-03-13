@@ -1,0 +1,481 @@
+<?php
+
+namespace App\Controllers;
+
+use App\Controllers\BaseController;
+use App\Models\ReviewAspectsModel;
+use App\Models\ReviewMediaModel;
+use App\Models\ReviewsModel;
+use App\Models\ReviewVotesModel;
+use App\Models\ServiceReviewSummaryModel;
+use CodeIgniter\API\ResponseTrait;
+use Exception;
+
+class ReviewController extends BaseController
+{
+    use ResponseTrait;
+
+    protected ReviewsModel $reviewsModel;
+    protected ReviewAspectsModel $reviewAspectsModel;
+    protected ReviewMediaModel $reviewMediaModel;
+    protected ReviewVotesModel $reviewVotesModel;
+    protected ServiceReviewSummaryModel $serviceReviewSummaryModel;
+    protected $db;
+
+    public function __construct()
+    {
+        $this->db = \Config\Database::connect();
+        $this->reviewsModel = new ReviewsModel();
+        $this->reviewAspectsModel = new ReviewAspectsModel();
+        $this->reviewMediaModel = new ReviewMediaModel();
+        $this->reviewVotesModel = new ReviewVotesModel();
+        $this->serviceReviewSummaryModel = new ServiceReviewSummaryModel();
+    }
+
+    public function customerSubmit()
+    {
+        try {
+            $customerId = $this->getCustomerIdFromSession();
+            if ($customerId === null) {
+                return $this->respond(['status' => 401, 'message' => 'Unauthorized customer token.'], 401);
+            }
+
+            $payload = $this->getRequestData();
+            $reviewData = [
+                'review_type' => $payload['review_type'] ?? 'service',
+                'booking_id'  => $payload['booking_id'] ?? null,
+                'service_id'  => $payload['service_id'] ?? null,
+                'partner_id'  => $payload['partner_id'] ?? null,
+                'user_id'     => $customerId,
+                'title'       => $payload['title'] ?? null,
+                'rating'      => $payload['rating'] ?? null,
+                'review'      => $payload['review'] ?? null,
+                'is_verified' => isset($payload['is_verified']) ? (int) $payload['is_verified'] : 1,
+                'status'      => 'pending',
+            ];
+
+            if ($this->reviewsModel->hasDuplicateReview($reviewData)) {
+                return $this->respond([
+                    'status'  => 409,
+                    'message' => 'Review already submitted for this booking and target.',
+                ], 409);
+            }
+
+            $this->db->transStart();
+
+            $reviewId = $this->reviewsModel->insert($reviewData, true);
+            if ($reviewId === false) {
+                $this->db->transRollback();
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Validation failed.',
+                    'errors' => $this->reviewsModel->errors(),
+                ], 422);
+            }
+
+            $aspects = $this->normalizeAspects($payload['aspects'] ?? []);
+            if (!empty($aspects) && !$this->reviewAspectsModel->replaceReviewAspects((int) $reviewId, $aspects)) {
+                $this->db->transRollback();
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Aspect validation failed.',
+                    'errors' => $this->reviewAspectsModel->errors(),
+                ], 422);
+            }
+
+            $mediaItems = $this->normalizeMedia($payload['media'] ?? []);
+            foreach ($mediaItems as $mediaItem) {
+                $mediaItem['review_id'] = $reviewId;
+                if ($this->reviewMediaModel->insert($mediaItem) === false) {
+                    $this->db->transRollback();
+                    return $this->respond([
+                        'status' => 422,
+                        'message' => 'Review media validation failed.',
+                        'errors' => $this->reviewMediaModel->errors(),
+                    ], 422);
+                }
+            }
+
+            $this->db->transComplete();
+
+            if ($this->db->transStatus() === false) {
+                return $this->respond(['status' => 500, 'message' => 'Failed to save review.'], 500);
+            }
+
+            return $this->respondCreated([
+                'status'    => 201,
+                'message'   => 'Review submitted successfully.',
+                'review_id' => $reviewId,
+            ]);
+        } catch (Exception $e) {
+            return $this->respond([
+                'status' => $e->getCode() ?: 500,
+                'message' => $e->getMessage(),
+            ], $e->getCode() ?: 500);
+        }
+    }
+
+    public function customerMyReviews()
+    {
+        $customerId = $this->getCustomerIdFromSession();
+        if ($customerId === null) {
+            return $this->respond(['status' => 401, 'message' => 'Unauthorized customer token.'], 401);
+        }
+
+        $reviews = $this->reviewsModel
+            ->where('user_id', $customerId)
+            ->orderBy('id', 'DESC')
+            ->findAll();
+
+        return $this->respond([
+            'status' => 200,
+            'data'   => $this->appendReviewRelations($reviews),
+        ], 200);
+    }
+
+    public function customerServiceReviews($serviceId)
+    {
+        $reviews = $this->reviewsModel
+            ->select('reviews.*, customers.name as customer_name')
+            ->join('customers', 'customers.id = reviews.user_id', 'left')
+            ->where('reviews.review_type', 'service')
+            ->where('reviews.service_id', (int) $serviceId)
+            ->where('reviews.status', 'approved')
+            ->orderBy('reviews.id', 'DESC')
+            ->findAll();
+
+        return $this->respond([
+            'status'  => 200,
+            'summary' => $this->serviceReviewSummaryModel->getByServiceId((int) $serviceId),
+            'data'    => $this->appendReviewRelations($reviews),
+        ], 200);
+    }
+
+    public function submit()
+    {
+        return $this->customerSubmit();
+    }
+
+    public function getByPartner($partnerId)
+    {
+        $reviews = $this->reviewsModel
+            ->select('reviews.*, customers.name as customer_name')
+            ->join('customers', 'customers.id = reviews.user_id', 'left')
+            ->where('reviews.review_type', 'partner')
+            ->where('reviews.partner_id', (int) $partnerId)
+            ->where('reviews.status', 'approved')
+            ->orderBy('reviews.id', 'DESC')
+            ->findAll();
+
+        return $this->respond([
+            'status' => 200,
+            'data'   => $this->appendReviewRelations($reviews),
+        ], 200);
+    }
+
+    public function customerVote($reviewId)
+    {
+        $customerId = $this->getCustomerIdFromSession();
+        if ($customerId === null) {
+            return $this->respond(['status' => 401, 'message' => 'Unauthorized customer token.'], 401);
+        }
+
+        $payload = $this->getRequestData();
+        $voteData = [
+            'review_id' => (int) $reviewId,
+            'user_id'   => $customerId,
+            'vote'      => $payload['vote'] ?? null,
+        ];
+
+        if (!$this->reviewsModel->find($reviewId)) {
+            return $this->respond(['status' => 404, 'message' => 'Review not found.'], 404);
+        }
+
+        if (!$this->reviewVotesModel->saveUserVote($voteData)) {
+            return $this->respond([
+                'status' => 422,
+                'message' => 'Vote validation failed.',
+                'errors' => $this->reviewVotesModel->errors(),
+            ], 422);
+        }
+
+        return $this->respond([
+            'status'  => 200,
+            'message' => 'Vote saved successfully.',
+        ], 200);
+    }
+
+    public function adminList()
+    {
+        if (!$this->isAdminSession()) {
+            return $this->respond(['status' => 401, 'message' => 'Unauthorized admin token.'], 401);
+        }
+
+        $builder = $this->reviewsModel
+            ->select('reviews.*, customers.name as customer_name')
+            ->join('customers', 'customers.id = reviews.user_id', 'left')
+            ->orderBy('reviews.id', 'DESC');
+
+        $filters = $this->getRequestData();
+        foreach (['status', 'review_type', 'service_id', 'partner_id', 'booking_id', 'user_id'] as $filter) {
+            if (!empty($filters[$filter])) {
+                $builder->where('reviews.' . $filter, $filters[$filter]);
+            }
+        }
+
+        $reviews = $builder->findAll();
+
+        return $this->respond([
+            'status' => 200,
+            'data'   => $this->appendReviewRelations($reviews),
+        ], 200);
+    }
+
+    public function adminShow($reviewId)
+    {
+        if (!$this->isAdminSession()) {
+            return $this->respond(['status' => 401, 'message' => 'Unauthorized admin token.'], 401);
+        }
+
+        $review = $this->reviewsModel
+            ->select('reviews.*, customers.name as customer_name')
+            ->join('customers', 'customers.id = reviews.user_id', 'left')
+            ->where('reviews.id', (int) $reviewId)
+            ->first();
+
+        if (!$review) {
+            return $this->respond(['status' => 404, 'message' => 'Review not found.'], 404);
+        }
+
+        $review = $this->appendReviewRelations([$review])[0];
+
+        return $this->respond([
+            'status' => 200,
+            'data'   => $review,
+        ], 200);
+    }
+
+    public function adminUpdateStatus($reviewId)
+    {
+        if (!$this->isAdminSession()) {
+            return $this->respond(['status' => 401, 'message' => 'Unauthorized admin token.'], 401);
+        }
+
+        $payload = $this->getRequestData();
+        $review = $this->reviewsModel->find((int) $reviewId);
+
+        if (!$review) {
+            return $this->respond(['status' => 404, 'message' => 'Review not found.'], 404);
+        }
+
+        $updateData = [
+            'status'      => $payload['status'] ?? null,
+            'is_verified' => isset($payload['is_verified']) ? (int) $payload['is_verified'] : $review['is_verified'],
+        ];
+
+        if (!$this->reviewsModel->update((int) $reviewId, $updateData)) {
+            return $this->respond([
+                'status' => 422,
+                'message' => 'Validation failed.',
+                'errors' => $this->reviewsModel->errors(),
+            ], 422);
+        }
+
+        if (($review['review_type'] ?? null) === 'service' && !empty($review['service_id'])) {
+            $this->syncServiceSummary((int) $review['service_id']);
+        }
+
+        return $this->respond([
+            'status'  => 200,
+            'message' => 'Review updated successfully.',
+        ], 200);
+    }
+
+    public function adminServiceSummary($serviceId)
+    {
+        if (!$this->isAdminSession()) {
+            return $this->respond(['status' => 401, 'message' => 'Unauthorized admin token.'], 401);
+        }
+
+        $approvedReviews = $this->reviewsModel
+            ->where('review_type', 'service')
+            ->where('service_id', (int) $serviceId)
+            ->where('status', 'approved')
+            ->findAll();
+
+        return $this->respond([
+            'status'  => 200,
+            'summary' => $this->serviceReviewSummaryModel->getByServiceId((int) $serviceId),
+            'reviews' => $this->appendReviewRelations($approvedReviews),
+        ], 200);
+    }
+
+    public function adminPartnerReviews($partnerId)
+    {
+        if (!$this->isAdminSession()) {
+            return $this->respond(['status' => 401, 'message' => 'Unauthorized admin token.'], 401);
+        }
+
+        $reviews = $this->reviewsModel
+            ->select('reviews.*, customers.name as customer_name')
+            ->join('customers', 'customers.id = reviews.user_id', 'left')
+            ->where('reviews.review_type', 'partner')
+            ->where('reviews.partner_id', (int) $partnerId)
+            ->orderBy('reviews.id', 'DESC')
+            ->findAll();
+
+        return $this->respond([
+            'status' => 200,
+            'data'   => $this->appendReviewRelations($reviews),
+        ], 200);
+    }
+
+    private function getRequestData(): array
+    {
+        $query = $this->request->getGet();
+        if (is_array($query) && !empty($query)) {
+            return $query;
+        }
+
+        $json = $this->request->getJSON(true);
+        if (is_array($json) && !empty($json)) {
+            return $json;
+        }
+
+        $data = $this->request->getPost();
+        if (is_array($data) && !empty($data)) {
+            return $data;
+        }
+
+        $raw = $this->request->getRawInput();
+
+        return is_array($raw) ? $raw : [];
+    }
+
+    private function getAuthUser(): array
+    {
+        return (array) session()->get('auth_user');
+    }
+
+    private function getCustomerIdFromSession(): ?int
+    {
+        $authUser = $this->getAuthUser();
+        $customerId = (int) ($authUser['customer_id'] ?? 0);
+
+        return $customerId > 0 ? $customerId : null;
+    }
+
+    private function isAdminSession(): bool
+    {
+        $authUser = $this->getAuthUser();
+
+        return (($authUser['aud'] ?? '') === 'Admin' && !empty($authUser['id']));
+    }
+
+    private function normalizeAspects($aspects): array
+    {
+        if (!is_array($aspects)) {
+            return [];
+        }
+
+        $normalized = [];
+        foreach ($aspects as $aspect) {
+            if (!is_array($aspect) || empty($aspect['aspect']) || !isset($aspect['rating'])) {
+                continue;
+            }
+
+            $normalized[] = [
+                'aspect' => trim((string) $aspect['aspect']),
+                'rating' => (int) $aspect['rating'],
+            ];
+        }
+
+        return $normalized;
+    }
+
+    private function normalizeMedia($media): array
+    {
+        if (!is_array($media)) {
+            return [];
+        }
+
+        $normalized = [];
+        foreach ($media as $item) {
+            if (!is_array($item) || empty($item['media_url'])) {
+                continue;
+            }
+
+            $normalized[] = [
+                'media_type' => in_array(($item['media_type'] ?? 'image'), ['image', 'video'], true) ? $item['media_type'] : 'image',
+                'media_url'  => trim((string) $item['media_url']),
+            ];
+        }
+
+        return $normalized;
+    }
+
+    private function appendReviewRelations(array $reviews): array
+    {
+        foreach ($reviews as &$review) {
+            $reviewId = (int) $review['id'];
+            $review['aspects'] = $this->reviewAspectsModel->getByReviewId($reviewId);
+            $review['media'] = $this->reviewMediaModel->where('review_id', $reviewId)->findAll();
+
+            $review['vote_summary'] = [
+                'helpful' => $this->reviewVotesModel->where('review_id', $reviewId)->where('vote', 'helpful')->countAllResults(),
+                'not_helpful' => $this->reviewVotesModel->where('review_id', $reviewId)->where('vote', 'not_helpful')->countAllResults(),
+            ];
+        }
+
+        return $reviews;
+    }
+
+    private function syncServiceSummary(int $serviceId): void
+    {
+        $approvedReviews = $this->reviewsModel
+            ->where('review_type', 'service')
+            ->where('service_id', $serviceId)
+            ->where('status', 'approved')
+            ->findAll();
+
+        $totalReviews = count($approvedReviews);
+        $totalRating = 0.0;
+        $bucketCounts = [
+            'rating_1' => 0,
+            'rating_2' => 0,
+            'rating_3' => 0,
+            'rating_4' => 0,
+            'rating_5' => 0,
+        ];
+
+        foreach ($approvedReviews as $review) {
+            $rating = (float) ($review['rating'] ?? 0);
+            $totalRating += $rating;
+
+            if ($rating < 2) {
+                $bucketCounts['rating_1']++;
+            } elseif ($rating < 3) {
+                $bucketCounts['rating_2']++;
+            } elseif ($rating < 4) {
+                $bucketCounts['rating_3']++;
+            } elseif ($rating < 5) {
+                $bucketCounts['rating_4']++;
+            } else {
+                $bucketCounts['rating_5']++;
+            }
+        }
+
+        $summaryData = [
+            'avg_rating'    => $totalReviews > 0 ? round($totalRating / $totalReviews, 2) : 0,
+            'total_reviews' => $totalReviews,
+            'rating_1'      => $bucketCounts['rating_1'],
+            'rating_2'      => $bucketCounts['rating_2'],
+            'rating_3'      => $bucketCounts['rating_3'],
+            'rating_4'      => $bucketCounts['rating_4'],
+            'rating_5'      => $bucketCounts['rating_5'],
+            'updated_at'    => date('Y-m-d H:i:s'),
+        ];
+
+        $this->serviceReviewSummaryModel->saveSummary($serviceId, $summaryData);
+    }
+}
