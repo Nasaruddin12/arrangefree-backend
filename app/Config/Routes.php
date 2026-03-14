@@ -678,6 +678,7 @@ $routes->group('payouts', function ($routes) {
 });
 
 $routes->group('reviews', function ($routes) {
+    $routes->get('service/(:num)', 'ReviewController::serviceReviews/$1');
     $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
         $routes->post('submit', 'ReviewController::submit');
         $routes->post('media/upload', 'ReviewController::uploadMedia');
@@ -686,7 +687,6 @@ $routes->group('reviews', function ($routes) {
         $routes->post('customer/submit', 'ReviewController::customerSubmit');
         $routes->get('customer/my', 'ReviewController::customerMyReviews');
         $routes->get('booking/(:num)', 'ReviewController::getByBooking/$1');
-        $routes->get('customer/service/(:num)', 'ReviewController::customerServiceReviews/$1');
         $routes->get('admin/service-summary', 'ReviewController::getAllServicesReviewSummary');
         $routes->post('customer/(:num)/vote', 'ReviewController::customerVote/$1');
         $routes->match(['get', 'post'], 'admin/list', 'ReviewController::adminList');

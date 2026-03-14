@@ -313,7 +313,7 @@ class ReviewController extends BaseController
         ], 200);
     }
 
-    public function customerServiceReviews($serviceId)
+    public function serviceReviews($serviceId)
     {
         $reviews = $this->reviewsModel
             ->select('reviews.*, customers.name as customer_name')
