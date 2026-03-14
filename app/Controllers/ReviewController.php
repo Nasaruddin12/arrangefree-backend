@@ -210,7 +210,7 @@ class ReviewController extends BaseController
                 'rating'      => $payload['rating'] ?? null,
                 'review'      => $payload['review'] ?? null,
                 'is_verified' => isset($payload['is_verified']) ? (int) $payload['is_verified'] : 1,
-                'status'      => 'pending',
+                'status'      => 'approved',
             ];
 
             if ($this->reviewsModel->hasDuplicateReview($reviewData)) {
@@ -259,6 +259,10 @@ class ReviewController extends BaseController
 
             if ($this->db->transStatus() === false) {
                 return $this->respond(['status' => 500, 'message' => 'Failed to save review.'], 500);
+            }
+
+            if (($reviewData['review_type'] ?? null) === 'service' && !empty($reviewData['service_id'])) {
+                $this->syncServiceSummary((int) $reviewData['service_id']);
             }
 
             return $this->respondCreated([
@@ -626,6 +630,7 @@ class ReviewController extends BaseController
 
         return $normalized;
     }
+
 
     private function appendReviewRelations(array $reviews): array
     {
