@@ -8,6 +8,7 @@ use App\Models\ReviewMediaModel;
 use App\Models\ReviewsModel;
 use App\Models\ReviewVotesModel;
 use App\Models\ServiceReviewSummaryModel;
+use App\Services\ImageProcessingService;
 use CodeIgniter\API\ResponseTrait;
 use Exception;
 
@@ -20,6 +21,7 @@ class ReviewController extends BaseController
     protected ReviewMediaModel $reviewMediaModel;
     protected ReviewVotesModel $reviewVotesModel;
     protected ServiceReviewSummaryModel $serviceReviewSummaryModel;
+    protected ImageProcessingService $imageProcessingService;
     protected $db;
 
     public function __construct()
@@ -30,6 +32,163 @@ class ReviewController extends BaseController
         $this->reviewMediaModel = new ReviewMediaModel();
         $this->reviewVotesModel = new ReviewVotesModel();
         $this->serviceReviewSummaryModel = new ServiceReviewSummaryModel();
+        $this->imageProcessingService = new ImageProcessingService();
+    }
+
+    public function uploadMedia()
+    {
+        try {
+            $files = $this->request->getFiles();
+            $mediaFiles = [];
+
+            if (isset($files['media'])) {
+                $mediaFiles = is_array($files['media']) ? $files['media'] : [$files['media']];
+            } elseif ($this->request->getFile('file')) {
+                $mediaFiles = [$this->request->getFile('file')];
+            }
+
+            if (empty($mediaFiles)) {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'No media files uploaded.',
+                ], 400);
+            }
+
+            $uploadRelativePath = 'public/uploads/reviews/';
+            $uploadFullPath = FCPATH . $uploadRelativePath;
+            $uploadedMedia = [];
+
+            foreach ($mediaFiles as $file) {
+                if (!$file || !$file->isValid() || $file->hasMoved()) {
+                    continue;
+                }
+
+                $mimeType = (string) $file->getMimeType();
+
+                if (str_starts_with($mimeType, 'image/')) {
+                    $allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+                    if (!in_array($mimeType, $allowedTypes, true)) {
+                        continue;
+                    }
+
+                    $baseName = pathinfo($file->getRandomName(), PATHINFO_FILENAME);
+                    $webpName = $this->imageProcessingService->uploadAndConvertToWebp(
+                        $file,
+                        $uploadFullPath,
+                        $baseName,
+                        1200,
+                        1200,
+                        90
+                    );
+
+                    $uploadedMedia[] = [
+                        'media_type' => 'image',
+                        'media_url' => $uploadRelativePath . $webpName,
+                    ];
+                    continue;
+                }
+
+                if (str_starts_with($mimeType, 'video/')) {
+                    $allowedExtensions = ['mp4', 'mov', 'avi', 'mkv', 'webm'];
+                    $extension = strtolower((string) $file->getExtension());
+                    if (!in_array($extension, $allowedExtensions, true)) {
+                        continue;
+                    }
+
+                    if (!is_dir($uploadFullPath) && !mkdir($uploadFullPath, 0755, true) && !is_dir($uploadFullPath)) {
+                        return $this->respond([
+                            'status' => 500,
+                            'message' => 'Failed to create upload directory.',
+                        ], 500);
+                    }
+
+                    $fileName = $file->getRandomName();
+                    if (!$file->move($uploadFullPath, $fileName)) {
+                        return $this->respond([
+                            'status' => 500,
+                            'message' => 'Failed to upload media.',
+                        ], 500);
+                    }
+
+                    $uploadedMedia[] = [
+                        'media_type' => 'video',
+                        'media_url' => $uploadRelativePath . $fileName,
+                    ];
+                }
+            }
+
+            if (empty($uploadedMedia)) {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'No valid media files were uploaded.',
+                ], 400);
+            }
+
+            return $this->respondCreated([
+                'status' => 201,
+                'message' => 'Review media uploaded successfully.',
+                'data' => $uploadedMedia,
+            ]);
+        } catch (Exception $e) {
+            return $this->respond([
+                'status' => $e->getCode() ?: 500,
+                'message' => 'Failed to upload review media.',
+                'error' => $e->getMessage(),
+            ], $e->getCode() ?: 500);
+        }
+    }
+
+    public function deleteMedia()
+    {
+        try {
+            $payload = $this->getRequestData();
+            $mediaUrl = trim((string) ($payload['media_url'] ?? ''));
+
+            if ($mediaUrl === '') {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'media_url is required.',
+                ], 400);
+            }
+
+            $relativePath = ltrim($mediaUrl, '/');
+            $allowedPrefix = 'public/uploads/reviews/';
+            if (!str_starts_with($relativePath, $allowedPrefix)) {
+                return $this->respond([
+                    'status' => 400,
+                    'message' => 'Invalid review media path.',
+                ], 400);
+            }
+
+            $fullPath = FCPATH . $relativePath;
+            if (!is_file($fullPath)) {
+                return $this->respond([
+                    'status' => 404,
+                    'message' => 'Media file not found.',
+                ], 404);
+            }
+
+            if (!@unlink($fullPath)) {
+                return $this->respond([
+                    'status' => 500,
+                    'message' => 'Failed to delete media file.',
+                ], 500);
+            }
+
+            return $this->respondDeleted([
+                'status' => 200,
+                'message' => 'Review media deleted successfully.',
+                'data' => [
+                    'media_url' => $relativePath,
+                ],
+            ]);
+        } catch (Exception $e) {
+            return $this->respond([
+                'status' => $e->getCode() ?: 500,
+                'message' => 'Failed to delete review media.',
+                'error' => $e->getMessage(),
+            ], $e->getCode() ?: 500);
+        }
     }
 
     public function customerSubmit()
