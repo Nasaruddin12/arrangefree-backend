@@ -3,6 +3,8 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
+use App\Models\BookingsModel;
+use App\Models\BookingServicesModel;
 use App\Models\ReviewAspectsModel;
 use App\Models\ReviewMediaModel;
 use App\Models\ReviewsModel;
@@ -296,6 +298,84 @@ class ReviewController extends BaseController
         ], 200);
     }
 
+    public function bookingReviewServices($bookingId)
+    {
+        $customerId = $this->getCustomerIdFromSession();
+        if ($customerId === null) {
+            return $this->respond(['status' => 401, 'message' => 'Unauthorized customer token.'], 401);
+        }
+
+        $bookingId = (int) $bookingId;
+        if ($bookingId <= 0) {
+            return $this->respond(['status' => 422, 'message' => 'Valid booking_id is required.'], 422);
+        }
+
+        $booking = (new BookingsModel())
+            ->where('id', $bookingId)
+            ->where('user_id', $customerId)
+            ->first();
+
+        if (!$booking) {
+            return $this->respond(['status' => 404, 'message' => 'Booking not found.'], 404);
+        }
+
+        $services = (new BookingServicesModel())
+            ->select('booking_services.service_id, services.name as service_name, services.image as service_image, services.slug as service_slug')
+            ->join('services', 'services.id = booking_services.service_id', 'left')
+            ->where('booking_services.booking_id', $bookingId)
+            ->where('booking_services.status !=', 'cancelled')
+            ->where('booking_services.service_id IS NOT NULL', null, false)
+            ->groupBy('booking_services.service_id, services.name, services.image, services.slug')
+            ->orderBy('services.name', 'ASC')
+            ->findAll();
+
+        $reviews = $this->reviewsModel
+            ->where('booking_id', $bookingId)
+            ->where('user_id', $customerId)
+            ->where('review_type', 'service')
+            ->findAll();
+
+        $reviewsByServiceId = [];
+        foreach ($reviews as $review) {
+            $serviceId = (int) ($review['service_id'] ?? 0);
+            if ($serviceId > 0) {
+                $reviewsByServiceId[$serviceId] = $review;
+            }
+        }
+
+        $data = [];
+        foreach ($services as $service) {
+            $serviceId = (int) ($service['service_id'] ?? 0);
+            $review = $reviewsByServiceId[$serviceId] ?? null;
+
+            $data[] = [
+                'booking_id' => $bookingId,
+                'service_id' => $serviceId,
+                'service_name' => $service['service_name'] ?? null,
+                'service_image' => $service['service_image'] ?? null,
+                'service_slug' => $service['service_slug'] ?? null,
+                'has_review' => $review !== null,
+                'can_add_review' => $review === null,
+                'can_update_review' => $review !== null,
+                'review' => $review ? [
+                    'review_id' => (int) $review['id'],
+                    'rating' => isset($review['rating']) ? (float) $review['rating'] : null,
+                    'title' => $review['title'] ?? null,
+                    'review' => $review['review'] ?? null,
+                    'status' => $review['status'] ?? null,
+                    'is_verified' => isset($review['is_verified']) ? (int) $review['is_verified'] : null,
+                    'media' => $this->reviewMediaModel->where('review_id', (int) $review['id'])->findAll(),
+                ] : null,
+            ];
+        }
+
+        return $this->respond([
+            'status' => 200,
+            'booking_id' => $bookingId,
+            'data' => $data,
+        ], 200);
+    }
+
     public function getByBooking($bookingId)
     {
         $reviews = $this->reviewsModel
@@ -375,15 +455,21 @@ class ReviewController extends BaseController
 
     public function customerVote($reviewId)
     {
+        $payload = $this->getRequestData();
         $customerId = $this->getCustomerIdFromSession();
-        if ($customerId === null) {
-            return $this->respond(['status' => 401, 'message' => 'Unauthorized customer token.'], 401);
+        $guestToken = trim((string) ($payload['guest_token'] ?? ''));
+
+        if ($customerId === null && $guestToken === '') {
+            return $this->respond([
+                'status' => 422,
+                'message' => 'guest_token is required for guest voting.',
+            ], 422);
         }
 
-        $payload = $this->getRequestData();
         $voteData = [
             'review_id' => (int) $reviewId,
             'user_id'   => $customerId,
+            'guest_token' => $guestToken !== '' ? $guestToken : null,
             'vote'      => $payload['vote'] ?? null,
         ];
 
