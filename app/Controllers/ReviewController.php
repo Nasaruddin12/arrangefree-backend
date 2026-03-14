@@ -412,8 +412,10 @@ class ReviewController extends BaseController
         }
 
         $builder = $this->reviewsModel
-            ->select('reviews.*, customers.name as customer_name')
+            ->select('reviews.*, customers.name as customer_name, services.name as service_name, partners.name as partner_name')
             ->join('customers', 'customers.id = reviews.user_id', 'left')
+            ->join('services', 'services.id = reviews.service_id', 'left')
+            ->join('partners', 'partners.id = reviews.partner_id', 'left')
             ->orderBy('reviews.id', 'DESC');
 
         $filters = $this->getRequestData();
@@ -438,8 +440,10 @@ class ReviewController extends BaseController
         }
 
         $review = $this->reviewsModel
-            ->select('reviews.*, customers.name as customer_name')
+            ->select('reviews.*, customers.name as customer_name, services.name as service_name, partners.name as partner_name')
             ->join('customers', 'customers.id = reviews.user_id', 'left')
+            ->join('services', 'services.id = reviews.service_id', 'left')
+            ->join('partners', 'partners.id = reviews.partner_id', 'left')
             ->where('reviews.id', (int) $reviewId)
             ->first();
 
@@ -500,7 +504,7 @@ class ReviewController extends BaseController
         $approvedReviews = $this->reviewsModel
             ->where('review_type', 'service')
             ->where('service_id', (int) $serviceId)
-            ->where('status', 'approved')
+            // ->where('status', 'approved')
             ->findAll();
 
         return $this->respond([
