@@ -405,6 +405,11 @@ class ReviewController extends BaseController
         ], 200);
     }
 
+    public function vote($reviewId)
+    {
+        return $this->customerVote($reviewId);
+    }
+
     public function adminList()
     {
         if (!$this->isAdminSession()) {

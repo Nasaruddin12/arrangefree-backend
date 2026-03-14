@@ -680,6 +680,7 @@ $routes->group('payouts', function ($routes) {
 $routes->group('reviews', function ($routes) {
     $routes->get('service/(:num)', 'ReviewController::serviceReviews/$1');
     $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
+        $routes->post('vote/(:num)', 'ReviewController::vote/$1');
         $routes->post('submit', 'ReviewController::submit');
         $routes->post('media/upload', 'ReviewController::uploadMedia');
         $routes->delete('media', 'ReviewController::deleteMedia');
