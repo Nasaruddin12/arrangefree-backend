@@ -125,13 +125,11 @@ $routes->group('admin', static function ($routes) {
         $routes->get('user-access/logs', 'AdminUserAccessController::logs');
         $routes->get('user-access/request/(:num)/logs', 'AdminUserAccessController::requestLogs/$1');
 
-        $routes->post('booking/cancellation/full', 'BookingController::fullCancelBooking');
-        $routes->post('booking/cancellation/partial', 'BookingController::partialCancelBooking');
-        $routes->post('booking/cancellation/partial-bulk', 'BookingController::partialBulkCancelBooking');
+        $routes->post('booking/cancellation', 'BookingController::cancelBooking');
         $routes->match(['get', 'post'], 'booking/cancellation/preview', 'BookingController::cancellationPreview');
-        $routes->match(['get', 'post'], 'booking/cancellation/preview/(:num)', 'BookingController::cancellationPreview/$1');
         $routes->get('booking/refunds', 'BookingController::getBookingRefunds');
         $routes->put('booking/refunds/(:num)/status', 'BookingController::updateBookingRefundStatus/$1');
+        
     });
 });
 
@@ -344,11 +342,8 @@ $routes->group('booking', function ($routes) {
         $routes->post('additional-services/approval', 'BookingController::approveAdditionalServices');
         $routes->post('adjustments/(:num)', 'BookingController::createAdjustment/$1');
         $routes->get('adjustments/(:num)', 'BookingController::getAdjustments/$1');
-        $routes->post('cancellation/full', 'BookingController::fullCancelBooking');
-        $routes->post('cancellation/partial', 'BookingController::partialCancelBooking');
-        $routes->post('cancellation/partial-bulk', 'BookingController::partialBulkCancelBooking');
+        $routes->post('cancellation', 'BookingController::cancelBooking');
         $routes->match(['get', 'post'], 'cancellation/preview', 'BookingController::cancellationPreview');
-        $routes->match(['get', 'post'], 'cancellation/preview/(:num)', 'BookingController::cancellationPreview/$1');
         $routes->get('refunds', 'BookingController::getBookingRefunds');
         $routes->put('refunds/(:num)/status', 'BookingController::updateBookingRefundStatus/$1');
 
@@ -681,10 +676,28 @@ $routes->group('payouts', function ($routes) {
         $routes->post('release', 'PartnerPayoutController::release');
     });
 });
+
 $routes->group('reviews', function ($routes) {
+    $routes->get('service/(:num)', 'ReviewController::serviceReviews/$1');
+    $routes->post('vote/(:num)', 'ReviewController::vote/$1');
     $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
-        $routes->post('submit', 'PartnerReviewController::submit');
-        $routes->get('partner/(:num)', 'PartnerReviewController::getByPartner/$1');
+        $routes->post('submit', 'ReviewController::submit');
+        $routes->post('media/upload', 'ReviewController::uploadMedia');
+        $routes->delete('media', 'ReviewController::deleteMedia');
+        $routes->get('partner/(:num)', 'ReviewController::getByPartner/$1');
+        $routes->put('customer/update/(:num)', 'ReviewController::customerUpdate/$1');
+        $routes->post('customer/submit', 'ReviewController::customerSubmit');
+        $routes->get('customer/my', 'ReviewController::customerMyReviews');
+        $routes->get('booking/(:num)/services', 'ReviewController::bookingReviewServices/$1');
+        $routes->get('booking/(:num)', 'ReviewController::getByBooking/$1');
+        $routes->get('admin/service-summary', 'ReviewController::getAllServicesReviewSummary');
+        $routes->post('customer/(:num)/vote', 'ReviewController::customerVote/$1');
+        $routes->match(['get', 'post'], 'admin/list', 'ReviewController::adminList');
+        $routes->get('admin/(:num)', 'ReviewController::adminShow/$1');
+        $routes->put('admin/(:num)/status', 'ReviewController::adminUpdateStatus/$1');
+        $routes->get('admin/service-summary/(:num)', 'ReviewController::adminServiceSummary/$1');
+        $routes->get('admin/partner', 'ReviewController::getAllPartnerReviews');
+        $routes->get('admin/partner/(:num)', 'ReviewController::adminPartnerReviews/$1');
     });
 });
 
