@@ -685,6 +685,7 @@ $routes->group('reviews', function ($routes) {
         $routes->post('media/upload', 'ReviewController::uploadMedia');
         $routes->delete('media', 'ReviewController::deleteMedia');
         $routes->get('partner/(:num)', 'ReviewController::getByPartner/$1');
+        $routes->put('customer/update/(:num)', 'ReviewController::customerUpdate/$1');
         $routes->post('customer/submit', 'ReviewController::customerSubmit');
         $routes->get('customer/my', 'ReviewController::customerMyReviews');
         $routes->get('booking/(:num)/services', 'ReviewController::bookingReviewServices/$1');

@@ -416,6 +416,95 @@ class ReviewController extends BaseController
         return $this->customerSubmit();
     }
 
+    public function customerUpdate($reviewId)
+    {
+        try {
+            $customerId = $this->getCustomerIdFromSession();
+            if ($customerId === null) {
+                return $this->respond(['status' => 401, 'message' => 'Unauthorized customer token.'], 401);
+            }
+
+            $review = $this->reviewsModel
+                ->where('id', (int) $reviewId)
+                ->where('user_id', $customerId)
+                ->first();
+
+            if (!$review) {
+                return $this->respond(['status' => 404, 'message' => 'Review not found.'], 404);
+            }
+
+            $payload = $this->getRequestData();
+            $updateData = [
+                'title'       => $payload['title'] ?? $review['title'] ?? null,
+                'rating'      => $payload['rating'] ?? $review['rating'] ?? null,
+                'review'      => $payload['review'] ?? $review['review'] ?? null,
+                'is_verified' => isset($payload['is_verified']) ? (int) $payload['is_verified'] : (int) ($review['is_verified'] ?? 1),
+                'status'      => $review['status'] ?? 'approved',
+            ];
+
+            $this->db->transStart();
+
+            if (!$this->reviewsModel->update((int) $reviewId, $updateData)) {
+                $this->db->transRollback();
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Validation failed.',
+                    'errors' => $this->reviewsModel->errors(),
+                ], 422);
+            }
+
+            if (array_key_exists('aspects', $payload)) {
+                $aspects = $this->normalizeAspects($payload['aspects'] ?? []);
+                if (!$this->reviewAspectsModel->replaceReviewAspects((int) $reviewId, $aspects)) {
+                    $this->db->transRollback();
+                    return $this->respond([
+                        'status' => 422,
+                        'message' => 'Aspect validation failed.',
+                        'errors' => $this->reviewAspectsModel->errors(),
+                    ], 422);
+                }
+            }
+
+            if (array_key_exists('media', $payload)) {
+                $mediaItems = $this->normalizeMedia($payload['media'] ?? []);
+                $this->reviewMediaModel->where('review_id', (int) $reviewId)->delete();
+
+                foreach ($mediaItems as $mediaItem) {
+                    $mediaItem['review_id'] = (int) $reviewId;
+                    if ($this->reviewMediaModel->insert($mediaItem) === false) {
+                        $this->db->transRollback();
+                        return $this->respond([
+                            'status' => 422,
+                            'message' => 'Review media validation failed.',
+                            'errors' => $this->reviewMediaModel->errors(),
+                        ], 422);
+                    }
+                }
+            }
+
+            $this->db->transComplete();
+
+            if ($this->db->transStatus() === false) {
+                return $this->respond(['status' => 500, 'message' => 'Failed to update review.'], 500);
+            }
+
+            if (($review['review_type'] ?? null) === 'service' && !empty($review['service_id'])) {
+                $this->syncServiceSummary((int) $review['service_id']);
+            }
+
+            return $this->respond([
+                'status'    => 200,
+                'message'   => 'Review updated successfully.',
+                'review_id' => (int) $reviewId,
+            ], 200);
+        } catch (Exception $e) {
+            return $this->respond([
+                'status' => $e->getCode() ?: 500,
+                'message' => $e->getMessage(),
+            ], $e->getCode() ?: 500);
+        }
+    }
+
     public function getByPartner($partnerId)
     {
         $reviews = $this->reviewsModel
@@ -593,8 +682,10 @@ class ReviewController extends BaseController
         }
 
         $approvedReviews = $this->reviewsModel
-            ->where('review_type', 'service')
-            ->where('service_id', (int) $serviceId)
+            ->select('reviews.*, customers.name as customer_name')
+            ->join('customers', 'customers.id = reviews.user_id', 'left')
+            ->where('reviews.review_type', 'service')
+            ->where('reviews.service_id', (int) $serviceId)
             // ->where('status', 'approved')
             ->findAll();
 
