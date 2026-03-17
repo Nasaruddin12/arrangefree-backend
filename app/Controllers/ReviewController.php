@@ -548,7 +548,7 @@ class ReviewController extends BaseController
         $customerId = $this->getCustomerIdFromSession();
         $guestToken = trim((string) ($payload['guest_token'] ?? ''));
 
-        if ($customerId === null || $guestToken === '') {
+        if ($payload['user_id'] === null && $guestToken === '') {
             return $this->respond([
                 'status' => 422,
                 'message' => 'guest_token is required for guest voting.',
@@ -557,7 +557,7 @@ class ReviewController extends BaseController
 
         $voteData = [
             'review_id' => (int) $reviewId,
-            'user_id'   => $customerId,
+            'user_id'   => $payload['user_id'],
             'guest_token' => $guestToken !== '' ? $guestToken : null,
             'vote'      => $payload['vote'] ?? null,
         ];
