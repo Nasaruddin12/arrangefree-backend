@@ -57,12 +57,28 @@ class ServiceModel extends Model
             return [];
         }
 
+        $db = \Config\Database::connect();
         $addonModel = new \App\Models\ServiceAddonModel();
         $offerModel = new \App\Models\ServiceOfferModel();
+        $serviceIds = array_column($services, 'id');
+        $reviewSummaries = [];
+
+        if (!empty($serviceIds)) {
+            $summaryRows = $db->table('service_review_summary')
+                ->select('service_id, avg_rating, total_reviews')
+                ->whereIn('service_id', $serviceIds)
+                ->get()
+                ->getResultArray();
+
+            foreach ($summaryRows as $summaryRow) {
+                $reviewSummaries[(int) $summaryRow['service_id']] = $summaryRow;
+            }
+        }
 
         foreach ($services as &$service) {
 
             $originalPrice = (float) ($service['rate'] ?? $service['price'] ?? 0);
+            $serviceSummary = $reviewSummaries[(int) $service['id']] ?? null;
 
             // 4️⃣ Attach Addons
             $service['addons'] = $addonModel
@@ -108,6 +124,9 @@ class ServiceModel extends Model
             // 7️⃣ Attach Result
             $service['original_price'] = $originalPrice;
             $service['discounted_rate'] = round($bestDiscountedPrice, 2);
+            $service['avg_rating'] = isset($serviceSummary['avg_rating']) ? (float) $serviceSummary['avg_rating'] : 0.0;
+            $service['rating_count'] = isset($serviceSummary['total_reviews']) ? (int) $serviceSummary['total_reviews'] : 0;
+            $service['total_reviews'] = $service['rating_count'];
 
             if ($bestOffer) {
                 $service['offer'] = [
@@ -123,6 +142,8 @@ class ServiceModel extends Model
                 $service['offer'] = null;
             }
         }
+
+        unset($service);
 
         return $services;
     }
@@ -262,9 +283,24 @@ class ServiceModel extends Model
 
         $addonModel = new \App\Models\ServiceAddonModel();
         $offerModel = new \App\Models\ServiceOfferModel();
+        $serviceIds = array_column($services, 'id');
+        $reviewSummaries = [];
+
+        if (!empty($serviceIds)) {
+            $summaryRows = $db->table('service_review_summary')
+                ->select('service_id, avg_rating, total_reviews')
+                ->whereIn('service_id', $serviceIds)
+                ->get()
+                ->getResultArray();
+
+            foreach ($summaryRows as $summaryRow) {
+                $reviewSummaries[(int) $summaryRow['service_id']] = $summaryRow;
+            }
+        }
 
         foreach ($services as &$service) {
             $originalPrice = (float) ($service['rate'] ?? $service['price'] ?? 0);
+            $serviceSummary = $reviewSummaries[(int) $service['id']] ?? null;
 
             $service['addons'] = $addonModel
                 ->where('service_id', $service['id'])
@@ -303,6 +339,9 @@ class ServiceModel extends Model
 
             $service['original_price'] = $originalPrice;
             $service['discounted_rate'] = round($bestDiscountedPrice, 2);
+            $service['avg_rating'] = isset($serviceSummary['avg_rating']) ? (float) $serviceSummary['avg_rating'] : 0.0;
+            $service['rating_count'] = isset($serviceSummary['total_reviews']) ? (int) $serviceSummary['total_reviews'] : 0;
+            $service['total_reviews'] = $service['rating_count'];
 
             if ($bestOffer) {
                 $service['offer'] = [

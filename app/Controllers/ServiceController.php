@@ -618,10 +618,14 @@ class ServiceController extends BaseController
                 $originalPrice,
                 $bestOffer
             );
+            $serviceReviewSummary = $this->getServiceReviewSummary((int) $service['id']);
 
             $service['original_price'] = $originalPrice;
             $service['discounted_rate'] = round($discountedServicePrice, 2);
             $service['offer'] = $bestOffer ?? null;
+            $service['avg_rating'] = $serviceReviewSummary['avg_rating'];
+            $service['rating_count'] = $serviceReviewSummary['rating_count'];
+            $service['total_reviews'] = $serviceReviewSummary['total_reviews'];
 
             // 4️⃣ Fetch Addons
             $addonModel = new \App\Models\ServiceAddonModel();
@@ -757,10 +761,14 @@ class ServiceController extends BaseController
                 $originalPrice,
                 $bestOffer
             );
+            $serviceReviewSummary = $this->getServiceReviewSummary((int) $service['id']);
 
             $service['original_price'] = $originalPrice;
             $service['discounted_rate'] = round($discountedServicePrice, 2);
             $service['offer'] = $bestOffer ?? null;
+            $service['avg_rating'] = $serviceReviewSummary['avg_rating'];
+            $service['rating_count'] = $serviceReviewSummary['rating_count'];
+            $service['total_reviews'] = $serviceReviewSummary['total_reviews'];
 
             // 4️⃣ Fetch Addons
             $addonModel = new \App\Models\ServiceAddonModel();
@@ -1046,6 +1054,24 @@ class ServiceController extends BaseController
         unset($service);
 
         return $services;
+    }
+
+    private function getServiceReviewSummary(int $serviceId): array
+    {
+        $summary = \Config\Database::connect()
+            ->table('service_review_summary')
+            ->select('avg_rating, total_reviews')
+            ->where('service_id', $serviceId)
+            ->get()
+            ->getRowArray();
+
+        $ratingCount = isset($summary['total_reviews']) ? (int) $summary['total_reviews'] : 0;
+
+        return [
+            'avg_rating' => isset($summary['avg_rating']) ? (float) $summary['avg_rating'] : 0.0,
+            'rating_count' => $ratingCount,
+            'total_reviews' => $ratingCount,
+        ];
     }
 
 
