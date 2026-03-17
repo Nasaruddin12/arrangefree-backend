@@ -763,7 +763,7 @@ class ReviewController extends BaseController
     private function getCustomerIdFromSession(): ?int
     {
         $authUser = $this->getAuthUser();
-        $customerId = (int) ($authUser['customer_id'] ?? 0);
+        $customerId = (int) ($authUser['id'] ?? 0);
 
         return $customerId > 0 ? $customerId : null;
     }
