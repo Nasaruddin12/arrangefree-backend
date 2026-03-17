@@ -418,7 +418,7 @@ class CustomerController extends BaseController
                 throw new Exception($customerModel->db->error()['message'], 500);
             }
             if ($customerModel->db->affectedRows() == 1) {
-                $email = $emailControler->sendWelcomeEmail($customerData['email'], $customerData['name']);
+                // $email = $emailControler->sendWelcomeEmail($customerData['email'], $customerData['name']);
                 $statusCode = 200;
                 $response = [
                     'message' => 'Customer updated successfully.',
