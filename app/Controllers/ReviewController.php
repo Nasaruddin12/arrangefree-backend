@@ -547,7 +547,7 @@ class ReviewController extends BaseController
         $payload = $this->getRequestData();
         $customerId = $this->getCustomerIdFromSession();
         $guestToken = trim((string) ($payload['guest_token'] ?? ''));
-        
+
         if ($payload['user_id'] === null && $guestToken === '') {
             return $this->respond([
                 'status' => 422,
@@ -561,6 +561,8 @@ class ReviewController extends BaseController
             'guest_token' => $guestToken !== '' ? $guestToken : null,
             'vote'      => $payload['vote'] ?? null,
         ];
+
+        print_r($voteData);
 
         if (!$this->reviewsModel->find($reviewId)) {
             return $this->respond(['status' => 404, 'message' => 'Review not found.'], 404);
