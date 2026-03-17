@@ -548,8 +548,10 @@ class ReviewController extends BaseController
         $customerId = $this->getCustomerIdFromSession();
         $guestToken = trim((string) ($payload['guest_token'] ?? ''));
 
-        die($customerId);
-        if ($customerId === null || $guestToken === '') {
+        // die($customerId);
+        print_r($payload);
+        echo ($customerId);
+        if ($customerId === null && $guestToken === '') {
             return $this->respond([
                 'status' => 422,
                 'message' => 'guest_token is required for guest voting.',
