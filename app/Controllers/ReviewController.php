@@ -548,6 +548,7 @@ class ReviewController extends BaseController
         $customerId = $this->getCustomerIdFromSession();
         $guestToken = trim((string) ($payload['guest_token'] ?? ''));
 
+        die($customerId);
         if ($customerId === null || $guestToken === '') {
             return $this->respond([
                 'status' => 422,
