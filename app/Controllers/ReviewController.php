@@ -557,12 +557,10 @@ class ReviewController extends BaseController
 
         $voteData = [
             'review_id' => (int) $reviewId,
-            'user_id'   => $customerId,
+            'user_id'   => $payload['user_id'],
             'guest_token' => $guestToken !== '' ? $guestToken : null,
             'vote'      => $payload['vote'] ?? null,
         ];
-
-        print_r($voteData);
 
         if (!$this->reviewsModel->find($reviewId)) {
             return $this->respond(['status' => 404, 'message' => 'Review not found.'], 404);
