@@ -2423,7 +2423,7 @@ class BookingController extends ResourceController
                 }
 
                 $request = $this->bookingPaymentRequestsModel->find($paymentRequestId);
-                if (!$request || $request['request_status'] !== 'pending') {
+                if (!$request || $request['status'] !== 'pending') {
                     return $this->failValidationErrors('Invalid or already paid payment request.');
                 }
 
