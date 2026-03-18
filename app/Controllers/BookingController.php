@@ -2427,7 +2427,7 @@ class BookingController extends ResourceController
                     return $this->failValidationErrors('Invalid or already paid payment request.');
                 }
 
-                $amountDue = $request['amount'];
+                $amountDue = $request['requested_amount'];
             } else {
                 // booking or post_booking
                 $amountDue = max(
