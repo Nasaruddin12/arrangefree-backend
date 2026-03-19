@@ -189,6 +189,7 @@ $routes->group('banner', static function ($routes) {
         $routes->get('by-service/(:num)', 'BannerController::getBanner');
     });
     $routes->get('getMainBanner', 'BannerController::getMainBanner');
+    $routes->get('by-service-type/(:num)', 'BannerController::getBannersByServiceTypeId/$1');
 });
 
 
