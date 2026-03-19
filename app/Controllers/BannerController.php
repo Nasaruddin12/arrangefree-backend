@@ -42,11 +42,7 @@ class BannerController extends BaseController
     {
         try {
             $bannersModel = new BannersModel();
-            $banners = $bannersModel
-                ->select('banners.*, service_types.name as service_type_name')
-                ->join('service_types', 'service_types.id = banners.service_type_id', 'left')
-                ->where('banners.service_id', $serviceId)
-                ->findAll();
+            $banners = $bannersModel->where('service_type_id',$serviceId)->findAll();
 
             if ($banners) {
                 $response = [
@@ -62,6 +58,39 @@ class BannerController extends BaseController
                 'error' => $e->getMessage(),
             ];
         }
+        return $this->respond($response, $response['status']);
+    }
+
+    /**
+     * Get banners by service_type_id
+     * @param int $serviceTypeId
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function getBannersByServiceTypeId($serviceTypeId)
+    {
+        try {
+            $bannersModel = new BannersModel();
+            $banners = $bannersModel
+                ->select('banners.*, service_types.name as service_type_name')
+                ->join('service_types', 'service_types.id = banners.service_type_id', 'left')
+                ->where('banners.service_type_id', $serviceTypeId)
+                ->findAll();
+
+            if ($banners) {
+                $response = [
+                    'status' => 200,
+                    'data' => $banners,
+                ];
+            } else {
+                throw new Exception('No banners found for this service type.', 404);
+            }
+        } catch (Exception $e) {
+            $response = [
+                'status' => $e->getCode() ?: 500,
+                'error' => $e->getMessage(),
+            ];
+        }
+
         return $this->respond($response, $response['status']);
     }
     
