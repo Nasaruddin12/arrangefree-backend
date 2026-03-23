@@ -520,14 +520,35 @@ class SeebCartController extends ResourceController
     public function delete($id = null)
     {
         try {
+            if (!$id) {
+                return $this->fail('Cart item ID is required', 400);
+            }
+
             $cartItem = $this->model->find($id);
 
             if (!$cartItem) {
                 return $this->failNotFound('Cart item not found');
             }
 
+            $this->db->transStart();
+
+            if (empty($cartItem['parent_cart_id'])) {
+                $this->model->where('parent_cart_id', $id)->delete();
+            }
+
             $this->model->delete($id);
-            return $this->respondDeleted(['message' => 'Cart item deleted successfully']);
+
+            $this->db->transComplete();
+
+            if ($this->db->transStatus() === false) {
+                return $this->failServerError('Failed to delete cart item');
+            }
+
+            return $this->respondDeleted([
+                'message' => empty($cartItem['parent_cart_id'])
+                    ? 'Cart item and child add-ons deleted successfully'
+                    : 'Cart item deleted successfully'
+            ]);
         } catch (\Exception $e) {
             return $this->failServerError($e->getMessage());
         }
