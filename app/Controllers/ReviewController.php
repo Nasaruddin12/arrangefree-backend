@@ -417,7 +417,7 @@ class ReviewController extends BaseController
         $limit = (int) ($filters['limit'] ?? 0);
 
         $builder = $this->reviewsModel
-            ->select('reviews.*, customers.name as customer_name, services.name as service_name')
+            ->select('reviews.*, customers.name as customer_name, services.slug as service_slug, services.name as service_name')
             ->join('customers', 'customers.id = reviews.user_id', 'left')
             ->join('services', 'services.id = reviews.service_id', 'left')
             ->where('reviews.review_type', 'service')
@@ -429,10 +429,19 @@ class ReviewController extends BaseController
         }
 
         $reviews = $builder->findAll();
+        $reviews = $this->appendReviewRelations($reviews);
+
+        // Remove full objects, keep only customer_name, service_slug and service_name
+        foreach ($reviews as &$review) {
+            unset($review['customer']);
+            unset($review['service']);
+            unset($review['partner']);
+        }
+        unset($review);
 
         return $this->respond([
             'status' => 200,
-            'data'   => $this->appendReviewRelations($reviews),
+            'data'   => $reviews,
         ], 200);
     }
 
