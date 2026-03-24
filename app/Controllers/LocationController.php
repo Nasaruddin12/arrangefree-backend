@@ -2,11 +2,91 @@
 
 namespace App\Controllers;
 
+use App\Models\GoogleReviewsCacheModel;
 use App\Models\LocationCacheModel;
 use CodeIgniter\RESTful\ResourceController;
 
 class LocationController extends ResourceController
 {
+    public function googleReviews()
+    {
+        $placeId = trim((string) ($this->request->getGet('place_id') ?? 'ChIJS3IOc5LDwjsROt1fnLDj5ks'));
+        $apiKey = env('GOOGLE_MAPS_API_KEY');
+        $cacheTtl = (int) (env('GOOGLE_REVIEWS_CACHE_TTL') ?: 86400);
+
+        if ($placeId === '') {
+            return $this->respond([
+                'status' => false,
+                'message' => 'place_id is required'
+            ], 400);
+        }
+
+        if (empty($apiKey)) {
+            return $this->respond([
+                'status' => false,
+                'message' => 'Google Maps API key is not configured'
+            ], 500);
+        }
+
+        $cacheModel = new GoogleReviewsCacheModel();
+        $cached = $cacheModel->where('place_id', $placeId)->first();
+
+        if ($cached) {
+            $createdAt = isset($cached['created_at']) ? strtotime((string) $cached['created_at']) : false;
+            $isFresh = $createdAt !== false && (time() - $createdAt) < $cacheTtl;
+
+            if ($isFresh && !empty($cached['response_json'])) {
+                $cachedResponse = json_decode((string) $cached['response_json'], true);
+
+                if (is_array($cachedResponse)) {
+                    $cachedResponse['cached'] = true;
+                    return $this->respond($cachedResponse);
+                }
+            }
+        }
+
+        $url = "https://maps.googleapis.com/maps/api/place/details/json"
+            . "?place_id=" . urlencode($placeId)
+            . "&fields=name,rating,user_ratings_total,reviews"
+            . "&key=" . urlencode($apiKey);
+
+        $client = \Config\Services::curlrequest([
+            'curloptions' => [
+                CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4
+            ],
+            'timeout' => 10
+        ]);
+
+        $response = $client->get($url);
+        $result = json_decode($response->getBody(), true);
+
+        if (!is_array($result)) {
+            return $this->respond([
+                'status' => false,
+                'message' => 'Unable to fetch Google reviews'
+            ], 502);
+        }
+
+        $payload = $result;
+        $payload['cached'] = false;
+
+        $cacheData = [
+            'place_id' => $placeId,
+            'response_json' => json_encode($result),
+            'created_at' => date('Y-m-d H:i:s'),
+        ];
+
+        if ($cached) {
+            $cacheModel->update($cached['id'], $cacheData);
+        } else {
+            $cacheModel->insert($cacheData);
+        }
+
+        return $this->respond($payload ?? [
+            'status' => false,
+            'message' => 'Unable to fetch Google reviews'
+        ]);
+    }
 
     public function reverseGeocode()
     {
