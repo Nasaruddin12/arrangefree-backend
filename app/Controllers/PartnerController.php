@@ -1104,12 +1104,23 @@ class PartnerController extends BaseController
                 $bankData['bank_document'] = $path . $fileName;
             }
 
+            $hasBankInput = false;
+            foreach (['account_holder_name', 'bank_name', 'bank_branch', 'account_number', 'ifsc_code', 'bank_document'] as $field) {
+                if (!empty($bankData[$field])) {
+                    $hasBankInput = true;
+                    break;
+                }
+            }
+
             $existingBank = $bankModel->where('partner_id', $partnerId)->first();
 
-            if ($existingBank) {
-                $ok = $bankModel->update($existingBank['id'], $bankData);
-            } else {
-                $ok = $bankModel->insert($bankData);
+            $ok = true;
+            if ($hasBankInput) {
+                if ($existingBank) {
+                    $ok = $bankModel->update($existingBank['id'], $bankData);
+                } else {
+                    $ok = $bankModel->insert($bankData);
+                }
             }
 
             if (!$ok) {
