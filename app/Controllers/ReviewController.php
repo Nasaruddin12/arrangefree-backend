@@ -411,6 +411,31 @@ class ReviewController extends BaseController
         ], 200);
     }
 
+    public function publicServiceReviews()
+    {
+        $filters = $this->getRequestData();
+        $limit = (int) ($filters['limit'] ?? 0);
+
+        $builder = $this->reviewsModel
+            ->select('reviews.*, customers.name as customer_name, services.name as service_name')
+            ->join('customers', 'customers.id = reviews.user_id', 'left')
+            ->join('services', 'services.id = reviews.service_id', 'left')
+            ->where('reviews.review_type', 'service')
+            ->where('reviews.status', 'approved')
+            ->orderBy('reviews.id', 'DESC');
+
+        if ($limit > 0) {
+            $builder->limit($limit);
+        }
+
+        $reviews = $builder->findAll();
+
+        return $this->respond([
+            'status' => 200,
+            'data'   => $this->appendReviewRelations($reviews),
+        ], 200);
+    }
+
     public function submit()
     {
         return $this->customerSubmit();
@@ -820,16 +845,137 @@ class ReviewController extends BaseController
 
     private function appendReviewRelations(array $reviews): array
     {
+        if (empty($reviews)) {
+            return [];
+        }
+
+        $reviewIds = [];
+        $serviceIds = [];
+        $partnerIds = [];
+        $customerIds = [];
+
+        foreach ($reviews as $review) {
+            $reviewIds[] = (int) $review['id'];
+
+            if (!empty($review['service_id'])) {
+                $serviceIds[] = (int) $review['service_id'];
+            }
+
+            if (!empty($review['partner_id'])) {
+                $partnerIds[] = (int) $review['partner_id'];
+            }
+
+            if (!empty($review['user_id'])) {
+                $customerIds[] = (int) $review['user_id'];
+            }
+        }
+
+        $reviewIds = array_values(array_unique(array_filter($reviewIds)));
+        $serviceIds = array_values(array_unique(array_filter($serviceIds)));
+        $partnerIds = array_values(array_unique(array_filter($partnerIds)));
+        $customerIds = array_values(array_unique(array_filter($customerIds)));
+
+        $aspectsByReviewId = [];
+        if (!empty($reviewIds)) {
+            $aspectRows = $this->reviewAspectsModel
+                ->whereIn('review_id', $reviewIds)
+                ->findAll();
+
+            foreach ($aspectRows as $aspectRow) {
+                $aspectsByReviewId[(int) $aspectRow['review_id']][] = $aspectRow;
+            }
+        }
+
+        $mediaByReviewId = [];
+        if (!empty($reviewIds)) {
+            $mediaRows = $this->reviewMediaModel
+                ->whereIn('review_id', $reviewIds)
+                ->findAll();
+
+            foreach ($mediaRows as $mediaRow) {
+                $mediaByReviewId[(int) $mediaRow['review_id']][] = $mediaRow;
+            }
+        }
+
+        $voteSummaryByReviewId = [];
+        if (!empty($reviewIds)) {
+            $voteRows = $this->db->table('review_votes')
+                ->select('review_id, vote, COUNT(*) as total')
+                ->whereIn('review_id', $reviewIds)
+                ->groupBy('review_id, vote')
+                ->get()
+                ->getResultArray();
+
+            foreach ($voteRows as $voteRow) {
+                $reviewId = (int) $voteRow['review_id'];
+
+                if (!isset($voteSummaryByReviewId[$reviewId])) {
+                    $voteSummaryByReviewId[$reviewId] = [
+                        'helpful' => 0,
+                        'not_helpful' => 0,
+                    ];
+                }
+
+                $voteType = (string) ($voteRow['vote'] ?? '');
+                if ($voteType === 'helpful' || $voteType === 'not_helpful') {
+                    $voteSummaryByReviewId[$reviewId][$voteType] = (int) $voteRow['total'];
+                }
+            }
+        }
+
+        $servicesById = [];
+        if (!empty($serviceIds)) {
+            $serviceRows = $this->db->table('services')
+                ->whereIn('id', $serviceIds)
+                ->get()
+                ->getResultArray();
+
+            foreach ($serviceRows as $serviceRow) {
+                $servicesById[(int) $serviceRow['id']] = $serviceRow;
+            }
+        }
+
+        $partnersById = [];
+        if (!empty($partnerIds)) {
+            $partnerRows = $this->db->table('partners')
+                ->whereIn('id', $partnerIds)
+                ->get()
+                ->getResultArray();
+
+            foreach ($partnerRows as $partnerRow) {
+                $partnersById[(int) $partnerRow['id']] = $partnerRow;
+            }
+        }
+
+        $customersById = [];
+        if (!empty($customerIds)) {
+            $customerRows = $this->db->table('customers')
+                ->whereIn('id', $customerIds)
+                ->get()
+                ->getResultArray();
+
+            foreach ($customerRows as $customerRow) {
+                $customersById[(int) $customerRow['id']] = $customerRow;
+            }
+        }
+
         foreach ($reviews as &$review) {
             $reviewId = (int) $review['id'];
-            $review['aspects'] = $this->reviewAspectsModel->getByReviewId($reviewId);
-            $review['media'] = $this->reviewMediaModel->where('review_id', $reviewId)->findAll();
+            $serviceId = (int) ($review['service_id'] ?? 0);
+            $partnerId = (int) ($review['partner_id'] ?? 0);
+            $customerId = (int) ($review['user_id'] ?? 0);
 
-            $review['vote_summary'] = [
-                'helpful' => $this->reviewVotesModel->where('review_id', $reviewId)->where('vote', 'helpful')->countAllResults(),
-                'not_helpful' => $this->reviewVotesModel->where('review_id', $reviewId)->where('vote', 'not_helpful')->countAllResults(),
+            $review['aspects'] = $aspectsByReviewId[$reviewId] ?? [];
+            $review['media'] = $mediaByReviewId[$reviewId] ?? [];
+            $review['vote_summary'] = $voteSummaryByReviewId[$reviewId] ?? [
+                'helpful' => 0,
+                'not_helpful' => 0,
             ];
+            $review['service'] = $serviceId > 0 ? ($servicesById[$serviceId] ?? null) : null;
+            $review['partner'] = $partnerId > 0 ? ($partnersById[$partnerId] ?? null) : null;
+            $review['customer'] = $customerId > 0 ? ($customersById[$customerId] ?? null) : null;
         }
+        unset($review);
 
         return $reviews;
     }

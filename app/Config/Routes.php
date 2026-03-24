@@ -129,7 +129,6 @@ $routes->group('admin', static function ($routes) {
         $routes->match(['get', 'post'], 'booking/cancellation/preview', 'BookingController::cancellationPreview');
         $routes->get('booking/refunds', 'BookingController::getBookingRefunds');
         $routes->put('booking/refunds/(:num)/status', 'BookingController::updateBookingRefundStatus/$1');
-        
     });
 });
 
@@ -679,6 +678,7 @@ $routes->group('payouts', function ($routes) {
 });
 
 $routes->group('reviews', function ($routes) {
+    $routes->get('all', 'ReviewController::publicServiceReviews');
     $routes->get('service/(:num)', 'ReviewController::serviceReviews/$1');
     $routes->post('vote/(:num)', 'ReviewController::vote/$1');
     $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
