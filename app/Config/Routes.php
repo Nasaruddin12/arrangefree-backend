@@ -293,7 +293,7 @@ $routes->group('service-process-steps', function ($routes) {
         $routes->post('create', 'ServiceProcessStepController::create');
         $routes->put('update/(:num)', 'ServiceProcessStepController::update/$1');
         $routes->post('icon/upload', 'ServiceProcessStepController::uploadIcon');
-        $routes->delete('icon/(:num)', 'ServiceProcessStepController::deleteIcon/$1');
+        $routes->delete('icon', 'ServiceProcessStepController::deleteIcon');
         $routes->delete('delete/(:num)', 'ServiceProcessStepController::delete/$1');
     });
 });
