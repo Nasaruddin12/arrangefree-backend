@@ -502,7 +502,7 @@ class CustomerController extends BaseController
                 'message' => 'message',
                 'city' => 'city',
                 'space_type' => 'space_type',
-                'status' => 'status',
+                'status' => 1,
             ];
 
             $contactUsData = array();
@@ -517,7 +517,7 @@ class CustomerController extends BaseController
                 'name'           => 'required|min_length[2]',
                 'contact_number' => 'required|regex_match[/^[0-9]{10}$/]',
                 'email_id'       => 'required|valid_email',
-                'message'        => 'permit_empty|min_length[5]',
+                'message'        => 'permit_empty|min_length[3]',
                 'city'           => 'permit_empty|max_length[50]',
                 'space_type'     => 'permit_empty|max_length[50]',
                 'status'         => 'required|in_list[0,1]'

@@ -286,6 +286,17 @@ $routes->group('service-gallery', function ($routes) {
         $routes->delete('delete-tutorial-video/(:num)', 'ServiceGalleryController::deleteTutorialVideo/$1');
     });
 });
+$routes->group('service-process-steps', function ($routes) {
+    $routes->get('service/(:num)', 'ServiceProcessStepController::listByService/$1');
+    $routes->get('(:num)', 'ServiceProcessStepController::show/$1');
+    $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
+        $routes->post('create', 'ServiceProcessStepController::create');
+        $routes->put('update/(:num)', 'ServiceProcessStepController::update/$1');
+        $routes->post('icon/upload', 'ServiceProcessStepController::uploadIcon');
+        $routes->delete('icon', 'ServiceProcessStepController::deleteIcon');
+        $routes->delete('delete/(:num)', 'ServiceProcessStepController::delete/$1');
+    });
+});
 $routes->group('selected-design', function ($routes) {
     $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
         $routes->post('save', 'SelectedDesignController::saveSelectedDesign');
