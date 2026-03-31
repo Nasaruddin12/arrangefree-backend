@@ -552,10 +552,6 @@ class CustomerController extends BaseController
                 'message' => [
                     'min_length'   => 'Message must be at least 5 characters.',
                 ],
-                'status' => [
-                    'required'     => 'Status is required.',
-                    'in_list'      => 'Invalid status value.',
-                ],
             ];
 
             // ✅ Perform validation
