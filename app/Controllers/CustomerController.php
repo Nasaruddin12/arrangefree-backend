@@ -492,6 +492,7 @@ class CustomerController extends BaseController
             // $session = session();
             $contactUsModel = new ContactUsModel();
             $validation = &$contactUsModel;
+            $requestData = $this->request->getJSON(true) ?? $this->request->getVar() ?? [];
 
             // $statusCode = 200;
 
@@ -507,7 +508,19 @@ class CustomerController extends BaseController
 
             $contactUsData = array();
             foreach ($userBackendToFrontendAttrs as $backendAttr => $frontendAttr) {
-                $contactUsData[$backendAttr] = $this->request->getVar($frontendAttr);
+                if ($backendAttr === 'status') {
+                    $contactUsData[$backendAttr] = 1;
+                    continue;
+                }
+
+                $value = $requestData[$frontendAttr] ?? null;
+
+                // Prevent Query builder errors when nested JSON objects are sent for text fields.
+                if (is_array($value) || is_object($value)) {
+                    $value = json_encode($value);
+                }
+
+                $contactUsData[$backendAttr] = $value;
             }
 
 
