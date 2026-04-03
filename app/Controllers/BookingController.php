@@ -1424,6 +1424,14 @@ class BookingController extends ResourceController
 
             $paymentUserId = !empty($data['user_id']) ? (int) $data['user_id'] : (int) $booking['user_id'];
 
+            try {
+                $contextDetails = $this->resolveBookingPaymentContext($booking);
+            } catch (\InvalidArgumentException $e) {
+                return $this->failValidationErrors([
+                    'message' => $e->getMessage(),
+                ]);
+            }
+
             $paymentMethod = $payment->method ?? 'razorpay';
             $razorpayStatus = $payment->status; // "created", "authorized", "captured", "failed"
 
@@ -1483,6 +1491,13 @@ class BookingController extends ResourceController
 
                 $paymentStatus = ($razorpayStatus === 'captured') ? 'completed' : 'pending';
                 $bookingStatus = ($razorpayStatus === 'captured') ? 'confirmed' : 'pending';
+            }
+
+            $amountValidationError = $this->validateAmountForContext('booking', (float) ($payment->amount / 100), $contextDetails);
+            if ($amountValidationError !== null) {
+                return $this->failValidationErrors([
+                    'message' => $amountValidationError,
+                ]);
             }
 
             $amounts = $this->calculateBookingAmounts(
@@ -1810,14 +1825,20 @@ class BookingController extends ResourceController
                 return $this->failNotFound('Booking not found.');
             }
 
+            try {
+                $contextDetails = $this->resolvePostBookingPaymentContext($booking);
+            } catch (\InvalidArgumentException $e) {
+                return $this->failValidationErrors([
+                    'message' => $e->getMessage(),
+                ]);
+            }
+
             $razorpay = $this->verifyRazorpayPayment($data);
 
-            $paymentSummary = $this->bookingFinancialSummaryService->summarize($booking);
-            $amountDue = (float) $paymentSummary['amount_due'];
-
-            if ($razorpay['amount'] > $amountDue) {
+            $amountValidationError = $this->validateAmountForContext('post_booking', (float) $razorpay['amount'], $contextDetails);
+            if ($amountValidationError !== null) {
                 return $this->failValidationErrors([
-                    'message' => 'Payment exceeds pending amount.',
+                    'message' => $amountValidationError,
                 ]);
             }
 
@@ -1871,14 +1892,22 @@ class BookingController extends ResourceController
                 return $this->failNotFound('Booking not found.');
             }
 
+            try {
+                $contextDetails = $this->resolveAdminRequestPaymentContext($booking, $data);
+            } catch (\RuntimeException $e) {
+                return $this->failNotFound($e->getMessage());
+            } catch (\InvalidArgumentException $e) {
+                return $this->failValidationErrors([
+                    'message' => $e->getMessage(),
+                ]);
+            }
+
             $razorpay = $this->verifyRazorpayPayment($data);
 
-            $paymentSummary = $this->bookingFinancialSummaryService->summarize($booking);
-            $amountDue = (float) $paymentSummary['amount_due'];
-
-            if ($razorpay['amount'] > $amountDue) {
+            $amountValidationError = $this->validateAmountForContext('admin_request', (float) $razorpay['amount'], $contextDetails);
+            if ($amountValidationError !== null) {
                 return $this->failValidationErrors([
-                    'message' => 'Payment exceeds pending amount.',
+                    'message' => $amountValidationError,
                 ]);
             }
 
@@ -2033,8 +2062,7 @@ class BookingController extends ResourceController
         }
 
         $this->bookingPaymentRequestsModel->update($requestId, [
-            'request_status'  => 'completed',
-            // 'paid_at' => date('Y-m-d H:i:s'),
+            'status'  => 'paid',
         ]);
     }
 
@@ -2385,10 +2413,117 @@ class BookingController extends ResourceController
         ]);
     }
 
+    private function resolveBookingPaymentContext(array $booking): array
+    {
+        $paymentSummary = $this->bookingFinancialSummaryService->summarize($booking);
+        $amountDue = (float) ($paymentSummary['amount_due'] ?? 0);
+
+        if ($amountDue <= 0) {
+            throw new \InvalidArgumentException('No pending amount for this booking.');
+        }
+
+        return [
+            'amount_due' => $amountDue,
+        ];
+    }
+
+    private function resolvePostBookingPaymentContext(array $booking): array
+    {
+        return $this->resolveBookingPaymentContext($booking);
+    }
+
+    private function resolveAdminRequestPaymentContext(array $booking, array $data): array
+    {
+        $paymentRequestId = (int) ($data['payment_request_id'] ?? 0);
+        if ($paymentRequestId <= 0) {
+            throw new \InvalidArgumentException('Payment request ID is required.');
+        }
+
+        $request = $this->bookingPaymentRequestsModel->find($paymentRequestId);
+        if (!$request) {
+            throw new \RuntimeException('Payment request not found.');
+        }
+
+        if (
+            (int) ($request['booking_id'] ?? 0) !== (int) $booking['id'] ||
+            (int) ($request['user_id'] ?? 0) !== (int) ($data['user_id'] ?? 0)
+        ) {
+            throw new \InvalidArgumentException('Payment request does not belong to this booking/user.');
+        }
+
+        if (($request['status'] ?? null) !== 'pending') {
+            throw new \InvalidArgumentException('Invalid or already paid payment request.');
+        }
+
+        $requestedAmount = (float) ($request['requested_amount'] ?? 0);
+        if ($requestedAmount <= 0) {
+            throw new \InvalidArgumentException('Requested payment amount is invalid.');
+        }
+
+        return [
+            'amount_due' => $requestedAmount,
+            'requested_amount' => $requestedAmount,
+            'payment_request_id' => $paymentRequestId,
+            'payment_request' => $request,
+        ];
+    }
+
+    private function resolvePaymentContextDetails(array $booking, array $data, string $context): array
+    {
+        switch ($context) {
+            case 'booking':
+                return $this->resolveBookingPaymentContext($booking);
+
+            case 'admin_request':
+                return $this->resolveAdminRequestPaymentContext($booking, $data);
+
+            case 'post_booking':
+                return $this->resolvePostBookingPaymentContext($booking);
+
+            default:
+                throw new \InvalidArgumentException('Invalid payment context.');
+        }
+    }
+
+    private function amountsMatch(float $first, float $second): bool
+    {
+        return abs(round($first, 2) - round($second, 2)) < 0.01;
+    }
+
+    private function validateAmountForContext(string $context, float $amount, array $contextDetails): ?string
+    {
+        if ($amount <= 0) {
+            return 'Payment amount must be greater than zero.';
+        }
+
+        $amountDue = (float) ($contextDetails['amount_due'] ?? 0);
+
+        switch ($context) {
+            case 'booking':
+                return $this->amountsMatch($amount, $amountDue)
+                    ? null
+                    : 'Booking payment amount must be exactly equal to pending amount.';
+
+            case 'admin_request':
+                $requestedAmount = (float) ($contextDetails['requested_amount'] ?? 0);
+                return $this->amountsMatch($amount, $requestedAmount)
+                    ? null
+                    : 'Admin request payment amount must exactly match requested amount.';
+
+            case 'post_booking':
+                return $amount > $amountDue
+                    ? 'Payment amount exceeds pending amount.'
+                    : null;
+
+            default:
+                return 'Invalid payment context.';
+        }
+    }
+
     public function initiatePayment()
     {
         try {
-            $data = $this->request->getJSON(true);
+            $data = $this->request->getJSON(true) ?? [];
 
             /* ---------------------------------------------
          * BASIC VALIDATION
@@ -2397,8 +2532,7 @@ class BookingController extends ResourceController
                 return $this->failValidationErrors('Booking ID and User ID are required.');
             }
 
-            $context          = $data['payment_context'] ?? 'post_booking';
-            $paymentRequestId = $data['payment_request_id'] ?? null;
+            $context = $data['payment_context'] ?? 'post_booking';
 
             $allowedContexts = ['booking', 'admin_request', 'post_booking'];
             if (!in_array($context, $allowedContexts)) {
@@ -2416,28 +2550,12 @@ class BookingController extends ResourceController
             /* ---------------------------------------------
          * DETERMINE PAYABLE AMOUNT
          * --------------------------------------------*/
-            if ($context === 'admin_request') {
-
-                if (!$paymentRequestId) {
-                    return $this->failValidationErrors('Payment request ID is required.');
-                }
-
-                $request = $this->bookingPaymentRequestsModel->find($paymentRequestId);
-                if (!$request || $request['status'] !== 'pending') {
-                    return $this->failValidationErrors('Invalid or already paid payment request.');
-                }
-
-                $amountDue = $request['requested_amount'];
-            } else {
-                // booking or post_booking
-                $amountDue = max(
-                    (float) $booking['final_amount'] - $this->getTotalPaidAmount((int) $booking['id']),
-                    0
-                );
-
-                if ($amountDue <= 0) {
-                    return $this->failValidationErrors('No pending amount for this booking.');
-                }
+            try {
+                $contextDetails = $this->resolvePaymentContextDetails($booking, $data, $context);
+            } catch (\RuntimeException $e) {
+                return $this->failNotFound($e->getMessage());
+            } catch (\InvalidArgumentException $e) {
+                return $this->failValidationErrors($e->getMessage());
             }
 
             // Validate Amount from Frontend
@@ -2446,12 +2564,9 @@ class BookingController extends ResourceController
             }
 
             $amountFromFrontend = (float) $data['amount'];
-            if ($amountFromFrontend > $amountDue) {
-                return $this->failValidationErrors('Payment amount exceeds pending amount.');
-            }
-
-            if ($amountFromFrontend <= 0) {
-                return $this->failValidationErrors('Payment amount must be greater than zero.');
+            $amountValidationError = $this->validateAmountForContext($context, $amountFromFrontend, $contextDetails);
+            if ($amountValidationError !== null) {
+                return $this->failValidationErrors($amountValidationError);
             }
 
             /* ---------------------------------------------
@@ -2465,8 +2580,10 @@ class BookingController extends ResourceController
             /* ---------------------------------------------
          * CREATE RAZORPAY ORDER
          * --------------------------------------------*/
+            $orderAmountInPaise = (int) round($amountFromFrontend * 100);
+
             $razorpayOrder = $razorpay->order->create([
-                'amount'          => $amountDue * 100, // paisa
+                'amount'          => $orderAmountInPaise, // paisa
                 'currency'        => $config->displayCurrency,
                 'receipt'         => $receipt,
                 'payment_capture' => 1,
@@ -2487,6 +2604,12 @@ class BookingController extends ResourceController
                 'receipt'            => $razorpayOrder->receipt,
                 'attempts'           => 0,
             ]);
+
+            if ($context === 'admin_request') {
+                $this->bookingPaymentRequestsModel->update((int) $contextDetails['payment_request_id'], [
+                    'razorpay_order_id' => $razorpayOrder->id,
+                ]);
+            }
 
             /* ---------------------------------------------
          * RESPONSE FOR FRONTEND

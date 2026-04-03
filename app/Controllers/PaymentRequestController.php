@@ -59,11 +59,13 @@ class PaymentRequestController extends ResourceController
     {
         $status = $this->request->getVar('request_status');
 
-        if (!$status || !in_array($status, ['pending', 'completed', 'cancelled'])) {
+        $status = $status === 'completed' ? 'paid' : $status;
+
+        if (!$status || !in_array($status, ['pending', 'paid', 'cancelled', 'expired'], true)) {
             return $this->failValidationErrors(['request_status' => 'Invalid status.']);
         }
 
-        $this->model->update($id, ['request_status' => $status]);
+        $this->model->update($id, ['status' => $status]);
 
         return $this->respond([
             'status'  => 200,
