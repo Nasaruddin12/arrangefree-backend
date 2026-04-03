@@ -1287,7 +1287,7 @@ class BookingController extends ResourceController
         return array_map(function (array $payment): array {
             return [
                 'id' => (int) ($payment['id'] ?? 0),
-                'amount' => (float) ($payment['amount'] ?? 0),
+                'requested_amount' => (float) ($payment['requested_amount'] ?? 0),
                 'status' => $payment['status'] ?? null,
                 'payment_gateway' => $payment['payment_gateway'] ?? null,
                 'payment_method' => $payment['payment_method'] ?? null,
