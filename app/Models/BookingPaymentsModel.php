@@ -20,6 +20,7 @@ class BookingPaymentsModel extends Model
         'amount',
         'currency',
         'status',
+        'razorpay_status',
         'paid_at',
         'created_at'
     ];
@@ -40,6 +41,7 @@ class BookingPaymentsModel extends Model
         'payment_method'     => 'permit_empty|string|max_length[50]',
         'gateway_payment_id' => 'permit_empty|string|max_length[100]',
         'status'             => 'required|in_list[pending,success,failed,refunded,partial_refund]',
+        'razorpay_status'    => 'permit_empty|string|max_length[50]',
         'paid_at'            => 'permit_empty|valid_date[Y-m-d H:i:s]',
     ];
 
@@ -54,6 +56,7 @@ class BookingPaymentsModel extends Model
         'payment_method'     => ['max_length' => 'Payment method must not exceed 50 characters.'],
         'gateway_payment_id' => ['max_length' => 'Gateway payment ID must not exceed 100 characters.'],
         'status'             => ['required' => 'Payment status is required.', 'in_list' => 'Invalid payment status provided.'],
+        'razorpay_status'    => ['max_length' => 'Razorpay status must not exceed 50 characters.'],
         'paid_at'            => ['valid_date' => 'Paid at must be in Y-m-d H:i:s format.'],
     ];
 

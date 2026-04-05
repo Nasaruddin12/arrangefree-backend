@@ -1470,6 +1470,7 @@ class BookingController extends ResourceController
                         'amount'             => 0,
                         'currency'           => $payment->currency ?? 'INR',
                         'status'             => 'failed',
+                        'razorpay_status'    => 'signature_failed',
                         'created_at'         => date('Y-m-d H:i:s'),
                     ]);
                     if ($failedInsert === false) {
@@ -1531,6 +1532,7 @@ class BookingController extends ResourceController
                 'amount'             => $payment->amount / 100,
                 'currency'           => $payment->currency,
                 'status'             => $amounts['payment_status'] === 'completed' ? 'success' : 'pending',
+                'razorpay_status'    => $razorpayStatus,
                 'paid_at'            => $amounts['payment_status'] === 'completed' ? date('Y-m-d H:i:s') : null,
                 'created_at'         => date('Y-m-d H:i:s'),
             ];
@@ -2408,6 +2410,7 @@ class BookingController extends ResourceController
             'amount'             => $razorpay['amount'],
             'currency'           => $razorpay['payment']->currency,
             'status'             => 'success',
+            'razorpay_status'    => $razorpay['status'] ?? ($razorpay['payment']->status ?? null),
             'paid_at'            => date('Y-m-d H:i:s'),
             'created_at'         => date('Y-m-d H:i:s'),
         ]);
@@ -3986,6 +3989,7 @@ class BookingController extends ResourceController
     {
         $this->bookingPaymentsModel->where('gateway_payment_id', $paymentId)->set([
             'status'     => 'pending',
+            'razorpay_status' => $payment['status'] ?? 'authorized',
             'updated_at' => date('Y-m-d H:i:s')
         ])->update();
 
@@ -3996,6 +4000,7 @@ class BookingController extends ResourceController
     {
         $this->bookingPaymentsModel->where('gateway_payment_id', $paymentId)->set([
             'status'     => 'success',
+            'razorpay_status' => $payment['status'] ?? 'captured',
             'paid_at'    => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s')
         ])->update();
@@ -4021,6 +4026,7 @@ class BookingController extends ResourceController
     {
         $this->bookingPaymentsModel->where('gateway_payment_id', $paymentId)->set([
             'status'     => 'failed',
+            'razorpay_status' => $payment['status'] ?? 'failed',
             'updated_at' => date('Y-m-d H:i:s')
         ])->update();
 
@@ -4690,7 +4696,7 @@ class BookingController extends ResourceController
             ->join('bookings', 'bookings.id = booking_payments.booking_id')
             ->join('customers', 'customers.id = booking_payments.user_id')
             ->where('booking_payments.id', $paymentId)
-            ->where('booking_payments.status', 'success')
+            // ->where('booking_payments.status', 'success')
             ->first();
         if (!$payment) {
             return $this->failNotFound('Receipt not found');
