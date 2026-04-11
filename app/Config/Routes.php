@@ -602,6 +602,43 @@ $routes->group('partner', function ($routes) {
     });
 });
 
+
+$routes->group('channel-partner', static function ($routes) {
+    $routes->post('register', 'ChannelPartnerController::register');
+    $routes->post('send-otp', 'ChannelPartnerController::sendOtp');
+    $routes->post('verify-mobile', 'ChannelPartnerController::verifyMobile');
+    $routes->post('login', 'ChannelPartnerController::login');
+
+    $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
+        $routes->get('dashboard/(:num)', 'ChannelPartnerController::dashboard/$1');
+        $routes->get('profile/(:num)', 'ChannelPartnerController::profile/$1');
+        $routes->post('bank-details', 'ChannelPartnerController::addBankDetails');
+        $routes->get('bank-details/(:num)', 'ChannelPartnerController::getBankDetails/$1');
+        $routes->put('bank-details/(:num)', 'ChannelPartnerController::updateBankDetails/$1');
+        $routes->put('profile/(:num)', 'ChannelPartnerController::updateProfile/$1');
+        $routes->post('leads', 'ChannelPartnerController::submitLead');
+        $routes->get('leads', 'ChannelPartnerController::listLeads');
+        $routes->get('leads/(:num)', 'ChannelPartnerController::viewLead/$1');
+        $routes->get('wallet/balance/(:num)', 'ChannelPartnerController::walletBalance/$1');
+        $routes->get('wallet/transactions/(:num)', 'ChannelPartnerController::walletTransactions/$1');
+        $routes->get('wallet/withdraw-requests/(:num)', 'ChannelPartnerController::walletWithdrawRequests/$1');
+        $routes->post('wallet/withdraw-requests/(:num)', 'ChannelPartnerController::createWalletWithdrawRequest/$1');
+    });
+});
+
+$routes->group('admin/channel-partner', static function ($routes) {
+    $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
+        $routes->get('list', 'ChannelPartnerController::adminList');
+        $routes->get('summary/(:num)', 'ChannelPartnerController::adminSummary/$1');
+        $routes->get('leads', 'ChannelPartnerController::adminLeads');
+        $routes->get('leads/(:num)', 'ChannelPartnerController::adminLeadsByChannelPartner/$1');
+        $routes->get('wallet/transactions/(:num)', 'ChannelPartnerController::adminWalletTransactions/$1');
+        $routes->get('wallet/withdraw-requests', 'ChannelPartnerController::adminWalletWithdrawRequests');
+        $routes->put('wallet/withdraw-requests/(:num)/status', 'ChannelPartnerController::adminUpdateWalletWithdrawRequest/$1');
+        $routes->post('wallet/manual-transaction', 'ChannelPartnerController::adminManualWalletTransaction');
+    });
+});
+
 $routes->group('partner-jobs', static function ($routes) {
     $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
         $routes->get('/', 'PartnerJobController::index');
