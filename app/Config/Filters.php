@@ -25,7 +25,7 @@ class Filters extends BaseConfig
         'secureheaders' => SecureHeaders::class,
         'authFilter' => AuthFilter::class,
         'cors' => CORS::class,
-        // 'encrypt' => \App\Filters\EncryptResponseFilter::class,
+        'encrypt' => \App\Filters\EncryptResponseFilter::class,
     ];
 
     /**
@@ -41,7 +41,7 @@ class Filters extends BaseConfig
         ],
         'after' => [
             'toolbar',
-            // 'encrypt',  // Applied selectively to web routes only
+            'encrypt',  // Applied selectively to web routes only
             // 'honeypot',
             // 'secureheaders',
         ],
