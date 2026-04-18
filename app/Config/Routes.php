@@ -626,12 +626,25 @@ $routes->group('channel-partner', static function ($routes) {
     });
 });
 
+$routes->group('team', ['filter' => 'authFilter'], static function ($routes) {
+    $routes->get('dashboard/(:num)', 'ChannelPartnerController::teamDashboard/$1');
+    $routes->get('leads/(:num)', 'ChannelPartnerController::teamLeads/$1');
+    $routes->get('leads/(:num)/follow-ups', 'ChannelPartnerController::teamLeadFollowUps/$1');
+    $routes->put('leads/(:num)/status', 'ChannelPartnerController::teamUpdateLeadStatus/$1');
+    $routes->post('leads/(:num)/follow-up', 'ChannelPartnerController::teamAddLeadFollowUp/$1');
+});
+
 $routes->group('admin/channel-partner', static function ($routes) {
     $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
         $routes->get('list', 'ChannelPartnerController::adminList');
         $routes->get('summary/(:num)', 'ChannelPartnerController::adminSummary/$1');
         $routes->get('leads', 'ChannelPartnerController::adminLeads');
         $routes->get('leads/(:num)', 'ChannelPartnerController::adminLeadsByChannelPartner/$1');
+        $routes->get('lead/(:num)', 'ChannelPartnerController::adminLeadDetails/$1');
+        $routes->get('lead/(:num)/follow-ups', 'ChannelPartnerController::adminLeadFollowUps/$1');
+        $routes->get('admins', 'ChannelPartnerController::adminAssignableAdmins');
+        $routes->put('lead/(:num)/assign', 'ChannelPartnerController::adminAssignLead/$1');
+        $routes->post('lead/(:num)/follow-up', 'ChannelPartnerController::adminAddLeadFollowUp/$1');
         $routes->get('wallet/transactions/(:num)', 'ChannelPartnerController::adminWalletTransactions/$1');
         $routes->get('wallet/withdraw-requests', 'ChannelPartnerController::adminWalletWithdrawRequests');
         $routes->put('wallet/withdraw-requests/(:num)/status', 'ChannelPartnerController::adminUpdateWalletWithdrawRequest/$1');

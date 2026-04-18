@@ -10,6 +10,7 @@ use App\Models\BookingsModel;
 use App\Models\BookingRefundModel;
 use App\Models\BookingServicesModel;
 use App\Models\BookingPaymentsModel;
+use App\Models\ReviewsModel;
 use App\Models\RazorpayOrdersModel;
 use App\Models\SeebCartModel;
 use App\Models\CouponModel;
@@ -37,6 +38,7 @@ class BookingController extends ResourceController
     protected $bookingAdjustmentModel;
     protected $bookingRefundModel;
     protected $customerModel;
+    protected $reviewsModel;
     protected $servicesModel;
     protected $addonsModel;
     protected $bookingPaymentRequestsModel;
@@ -59,6 +61,7 @@ class BookingController extends ResourceController
         $this->bookingAdjustmentModel = new BookingAdjustmentModel();
         $this->bookingRefundModel = new BookingRefundModel();
         $this->customerModel = new CustomerModel();
+        $this->reviewsModel = new ReviewsModel();
         $this->servicesModel = new \App\Models\ServiceModel();
         $this->addonsModel = new \App\Models\ServiceAddonModel();
         $this->bookingPaymentRequestsModel = new BookingPaymentRequestModel();
@@ -708,6 +711,14 @@ class BookingController extends ResourceController
                     ->where('booking_id', $booking['id'])
                     ->orderBy('created_at', 'DESC')
                     ->findAll();
+
+                $bookingReviews = $this->buildBookingReviewSummary(
+                    (int) $booking['id'],
+                    (int) $booking['user_id'],
+                    $booking['services'],
+                    $booking['additional_services']
+                );
+                $booking = array_merge($booking, $bookingReviews);
 
                 // Recalculate final and due with approved additional services and adjustments
                 $totals = $this->calculateBookingFinalWithExtras(
@@ -2003,7 +2014,110 @@ class BookingController extends ResourceController
             ->where('status', 'success')
             ->first();
 
-        return (float) ($row['amount'] ?? 0);
+            return (float) ($row['amount'] ?? 0);
+        }
+
+    private function buildBookingReviewSummary(
+        int $bookingId,
+        int $userId,
+        array $services,
+        array $additionalServices
+    ): array {
+        $reviews = $this->reviewsModel
+            ->where('booking_id', $bookingId)
+            ->where('user_id', $userId)
+            ->findAll();
+
+        $bookingReview = null;
+        $serviceReviewsByServiceId = [];
+
+        foreach ($reviews as $review) {
+            if (($review['review_type'] ?? 'service') === 'booking') {
+                $bookingReview = $this->formatReviewForBooking($review);
+                continue;
+            }
+
+            $serviceId = (int) ($review['service_id'] ?? 0);
+            if ($serviceId > 0 && !isset($serviceReviewsByServiceId[$serviceId])) {
+                $serviceReviewsByServiceId[$serviceId] = $this->formatReviewForBooking($review);
+            }
+        }
+
+        $allReviewableServices = [];
+        foreach ($services as $service) {
+            $serviceId = (int) ($service['service_id'] ?? 0);
+            if ($serviceId > 0) {
+                $allReviewableServices[$serviceId] = true;
+            }
+        }
+        foreach ($additionalServices as $service) {
+            $serviceId = (int) ($service['service_id'] ?? 0);
+            if ($serviceId > 0) {
+                $allReviewableServices[$serviceId] = true;
+            }
+        }
+
+        $reviewedServiceIds = array_keys($serviceReviewsByServiceId);
+        $reviewedCount = count($reviewedServiceIds);
+        $pendingCount = max(count($allReviewableServices) - $reviewedCount, 0);
+        $ratingTotal = 0.0;
+
+        foreach ($serviceReviewsByServiceId as $review) {
+            $ratingTotal += (float) ($review['rating'] ?? 0);
+        }
+
+        $avgRating = $reviewedCount > 0 ? round($ratingTotal / $reviewedCount, 2) : 0.0;
+
+        $services = $this->attachReviewStateToServices($services, $serviceReviewsByServiceId);
+        $additionalServices = $this->attachReviewStateToServices($additionalServices, $serviceReviewsByServiceId);
+
+        return [
+            'services' => $services,
+            'additional_services' => $additionalServices,
+            'review_summary' => [
+                'avg_rating' => $avgRating,
+                'reviewed_services_count' => $reviewedCount,
+                'total_reviewable_services' => count($allReviewableServices),
+                'pending_review_services_count' => $pendingCount,
+                'has_booking_review' => $bookingReview !== null,
+                'booking_review' => $bookingReview,
+            ],
+        ];
+    }
+
+    private function attachReviewStateToServices(array $items, array $reviewsByServiceId): array
+    {
+        foreach ($items as &$item) {
+            $serviceId = (int) ($item['service_id'] ?? 0);
+            $review = $serviceId > 0 ? ($reviewsByServiceId[$serviceId] ?? null) : null;
+
+            $item['has_review'] = $review !== null;
+            $item['review_status'] = $review ? 'given' : 'not_given';
+            $item['can_add_review'] = $review === null;
+            $item['can_update_review'] = $review !== null;
+            $item['review'] = $review;
+        }
+        unset($item);
+
+        return $items;
+    }
+
+    private function formatReviewForBooking(array $review): array
+    {
+        return [
+            'review_id' => (int) ($review['id'] ?? 0),
+            'review_type' => $review['review_type'] ?? null,
+            'booking_id' => (int) ($review['booking_id'] ?? 0),
+            'service_id' => isset($review['service_id']) ? (int) $review['service_id'] : null,
+            'partner_id' => isset($review['partner_id']) ? (int) $review['partner_id'] : null,
+            'rating' => isset($review['rating']) ? (float) $review['rating'] : null,
+            'title' => $review['title'] ?? null,
+            'review' => $review['review'] ?? null,
+            'status' => $review['status'] ?? null,
+            'is_verified' => isset($review['is_verified']) ? (int) $review['is_verified'] : null,
+            'created_at' => $review['created_at'] ?? null,
+            'updated_at' => $review['updated_at'] ?? null,
+        ];
     }
 
     private function appendPaidDueToBookings(array &$bookings): void

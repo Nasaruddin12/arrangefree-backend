@@ -18,6 +18,10 @@ class ChannelPartnerLeadModel extends Model
 
     protected $allowedFields = [
         'channel_partner_id',
+        'assigned_admin_id',
+        'assigned_by_admin_id',
+        'assigned_at',
+        'last_follow_up_at',
         'customer_name',
         'mobile',
         'address',

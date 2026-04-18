@@ -6,10 +6,12 @@ use App\Controllers\BaseController;
 use App\Models\ChannelPartnerBankDetailModel;
 use App\Libraries\JwtHelper;
 use App\Libraries\SMSGateway;
+use App\Models\ChannelPartnerLeadFollowUpModel;
 use App\Models\ChannelPartnerLeadModel;
 use App\Models\ChannelPartnerModel;
 use App\Models\ChannelPartnerWalletTransactionModel;
 use App\Models\ChannelPartnerWithdrawalRequestModel;
+use App\Models\AdminModel;
 use CodeIgniter\API\ResponseTrait;
 use DateInterval;
 use DateTime;
@@ -21,8 +23,10 @@ class ChannelPartnerController extends BaseController
     protected ChannelPartnerModel $channelPartnerModel;
     protected ChannelPartnerBankDetailModel $channelPartnerBankDetailModel;
     protected ChannelPartnerLeadModel $channelPartnerLeadModel;
+    protected ChannelPartnerLeadFollowUpModel $channelPartnerLeadFollowUpModel;
     protected ChannelPartnerWalletTransactionModel $channelPartnerWalletTransactionModel;
     protected ChannelPartnerWithdrawalRequestModel $channelPartnerWithdrawalRequestModel;
+    protected AdminModel $adminModel;
     protected JwtHelper $jwtHelper;
 
     public function __construct()
@@ -30,8 +34,10 @@ class ChannelPartnerController extends BaseController
         $this->channelPartnerModel = new ChannelPartnerModel();
         $this->channelPartnerBankDetailModel = new ChannelPartnerBankDetailModel();
         $this->channelPartnerLeadModel = new ChannelPartnerLeadModel();
+        $this->channelPartnerLeadFollowUpModel = new ChannelPartnerLeadFollowUpModel();
         $this->channelPartnerWalletTransactionModel = new ChannelPartnerWalletTransactionModel();
         $this->channelPartnerWithdrawalRequestModel = new ChannelPartnerWithdrawalRequestModel();
+        $this->adminModel = new AdminModel();
         $this->jwtHelper = new JwtHelper();
     }
 
@@ -1229,8 +1235,10 @@ class ChannelPartnerController extends BaseController
             $endDate = trim((string) ($this->request->getVar('end_date') ?? ''));
 
             $builder = $this->channelPartnerLeadModel
-                ->select('channel_partner_leads.*, channel_partners.name as channel_partner_name, channel_partners.company_name as channel_partner_company_name, channel_partners.mobile as channel_partner_mobile, channel_partners.status as channel_partner_status')
+                ->select('channel_partner_leads.*, channel_partners.name as channel_partner_name, channel_partners.company_name as channel_partner_company_name, channel_partners.mobile as channel_partner_mobile, channel_partners.status as channel_partner_status, assigned_admin.name as assigned_admin_name, assigned_admin.mobile_no as assigned_admin_mobile, assigned_by_admin.name as assigned_by_admin_name')
                 ->join('channel_partners', 'channel_partners.id = channel_partner_leads.channel_partner_id', 'left')
+                ->join('admins assigned_admin', 'assigned_admin.id = channel_partner_leads.assigned_admin_id', 'left')
+                ->join('admins assigned_by_admin', 'assigned_by_admin.id = channel_partner_leads.assigned_by_admin_id', 'left')
                 ->orderBy('channel_partner_leads.created_at', 'DESC');
 
             if ($channelPartnerId !== null && $channelPartnerId > 0) {
@@ -1293,6 +1301,412 @@ class ChannelPartnerController extends BaseController
                 'message' => 'Failed to fetch channel partner leads.',
                 'error' => $e->getMessage(),
             ], 500);
+        }
+    }
+
+    public function adminAssignableAdmins()
+    {
+        try {
+            $admins = $this->adminModel
+                ->select('admins.id, admins.name, admins.mobile_no, admins.email, admins.status, admins.role_id, role_privileges.title as role_title')
+                ->join('role_privileges', 'role_privileges.id = admins.role_id', 'left')
+                ->orderBy('admins.name', 'ASC')
+                ->findAll();
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Admins retrieved successfully.',
+                'data' => $admins,
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Failed to fetch admins.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function adminLeadDetails($leadId = null)
+    {
+        try {
+            $leadId = (int) $leadId;
+
+            if ($leadId <= 0) {
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Valid lead ID is required.',
+                ], 422);
+            }
+
+            $lead = $this->channelPartnerLeadModel
+                ->select('channel_partner_leads.*, channel_partners.name as channel_partner_name, channel_partners.company_name as channel_partner_company_name, channel_partners.mobile as channel_partner_mobile, assigned_admin.name as assigned_admin_name, assigned_admin.mobile_no as assigned_admin_mobile, assigned_by_admin.name as assigned_by_admin_name')
+                ->join('channel_partners', 'channel_partners.id = channel_partner_leads.channel_partner_id', 'left')
+                ->join('admins assigned_admin', 'assigned_admin.id = channel_partner_leads.assigned_admin_id', 'left')
+                ->join('admins assigned_by_admin', 'assigned_by_admin.id = channel_partner_leads.assigned_by_admin_id', 'left')
+                ->find($leadId);
+
+            if (!$lead) {
+                return $this->respond([
+                    'status' => 404,
+                    'message' => 'Lead not found.',
+                ], 404);
+            }
+
+            $followUps = $this->channelPartnerLeadFollowUpModel
+                ->select('channel_partner_lead_follow_ups.*, assigned_admin.name as assigned_admin_name, assigned_admin.mobile_no as assigned_admin_mobile, admins.name as admin_name')
+                ->join('admins assigned_admin', 'assigned_admin.id = channel_partner_lead_follow_ups.assigned_admin_id', 'left')
+                ->join('admins', 'admins.id = channel_partner_lead_follow_ups.admin_id', 'left')
+                ->where('lead_id', $leadId)
+                ->orderBy('channel_partner_lead_follow_ups.created_at', 'DESC')
+                ->findAll();
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Lead details retrieved successfully.',
+                'data' => [
+                    'lead' => $lead,
+                    'follow_ups' => $followUps,
+                ],
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Failed to fetch lead details.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function adminAssignLead($leadId = null)
+    {
+        try {
+            $leadId = (int) $leadId;
+            $assignedAdminId = (int) $this->request->getVar('assigned_admin_id');
+            $status = trim((string) ($this->request->getVar('status') ?? ''));
+            $note = trim((string) ($this->request->getVar('note') ?? ''));
+            $nextFollowUpAt = trim((string) ($this->request->getVar('next_follow_up_at') ?? ''));
+            $adminId = $this->getAuthAdminId();
+
+            if ($leadId <= 0) {
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Valid lead ID is required.',
+                ], 422);
+            }
+
+            if ($assignedAdminId <= 0) {
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Valid assigned admin ID is required.',
+                ], 422);
+            }
+
+            $lead = $this->channelPartnerLeadModel->find($leadId);
+            if (!$lead) {
+                return $this->respond([
+                    'status' => 404,
+                    'message' => 'Lead not found.',
+                ], 404);
+            }
+
+            $assignedAdmin = $this->adminModel->find($assignedAdminId);
+            if (!$assignedAdmin) {
+                return $this->respond([
+                    'status' => 404,
+                    'message' => 'Assigned admin not found.',
+                ], 404);
+            }
+
+            $allowedStatuses = ['new', 'in_progress', 'contacted', 'converted', 'rejected'];
+            if ($status !== '' && !in_array($status, $allowedStatuses, true)) {
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Invalid lead status provided.',
+                ], 422);
+            }
+
+            $db = \Config\Database::connect();
+            $db->transBegin();
+
+            $updateData = [
+                'assigned_admin_id' => $assignedAdminId,
+                'assigned_by_admin_id' => $adminId > 0 ? $adminId : null,
+                'assigned_at' => date('Y-m-d H:i:s'),
+            ];
+
+            if ($status !== '') {
+                $updateData['status'] = $status;
+            }
+
+            if (!$this->channelPartnerLeadModel->update($leadId, $updateData)) {
+                $db->transRollback();
+
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Failed to update lead assignment.',
+                    'errors' => $this->channelPartnerLeadModel->errors(),
+                ], 422);
+            }
+
+            if ($note !== '' || $status !== '' || $nextFollowUpAt !== '') {
+                if (!$this->channelPartnerLeadFollowUpModel->insert([
+                    'lead_id' => $leadId,
+                    'assigned_admin_id' => $assignedAdminId,
+                    'admin_id' => $adminId > 0 ? $adminId : null,
+                    'previous_status' => $lead['status'] ?? null,
+                    'status' => $status !== '' ? $status : ($lead['status'] ?? null),
+                    'next_follow_up_at' => $nextFollowUpAt !== '' ? $nextFollowUpAt : null,
+                    'note' => $note !== '' ? $note : null,
+                    'created_at' => date('Y-m-d H:i:s'),
+                ])) {
+                    $db->transRollback();
+
+                    return $this->respond([
+                        'status' => 422,
+                        'message' => 'Failed to create follow-up note.',
+                        'errors' => $this->channelPartnerLeadFollowUpModel->errors(),
+                    ], 422);
+                }
+            }
+
+            if ($db->transStatus() === false) {
+                $db->transRollback();
+
+                return $this->respond([
+                    'status' => 500,
+                    'message' => 'Failed to assign lead to admin.',
+                ], 500);
+            }
+
+            $db->transCommit();
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Lead assigned successfully.',
+                'data' => $this->channelPartnerLeadModel
+                    ->select('channel_partner_leads.*, assigned_admin.name as assigned_admin_name, assigned_admin.mobile_no as assigned_admin_mobile, assigned_by_admin.name as assigned_by_admin_name')
+                    ->join('admins assigned_admin', 'assigned_admin.id = channel_partner_leads.assigned_admin_id', 'left')
+                    ->join('admins assigned_by_admin', 'assigned_by_admin.id = channel_partner_leads.assigned_by_admin_id', 'left')
+                    ->find($leadId),
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Failed to assign lead to admin.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function adminAddLeadFollowUp($leadId = null)
+    {
+        try {
+            $leadId = (int) $leadId;
+            $assignedAdminId = (int) $this->request->getVar('assigned_admin_id');
+            $status = trim((string) ($this->request->getVar('status') ?? ''));
+            $note = trim((string) ($this->request->getVar('note') ?? ''));
+            $nextFollowUpAt = trim((string) ($this->request->getVar('next_follow_up_at') ?? ''));
+            $adminId = $this->getAuthAdminId();
+
+            if ($leadId <= 0) {
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Valid lead ID is required.',
+                ], 422);
+            }
+
+            $lead = $this->channelPartnerLeadModel->find($leadId);
+            if (!$lead) {
+                return $this->respond([
+                    'status' => 404,
+                    'message' => 'Lead not found.',
+                ], 404);
+            }
+
+            if ($assignedAdminId <= 0) {
+                $assignedAdminId = (int) ($lead['assigned_admin_id'] ?? 0);
+            }
+
+            if ($assignedAdminId > 0 && !$this->adminModel->find($assignedAdminId)) {
+                return $this->respond([
+                    'status' => 404,
+                    'message' => 'Assigned admin not found.',
+                ], 404);
+            }
+
+            $allowedStatuses = ['new', 'in_progress', 'contacted', 'converted', 'rejected'];
+            if ($status !== '' && !in_array($status, $allowedStatuses, true)) {
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Invalid lead status provided.',
+                ], 422);
+            }
+
+            if ($note === '' && $status === '' && $nextFollowUpAt === '') {
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Provide at least a note, status, or next follow-up date.',
+                ], 422);
+            }
+
+            $db = \Config\Database::connect();
+            $db->transBegin();
+
+            $previousStatus = $lead['status'] ?? null;
+            $newStatus = $status !== '' ? $status : $previousStatus;
+
+            $updateData = [
+                'last_follow_up_at' => date('Y-m-d H:i:s'),
+            ];
+
+            if ($status !== '') {
+                $updateData['status'] = $status;
+            }
+
+            if ($assignedAdminId > 0 && empty($lead['assigned_admin_id'])) {
+                $updateData['assigned_admin_id'] = $assignedAdminId;
+            }
+
+            if (!$this->channelPartnerLeadModel->update($leadId, $updateData)) {
+                $db->transRollback();
+
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Failed to update lead follow-up.',
+                    'errors' => $this->channelPartnerLeadModel->errors(),
+                ], 422);
+            }
+
+            if (!$this->channelPartnerLeadFollowUpModel->insert([
+                'lead_id' => $leadId,
+                'assigned_admin_id' => $assignedAdminId > 0 ? $assignedAdminId : null,
+                'admin_id' => $adminId > 0 ? $adminId : null,
+                'previous_status' => $previousStatus,
+                'status' => $newStatus,
+                'next_follow_up_at' => $nextFollowUpAt !== '' ? $nextFollowUpAt : null,
+                'note' => $note !== '' ? $note : null,
+                'created_at' => date('Y-m-d H:i:s'),
+            ])) {
+                $db->transRollback();
+
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Failed to store lead follow-up.',
+                    'errors' => $this->channelPartnerLeadFollowUpModel->errors(),
+                ], 422);
+            }
+
+            if ($db->transStatus() === false) {
+                $db->transRollback();
+
+                return $this->respond([
+                    'status' => 500,
+                    'message' => 'Failed to add lead follow-up.',
+                ], 500);
+            }
+
+            $db->transCommit();
+
+            return $this->respond([
+                'status' => 201,
+                'message' => 'Lead follow-up added successfully.',
+                'data' => [
+                    'lead' => $this->channelPartnerLeadModel
+                        ->select('channel_partner_leads.*, assigned_admin.name as assigned_admin_name, assigned_admin.mobile_no as assigned_admin_mobile')
+                        ->join('admins assigned_admin', 'assigned_admin.id = channel_partner_leads.assigned_admin_id', 'left')
+                        ->find($leadId),
+                    'follow_up' => $this->channelPartnerLeadFollowUpModel->find($this->channelPartnerLeadFollowUpModel->getInsertID()),
+                ],
+            ], 201);
+        } catch (\Throwable $e) {
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Failed to add lead follow-up.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function adminLeadFollowUps($leadId = null)
+    {
+        try {
+            $leadId = (int) $leadId;
+
+            if ($leadId <= 0) {
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Valid lead ID is required.',
+                ], 422);
+            }
+
+            $lead = $this->channelPartnerLeadModel->find($leadId);
+            if (!$lead) {
+                return $this->respond([
+                    'status' => 404,
+                    'message' => 'Lead not found.',
+                ], 404);
+            }
+
+            $followUps = $this->channelPartnerLeadFollowUpModel
+                ->select('channel_partner_lead_follow_ups.*, assigned_admin.name as assigned_admin_name, assigned_admin.mobile_no as assigned_admin_mobile, admins.name as admin_name')
+                ->join('admins assigned_admin', 'assigned_admin.id = channel_partner_lead_follow_ups.assigned_admin_id', 'left')
+                ->join('admins', 'admins.id = channel_partner_lead_follow_ups.admin_id', 'left')
+                ->where('lead_id', $leadId)
+                ->orderBy('channel_partner_lead_follow_ups.created_at', 'DESC')
+                ->findAll();
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Lead follow-ups retrieved successfully.',
+                'data' => $followUps,
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Failed to fetch lead follow-ups.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    private function getAuthAdminId(): int
+    {
+        $authUser = session('auth_user') ?? [];
+
+        return (int) ($authUser['admin_id'] ?? $authUser['id'] ?? 0);
+    }
+
+    private function formatLeadStatusLabel(?string $status): ?string
+    {
+        if ($status === null || $status === '') {
+            return null;
+        }
+
+        if ($status === 'in_progress') {
+            return 'In Progress';
+        }
+
+        if ($status === 'quotation_sent') {
+            return 'Quotation Sent';
+        }
+
+        return ucfirst($status);
+    }
+
+    private function formatIsoDateTime(?string $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        try {
+            $dateTime = new DateTime($value);
+            $dateTime->setTimezone(new \DateTimeZone('UTC'));
+
+            return $dateTime->format(DATE_ATOM);
+        } catch (\Throwable $e) {
+            return null;
         }
     }
 
@@ -1577,6 +1991,449 @@ class ChannelPartnerController extends BaseController
         }
     }
 
+    public function teamLeads($teamId = null)
+    {
+        try {
+            $teamId = $teamId !== null ? (int) $teamId : null;
+            $page = max(1, (int) ($this->request->getVar('page') ?? 1));
+            $limit = (int) ($this->request->getVar('limit') ?? 10);
+            $limit = $limit > 0 ? min($limit, 100) : 10;
+            $offset = ($page - 1) * $limit;
+
+            $search = trim((string) ($this->request->getVar('search') ?? ''));
+            $status = trim((string) ($this->request->getVar('status') ?? ''));
+            $spaceType = trim((string) ($this->request->getVar('space_type') ?? ''));
+            $followUp = trim((string) ($this->request->getVar('follow_up') ?? ''));
+            $startDate = trim((string) ($this->request->getVar('start_date') ?? ''));
+            $endDate = trim((string) ($this->request->getVar('end_date') ?? ''));
+
+            $sortByInput = trim((string) ($this->request->getVar('sort_by') ?? 'created_at'));
+            $sortOrderInput = strtoupper(trim((string) ($this->request->getVar('sort_order') ?? 'DESC')));
+
+            $allowedSortColumns = [
+                'created_at',
+                'updated_at',
+                'last_follow_up_at',
+                'customer_name',
+                'status',
+                'budget',
+            ];
+
+            $sortBy = in_array($sortByInput, $allowedSortColumns, true) ? $sortByInput : 'created_at';
+            $sortOrder = in_array($sortOrderInput, ['ASC', 'DESC'], true) ? $sortOrderInput : 'DESC';
+
+            if ($teamId !== null) {
+                if ($teamId <= 0) {
+                    return $this->respond([
+                        'status' => 422,
+                        'message' => 'Valid team ID is required.',
+                    ], 422);
+                }
+
+                $team = $this->adminModel
+                    ->select('id')
+                    ->find($teamId);
+
+                if (!$team) {
+                    return $this->respond([
+                        'status' => 404,
+                        'message' => 'Team not found.',
+                    ], 404);
+                }
+            }
+
+            $builder = $this->channelPartnerLeadModel
+                ->select('channel_partner_leads.*, channel_partners.name as channel_partner_name, channel_partners.company_name as channel_partner_company_name, channel_partners.mobile as channel_partner_mobile, assigned_admin.name as assigned_admin_name, assigned_admin.mobile_no as assigned_admin_mobile, assigned_by_admin.name as assigned_by_admin_name')
+                ->join('channel_partners', 'channel_partners.id = channel_partner_leads.channel_partner_id', 'left')
+                ->join('admins assigned_admin', 'assigned_admin.id = channel_partner_leads.assigned_admin_id', 'left')
+                ->join('admins assigned_by_admin', 'assigned_by_admin.id = channel_partner_leads.assigned_by_admin_id', 'left');
+
+            if ($teamId !== null) {
+                $builder->where('channel_partner_leads.assigned_admin_id', $teamId);
+            }
+
+            if ($search !== '') {
+                $builder->groupStart()
+                    ->like('channel_partner_leads.customer_name', $search)
+                    ->orLike('channel_partner_leads.mobile', $search)
+                    ->orLike('channel_partner_leads.requirement_title', $search)
+                    ->orLike('channel_partner_leads.address', $search)
+                    ->orLike('channel_partners.name', $search)
+                    ->orLike('channel_partners.company_name', $search)
+                    ->orLike('assigned_admin.name', $search)
+                    ->orLike('assigned_by_admin.name', $search)
+                    ->groupEnd();
+            }
+
+            if ($status !== '') {
+                $builder->where('channel_partner_leads.status', $status);
+            }
+
+            if ($spaceType !== '') {
+                $builder->where('channel_partner_leads.space_type', $spaceType);
+            }
+
+            if ($followUp === 'today') {
+                $today = date('Y-m-d');
+                $builder->where('channel_partner_leads.last_follow_up_at >=', $today . ' 00:00:00')
+                    ->where('channel_partner_leads.last_follow_up_at <=', $today . ' 23:59:59');
+            }
+
+            if ($startDate !== '') {
+                $builder->where('channel_partner_leads.created_at >=', $startDate . ' 00:00:00');
+            }
+
+            if ($endDate !== '') {
+                $builder->where('channel_partner_leads.created_at <=', $endDate . ' 23:59:59');
+            }
+
+            $total = $builder->countAllResults(false);
+            $leads = $builder->orderBy('channel_partner_leads.' . $sortBy, $sortOrder)
+                ->findAll($limit, $offset);
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Team leads retrieved successfully.',
+                'data' => $leads,
+                'pagination' => [
+                    'current_page' => $page,
+                    'per_page' => $limit,
+                    'total_records' => $total,
+                    'total_pages' => $limit > 0 ? (int) ceil($total / $limit) : 0,
+                ],
+                'filters' => [
+                    'assigned_admin_id' => $teamId,
+                    'search' => $search !== '' ? $search : null,
+                    'status' => $status !== '' ? $status : null,
+                    'space_type' => $spaceType !== '' ? $spaceType : null,
+                    'follow_up' => $followUp !== '' ? $followUp : null,
+                    'start_date' => $startDate !== '' ? $startDate : null,
+                    'end_date' => $endDate !== '' ? $endDate : null,
+                    'sort_by' => $sortBy,
+                    'sort_order' => $sortOrder,
+                ],
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Failed to fetch team leads.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function teamUpdateLeadStatus($leadId = null)
+    {
+        try {
+            $leadId = (int) $leadId;
+            $adminId = $this->getAuthAdminId();
+            $status = trim((string) ($this->request->getVar('status') ?? ''));
+            $note = trim((string) ($this->request->getVar('note') ?? ''));
+
+            if ($adminId <= 0) {
+                return $this->respond([
+                    'status' => 403,
+                    'message' => 'Admin authentication is required.',
+                ], 403);
+            }
+
+            if ($leadId <= 0) {
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Valid lead ID is required.',
+                ], 422);
+            }
+
+            if ($status === '') {
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Lead status is required.',
+                ], 422);
+            }
+
+            $allowedStatuses = ['new', 'in_progress', 'contacted', 'converted', 'rejected'];
+            if (!in_array($status, $allowedStatuses, true)) {
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Invalid lead status provided.',
+                ], 422);
+            }
+
+            $lead = $this->channelPartnerLeadModel->find($leadId);
+            if (!$lead) {
+                return $this->respond([
+                    'status' => 404,
+                    'message' => 'Lead not found.',
+                ], 404);
+            }
+
+            if ((int) ($lead['assigned_admin_id'] ?? 0) !== $adminId) {
+                return $this->respond([
+                    'status' => 403,
+                    'message' => 'You are not assigned to this lead.',
+                ], 403);
+            }
+
+            $previousStatus = $lead['status'] ?? null;
+            $timestamp = date('Y-m-d H:i:s');
+
+            $db = \Config\Database::connect();
+            $db->transBegin();
+
+            if (!$this->channelPartnerLeadModel->update($leadId, [
+                'status' => $status,
+                'last_follow_up_at' => $timestamp,
+            ])) {
+                $db->transRollback();
+
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Failed to update lead status.',
+                    'errors' => $this->channelPartnerLeadModel->errors(),
+                ], 422);
+            }
+
+            if (!$this->channelPartnerLeadFollowUpModel->insert([
+                'lead_id' => $leadId,
+                'assigned_admin_id' => $adminId,
+                'admin_id' => $adminId,
+                'previous_status' => $previousStatus,
+                'status' => $status,
+                'note' => $note !== '' ? $note : null,
+                'created_at' => $timestamp,
+            ])) {
+                $db->transRollback();
+
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Failed to store status history.',
+                    'errors' => $this->channelPartnerLeadFollowUpModel->errors(),
+                ], 422);
+            }
+
+            if ($db->transStatus() === false) {
+                $db->transRollback();
+
+                return $this->respond([
+                    'status' => 500,
+                    'message' => 'Failed to update lead status.',
+                ], 500);
+            }
+
+            $db->transCommit();
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Lead status updated successfully.',
+                'data' => [
+                    'lead' => $this->channelPartnerLeadModel
+                        ->select('channel_partner_leads.*, assigned_admin.name as assigned_admin_name, assigned_admin.mobile_no as assigned_admin_mobile')
+                        ->join('admins assigned_admin', 'assigned_admin.id = channel_partner_leads.assigned_admin_id', 'left')
+                        ->find($leadId),
+                    'follow_up' => $this->channelPartnerLeadFollowUpModel->find($this->channelPartnerLeadFollowUpModel->getInsertID()),
+                ],
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Failed to update lead status.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function teamAddLeadFollowUp($leadId = null)
+    {
+        try {
+            $leadId = (int) $leadId;
+            $adminId = $this->getAuthAdminId();
+            $status = trim((string) ($this->request->getVar('status') ?? ''));
+            $note = trim((string) ($this->request->getVar('note') ?? ''));
+            $nextFollowUpAt = trim((string) ($this->request->getVar('next_follow_up_at') ?? ''));
+
+            if ($adminId <= 0) {
+                return $this->respond([
+                    'status' => 403,
+                    'message' => 'Admin authentication is required.',
+                ], 403);
+            }
+
+            if ($leadId <= 0) {
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Valid lead ID is required.',
+                ], 422);
+            }
+
+            if ($note === '' && $status === '' && $nextFollowUpAt === '') {
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Provide at least a note, status, or next follow-up date.',
+                ], 422);
+            }
+
+            $allowedStatuses = ['new', 'in_progress', 'contacted', 'converted', 'rejected'];
+            if ($status !== '' && !in_array($status, $allowedStatuses, true)) {
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Invalid lead status provided.',
+                ], 422);
+            }
+
+            $lead = $this->channelPartnerLeadModel->find($leadId);
+            if (!$lead) {
+                return $this->respond([
+                    'status' => 404,
+                    'message' => 'Lead not found.',
+                ], 404);
+            }
+
+            if ((int) ($lead['assigned_admin_id'] ?? 0) !== $adminId) {
+                return $this->respond([
+                    'status' => 403,
+                    'message' => 'You are not assigned to this lead.',
+                ], 403);
+            }
+
+            $previousStatus = $lead['status'] ?? null;
+            $newStatus = $status !== '' ? $status : $previousStatus;
+            $timestamp = date('Y-m-d H:i:s');
+
+            $db = \Config\Database::connect();
+            $db->transBegin();
+
+            $updateData = [
+                'last_follow_up_at' => $timestamp,
+            ];
+
+            if ($status !== '') {
+                $updateData['status'] = $status;
+            }
+
+            if (!$this->channelPartnerLeadModel->update($leadId, $updateData)) {
+                $db->transRollback();
+
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Failed to update lead follow-up.',
+                    'errors' => $this->channelPartnerLeadModel->errors(),
+                ], 422);
+            }
+
+            if (!$this->channelPartnerLeadFollowUpModel->insert([
+                'lead_id' => $leadId,
+                'assigned_admin_id' => $adminId,
+                'admin_id' => $adminId,
+                'previous_status' => $previousStatus,
+                'status' => $newStatus,
+                'next_follow_up_at' => $nextFollowUpAt !== '' ? $nextFollowUpAt : null,
+                'note' => $note !== '' ? $note : null,
+                'created_at' => $timestamp,
+            ])) {
+                $db->transRollback();
+
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Failed to store lead follow-up.',
+                    'errors' => $this->channelPartnerLeadFollowUpModel->errors(),
+                ], 422);
+            }
+
+            if ($db->transStatus() === false) {
+                $db->transRollback();
+
+                return $this->respond([
+                    'status' => 500,
+                    'message' => 'Failed to add lead follow-up.',
+                ], 500);
+            }
+
+            $db->transCommit();
+
+            return $this->respond([
+                'status' => 201,
+                'message' => 'Lead follow-up added successfully.',
+                'data' => [
+                    'lead' => $this->channelPartnerLeadModel
+                        ->select('channel_partner_leads.*, assigned_admin.name as assigned_admin_name, assigned_admin.mobile_no as assigned_admin_mobile')
+                        ->join('admins assigned_admin', 'assigned_admin.id = channel_partner_leads.assigned_admin_id', 'left')
+                        ->find($leadId),
+                    'follow_up' => $this->channelPartnerLeadFollowUpModel->find($this->channelPartnerLeadFollowUpModel->getInsertID()),
+                ],
+            ], 201);
+        } catch (\Throwable $e) {
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Failed to add lead follow-up.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function teamLeadFollowUps($leadId = null)
+    {
+        try {
+            $leadId = (int) $leadId;
+            $adminId = $this->getAuthAdminId();
+
+            if ($adminId <= 0) {
+                return $this->respond([
+                    'status' => 403,
+                    'message' => 'Admin authentication is required.',
+                ], 403);
+            }
+
+            if ($leadId <= 0) {
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Valid lead ID is required.',
+                ], 422);
+            }
+
+            $lead = $this->channelPartnerLeadModel
+                ->select('channel_partner_leads.*, assigned_admin.name as assigned_admin_name, assigned_admin.mobile_no as assigned_admin_mobile')
+                ->join('admins assigned_admin', 'assigned_admin.id = channel_partner_leads.assigned_admin_id', 'left')
+                ->find($leadId);
+
+            if (!$lead) {
+                return $this->respond([
+                    'status' => 404,
+                    'message' => 'Lead not found.',
+                ], 404);
+            }
+
+            if ((int) ($lead['assigned_admin_id'] ?? 0) !== $adminId) {
+                return $this->respond([
+                    'status' => 403,
+                    'message' => 'You are not assigned to this lead.',
+                ], 403);
+            }
+
+            $followUps = $this->channelPartnerLeadFollowUpModel
+                ->select('channel_partner_lead_follow_ups.*, assigned_admin.name as assigned_admin_name, assigned_admin.mobile_no as assigned_admin_mobile, admins.name as admin_name')
+                ->join('admins assigned_admin', 'assigned_admin.id = channel_partner_lead_follow_ups.assigned_admin_id', 'left')
+                ->join('admins', 'admins.id = channel_partner_lead_follow_ups.admin_id', 'left')
+                ->where('lead_id', $leadId)
+                ->orderBy('channel_partner_lead_follow_ups.created_at', 'DESC')
+                ->findAll();
+
+            return $this->respond([
+                'status' => 200,
+                'message' => 'Lead follow-up history retrieved successfully.',
+                'data' => [
+                    'lead' => $lead,
+                    'follow_ups' => $followUps,
+                ],
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Failed to fetch lead follow-up history.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function viewLead($leadId = null)
     {
         try {
@@ -1731,6 +2588,123 @@ class ChannelPartnerController extends BaseController
             return $this->respond([
                 'status' => 500,
                 'message' => 'Failed to fetch channel partner dashboard.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function teamDashboard($teamId = null)
+    {
+        try {
+            $teamId = $teamId !== null ? (int) $teamId : null;
+            $leadModel = $this->channelPartnerLeadModel;
+            $team = null;
+
+            if ($teamId !== null) {
+                if ($teamId <= 0) {
+                    return $this->respond([
+                        'status' => 422,
+                        'message' => 'Valid team ID is required.',
+                    ], 422);
+                }
+
+                $team = $this->adminModel
+                    ->select('id, name, mobile_no, email, status')
+                    ->find($teamId);
+
+                if (!$team) {
+                    return $this->respond([
+                        'status' => 404,
+                        'message' => 'Team not found.',
+                    ], 404);
+                }
+            }
+
+            $totalLeads = $teamId !== null
+                ? $leadModel->where('assigned_admin_id', $teamId)->countAllResults()
+                : $leadModel->countAllResults();
+            $newLeads = $teamId !== null
+                ? $leadModel->where('assigned_admin_id', $teamId)->where('status', 'new')->countAllResults()
+                : $leadModel->where('status', 'new')->countAllResults();
+            $openLeads = $teamId !== null
+                ? $leadModel->where('assigned_admin_id', $teamId)->whereIn('status', ['new', 'open', 'in_progress', 'contacted'])->countAllResults()
+                : $leadModel->whereIn('status', ['new', 'open', 'in_progress', 'contacted'])->countAllResults();
+            $inProgressLeads = $teamId !== null
+                ? $leadModel->where('assigned_admin_id', $teamId)->where('status', 'in_progress')->countAllResults()
+                : $leadModel->where('status', 'in_progress')->countAllResults();
+            $contactedLeads = $teamId !== null
+                ? $leadModel->where('assigned_admin_id', $teamId)->where('status', 'contacted')->countAllResults()
+                : $leadModel->where('status', 'contacted')->countAllResults();
+            $quotationSentLeads = $teamId !== null
+                ? $leadModel->where('assigned_admin_id', $teamId)->where('status', 'quotation_sent')->countAllResults()
+                : $leadModel->where('status', 'quotation_sent')->countAllResults();
+            $convertedLeads = $teamId !== null
+                ? $leadModel->where('assigned_admin_id', $teamId)->where('status', 'converted')->countAllResults()
+                : $leadModel->where('status', 'converted')->countAllResults();
+            $rejectedLeads = $teamId !== null
+                ? $leadModel->where('assigned_admin_id', $teamId)->where('status', 'rejected')->countAllResults()
+                : $leadModel->where('status', 'rejected')->countAllResults();
+
+            $pendingLeads = max(0, (int) $totalLeads - (int) $convertedLeads - (int) $rejectedLeads);
+            $conversionRate = $totalLeads > 0 ? (int) round(($convertedLeads / $totalLeads) * 100) : 0;
+
+            $recentRowsBuilder = $leadModel
+                ->select('id, customer_name, address, space_type, budget, status, updated_at, created_at')
+                ->orderBy('created_at', 'DESC');
+
+            if ($teamId !== null) {
+                $recentRowsBuilder->where('assigned_admin_id', $teamId);
+            }
+
+            $recentRows = $recentRowsBuilder->findAll(5);
+
+            $recentLeads = array_map(function (array $lead): array {
+                return [
+                    'id' => 'lead-' . (int) ($lead['id'] ?? 0),
+                    'customerName' => (string) ($lead['customer_name'] ?? ''),
+                    'address' => $lead['address'] ?? null,
+                    'spaceType' => $lead['space_type'] ?? null,
+                    'budget' => $lead['budget'] ?? null,
+                    'status' => $this->formatLeadStatusLabel($lead['status'] ?? null),
+                    'updatedAt' => $this->formatIsoDateTime($lead['updated_at'] ?? $lead['created_at'] ?? null),
+                ];
+            }, $recentRows);
+
+            return $this->respond([
+                'status' => 200,
+                'data' => [
+                    'team' => $team ? [
+                        'id' => (int) $team['id'],
+                        'name' => (string) ($team['name'] ?? ''),
+                        'mobile' => $team['mobile_no'] ?? null,
+                        'email' => $team['email'] ?? null,
+                        'status' => $team['status'] ?? null,
+                    ] : null,
+                    'summary' => [
+                        'totalLeads' => (int) $totalLeads,
+                        'pendingLeads' => (int) $pendingLeads,
+                        'convertedLeads' => (int) $convertedLeads,
+                        'conversionRate' => (int) $conversionRate,
+                        'statusCounts' => [
+                            'new' => (int) $newLeads,
+                            'open' => (int) $openLeads,
+                            'in_progress' => (int) $inProgressLeads,
+                            'contacted' => (int) $contactedLeads,
+                            'quotation_sent' => (int) $quotationSentLeads,
+                            'converted' => (int) $convertedLeads,
+                            'rejected' => (int) $rejectedLeads,
+                        ],
+                    ],
+                    'filters' => [
+                        'assignedAdminId' => $teamId,
+                    ],
+                    'recentLeads' => $recentLeads,
+                ],
+            ], 200);
+        } catch (\Throwable $e) {
+            return $this->respond([
+                'status' => 500,
+                'message' => 'Failed to fetch team dashboard.',
                 'error' => $e->getMessage(),
             ], 500);
         }
