@@ -627,8 +627,11 @@ $routes->group('channel-partner', static function ($routes) {
 });
 
 $routes->group('team', ['filter' => 'authFilter'], static function ($routes) {
-    $routes->get('dashboard', 'ChannelPartnerController::teamDashboard');
-    $routes->get('leads', 'ChannelPartnerController::teamLeads');
+    $routes->get('dashboard/(:num)', 'ChannelPartnerController::teamDashboard/$1');
+    $routes->get('leads/(:num)', 'ChannelPartnerController::teamLeads/$1');
+    $routes->get('leads/(:num)/follow-ups', 'ChannelPartnerController::teamLeadFollowUps/$1');
+    $routes->put('leads/(:num)/status', 'ChannelPartnerController::teamUpdateLeadStatus/$1');
+    $routes->post('leads/(:num)/follow-up', 'ChannelPartnerController::teamAddLeadFollowUp/$1');
 });
 
 $routes->group('admin/channel-partner', static function ($routes) {
