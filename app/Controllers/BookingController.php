@@ -1522,13 +1522,13 @@ class BookingController extends ResourceController
             }
 
             // Update only operational booking state; payment_status is derived.
-            $bookingUpdate = [
-                'updated_at' => date('Y-m-d H:i:s'),
-            ];
+            $bookingUpdate = [];
             if (($booking['status'] ?? null) !== 'cancelled' && $bookingStatus === 'confirmed') {
                 $bookingUpdate['status'] = 'confirmed';
             }
-            $this->bookingsModel->update($booking['id'], $bookingUpdate);
+            if (!empty($bookingUpdate)) {
+                $this->bookingsModel->update($booking['id'], $bookingUpdate);
+            }
 
             if ($amounts['payment_status'] === 'completed') {
                 $this->seebCartModel->where('user_id', $paymentUserId)->delete();
@@ -3906,13 +3906,13 @@ class BookingController extends ResourceController
             $bookingStatus = ($amountDue == 0) ? 'confirmed' : 'pending';
 
             // Update only operational booking state; payment_status is derived.
-            $bookingUpdate = [
-                'updated_at' => date('Y-m-d H:i:s'),
-            ];
+            $bookingUpdate = [];
             if (($booking['status'] ?? null) !== 'cancelled' && $bookingStatus === 'confirmed') {
                 $bookingUpdate['status'] = 'confirmed';
             }
-            $this->bookingsModel->update($booking['id'], $bookingUpdate);
+            if (!empty($bookingUpdate)) {
+                $this->bookingsModel->update($booking['id'], $bookingUpdate);
+            }
 
             // Store Payment Record
             $paymentData = [
@@ -4125,15 +4125,15 @@ class BookingController extends ResourceController
         }
 
         $summary = $this->bookingFinancialSummaryService->summarize($booking);
-        $updateData = [
-            'updated_at' => date('Y-m-d H:i:s'),
-        ];
+        $updateData = [];
 
         if (($booking['status'] ?? null) !== 'cancelled' && (float) ($summary['paid_amount'] ?? 0) > 0) {
             $updateData['status'] = 'confirmed';
         }
 
-        $this->bookingsModel->update($bookingId, $updateData);
+        if (!empty($updateData)) {
+            $this->bookingsModel->update($bookingId, $updateData);
+        }
     }
 
     private function handleFailed($bookingId, $payment, $paymentId)
@@ -4150,15 +4150,15 @@ class BookingController extends ResourceController
         }
 
         $summary = $this->bookingFinancialSummaryService->summarize($booking);
-        $updateData = [
-            'updated_at' => date('Y-m-d H:i:s'),
-        ];
+        $updateData = [];
 
         if (($booking['status'] ?? null) !== 'cancelled' && (float) ($summary['paid_amount'] ?? 0) <= 0) {
             $updateData['status'] = 'pending';
         }
 
-        $this->bookingsModel->update($bookingId, $updateData);
+        if (!empty($updateData)) {
+            $this->bookingsModel->update($bookingId, $updateData);
+        }
     }
 
     private function logDispute($bookingId, $payment, $status)

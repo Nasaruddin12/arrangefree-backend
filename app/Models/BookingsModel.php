@@ -32,7 +32,8 @@ class BookingsModel extends Model
         'pricing_locked',
         'cancelled_by',
         'cancelled_at',
-        'cancellation_reason'
+        'cancellation_reason',
+        'updated_at',
     ];
 
     protected $useTimestamps = true;
