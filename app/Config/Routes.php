@@ -742,6 +742,8 @@ $routes->group('reviews', function ($routes) {
     $routes->get('all', 'ReviewController::publicServiceReviews');
     $routes->get('service/(:num)', 'ReviewController::serviceReviews/$1');
     $routes->post('vote/(:num)', 'ReviewController::vote/$1');
+    $routes->get('code/(:segment)', 'ReviewController::publicReviewCode/$1');
+    $routes->match(['put', 'post'], 'submit/(:segment)', 'ReviewController::publicReviewCodeSave/$1');
     $routes->group('/', ['filter' => 'authFilter'], static function ($routes) {
         $routes->post('submit', 'ReviewController::submit');
         $routes->post('media/upload', 'ReviewController::uploadMedia');
@@ -754,6 +756,7 @@ $routes->group('reviews', function ($routes) {
         $routes->get('booking/(:num)', 'ReviewController::getByBooking/$1');
         $routes->get('admin/service-summary', 'ReviewController::getAllServicesReviewSummary');
         $routes->post('customer/(:num)/vote', 'ReviewController::customerVote/$1');
+        $routes->post('admin/booking/(:num)/share-link', 'ReviewController::adminCreateBookingReviewLink/$1');
         $routes->match(['get', 'post'], 'admin/list', 'ReviewController::adminList');
         $routes->get('admin/(:num)', 'ReviewController::adminShow/$1');
         $routes->put('admin/(:num)/status', 'ReviewController::adminUpdateStatus/$1');
