@@ -7,6 +7,7 @@ use App\Models\BookingsModel;
 use App\Models\BookingServicesModel;
 use App\Models\ReviewAspectsModel;
 use App\Models\ReviewMediaModel;
+use App\Models\ReviewShareLinkModel;
 use App\Models\ReviewsModel;
 use App\Models\ReviewVotesModel;
 use App\Models\ServiceReviewSummaryModel;
@@ -21,6 +22,7 @@ class ReviewController extends BaseController
     protected ReviewsModel $reviewsModel;
     protected ReviewAspectsModel $reviewAspectsModel;
     protected ReviewMediaModel $reviewMediaModel;
+    protected ReviewShareLinkModel $reviewShareLinkModel;
     protected ReviewVotesModel $reviewVotesModel;
     protected ServiceReviewSummaryModel $serviceReviewSummaryModel;
     protected ImageProcessingService $imageProcessingService;
@@ -32,6 +34,7 @@ class ReviewController extends BaseController
         $this->reviewsModel = new ReviewsModel();
         $this->reviewAspectsModel = new ReviewAspectsModel();
         $this->reviewMediaModel = new ReviewMediaModel();
+        $this->reviewShareLinkModel = new ReviewShareLinkModel();
         $this->reviewVotesModel = new ReviewVotesModel();
         $this->serviceReviewSummaryModel = new ServiceReviewSummaryModel();
         $this->imageProcessingService = new ImageProcessingService();
@@ -202,76 +205,142 @@ class ReviewController extends BaseController
             }
 
             $payload = $this->getRequestData();
-            $reviewData = [
-                'review_type' => $payload['review_type'] ?? 'service',
-                'booking_id'  => $payload['booking_id'] ?? null,
-                'service_id'  => $payload['service_id'] ?? null,
-                'partner_id'  => $payload['partner_id'] ?? null,
-                'user_id'     => $customerId,
-                'title'       => $payload['title'] ?? null,
-                'rating'      => $payload['rating'] ?? null,
-                'review'      => $payload['review'] ?? null,
-                'is_verified' => isset($payload['is_verified']) ? (int) $payload['is_verified'] : 1,
-                'status'      => 'approved',
-            ];
+            $result = $this->storeCustomerReview($payload, $customerId);
 
-            if ($this->reviewsModel->hasDuplicateReview($reviewData)) {
-                return $this->respond([
-                    'status'  => 409,
-                    'message' => 'Review already submitted for this booking and target.',
-                ], 409);
+            return $this->reviewResultResponse($result);
+        } catch (Exception $e) {
+            return $this->respond([
+                'status' => $e->getCode() ?: 500,
+                'message' => $e->getMessage(),
+            ], $e->getCode() ?: 500);
+        }
+    }
+
+    public function adminCreateBookingReviewLink($bookingId)
+    {
+        try {
+            if (!$this->isAdminSession()) {
+                return $this->respond(['status' => 401, 'message' => 'Unauthorized admin token.'], 401);
             }
 
-            $this->db->transStart();
+            $bookingId = (int) $bookingId;
+            if ($bookingId <= 0) {
+                return $this->respond(['status' => 422, 'message' => 'Valid booking_id is required.'], 422);
+            }
 
-            $reviewId = $this->reviewsModel->insert($reviewData, true);
-            if ($reviewId === false) {
-                $this->db->transRollback();
+            $booking = (new BookingsModel())
+                ->select('bookings.*, customers.name as customer_name, customers.email as customer_email, customers.mobile_no as customer_mobile')
+                ->join('customers', 'customers.id = bookings.user_id', 'left')
+                ->where('bookings.id', $bookingId)
+                ->first();
+
+            if (!$booking) {
+                return $this->respond(['status' => 404, 'message' => 'Booking not found.'], 404);
+            }
+
+            $customerId = (int) ($booking['user_id'] ?? 0);
+            if ($customerId <= 0) {
                 return $this->respond([
                     'status' => 422,
-                    'message' => 'Validation failed.',
-                    'errors' => $this->reviewsModel->errors(),
+                    'message' => 'This booking is not linked with a customer.',
                 ], 422);
             }
 
-            $aspects = $this->normalizeAspects($payload['aspects'] ?? []);
-            if (!empty($aspects) && !$this->reviewAspectsModel->replaceReviewAspects((int) $reviewId, $aspects)) {
-                $this->db->transRollback();
+            $payload = $this->getRequestData();
+            $expiresInDays = (int) ($payload['expires_in_days'] ?? 30);
+            $expiresInDays = max(1, min($expiresInDays, 365));
+            $expiresAt = date('Y-m-d H:i:s', strtotime('+' . $expiresInDays . ' days'));
+            $now = date('Y-m-d H:i:s');
+
+            if (!empty($payload['revoke_existing'])) {
+                $this->reviewShareLinkModel
+                    ->where('booking_id', $bookingId)
+                    ->where('revoked_at', null)
+                    ->set(['revoked_at' => $now])
+                    ->update();
+            }
+
+            $token = bin2hex(random_bytes(32));
+            $tokenHash = hash('sha256', $token);
+            $code = $this->generateReviewLinkCode();
+            $adminId = $this->getAdminIdFromSession();
+
+            $linkId = $this->reviewShareLinkModel->insert([
+                'booking_id' => $bookingId,
+                'user_id' => $customerId,
+                'token_hash' => $tokenHash,
+                'code' => $code,
+                'created_by_admin_id' => $adminId > 0 ? $adminId : null,
+                'expires_at' => $expiresAt,
+            ], true);
+
+            if ($linkId === false) {
                 return $this->respond([
                     'status' => 422,
-                    'message' => 'Aspect validation failed.',
-                    'errors' => $this->reviewAspectsModel->errors(),
+                    'message' => 'Failed to create review link.',
+                    'errors' => $this->reviewShareLinkModel->errors(),
                 ], 422);
             }
 
-            $mediaItems = $this->normalizeMedia($payload['media'] ?? []);
-            foreach ($mediaItems as $mediaItem) {
-                $mediaItem['review_id'] = $reviewId;
-                if ($this->reviewMediaModel->insert($mediaItem) === false) {
-                    $this->db->transRollback();
-                    return $this->respond([
-                        'status' => 422,
-                        'message' => 'Review media validation failed.',
-                        'errors' => $this->reviewMediaModel->errors(),
-                    ], 422);
-                }
-            }
-
-            $this->db->transComplete();
-
-            if ($this->db->transStatus() === false) {
-                return $this->respond(['status' => 500, 'message' => 'Failed to save review.'], 500);
-            }
-
-            if (($reviewData['review_type'] ?? null) === 'service' && !empty($reviewData['service_id'])) {
-                $this->syncServiceSummary((int) $reviewData['service_id']);
-            }
+            $urls = $this->buildReviewShareUrls(
+                $token,
+                $code,
+                $payload['frontend_url'] ?? null,
+                $payload['deep_link_url'] ?? null
+            );
 
             return $this->respondCreated([
-                'status'    => 201,
-                'message'   => 'Review submitted successfully.',
-                'review_id' => $reviewId,
+                'status' => 201,
+                'message' => 'Booking review link created successfully.',
+                'data' => [
+                    'id' => (int) $linkId,
+                    'booking_id' => $bookingId,
+                    'booking_code' => $booking['booking_code'] ?? null,
+                    'customer_id' => $customerId,
+                    'customer_name' => $booking['customer_name'] ?? null,
+                    'code' => $code,
+                    'review_url' => $urls['review_url'],
+                    'short_url' => $urls['short_url'],
+                    'deep_link_url' => $urls['deep_link_url'],
+                    'preferred_share_url' => $urls['preferred_share_url'],
+                    'api_url' => $urls['api_url'],
+                    'submit_api_url' => $urls['submit_api_url'],
+                    'expires_at' => $expiresAt,
+                ],
             ]);
+        } catch (Exception $e) {
+            return $this->respond([
+                'status' => $e->getCode() ?: 500,
+                'message' => $e->getMessage(),
+            ], $e->getCode() ?: 500);
+        }
+    }
+
+    public function publicReviewCode($code)
+    {
+        $resolved = $this->resolveReviewShareLinkByCode((string) $code);
+        if (isset($resolved['error'])) {
+            return $this->respond($resolved['error']['body'], $resolved['error']['status']);
+        }
+
+        return $this->respond([
+            'status' => 200,
+            'data' => $this->buildReviewSharePayload(
+                $resolved,
+                base_url('reviews/code/' . rawurlencode((string) $code))
+            ),
+        ], 200);
+    }
+
+    public function publicReviewCodeSave($code)
+    {
+        try {
+            $resolved = $this->resolveReviewShareLinkByCode((string) $code);
+            if (isset($resolved['error'])) {
+                return $this->respond($resolved['error']['body'], $resolved['error']['status']);
+            }
+
+            return $this->submitResolvedReviewShareLink($resolved);
         } catch (Exception $e) {
             return $this->respond([
                 'status' => $e->getCode() ?: 500,
@@ -319,60 +388,10 @@ class ReviewController extends BaseController
             return $this->respond(['status' => 404, 'message' => 'Booking not found.'], 404);
         }
 
-        $services = (new BookingServicesModel())
-            ->select('booking_services.service_id, services.name as service_name, services.image as service_image, services.slug as service_slug')
-            ->join('services', 'services.id = booking_services.service_id', 'left')
-            ->where('booking_services.booking_id', $bookingId)
-            ->where('booking_services.status !=', 'cancelled')
-            ->where('booking_services.service_id IS NOT NULL', null, false)
-            ->groupBy('booking_services.service_id, services.name, services.image, services.slug')
-            ->orderBy('services.name', 'ASC')
-            ->findAll();
-
-        $reviews = $this->reviewsModel
-            ->where('booking_id', $bookingId)
-            ->where('user_id', $customerId)
-            ->where('review_type', 'service')
-            ->findAll();
-
-        $reviewsByServiceId = [];
-        foreach ($reviews as $review) {
-            $serviceId = (int) ($review['service_id'] ?? 0);
-            if ($serviceId > 0) {
-                $reviewsByServiceId[$serviceId] = $review;
-            }
-        }
-
-        $data = [];
-        foreach ($services as $service) {
-            $serviceId = (int) ($service['service_id'] ?? 0);
-            $review = $reviewsByServiceId[$serviceId] ?? null;
-
-            $data[] = [
-                'booking_id' => $bookingId,
-                'service_id' => $serviceId,
-                'service_name' => $service['service_name'] ?? null,
-                'service_image' => $service['service_image'] ?? null,
-                'service_slug' => $service['service_slug'] ?? null,
-                'has_review' => $review !== null,
-                'can_add_review' => $review === null,
-                'can_update_review' => $review !== null,
-                'review' => $review ? [
-                    'review_id' => (int) $review['id'],
-                    'rating' => isset($review['rating']) ? (float) $review['rating'] : null,
-                    'title' => $review['title'] ?? null,
-                    'review' => $review['review'] ?? null,
-                    'status' => $review['status'] ?? null,
-                    'is_verified' => isset($review['is_verified']) ? (int) $review['is_verified'] : null,
-                    'media' => $this->reviewMediaModel->where('review_id', (int) $review['id'])->findAll(),
-                ] : null,
-            ];
-        }
-
         return $this->respond([
             'status' => 200,
             'booking_id' => $bookingId,
-            'data' => $data,
+            'data' => $this->getBookingReviewServicesData($bookingId, $customerId),
         ], 200);
     }
 
@@ -468,69 +487,9 @@ class ReviewController extends BaseController
             }
 
             $payload = $this->getRequestData();
-            $updateData = [
-                'title'       => $payload['title'] ?? $review['title'] ?? null,
-                'rating'      => $payload['rating'] ?? $review['rating'] ?? null,
-                'review'      => $payload['review'] ?? $review['review'] ?? null,
-                'is_verified' => isset($payload['is_verified']) ? (int) $payload['is_verified'] : (int) ($review['is_verified'] ?? 1),
-                'status'      => $review['status'] ?? 'approved',
-            ];
+            $result = $this->updateCustomerReviewRecord($review, $payload);
 
-            $this->db->transStart();
-
-            if (!$this->reviewsModel->update((int) $reviewId, $updateData)) {
-                $this->db->transRollback();
-                return $this->respond([
-                    'status' => 422,
-                    'message' => 'Validation failed.',
-                    'errors' => $this->reviewsModel->errors(),
-                ], 422);
-            }
-
-            if (array_key_exists('aspects', $payload)) {
-                $aspects = $this->normalizeAspects($payload['aspects'] ?? []);
-                if (!$this->reviewAspectsModel->replaceReviewAspects((int) $reviewId, $aspects)) {
-                    $this->db->transRollback();
-                    return $this->respond([
-                        'status' => 422,
-                        'message' => 'Aspect validation failed.',
-                        'errors' => $this->reviewAspectsModel->errors(),
-                    ], 422);
-                }
-            }
-
-            if (array_key_exists('media', $payload)) {
-                $mediaItems = $this->normalizeMedia($payload['media'] ?? []);
-                $this->reviewMediaModel->where('review_id', (int) $reviewId)->delete();
-
-                foreach ($mediaItems as $mediaItem) {
-                    $mediaItem['review_id'] = (int) $reviewId;
-                    if ($this->reviewMediaModel->insert($mediaItem) === false) {
-                        $this->db->transRollback();
-                        return $this->respond([
-                            'status' => 422,
-                            'message' => 'Review media validation failed.',
-                            'errors' => $this->reviewMediaModel->errors(),
-                        ], 422);
-                    }
-                }
-            }
-
-            $this->db->transComplete();
-
-            if ($this->db->transStatus() === false) {
-                return $this->respond(['status' => 500, 'message' => 'Failed to update review.'], 500);
-            }
-
-            if (($review['review_type'] ?? null) === 'service' && !empty($review['service_id'])) {
-                $this->syncServiceSummary((int) $review['service_id']);
-            }
-
-            return $this->respond([
-                'status'    => 200,
-                'message'   => 'Review updated successfully.',
-                'review_id' => (int) $reviewId,
-            ], 200);
+            return $this->reviewResultResponse($result);
         } catch (Exception $e) {
             return $this->respond([
                 'status' => $e->getCode() ?: 500,
@@ -767,6 +726,567 @@ class ReviewController extends BaseController
         ], 200);
     }
 
+    private function storeCustomerReview(
+        array $payload,
+        int $customerId,
+        ?int $forcedBookingId = null,
+        array $allowedReviewTypes = ['service', 'partner', 'booking']
+    ): array {
+        $reviewType = trim((string) ($payload['review_type'] ?? 'service'));
+        if (!in_array($reviewType, $allowedReviewTypes, true)) {
+            return [
+                'status_code' => 422,
+                'body' => [
+                    'status' => 422,
+                    'message' => 'Invalid review_type.',
+                ],
+            ];
+        }
+
+        $bookingId = $forcedBookingId ?? (int) ($payload['booking_id'] ?? 0);
+        $serviceId = $reviewType === 'service' ? ($payload['service_id'] ?? null) : null;
+        $partnerId = $reviewType === 'partner' ? ($payload['partner_id'] ?? null) : null;
+
+        $reviewData = [
+            'review_type' => $reviewType,
+            'booking_id'  => $bookingId,
+            'service_id'  => $serviceId,
+            'partner_id'  => $partnerId,
+            'user_id'     => $customerId,
+            'title'       => $payload['title'] ?? null,
+            'rating'      => $payload['rating'] ?? null,
+            'review'      => $payload['review'] ?? null,
+            'is_verified' => isset($payload['is_verified']) ? (int) $payload['is_verified'] : 1,
+            'status'      => 'approved',
+        ];
+
+        if ($this->reviewsModel->hasDuplicateReview($reviewData)) {
+            return [
+                'status_code' => 409,
+                'body' => [
+                    'status'  => 409,
+                    'message' => 'Review already submitted for this booking and target.',
+                ],
+            ];
+        }
+
+        $this->db->transStart();
+
+        $reviewId = $this->reviewsModel->insert($reviewData, true);
+        if ($reviewId === false) {
+            $this->db->transRollback();
+
+            return [
+                'status_code' => 422,
+                'body' => [
+                    'status' => 422,
+                    'message' => 'Validation failed.',
+                    'errors' => $this->reviewsModel->errors(),
+                ],
+            ];
+        }
+
+        $aspects = $this->normalizeAspects($payload['aspects'] ?? []);
+        if (!empty($aspects) && !$this->reviewAspectsModel->replaceReviewAspects((int) $reviewId, $aspects)) {
+            $this->db->transRollback();
+
+            return [
+                'status_code' => 422,
+                'body' => [
+                    'status' => 422,
+                    'message' => 'Aspect validation failed.',
+                    'errors' => $this->reviewAspectsModel->errors(),
+                ],
+            ];
+        }
+
+        $mediaItems = $this->normalizeMedia($payload['media'] ?? []);
+        foreach ($mediaItems as $mediaItem) {
+            $mediaItem['review_id'] = $reviewId;
+            if ($this->reviewMediaModel->insert($mediaItem) === false) {
+                $this->db->transRollback();
+
+                return [
+                    'status_code' => 422,
+                    'body' => [
+                        'status' => 422,
+                        'message' => 'Review media validation failed.',
+                        'errors' => $this->reviewMediaModel->errors(),
+                    ],
+                ];
+            }
+        }
+
+        $this->db->transComplete();
+
+        if ($this->db->transStatus() === false) {
+            return [
+                'status_code' => 500,
+                'body' => [
+                    'status' => 500,
+                    'message' => 'Failed to save review.',
+                ],
+            ];
+        }
+
+        if (($reviewData['review_type'] ?? null) === 'service' && !empty($reviewData['service_id'])) {
+            $this->syncServiceSummary((int) $reviewData['service_id']);
+        }
+
+        return [
+            'status_code' => 201,
+            'body' => [
+                'status'    => 201,
+                'message'   => 'Review submitted successfully.',
+                'review_id' => (int) $reviewId,
+            ],
+            'review_id' => (int) $reviewId,
+        ];
+    }
+
+    private function reviewResultResponse(array $result)
+    {
+        $statusCode = (int) ($result['status_code'] ?? 500);
+        $body = $result['body'] ?? [
+            'status' => 500,
+            'message' => 'Unexpected review response.',
+        ];
+
+        if ($statusCode === 201) {
+            return $this->respondCreated($body);
+        }
+
+        return $this->respond($body, $statusCode);
+    }
+
+    private function updateCustomerReviewRecord(array $review, array $payload): array
+    {
+        $reviewId = (int) ($review['id'] ?? 0);
+        if ($reviewId <= 0) {
+            return [
+                'status_code' => 422,
+                'body' => [
+                    'status' => 422,
+                    'message' => 'Valid review_id is required.',
+                ],
+            ];
+        }
+
+        $updateData = [
+            'title'       => $payload['title'] ?? $review['title'] ?? null,
+            'rating'      => $payload['rating'] ?? $review['rating'] ?? null,
+            'review'      => $payload['review'] ?? $review['review'] ?? null,
+            'is_verified' => isset($payload['is_verified']) ? (int) $payload['is_verified'] : (int) ($review['is_verified'] ?? 1),
+            'status'      => $review['status'] ?? 'approved',
+        ];
+
+        $this->db->transStart();
+
+        if (!$this->reviewsModel->update($reviewId, $updateData)) {
+            $this->db->transRollback();
+
+            return [
+                'status_code' => 422,
+                'body' => [
+                    'status' => 422,
+                    'message' => 'Validation failed.',
+                    'errors' => $this->reviewsModel->errors(),
+                ],
+            ];
+        }
+
+        if (array_key_exists('aspects', $payload)) {
+            $aspects = $this->normalizeAspects($payload['aspects'] ?? []);
+            if (!$this->reviewAspectsModel->replaceReviewAspects($reviewId, $aspects)) {
+                $this->db->transRollback();
+
+                return [
+                    'status_code' => 422,
+                    'body' => [
+                        'status' => 422,
+                        'message' => 'Aspect validation failed.',
+                        'errors' => $this->reviewAspectsModel->errors(),
+                    ],
+                ];
+            }
+        }
+
+        if (array_key_exists('media', $payload)) {
+            $mediaItems = $this->normalizeMedia($payload['media'] ?? []);
+            $this->reviewMediaModel->where('review_id', $reviewId)->delete();
+
+            foreach ($mediaItems as $mediaItem) {
+                $mediaItem['review_id'] = $reviewId;
+                if ($this->reviewMediaModel->insert($mediaItem) === false) {
+                    $this->db->transRollback();
+
+                    return [
+                        'status_code' => 422,
+                        'body' => [
+                            'status' => 422,
+                            'message' => 'Review media validation failed.',
+                            'errors' => $this->reviewMediaModel->errors(),
+                        ],
+                    ];
+                }
+            }
+        }
+
+        $this->db->transComplete();
+
+        if ($this->db->transStatus() === false) {
+            return [
+                'status_code' => 500,
+                'body' => [
+                    'status' => 500,
+                    'message' => 'Failed to update review.',
+                ],
+            ];
+        }
+
+        if (($review['review_type'] ?? null) === 'service' && !empty($review['service_id'])) {
+            $this->syncServiceSummary((int) $review['service_id']);
+        }
+
+        return [
+            'status_code' => 200,
+            'body' => [
+                'status'    => 200,
+                'message'   => 'Review updated successfully.',
+                'review_id' => $reviewId,
+            ],
+            'review_id' => $reviewId,
+        ];
+    }
+
+    private function getBookingReviewServicesData(int $bookingId, int $customerId): array
+    {
+        $services = (new BookingServicesModel())
+            ->select('booking_services.service_id, services.name as service_name, services.image as service_image, services.slug as service_slug')
+            ->join('services', 'services.id = booking_services.service_id', 'left')
+            ->where('booking_services.booking_id', $bookingId)
+            ->where('booking_services.status !=', 'cancelled')
+            ->where('booking_services.service_id IS NOT NULL', null, false)
+            ->groupBy('booking_services.service_id, services.name, services.image, services.slug')
+            ->orderBy('services.name', 'ASC')
+            ->findAll();
+
+        $reviews = $this->reviewsModel
+            ->where('booking_id', $bookingId)
+            ->where('user_id', $customerId)
+            ->where('review_type', 'service')
+            ->findAll();
+
+        $reviewsByServiceId = [];
+        foreach ($reviews as $review) {
+            $serviceId = (int) ($review['service_id'] ?? 0);
+            if ($serviceId > 0) {
+                $reviewsByServiceId[$serviceId] = $review;
+            }
+        }
+
+        $data = [];
+        foreach ($services as $service) {
+            $serviceId = (int) ($service['service_id'] ?? 0);
+            $review = $reviewsByServiceId[$serviceId] ?? null;
+
+            $data[] = [
+                'booking_id' => $bookingId,
+                'service_id' => $serviceId,
+                'service_name' => $service['service_name'] ?? null,
+                'service_image' => $service['service_image'] ?? null,
+                'service_slug' => $service['service_slug'] ?? null,
+                'has_review' => $review !== null,
+                'can_add_review' => $review === null,
+                'can_update_review' => $review !== null,
+                'review' => $review ? [
+                    'review_id' => (int) $review['id'],
+                    'rating' => isset($review['rating']) ? (float) $review['rating'] : null,
+                    'title' => $review['title'] ?? null,
+                    'review' => $review['review'] ?? null,
+                    'status' => $review['status'] ?? null,
+                    'is_verified' => isset($review['is_verified']) ? (int) $review['is_verified'] : null,
+                    'media' => $this->reviewMediaModel->where('review_id', (int) $review['id'])->findAll(),
+                ] : null,
+            ];
+        }
+
+        return $data;
+    }
+
+    private function getBookingReviewData(int $bookingId, int $customerId): ?array
+    {
+        $review = $this->reviewsModel
+            ->where('booking_id', $bookingId)
+            ->where('user_id', $customerId)
+            ->where('review_type', 'booking')
+            ->orderBy('id', 'DESC')
+            ->first();
+
+        if (!$review) {
+            return null;
+        }
+
+        $reviewId = (int) $review['id'];
+
+        return [
+            'review_id' => $reviewId,
+            'rating' => isset($review['rating']) ? (float) $review['rating'] : null,
+            'title' => $review['title'] ?? null,
+            'review' => $review['review'] ?? null,
+            'status' => $review['status'] ?? null,
+            'is_verified' => isset($review['is_verified']) ? (int) $review['is_verified'] : null,
+            'aspects' => $this->reviewAspectsModel->where('review_id', $reviewId)->findAll(),
+            'media' => $this->reviewMediaModel->where('review_id', $reviewId)->findAll(),
+        ];
+    }
+
+    private function serviceBelongsToBooking(int $bookingId, int $serviceId): bool
+    {
+        return (new BookingServicesModel())
+            ->where('booking_id', $bookingId)
+            ->where('service_id', $serviceId)
+            ->where('status !=', 'cancelled')
+            ->countAllResults() > 0;
+    }
+
+    private function buildReviewSharePayload(array $resolved, string $submitApiUrl): array
+    {
+        $booking = $resolved['booking'];
+        $bookingId = (int) $booking['id'];
+        $customerId = (int) $resolved['link']['user_id'];
+
+        return [
+            'booking' => [
+                'booking_id' => $bookingId,
+                'booking_code' => $booking['booking_code'] ?? null,
+                'slot_date' => $booking['slot_date'] ?? null,
+                'status' => $booking['status'] ?? null,
+                'payment_status' => $booking['payment_status'] ?? null,
+                'customer_name' => $booking['customer_name'] ?? null,
+            ],
+            'booking_review' => $this->getBookingReviewData($bookingId, $customerId),
+            'services' => $this->getBookingReviewServicesData($bookingId, $customerId),
+            'expires_at' => $resolved['link']['expires_at'] ?? null,
+            'submit_api_url' => $submitApiUrl,
+        ];
+    }
+
+    private function submitResolvedReviewShareLink(array $resolved)
+    {
+        $payload = $this->getRequestData();
+        $bookingId = (int) $resolved['link']['booking_id'];
+        $customerId = (int) $resolved['link']['user_id'];
+        $reviewType = (string) ($payload['review_type'] ?? 'booking');
+
+        if (!in_array($reviewType, ['booking', 'service'], true)) {
+            return $this->respond([
+                'status' => 422,
+                'message' => 'review_type must be booking or service for a shared booking review link.',
+            ], 422);
+        }
+
+        $payload['booking_id'] = $bookingId;
+        $payload['review_type'] = $reviewType;
+
+        if ($reviewType === 'service') {
+            $serviceId = (int) ($payload['service_id'] ?? 0);
+            if ($serviceId <= 0 || !$this->serviceBelongsToBooking($bookingId, $serviceId)) {
+                return $this->respond([
+                    'status' => 422,
+                    'message' => 'Valid service_id for this booking is required.',
+                ], 422);
+            }
+        } else {
+            $payload['service_id'] = null;
+            $payload['partner_id'] = null;
+        }
+
+        $existingReview = $this->findExistingReviewForTarget($bookingId, $customerId, $reviewType, $payload);
+        if ($existingReview) {
+            $this->reviewShareLinkModel->update((int) $resolved['link']['id'], [
+                'used_at' => date('Y-m-d H:i:s'),
+            ]);
+
+            return $this->reviewResultResponse($this->updateCustomerReviewRecord($existingReview, $payload));
+        }
+
+        $result = $this->storeCustomerReview($payload, $customerId, $bookingId, ['booking', 'service']);
+
+        if (($result['status_code'] ?? 0) === 201) {
+            $this->reviewShareLinkModel->update((int) $resolved['link']['id'], [
+                'used_at' => date('Y-m-d H:i:s'),
+            ]);
+        }
+
+        return $this->reviewResultResponse($result);
+    }
+
+    private function findExistingReviewForTarget(int $bookingId, int $customerId, string $reviewType, array $payload): ?array
+    {
+        $builder = $this->reviewsModel
+            ->where('booking_id', $bookingId)
+            ->where('user_id', $customerId)
+            ->where('review_type', $reviewType);
+
+        if ($reviewType === 'service') {
+            $builder->where('service_id', (int) ($payload['service_id'] ?? 0));
+        }
+
+        return $builder->orderBy('id', 'DESC')->first() ?: null;
+    }
+
+    private function resolveReviewShareLinkByCode(string $code): array
+    {
+        $code = trim($code);
+        if (!preg_match('/^[A-Za-z0-9]{8,24}$/', $code)) {
+            return [
+                'error' => [
+                    'status' => 422,
+                    'body' => [
+                        'status' => 422,
+                        'message' => 'Invalid review link code.',
+                    ],
+                ],
+            ];
+        }
+
+        $link = $this->reviewShareLinkModel
+            ->where('code', $code)
+            ->first();
+
+        if (!$link) {
+            return [
+                'error' => [
+                    'status' => 404,
+                    'body' => [
+                        'status' => 404,
+                        'message' => 'Review link not found.',
+                    ],
+                ],
+            ];
+        }
+
+        return $this->resolveReviewShareLinkRecord($link);
+    }
+
+    private function resolveReviewShareLinkRecord(array $link): array
+    {
+        if (!empty($link['revoked_at'])) {
+            return [
+                'error' => [
+                    'status' => 410,
+                    'body' => [
+                        'status' => 410,
+                        'message' => 'This review link has been revoked.',
+                    ],
+                ],
+            ];
+        }
+
+        if (!empty($link['expires_at']) && strtotime((string) $link['expires_at']) < time()) {
+            return [
+                'error' => [
+                    'status' => 410,
+                    'body' => [
+                        'status' => 410,
+                        'message' => 'This review link has expired.',
+                    ],
+                ],
+            ];
+        }
+
+        $booking = (new BookingsModel())
+            ->select('bookings.id, bookings.booking_code, bookings.user_id, bookings.slot_date, bookings.status, bookings.payment_status, customers.name as customer_name')
+            ->join('customers', 'customers.id = bookings.user_id', 'left')
+            ->where('bookings.id', (int) $link['booking_id'])
+            ->first();
+
+        if (!$booking || (int) ($booking['user_id'] ?? 0) !== (int) $link['user_id']) {
+            return [
+                'error' => [
+                    'status' => 404,
+                    'body' => [
+                        'status' => 404,
+                        'message' => 'Booking for this review link was not found.',
+                    ],
+                ],
+            ];
+        }
+
+        return [
+            'link' => $link,
+            'booking' => $booking,
+        ];
+    }
+
+    private function buildReviewShareUrls(
+        string $token,
+        ?string $code = null,
+        ?string $frontendUrl = null,
+        ?string $deepLinkUrl = null
+    ): array {
+        $encodedCode = rawurlencode((string) ($code ?: $token));
+        $apiUrl = base_url('reviews/code/' . $encodedCode);
+        $submitApiUrl = $apiUrl;
+        $frontendUrl = trim((string) ($frontendUrl ?? getenv('FRONT_URL') ?: ''));
+        $deepLinkUrl = $this->buildReviewDeepLinkUrl($token, $code, $deepLinkUrl);
+
+        $reviewUrl = $frontendUrl !== ''
+            ? rtrim($frontendUrl, '/') . '/booking-review/' . $encodedCode
+            : $apiUrl;
+        $shortUrl = $frontendUrl !== ''
+            ? rtrim($frontendUrl, '/') . '/booking-review/' . $encodedCode
+            : $apiUrl;
+
+        return [
+            'review_url' => $reviewUrl,
+            'short_url' => $shortUrl,
+            'deep_link_url' => $deepLinkUrl,
+            'preferred_share_url' => $deepLinkUrl ?: $shortUrl,
+            'api_url' => $apiUrl,
+            'submit_api_url' => $submitApiUrl,
+        ];
+    }
+
+    private function buildReviewDeepLinkUrl(string $token, ?string $code = null, ?string $deepLinkUrl = null): ?string
+    {
+        $deepLinkUrl = trim((string) ($deepLinkUrl ?? getenv('REVIEW_DEEP_LINK_URL') ?: getenv('DEEP_LINK_URL') ?: ''));
+        if ($deepLinkUrl === '') {
+            return null;
+        }
+
+        $encodedToken = rawurlencode($token);
+        $encodedCode = rawurlencode((string) ($code ?: $token));
+        if (str_contains($deepLinkUrl, '{token}')) {
+            return str_replace('{token}', $encodedToken, $deepLinkUrl);
+        }
+
+        if (str_contains($deepLinkUrl, '{code}')) {
+            return str_replace('{code}', $encodedCode, $deepLinkUrl);
+        }
+
+        $separator = str_contains($deepLinkUrl, '?') ? '&' : '?';
+
+        return $deepLinkUrl . $separator . 'code=' . $encodedCode;
+    }
+
+    private function generateReviewLinkCode(): string
+    {
+        for ($attempt = 0; $attempt < 5; $attempt++) {
+            $code = bin2hex(random_bytes(8));
+            $exists = $this->reviewShareLinkModel
+                ->where('code', $code)
+                ->countAllResults() > 0;
+
+            if (!$exists) {
+                return $code;
+            }
+        }
+
+        throw new Exception('Unable to generate a unique review link code.');
+    }
+
     private function getRequestData(): array
     {
         $query = $this->request->getGet();
@@ -807,6 +1327,14 @@ class ReviewController extends BaseController
         $authUser = $this->getAuthUser();
 
         return (($authUser['aud'] ?? '') === 'Admin' && !empty($authUser['id']));
+    }
+
+    private function getAdminIdFromSession(): ?int
+    {
+        $authUser = $this->getAuthUser();
+        $adminId = (int) ($authUser['admin_id'] ?? $authUser['id'] ?? 0);
+
+        return $adminId > 0 ? $adminId : null;
     }
 
     private function normalizeAspects($aspects): array
