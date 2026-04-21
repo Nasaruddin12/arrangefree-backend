@@ -316,6 +316,95 @@ class ReviewController extends BaseController
         }
     }
 
+    public function adminListBookingReviewLinks($bookingId)
+    {
+        try {
+            if (!$this->isAdminSession()) {
+                return $this->respond(['status' => 401, 'message' => 'Unauthorized admin token.'], 401);
+            }
+
+            $bookingId = (int) $bookingId;
+            if ($bookingId <= 0) {
+                return $this->respond(['status' => 422, 'message' => 'Valid booking_id is required.'], 422);
+            }
+
+            $booking = (new BookingsModel())
+                ->select('bookings.id, bookings.booking_code, bookings.user_id, bookings.status, customers.name as customer_name')
+                ->join('customers', 'customers.id = bookings.user_id', 'left')
+                ->where('bookings.id', $bookingId)
+                ->first();
+
+            if (!$booking) {
+                return $this->respond(['status' => 404, 'message' => 'Booking not found.'], 404);
+            }
+
+            $payload = $this->getRequestData();
+            $links = $this->reviewShareLinkModel
+                ->select('review_share_links.*, admins.name as created_by_admin_name')
+                ->join('admins', 'admins.id = review_share_links.created_by_admin_id', 'left')
+                ->where('review_share_links.booking_id', $bookingId)
+                ->orderBy('review_share_links.id', 'DESC')
+                ->findAll();
+
+            $now = time();
+            $data = [];
+            foreach ($links as $link) {
+                $code = (string) ($link['code'] ?? '');
+                $urls = $this->buildReviewShareUrls(
+                    $code,
+                    $code,
+                    $payload['frontend_url'] ?? null,
+                    $payload['deep_link_url'] ?? null
+                );
+                $expiresAt = $link['expires_at'] ?? null;
+                $isExpired = !empty($expiresAt) && strtotime((string) $expiresAt) < $now;
+                $isRevoked = !empty($link['revoked_at']);
+
+                $data[] = [
+                    'id' => (int) $link['id'],
+                    'booking_id' => (int) $link['booking_id'],
+                    'booking_code' => $booking['booking_code'] ?? null,
+                    'customer_id' => (int) $link['user_id'],
+                    'customer_name' => $booking['customer_name'] ?? null,
+                    'code' => $code,
+                    'review_url' => $urls['review_url'],
+                    'short_url' => $urls['short_url'],
+                    'deep_link_url' => $urls['deep_link_url'],
+                    'preferred_share_url' => $urls['preferred_share_url'],
+                    'api_url' => $urls['api_url'],
+                    'submit_api_url' => $urls['submit_api_url'],
+                    'status' => $isRevoked ? 'revoked' : ($isExpired ? 'expired' : 'active'),
+                    'is_active' => !$isRevoked && !$isExpired,
+                    'expires_at' => $expiresAt,
+                    'used_at' => $link['used_at'] ?? null,
+                    'revoked_at' => $link['revoked_at'] ?? null,
+                    'created_by_admin_id' => isset($link['created_by_admin_id']) ? (int) $link['created_by_admin_id'] : null,
+                    'created_by_admin_name' => $link['created_by_admin_name'] ?? null,
+                    'created_at' => $link['created_at'] ?? null,
+                    'updated_at' => $link['updated_at'] ?? null,
+                ];
+            }
+
+            return $this->respond([
+                'status' => 200,
+                'booking' => [
+                    'booking_id' => $bookingId,
+                    'booking_code' => $booking['booking_code'] ?? null,
+                    'customer_id' => (int) ($booking['user_id'] ?? 0),
+                    'customer_name' => $booking['customer_name'] ?? null,
+                    'status' => $booking['status'] ?? null,
+                ],
+                'total' => count($data),
+                'data' => $data,
+            ], 200);
+        } catch (Exception $e) {
+            return $this->respond([
+                'status' => $e->getCode() ?: 500,
+                'message' => $e->getMessage(),
+            ], $e->getCode() ?: 500);
+        }
+    }
+
     public function publicReviewCode($code)
     {
         $resolved = $this->resolveReviewShareLinkByCode((string) $code);

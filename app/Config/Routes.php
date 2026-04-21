@@ -756,6 +756,7 @@ $routes->group('reviews', function ($routes) {
         $routes->get('booking/(:num)', 'ReviewController::getByBooking/$1');
         $routes->get('admin/service-summary', 'ReviewController::getAllServicesReviewSummary');
         $routes->post('customer/(:num)/vote', 'ReviewController::customerVote/$1');
+        $routes->get('admin/booking/(:num)/share-links', 'ReviewController::adminListBookingReviewLinks/$1');
         $routes->post('admin/booking/(:num)/share-link', 'ReviewController::adminCreateBookingReviewLink/$1');
         $routes->match(['get', 'post'], 'admin/list', 'ReviewController::adminList');
         $routes->get('admin/(:num)', 'ReviewController::adminShow/$1');
