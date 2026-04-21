@@ -37,6 +37,7 @@ class CouponController extends BaseController
                 'channel_partner' => json_encode($this->request->getVar('channel_partner')),
                 'area' => $this->request->getVar('area'),
                 'universal' => $this->request->getVar('universal'),
+                'customer_id' => $this->normalizeCustomerCouponId($this->request->getVar('customer_id')),
                 'coupon_type' => $this->request->getVar('coupon_type'),
                 'coupon_type_name' => $this->request->getVar('coupon_type_name'),
                 'coupon_name' => $this->request->getVar('coupon_name'),
@@ -119,6 +120,7 @@ class CouponController extends BaseController
                 'channel_partner' => json_encode($this->request->getVar('channel_partner')),
                 'area' => $this->request->getVar('area'),
                 'universal' => $this->request->getVar('universal'),
+                'customer_id' => $this->normalizeCustomerCouponId($this->request->getVar('customer_id')),
                 'coupon_type' => $this->request->getVar('coupon_type'),
                 'coupon_type_name' => $this->request->getVar('coupon_type_name'),
                 'coupon_name' => $this->request->getVar('coupon_name'),
@@ -204,90 +206,7 @@ class CouponController extends BaseController
         return $this->respond($response, $response['status']);
     }
 
-    public function applyCoupon()
-    {
-        try {
-            $couponModel = new CouponModel();
-            $couponCode = $this->request->getVar('coupon_code');
-            $cartAmount = $this->request->getVar('cart_amount');
-
-
-            if (!$this->request->hasHeader('token')) {
-                $statusCode = 403;
-                $response = [
-                    'message' => 'Access Denied',
-                ];
-                $response['status'] = $statusCode;
-                return $this->respond($response, $statusCode);
-            }
-
-            $token = $this->request->header('token');
-            $token = $token->getValue();
-            $key = getenv('JWT_SECRET');
-            $tokenData = JWT::decode($token, new Key($key, 'HS256'));
-            $customerID = $tokenData->customer_id;
-
-            $cartModel = new CartModel();
-            $cartProducts = $cartModel->select([
-                'af_cart.product_id AS product_id',
-                'af_cart.quantity AS quantity',
-                'af_products.actual_price AS actual_price',
-                // 'af_products.actual_price AS base_price',
-                'af_products.increase_percent AS increase_percent',
-                'af_products.discounted_percent AS discounted_percent',
-            ])->join('af_products', 'af_products.id = af_cart.product_id')->where('af_cart.customer_id', $customerID)->findAll();
-
-            helper('products');
-            $cartProducts = array_map('get_discounted_price', $cartProducts);
-            // print_r($cartProducts);
-            $cartAmount = array_sum(array_column($cartProducts, 'discounted_price'));
-            // echo $cartAmount;die;
-            $coupon = $couponModel->where('coupon_code', $couponCode)->first();
-            if (empty($coupon)) {
-                throw new \Exception('Invalid coupon code', 409);
-            }
-            $exp_date = explode(',', $coupon['coupon_expiry']);
-            $exp_date = $exp_date[1];
-            $exp_date = substr($exp_date, 2, strlen($exp_date) - 6);
-            // echo $exp_date;die;
-            $exp_date = new DateTime($exp_date);
-            $today = new DateTime('now');
-            // print_r($coupon['coupon_expiry']);die;
-
-
-
-            if ($cartAmount < $coupon['cart_minimum_amount']) {
-                throw new \Exception('Cart minimum amount shuld be ' . $coupon['cart_minimum_amount'] . ' more!', 409);
-            }
-
-            if ($exp_date < $today) {
-                throw new \Exception('The coupon has expired!', 409);
-            }
-
-            if ($coupon['coupon_used_count'] >= $coupon['coupon_use_limit']) {
-                throw new \Exception('The coupon used limit has exceeded!', 409);
-            }
-
-            // Get total coupon used count for the user.
-            $ordersModel = new OrdersModel();
-            $couponUsedCount = $ordersModel->where('coupon', $coupon['id'])->where('customer_id', $customerID)->countAllResults();
-            if ($coupon['coupon_per_user_limit'] <= $couponUsedCount) {
-                throw new Exception('The maximum individual limit is exceeded!', 409);
-            }
-            $response = [
-                'status' => 200,
-                'message' => 'Coupon applied successfully.',
-                'coupon' => $coupon,
-            ];
-        } catch (\Exception $e) {
-            $response = [
-                'status' => $e->getCode(),
-                'error' => $e->getMessage(),
-            ];
-        }
-
-        return $this->respond($response, $response['status']);
-    }
+    
     public function getActiveCoupons()
     {
         try {
@@ -298,6 +217,10 @@ class CouponController extends BaseController
             $activeCoupons = [];
 
             foreach ($coupons as $coupon) {
+                if (!empty($coupon['customer_id'])) {
+                    continue;
+                }
+
                 // Extract coupon expiry date
                 $exp_date_parts = explode(',', $coupon['coupon_expiry']);
                 if (isset($exp_date_parts[1])) {
@@ -384,5 +307,12 @@ class CouponController extends BaseController
                 'message' => 'Failed to apply coupon. Please try again.'
             ], 500);
         }
+    }
+
+    private function normalizeCustomerCouponId($customerId): ?int
+    {
+        $customerId = (int) $customerId;
+
+        return $customerId > 0 ? $customerId : null;
     }
 }

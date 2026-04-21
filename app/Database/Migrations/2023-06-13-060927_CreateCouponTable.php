@@ -35,6 +35,11 @@ class AfCoupon extends Migration
                 'type' => 'VARCHAR',
                 'constraint' => 255,
             ],
+            'customer_id' => [
+                'type' => 'INT',
+                'unsigned' => true,
+                'null' => true,
+            ],
             'coupon_type' => [
                 'type' => 'VARCHAR',
                 'constraint' => 255,

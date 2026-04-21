@@ -66,6 +66,16 @@ class CouponValidationService
             }
 
             // 4️⃣ Validate overall coupon usage limit
+            $couponCustomerId = (int) ($coupon['customer_id'] ?? 0);
+            if ($couponCustomerId > 0 && $couponCustomerId !== (int) $userId) {
+                return [
+                    'valid' => false,
+                    'message' => 'This coupon is not available for your account.',
+                    'coupon' => null,
+                    'discount' => 0
+                ];
+            }
+
             if ($coupon['coupon_use_limit'] > 0) {
                 $usedCount = $this->bookingsModel
                     ->where('applied_coupon', $couponCode)

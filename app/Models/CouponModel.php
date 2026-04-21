@@ -19,6 +19,7 @@ class CouponModel extends Model
         'channel_partner',
         'area',
         'universal',
+        'customer_id',
         'coupon_type',
         'coupon_type_name',
         'coupon_name',
